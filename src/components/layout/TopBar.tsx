@@ -39,8 +39,8 @@ export function TopBar() {
       className="flex items-center gap-4 px-5 flex-shrink-0"
       style={{
         height: 52,
-        background: '#1c1c22',
-        borderBottom: '1px solid #2a2a2e',
+        background: 'var(--bg-tertiary)',
+        borderBottom: '1px solid var(--border-color)',
       }}
     >
       {/* Session Name */}
@@ -56,7 +56,7 @@ export function TopBar() {
                 if (e.key === 'Enter') commitName()
                 if (e.key === 'Escape') { setNameInput(sessionName); setEditingName(false) }
               }}
-              className="bg-[#0d0d0f] border border-[#7f77dd]/60 rounded-md px-2.5 py-1 text-sm text-[#e8e8ef] outline-none font-medium"
+              className="bg-[var(--bg-primary)] border border-[#7f77dd]/60 rounded-md px-2.5 py-1 text-sm text-[var(--text-primary)] outline-none font-medium"
               style={{ minWidth: 180 }}
             />
             <button onClick={commitName} className="text-[#1d9e75]">
@@ -66,7 +66,7 @@ export function TopBar() {
         ) : (
           <button
             onClick={() => { setNameInput(sessionName); setEditingName(true) }}
-            className="text-sm font-semibold text-[#e8e8ef] hover:text-[#7f77dd] transition-colors truncate max-w-[200px]"
+            className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#7f77dd] transition-colors truncate max-w-[200px]"
             title="Click to rename session"
           >
             {sessionName}
@@ -82,13 +82,13 @@ export function TopBar() {
             'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
             agentRunning
               ? 'text-[#1d9e75] bg-[#1d9e75]/10 border-[#1d9e75]/30'
-              : 'text-[#6b6b78] bg-[#2a2a2e]/50 border-[#2a2a2e]'
+              : 'text-[var(--text-secondary)] bg-[var(--border-color)]/50 border-[var(--border-color)]'
           )}
         >
           <span
             className={clsx(
               'w-1.5 h-1.5 rounded-full',
-              agentRunning ? 'bg-[#1d9e75] animate-pulse-dot' : 'bg-[#6b6b78]'
+              agentRunning ? 'bg-[#1d9e75] animate-pulse-dot' : 'bg-[var(--text-secondary)]'
             )}
           />
           {agentRunning ? 'Running' : 'Ready'}
@@ -128,7 +128,7 @@ export function TopBar() {
 
         {/* Running swarm agents */}
         {runningCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#2a2a2e] text-[#9898a8]">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--border-color)] text-[var(--text-muted)]">
             <Activity size={11} className="text-[#7f77dd]" />
             {runningCount} agent{runningCount !== 1 ? 's' : ''} active
           </span>
@@ -137,7 +137,7 @@ export function TopBar() {
 
       {/* Right: Permission + Usage */}
       <div className="flex items-center gap-2.5">
-        <div className="text-xs text-[#6b6b78] font-mono tabular-nums">
+        <div className="text-xs text-[var(--text-secondary)] font-mono tabular-nums">
           {totalTokens > 0
             ? `${(totalTokens / 1000).toFixed(1)}k tokens`
             : '0 tokens'

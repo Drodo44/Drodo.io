@@ -37,7 +37,7 @@ function StepDots({ step, total }: { step: number; total: number }) {
           style={{
             width: i === step ? 20 : 8,
             height: 8,
-            background: i === step ? '#7f77dd' : i < step ? '#7f77dd60' : '#2a2a2e',
+            background: i === step ? '#7f77dd' : i < step ? '#7f77dd60' : 'var(--border-color)',
           }}
         />
       ))}
@@ -111,7 +111,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   return (
     <div
       className="flex-1 flex flex-col items-center justify-center px-6 py-10"
-      style={{ background: '#0d0d0f' }}
+      style={{ background: 'var(--bg-primary)' }}
     >
       {/* Step dots */}
       <div className="mb-8">
@@ -128,10 +128,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             <Logo size={48} />
           </div>
           <div>
-            <h1 style={{ fontSize: 36, fontWeight: 800, color: '#e8e8ef', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
               Welcome to Drodo.
             </h1>
-            <p className="mt-4 text-base text-[#9898a8] leading-relaxed">
+            <p className="mt-4 text-base text-[var(--text-muted)] leading-relaxed">
               The AI agent platform built for everyone. Connect any model, deploy any agent,
               automate anything — no technical knowledge required.
             </p>
@@ -151,10 +151,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       {step === 1 && (
         <div className="flex flex-col gap-6" style={{ width: '100%', maxWidth: 560 }}>
           <div className="text-center">
-            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#e8e8ef', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               Connect an AI model
             </h2>
-            <p className="mt-2 text-sm text-[#9898a8]">
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               Drodo works with any AI provider. Use your own API key — your data never touches our servers.
             </p>
           </div>
@@ -165,7 +165,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               <button
                 key={p.id}
                 onClick={() => setProviderHubOpen(true)}
-                className="flex items-center gap-3 p-3.5 rounded-xl border border-[#2a2a2e] bg-[#141418] hover:border-[#3a3a42] transition-all duration-200 text-left"
+                className="flex items-center gap-3 p-3.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200 text-left"
               >
                 <div
                   className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
@@ -174,8 +174,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                   {p.initials}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-[#e8e8ef] truncate">{p.name}</div>
-                  <div className="text-xs text-[#6b6b78] truncate">{p.desc}</div>
+                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">{p.name}</div>
+                  <div className="text-xs text-[var(--text-secondary)] truncate">{p.desc}</div>
                 </div>
               </button>
             ))}
@@ -197,7 +197,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           <div className="flex items-center justify-between">
             <button
               onClick={() => setStep(2)}
-              className="text-xs text-[#6b6b78] hover:text-[#9898a8] transition-colors underline"
+              className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors underline"
             >
               I'll do this later →
             </button>
@@ -221,10 +221,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       {step === 2 && (
         <div className="flex flex-col gap-5" style={{ width: '100%', maxWidth: 600 }}>
           <div className="text-center">
-            <h2 style={{ fontSize: 26, fontWeight: 800, color: '#e8e8ef', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               What do you want to accomplish?
             </h2>
-            <p className="mt-2 text-sm text-[#9898a8]">
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
               Pick a starting point. You can always change this later.
             </p>
           </div>
@@ -240,8 +240,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                   onClick={() => setSelectedTemplate(isSelected ? null : t.id)}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-150 text-center"
                   style={{
-                    background: isSelected ? t.color + '12' : '#141418',
-                    borderColor: isSelected ? t.color + '50' : '#2a2a2e',
+                    background: isSelected ? t.color + '12' : 'var(--bg-secondary)',
+                    borderColor: isSelected ? t.color + '50' : 'var(--border-color)',
                   }}
                 >
                   <div
@@ -251,8 +251,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                     <Icon size={18} />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-[#e8e8ef] leading-tight">{t.name}</div>
-                    <div className="text-xs text-[#6b6b78] mt-0.5 leading-tight">{t.desc}</div>
+                    <div className="text-xs font-semibold text-[var(--text-primary)] leading-tight">{t.name}</div>
+                    <div className="text-xs text-[var(--text-secondary)] mt-0.5 leading-tight">{t.desc}</div>
                   </div>
                 </button>
               )
@@ -262,7 +262,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           <div className="flex items-center justify-between">
             <button
               onClick={finish}
-              className="text-xs text-[#6b6b78] hover:text-[#9898a8] transition-colors underline"
+              className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors underline"
             >
               Start with a blank agent →
             </button>
@@ -288,10 +288,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             <CheckCircle2 size={40} style={{ color: '#1d9e75' }} />
           </div>
           <div>
-            <h2 style={{ fontSize: 32, fontWeight: 800, color: '#e8e8ef', letterSpacing: '-0.03em' }}>
+            <h2 style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
               You're all set.
             </h2>
-            <p className="mt-3 text-base text-[#9898a8] leading-relaxed">
+            <p className="mt-3 text-base text-[var(--text-muted)] leading-relaxed">
               Your agent is ready. Start a conversation, explore templates, or connect more models anytime.
             </p>
           </div>

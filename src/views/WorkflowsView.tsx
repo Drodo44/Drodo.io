@@ -331,7 +331,7 @@ function statusIcon(status: StepRunStatus) {
   if (status === 'running') return <Loader2 size={12} className="text-[#7f77dd] animate-spin" />
   if (status === 'complete') return <Check size={12} className="text-[#1d9e75]" />
   if (status === 'error') return <X size={12} className="text-[#e05050]" />
-  return <Circle size={10} className="text-[#6b6b78] fill-current" />
+  return <Circle size={10} className="text-[var(--text-secondary)] fill-current" />
 }
 
 function RunCard({ run }: { run: WorkflowRun }) {
@@ -339,23 +339,23 @@ function RunCard({ run }: { run: WorkflowRun }) {
 
   const statusColor =
     run.status === 'complete' ? '#1d9e75' :
-    run.status === 'error' ? '#e05050' : '#9898a8'
+    run.status === 'error' ? '#e05050' : 'var(--text-muted)'
   const statusBg =
     run.status === 'complete' ? '#1d9e7515' :
-    run.status === 'error' ? '#e0505015' : '#9898a815'
+    run.status === 'error' ? '#e0505015' : 'var(--text-muted)15'
   const statusBorder =
     run.status === 'complete' ? '#1d9e7530' :
-    run.status === 'error' ? '#e0505030' : '#9898a830'
+    run.status === 'error' ? '#e0505030' : 'var(--text-muted)30'
 
   return (
     <div
-      className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden cursor-pointer hover:border-[#3a3a42] transition-colors"
+      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-hidden cursor-pointer hover:border-[var(--border-color)] transition-colors"
       onClick={() => setExpanded(current => !current)}
     >
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium text-[#e8e8ef] truncate">{run.workflowName}</span>
+            <span className="text-sm font-medium text-[var(--text-primary)] truncate">{run.workflowName}</span>
             <span
               className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
               style={{ color: statusColor, background: statusBg, border: `1px solid ${statusBorder}` }}
@@ -364,24 +364,24 @@ function RunCard({ run }: { run: WorkflowRun }) {
             </span>
           </div>
           <div className="flex items-center gap-3 mt-0.5">
-            <span className="text-xs text-[#6b6b78]">{fmtRelative(run.startedAt)}</span>
-            <span className="text-xs text-[#6b6b78]">{fmtDuration(run.durationMs)}</span>
+            <span className="text-xs text-[var(--text-secondary)]">{fmtRelative(run.startedAt)}</span>
+            <span className="text-xs text-[var(--text-secondary)]">{fmtDuration(run.durationMs)}</span>
           </div>
           {!expanded && run.output && (
-            <p className="text-xs text-[#9898a8] mt-1 line-clamp-1 font-mono">
+            <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-1 font-mono">
               {run.output.slice(0, 120)}
             </p>
           )}
         </div>
         <ChevronDown
           size={14}
-          className="flex-shrink-0 text-[#6b6b78] transition-transform"
+          className="flex-shrink-0 text-[var(--text-secondary)] transition-transform"
           style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
         />
       </div>
       {expanded && run.output && (
         <div className="px-4 pb-4" onClick={event => event.stopPropagation()}>
-          <div className="bg-[#0d0d0f] border border-[#2a2a2e] rounded-xl px-4 py-3 text-xs text-[#d6d6de] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
+          <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
             {run.output}
           </div>
         </div>
@@ -747,25 +747,25 @@ export function WorkflowsView() {
   const showOutputPanel = workflowRunning || stepRuns.length > 0
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <div
         className="flex items-center justify-between px-6 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#6366f122' }}>
             <GitBranch size={18} style={{ color: '#6366f1' }} />
           </div>
           <div>
-            <h1 className="font-bold text-[#e8e8ef] text-lg">Workflows</h1>
-            <p className="text-xs text-[#6b6b78]">
+            <h1 className="font-bold text-[var(--text-primary)] text-lg">Workflows</h1>
+            <p className="text-xs text-[var(--text-secondary)]">
               {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(runs.length, 'run')}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-[#2a2a2e] overflow-hidden" style={{ background: '#0d0d0f' }}>
+          <div className="flex rounded-xl border border-[var(--border-color)] overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
             {([
               { key: 'workflows' as const, label: 'Workflows', Icon: GitBranch },
               { key: 'builder' as const, label: 'Builder', Icon: Plus },
@@ -775,7 +775,7 @@ export function WorkflowsView() {
                 key={key}
                 onClick={() => setTab(key)}
                 className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold transition-colors"
-                style={tab === key ? { background: '#7f77dd', color: '#fff' } : { color: '#9898a8' }}
+                style={tab === key ? { background: '#7f77dd', color: '#fff' } : { color: 'var(--text-muted)' }}
               >
                 <Icon size={12} />
                 {label}
@@ -798,9 +798,9 @@ export function WorkflowsView() {
 
       {tab === 'workflows' && (
         <div className="flex-1 min-h-0 grid" style={{ gridTemplateColumns: '260px 1fr' }}>
-          <div className="border-r border-[#2a2a2e] overflow-y-auto p-3 space-y-1">
+          <div className="border-r border-[var(--border-color)] overflow-y-auto p-3 space-y-1">
             {workflows.length === 0 && (
-              <p className="text-xs text-[#6b6b78] px-2 py-3">
+              <p className="text-xs text-[var(--text-secondary)] px-2 py-3">
                 No workflows yet. Click &ldquo;New&rdquo; to create one.
               </p>
             )}
@@ -811,8 +811,8 @@ export function WorkflowsView() {
                 className={clsx(
                   'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition-colors group',
                   selectedId === workflow.id
-                    ? 'bg-[#7f77dd]/12 text-[#e8e8ef]'
-                    : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
+                    ? 'bg-[#7f77dd]/12 text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                 )}
               >
                 <GitBranch
@@ -827,23 +827,23 @@ export function WorkflowsView() {
 
           {selectedWorkflow ? (
             <div className="flex flex-col min-h-0 overflow-hidden">
-              <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#2a2a2e] bg-[#0f0f12]">
+              <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
                 <div>
-                  <h2 className="text-sm font-semibold text-[#e8e8ef]">{selectedWorkflow.name || 'Untitled Workflow'}</h2>
-                  <p className="text-xs text-[#6b6b78] mt-1">
+                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">{selectedWorkflow.name || 'Untitled Workflow'}</h2>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {getWorkflowCountLabel(selectedWorkflow.steps.length, 'step')} · updated {fmtTimestamp(selectedWorkflow.updatedAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setTab('builder')}
-                    className="rounded-lg bg-[#1c1c22] px-3 py-1.5 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] hover:bg-[#252529]"
+                    className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
                   >
                     Open Builder
                   </button>
                   <button
                     onClick={() => handleDeleteWorkflow(selectedWorkflow.id)}
-                    className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                    className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
                     title="Delete workflow"
                   >
                     <Trash2 size={14} />
@@ -853,35 +853,35 @@ export function WorkflowsView() {
 
               <div className="flex-1 overflow-y-auto p-5 space-y-5">
                 <div className="grid gap-4 md:grid-cols-3">
-                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Created</div>
-                    <div className="mt-2 text-sm text-[#e8e8ef]">{fmtTimestamp(selectedWorkflow.createdAt)}</div>
+                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Created</div>
+                    <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.createdAt)}</div>
                   </div>
-                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Updated</div>
-                    <div className="mt-2 text-sm text-[#e8e8ef]">{fmtTimestamp(selectedWorkflow.updatedAt)}</div>
+                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Updated</div>
+                    <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.updatedAt)}</div>
                   </div>
-                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Steps</div>
-                    <div className="mt-2 text-sm text-[#e8e8ef]">{selectedWorkflow.steps.length}</div>
+                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Steps</div>
+                    <div className="mt-2 text-sm text-[var(--text-primary)]">{selectedWorkflow.steps.length}</div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   {selectedWorkflow.steps.length === 0 ? (
-                    <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-6 text-sm text-[#9898a8]">
+                    <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6 text-sm text-[var(--text-muted)]">
                       This workflow does not have any steps yet. Open it in Builder to add them.
                     </div>
                   ) : (
                     selectedWorkflow.steps.map((step, index) => (
-                      <div key={step.stepId} className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
+                      <div key={step.stepId} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6b6b78]">
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
                                 Step {index + 1}
                               </span>
-                              <span className="text-sm font-semibold text-[#e8e8ef]">
+                              <span className="text-sm font-semibold text-[var(--text-primary)]">
                                 {step.label.trim() || 'Untitled Step'}
                               </span>
                               <span
@@ -891,9 +891,9 @@ export function WorkflowsView() {
                                 {providerBadge(savedProviders, step.model)}
                               </span>
                             </div>
-                            <p className="mt-2 text-xs leading-relaxed text-[#9898a8]">{promptPreview(step.prompt)}</p>
+                            <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">{promptPreview(step.prompt)}</p>
                           </div>
-                          <div className="text-right text-xs text-[#6b6b78]">
+                          <div className="text-right text-xs text-[var(--text-secondary)]">
                             <div>{step.outputVar || 'No output var'}</div>
                             {step.useOutputFrom && <div className="mt-1">uses {step.useOutputFrom}</div>}
                           </div>
@@ -913,7 +913,7 @@ export function WorkflowsView() {
                 >
                   <GitBranch size={22} style={{ color: '#6366f1' }} />
                 </div>
-                <p className="text-sm text-[#9898a8]">Select or create a workflow</p>
+                <p className="text-sm text-[var(--text-muted)]">Select or create a workflow</p>
               </div>
             </div>
           )}
@@ -928,17 +928,17 @@ export function WorkflowsView() {
           {draft ? (
             <>
               <div className="flex flex-col min-h-0 overflow-hidden">
-                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#2a2a2e] bg-[#0f0f12]">
+                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <input
                       value={draft.name}
                       onChange={event => updateDraft(current => ({ ...current, name: event.target.value }))}
-                      className="flex-1 bg-transparent text-[#e8e8ef] font-semibold text-sm outline-none border border-transparent rounded-lg px-2 py-1 hover:border-[#2a2a2e] focus:border-[#7f77dd]/60 transition-colors"
+                      className="flex-1 bg-transparent text-[var(--text-primary)] font-semibold text-sm outline-none border border-transparent rounded-lg px-2 py-1 hover:border-[var(--border-color)] focus:border-[#7f77dd]/60 transition-colors"
                       placeholder="Workflow name"
                     />
                     <button
                       onClick={handleSave}
-                      className="rounded-lg bg-[#1c1c22] px-3 py-1.5 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] hover:bg-[#252529]"
+                      className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
                     >
                       Save Workflow
                     </button>
@@ -976,8 +976,8 @@ export function WorkflowsView() {
                   )}
 
                   {draft.steps.length === 0 ? (
-                    <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-6 text-center">
-                      <p className="text-sm text-[#9898a8]">No steps yet. Add one to start building this workflow.</p>
+                    <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6 text-center">
+                      <p className="text-sm text-[var(--text-muted)]">No steps yet. Add one to start building this workflow.</p>
                     </div>
                   ) : (
                     draft.steps.map((step, index) => {
@@ -990,7 +990,7 @@ export function WorkflowsView() {
                       return (
                         <div
                           key={step.stepId}
-                          className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden"
+                          className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-hidden"
                         >
                           <button
                             onClick={() => toggleStepExpanded(step.stepId)}
@@ -999,10 +999,10 @@ export function WorkflowsView() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6b6b78]">
+                                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
                                     Step {index + 1}
                                   </span>
-                                  <span className="text-sm font-semibold text-[#e8e8ef]">
+                                  <span className="text-sm font-semibold text-[var(--text-primary)]">
                                     {step.label.trim() || 'Untitled Step'}
                                   </span>
                                   <span
@@ -1012,8 +1012,8 @@ export function WorkflowsView() {
                                     {providerBadge(savedProviders, step.model)}
                                   </span>
                                 </div>
-                                <p className="mt-2 text-xs leading-relaxed text-[#9898a8]">{promptPreview(step.prompt)}</p>
-                                <div className="mt-3 flex items-center gap-3 text-xs text-[#6b6b78]">
+                                <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">{promptPreview(step.prompt)}</p>
+                                <div className="mt-3 flex items-center gap-3 text-xs text-[var(--text-secondary)]">
                                   <span>output: {step.outputVar || 'unset'}</span>
                                   {step.useOutputFrom && <span>context: {step.useOutputFrom}</span>}
                                 </div>
@@ -1023,7 +1023,7 @@ export function WorkflowsView() {
                                 <button
                                   onClick={() => moveStep(step.stepId, -1)}
                                   disabled={index === 0}
-                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e8e8ef] disabled:opacity-30 disabled:cursor-not-allowed"
+                                  className="rounded-lg border border-[var(--border-color)] p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
                                   aria-label={`Move ${step.label || `step ${index + 1}`} up`}
                                 >
                                   <ArrowUp size={14} />
@@ -1031,14 +1031,14 @@ export function WorkflowsView() {
                                 <button
                                   onClick={() => moveStep(step.stepId, 1)}
                                   disabled={index === draft.steps.length - 1}
-                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e8e8ef] disabled:opacity-30 disabled:cursor-not-allowed"
+                                  className="rounded-lg border border-[var(--border-color)] p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
                                   aria-label={`Move ${step.label || `step ${index + 1}`} down`}
                                 >
                                   <ArrowDown size={14} />
                                 </button>
                                 <button
                                   onClick={() => deleteStep(step.stepId)}
-                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e05050]"
+                                  className="rounded-lg border border-[var(--border-color)] p-2 text-[var(--text-secondary)] transition-colors hover:text-[#e05050]"
                                   aria-label={`Delete ${step.label || `step ${index + 1}`}`}
                                 >
                                   <Trash2 size={14} />
@@ -1048,21 +1048,21 @@ export function WorkflowsView() {
                           </button>
 
                           {isExpanded && (
-                            <div className="border-t border-[#2a2a2e] px-4 py-4 space-y-4">
+                            <div className="border-t border-[var(--border-color)] px-4 py-4 space-y-4">
                               <div>
-                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-2">
                                   Label
                                 </label>
                                 <input
                                   value={step.label}
                                   onChange={event => updateStep(step.stepId, { label: event.target.value })}
                                   placeholder="Research Phase"
-                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                                  className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
                                 />
                               </div>
 
                               <div>
-                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-2">
                                   Prompt
                                 </label>
                                 <textarea
@@ -1070,20 +1070,20 @@ export function WorkflowsView() {
                                   onChange={event => updateStep(step.stepId, { prompt: event.target.value })}
                                   rows={6}
                                   placeholder="Tell the model what this step should do."
-                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 resize-none font-mono leading-relaxed transition-colors"
+                                  className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 resize-none font-mono leading-relaxed transition-colors"
                                 />
                               </div>
 
                               <div className="grid gap-4 md:grid-cols-2">
                                 <div>
-                                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                  <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-2">
                                     Model
                                   </label>
                                   {savedProviders.length > 0 ? (
                                     <select
                                       value={step.model}
                                       onChange={event => updateStep(step.stepId, { model: event.target.value })}
-                                      className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
+                                      className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
                                       style={{ colorScheme: 'dark' }}
                                     >
                                       {savedProviders.map(provider => (
@@ -1100,26 +1100,26 @@ export function WorkflowsView() {
                                 </div>
 
                                 <div>
-                                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                  <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-2">
                                     Output Variable
                                   </label>
                                   <input
                                     value={step.outputVar}
                                     onChange={event => updateStep(step.stepId, { outputVar: event.target.value })}
                                     placeholder="step1_output"
-                                    className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                                    className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
                                   />
                                 </div>
                               </div>
 
                               <div>
-                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-[0.1em] mb-2">
                                   Use Output From
                                 </label>
                                 <select
                                   value={step.useOutputFrom || ''}
                                   onChange={event => updateStep(step.stepId, { useOutputFrom: event.target.value })}
-                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
+                                  className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
                                   style={{ colorScheme: 'dark' }}
                                 >
                                   <option value="">No injected context</option>
@@ -1139,7 +1139,7 @@ export function WorkflowsView() {
 
                   <button
                     onClick={addStep}
-                    className="w-full rounded-xl border border-dashed border-[#2a2a2e] px-4 py-3 text-sm font-medium text-[#9898a8] transition-colors hover:border-[#7f77dd]/40 hover:text-[#e8e8ef]"
+                    className="w-full rounded-xl border border-dashed border-[var(--border-color)] px-4 py-3 text-sm font-medium text-[var(--text-muted)] transition-colors hover:border-[#7f77dd]/40 hover:text-[var(--text-primary)]"
                   >
                     <span className="inline-flex items-center gap-2">
                       <Plus size={14} />
@@ -1150,11 +1150,11 @@ export function WorkflowsView() {
               </div>
 
               {showOutputPanel && (
-                <div className="border-l border-[#2a2a2e] bg-[#0f0f12] flex flex-col min-h-0">
-                  <div className="flex items-center justify-between gap-3 px-4 py-4 border-b border-[#2a2a2e]">
+                <div className="border-l border-[var(--border-color)] bg-[var(--bg-primary)] flex flex-col min-h-0">
+                  <div className="flex items-center justify-between gap-3 px-4 py-4 border-b border-[var(--border-color)]">
                     <div>
-                      <h3 className="text-sm font-semibold text-[#e8e8ef]">Live Output</h3>
-                      <p className="text-xs text-[#6b6b78]">
+                      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Live Output</h3>
+                      <p className="text-xs text-[var(--text-secondary)]">
                         {workflowRunning ? 'Streaming step outputs…' : 'Latest workflow output'}
                       </p>
                     </div>
@@ -1164,7 +1164,7 @@ export function WorkflowsView() {
                         void navigator.clipboard.writeText(combinedOutput).catch(() => {})
                       }}
                       disabled={!combinedOutput.trim()}
-                      className="inline-flex items-center gap-2 rounded-lg border border-[#2a2a2e] px-3 py-2 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Copy size={12} />
                       Copy All Output
@@ -1173,7 +1173,7 @@ export function WorkflowsView() {
 
                   <div className="flex-1 overflow-y-auto p-4 space-y-3">
                     {stepRuns.map(stepRun => (
-                      <div key={stepRun.stepId} className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden">
+                      <div key={stepRun.stepId} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-hidden">
                         <button
                           onClick={() =>
                             setExpandedOutputs(current => ({
@@ -1185,23 +1185,23 @@ export function WorkflowsView() {
                         >
                           {statusIcon(stepRun.status)}
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-[#e8e8ef]">{stepRun.label}</div>
-                            <div className="text-xs text-[#6b6b78] mt-0.5">
+                            <div className="text-sm font-medium text-[var(--text-primary)]">{stepRun.label}</div>
+                            <div className="text-xs text-[var(--text-secondary)] mt-0.5">
                               {stepRun.outputVar || 'No output variable'}
                             </div>
                           </div>
                           <ChevronDown
                             size={14}
-                            className="text-[#6b6b78] transition-transform"
+                            className="text-[var(--text-secondary)] transition-transform"
                             style={{ transform: expandedOutputs[stepRun.stepId] ? 'rotate(180deg)' : 'rotate(0deg)' }}
                           />
                         </button>
 
                         {expandedOutputs[stepRun.stepId] && (
                           <div className="px-4 pb-4">
-                            <div className="rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-xs text-[#d6d6de] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
+                            <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-3 text-xs text-[var(--text-primary)] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
                               {stepRun.output || stepRun.error || (
-                                <span className="text-[#6b6b78]">No output yet.</span>
+                                <span className="text-[var(--text-secondary)]">No output yet.</span>
                               )}
                             </div>
                           </div>
@@ -1221,7 +1221,7 @@ export function WorkflowsView() {
                 >
                   <GitBranch size={22} style={{ color: '#6366f1' }} />
                 </div>
-                <p className="text-sm text-[#9898a8]">Select or create a workflow to open the builder.</p>
+                <p className="text-sm text-[var(--text-muted)]">Select or create a workflow to open the builder.</p>
               </div>
             </div>
           )}
@@ -1235,17 +1235,17 @@ export function WorkflowsView() {
               <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#6366f122' }}>
                 <History size={22} style={{ color: '#6366f1' }} />
               </div>
-              <p className="text-sm text-[#9898a8]">No runs yet</p>
-              <p className="text-xs text-[#6b6b78]">Run a workflow to see history here.</p>
+              <p className="text-sm text-[var(--text-muted)]">No runs yet</p>
+              <p className="text-xs text-[var(--text-secondary)]">Run a workflow to see history here.</p>
             </div>
           ) : (
             <div style={{ maxWidth: 720 }}>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-xs text-[#6b6b78]">{getWorkflowCountLabel(runs.length, 'run')} total</p>
+                <p className="text-xs text-[var(--text-secondary)]">{getWorkflowCountLabel(runs.length, 'run')} total</p>
                 {!clearConfirm ? (
                   <button
                     onClick={() => setClearConfirm(true)}
-                    className="text-xs text-[#6b6b78] hover:text-[#e05050] transition-colors"
+                    className="text-xs text-[var(--text-secondary)] hover:text-[#e05050] transition-colors"
                   >
                     Clear history
                   </button>
@@ -1254,7 +1254,7 @@ export function WorkflowsView() {
                     <span className="text-[#e05050]">Clear all runs?</span>
                     <button
                       onClick={() => setClearConfirm(false)}
-                      className="text-[#6b6b78] hover:text-[#9898a8] transition-colors"
+                      className="text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors"
                     >
                       Cancel
                     </button>

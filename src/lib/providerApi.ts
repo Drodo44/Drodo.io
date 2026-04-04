@@ -24,7 +24,7 @@ export const PROVIDER_CATALOG: Provider[] = [
   { id: 'huggingface', name: 'Hugging Face', baseUrl: 'api-inference.huggingface.co', color: '#ffd21e', initials: 'HF', model: 'HuggingFaceH4/zephyr-7b-beta' },
   { id: 'ollama', name: 'Ollama', baseUrl: 'localhost:11434/v1', color: '#7f77dd', initials: 'OL', isLocal: true, model: 'llama3.2' },
   { id: 'lmstudio', name: 'LM Studio', baseUrl: 'localhost:1234/v1', color: '#8b5cf6', initials: 'LM', isLocal: true, model: 'local-model' },
-  { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: '#6b6b78', initials: 'CU' },
+  { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: 'var(--text-secondary)', initials: 'CU' },
 ]
 
 const CUSTOM_PROVIDERS_KEY = 'drodo_custom_providers'

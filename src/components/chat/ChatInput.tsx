@@ -79,8 +79,8 @@ export function ChatInput() {
       <div
         className="rounded-xl border transition-all duration-200"
         style={{
-          background: '#1c1c22',
-          borderColor: value ? '#7f77dd66' : agentRunning ? '#1d9e7540' : '#2a2a2e',
+          background: 'var(--bg-tertiary)',
+          borderColor: value ? '#7f77dd66' : agentRunning ? '#1d9e7540' : 'var(--border-color)',
           boxShadow: value ? '0 0 0 1px rgba(127,119,221,0.15)' : 'none',
         }}
       >
@@ -94,7 +94,7 @@ export function ChatInput() {
           disabled={agentRunning}
           rows={1}
           className={clsx(
-            'w-full bg-transparent px-4 pt-3 pb-2 text-sm text-[#e8e8ef] placeholder-[#6b6b78] resize-none outline-none',
+            'w-full bg-transparent px-4 pt-3 pb-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] resize-none outline-none',
             agentRunning && 'opacity-60 cursor-not-allowed'
           )}
           style={{ maxHeight: 120, minHeight: 44 }}
@@ -103,10 +103,10 @@ export function ChatInput() {
         {/* Toolbar */}
         <div className="flex items-center justify-between px-3 pb-2.5 gap-2">
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#9898a8] hover:bg-[#2a2a2e] transition-colors">
+            <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
               <Paperclip size={15} />
             </button>
-            <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#9898a8] hover:bg-[#2a2a2e] transition-colors">
+            <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
               <Code2 size={15} />
             </button>
           </div>
@@ -119,7 +119,7 @@ export function ChatInput() {
                 'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all duration-200',
                 autonomousMode
                   ? 'bg-[#7f77dd]/15 border-[#7f77dd]/40 text-[#a09ae8]'
-                  : 'bg-transparent border-[#2a2a2e] text-[#6b6b78] hover:border-[#3a3a42] hover:text-[#9898a8]'
+                  : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-color)] hover:text-[var(--text-muted)]'
               )}
               title={autonomousMode ? 'Autonomous mode ON — agent will continue until task is done' : 'Enable autonomous mode'}
             >
@@ -148,7 +148,7 @@ export function ChatInput() {
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
                   value.trim()
                     ? 'bg-[#7f77dd] text-white hover:bg-[#6a63c8] shadow-[0_2px_8px_rgba(127,119,221,0.3)]'
-                    : 'bg-[#2a2a2e] text-[#6b6b78] cursor-not-allowed'
+                    : 'bg-[var(--border-color)] text-[var(--text-secondary)] cursor-not-allowed'
                 )}
               >
                 <Send size={13} />
@@ -160,7 +160,7 @@ export function ChatInput() {
       </div>
 
       <div className="text-center mt-2">
-        <span className="text-xs text-[#6b6b78]">
+        <span className="text-xs text-[var(--text-secondary)]">
           Ctrl+Enter to send
           {autonomousMode && ' · Autonomous mode active — agent will self-continue'}
         </span>

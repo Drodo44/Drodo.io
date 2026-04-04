@@ -22,7 +22,7 @@ export function ChatPanel() {
   }, [messages])
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 min-h-0" style={{ background: '#0d0d0f' }}>
+    <div className="flex flex-col flex-1 min-w-0 min-h-0" style={{ background: 'var(--bg-primary)' }}>
       {/* Messages scroll area */}
       <div className="flex-1 overflow-y-auto px-6 py-4" style={{ scrollbarGutter: 'stable' }}>
         {messages.map((msg, i) => (
@@ -44,7 +44,7 @@ export function ChatPanel() {
             </div>
             <div
               className="px-4 py-3 rounded-2xl rounded-tl-sm border text-sm leading-relaxed"
-              style={{ background: '#141418', borderColor: '#2a2a2e', color: '#9898a8', maxWidth: '75%' }}
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-muted)', maxWidth: '75%' }}
             >
               No model connected yet.{' '}
               <button
@@ -68,10 +68,10 @@ export function ChatPanel() {
             >
               D
             </div>
-            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[#141418] border border-[#2a2a2e] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#6b6b78] animate-pulse-dot" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#6b6b78] animate-pulse-dot" style={{ animationDelay: '200ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#6b6b78] animate-pulse-dot" style={{ animationDelay: '400ms' }} />
+            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-pulse-dot" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-pulse-dot" style={{ animationDelay: '200ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-pulse-dot" style={{ animationDelay: '400ms' }} />
             </div>
           </div>
         )}

@@ -51,10 +51,10 @@ function ProviderRow({
     <button
       onClick={onSelect}
       className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-[#2a2a2e]',
+        'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-[var(--border-color)]',
         selected
-          ? 'bg-[#7f77dd]/10 text-[#e8e8ef]'
-          : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
+          ? 'bg-[#7f77dd]/10 text-[var(--text-primary)]'
+          : 'text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
       )}
     >
       <div className="relative flex-shrink-0">
@@ -67,13 +67,13 @@ function ProviderRow({
         {hasKey && (
           <span
             className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2"
-            style={{ background: '#1d9e75', borderColor: '#141418' }}
+            style={{ background: '#1d9e75', borderColor: 'var(--bg-secondary)' }}
           />
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-xs font-semibold truncate">{provider.name}</div>
-        <div className="text-xs truncate" style={{ color: '#6b6b78' }}>
+        <div className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
           {provider.isLocal ? 'Local · no key needed' : normalizeUrl(saved?.baseUrl || provider.baseUrl) || 'No URL set'}
         </div>
       </div>
@@ -111,7 +111,7 @@ function AddCustomForm({ onAdd }: { onAdd: (provider: Provider) => void }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-xs text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22] transition-colors border-b border-[#2a2a2e]"
+        className="w-full flex items-center gap-2 px-4 py-3 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border-color)]"
       >
         <Plus size={13} />
         Add custom provider
@@ -120,10 +120,10 @@ function AddCustomForm({ onAdd }: { onAdd: (provider: Provider) => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-3 border-b border-[#2a2a2e] bg-[#0d0d0f]">
+    <form onSubmit={handleSubmit} className="p-4 space-y-3 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-semibold text-[#e8e8ef]">New Custom Provider</span>
-        <button type="button" onClick={() => setOpen(false)} className="text-[#6b6b78] hover:text-[#e8e8ef]">
+        <span className="text-xs font-semibold text-[var(--text-primary)]">New Custom Provider</span>
+        <button type="button" onClick={() => setOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
           <X size={13} />
         </button>
       </div>
@@ -133,20 +133,20 @@ function AddCustomForm({ onAdd }: { onAdd: (provider: Provider) => void }) {
         placeholder="Provider name"
         value={name}
         onChange={e => setName(e.target.value)}
-        className="w-full bg-[#141418] border border-[#2a2a2e] rounded-lg px-3 py-2 text-xs text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60"
+        className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60"
       />
       <input
         required
         placeholder="Base URL (e.g. https://api.example.com/v1)"
         value={baseUrl}
         onChange={e => setBaseUrl(e.target.value)}
-        className="w-full bg-[#141418] border border-[#2a2a2e] rounded-lg px-3 py-2 text-xs text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono"
+        className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono"
       />
       <input
         placeholder="Default model (optional)"
         value={model}
         onChange={e => setModel(e.target.value)}
-        className="w-full bg-[#141418] border border-[#2a2a2e] rounded-lg px-3 py-2 text-xs text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono"
+        className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono"
       />
       <button
         type="submit"
@@ -237,14 +237,14 @@ export function ConnectionsView() {
   if (!selected) return null
 
   return (
-    <div className="flex flex-col h-full min-h-0" style={{ background: '#0d0d0f' }}>
+    <div className="flex flex-col h-full min-h-0" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
       <div
         className="flex-shrink-0 px-6 py-4"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
-        <h1 className="text-base font-bold text-[#e8e8ef]">Model Connections</h1>
-        <p className="text-xs text-[#6b6b78] mt-0.5">
+        <h1 className="text-base font-bold text-[var(--text-primary)]">Model Connections</h1>
+        <p className="text-xs text-[var(--text-secondary)] mt-0.5">
           Connect AI providers using your own API keys · stored locally, never sent to Drodo servers
         </p>
       </div>
@@ -254,7 +254,7 @@ export function ConnectionsView() {
         {/* Provider List */}
         <div
           className="flex-shrink-0 flex flex-col overflow-hidden"
-          style={{ width: 260, borderRight: '1px solid #2a2a2e', background: '#141418' }}
+          style={{ width: 260, borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
         >
           <div className="flex-1 overflow-y-auto">
             {providers.map(provider => (
@@ -282,7 +282,7 @@ export function ConnectionsView() {
                   {selected.initials}
                 </div>
                 <div>
-                  <div className="font-semibold text-[#e8e8ef]">{selected.name}</div>
+                  <div className="font-semibold text-[var(--text-primary)]">{selected.name}</div>
                   {selected.isLocal ? (
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
@@ -291,7 +291,7 @@ export function ConnectionsView() {
                       Local · no API key required
                     </span>
                   ) : (
-                    <span className="text-xs text-[#6b6b78]">
+                    <span className="text-xs text-[var(--text-secondary)]">
                       {normalizeUrl(effectiveUrl) || 'No URL configured'}
                     </span>
                   )}
@@ -300,7 +300,7 @@ export function ConnectionsView() {
               {isCustom && (
                 <button
                   onClick={() => handleDeleteCustom(selected.id)}
-                  className="p-2 rounded-lg text-[#6b6b78] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                  className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
                   title="Delete custom provider"
                 >
                   <Trash2 size={14} />
@@ -310,14 +310,14 @@ export function ConnectionsView() {
 
             {/* Base URL */}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                 <Link size={12} />
                 Base URL
               </label>
               <input
                 value={baseUrl || selected.baseUrl}
                 onChange={e => { setBaseUrl(e.target.value); setTestState('idle'); setSaved(false) }}
-                className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2.5 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                 placeholder="https://api.provider.com/v1"
               />
             </div>
@@ -325,7 +325,7 @@ export function ConnectionsView() {
             {/* API Key */}
             {!selected.isLocal && (
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                   <Key size={12} />
                   API Key
                   {apiKey && (
@@ -338,7 +338,7 @@ export function ConnectionsView() {
                   type="password"
                   value={apiKey}
                   onChange={e => { setApiKey(e.target.value); setTestState('idle'); setSaved(false) }}
-                  className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2.5 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                   placeholder={
                     selected.id === 'anthropic' ? 'sk-ant-...' :
                     selected.id === 'openai' ? 'sk-...' :
@@ -350,14 +350,14 @@ export function ConnectionsView() {
 
             {/* Model */}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                 <Cpu size={12} />
                 Model
               </label>
               <input
                 value={model || selected.model || ''}
                 onChange={e => { setModel(e.target.value); setSaved(false) }}
-                className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2.5 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                 placeholder="model-name"
               />
             </div>
@@ -385,12 +385,12 @@ export function ConnectionsView() {
                 className={clsx(
                   'flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all',
                   testState === 'testing'
-                    ? 'border-[#2a2a2e] text-[#6b6b78] cursor-not-allowed'
+                    ? 'border-[var(--border-color)] text-[var(--text-secondary)] cursor-not-allowed'
                     : testState === 'success'
                     ? 'border-[#1d9e75]/40 text-[#1d9e75] hover:bg-[#1d9e75]/5'
                     : testState === 'error'
                     ? 'border-[#e05050]/40 text-[#e05050] hover:bg-[#e05050]/5'
-                    : 'border-[#2a2a2e] text-[#9898a8] hover:border-[#7f77dd]/40 hover:text-[#e8e8ef]'
+                    : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#7f77dd]/40 hover:text-[var(--text-primary)]'
                 )}
               >
                 {testState === 'testing' && <Loader size={14} className="animate-spin" />}
@@ -415,7 +415,7 @@ export function ConnectionsView() {
               </button>
             </div>
 
-            <p className="text-xs text-[#6b6b78]">
+            <p className="text-xs text-[var(--text-secondary)]">
               Keys are stored locally on your device and never sent to Drodo servers.
             </p>
           </div>

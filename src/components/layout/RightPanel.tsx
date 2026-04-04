@@ -45,7 +45,7 @@ function StepIcon({ status }: { status: TaskStep['status'] }) {
   if (status === 'complete') return <CheckCircle size={14} className="text-[#1d9e75] flex-shrink-0" />
   if (status === 'running') return <Loader size={14} className="text-[#7f77dd] flex-shrink-0 animate-spin" />
   if (status === 'error') return <XCircle size={14} className="text-[#e05050] flex-shrink-0" />
-  return <Circle size={14} className="text-[#2a2a2e] flex-shrink-0" />
+  return <Circle size={14} className="text-[var(--border-color)] flex-shrink-0" />
 }
 
 function Section({
@@ -62,14 +62,14 @@ function Section({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className="flex flex-col border-t border-[#2a2a2e]">
+    <div className="flex flex-col border-t border-[var(--border-color)]">
       <button
         onClick={() => setOpen(value => !value)}
-        className="flex items-center gap-2 px-4 py-2.5 hover:bg-[#1c1c22] transition-colors"
+        className="flex items-center gap-2 px-4 py-2.5 hover:bg-[var(--bg-tertiary)] transition-colors"
       >
-        {open ? <ChevronDown size={12} className="text-[#6b6b78]" /> : <ChevronRight size={12} className="text-[#6b6b78]" />}
+        {open ? <ChevronDown size={12} className="text-[var(--text-secondary)]" /> : <ChevronRight size={12} className="text-[var(--text-secondary)]" />}
         {icon}
-        <span className="text-xs font-semibold text-[#9898a8] uppercase tracking-wider">{title}</span>
+        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{title}</span>
       </button>
       {open && children}
     </div>
@@ -112,16 +112,16 @@ export function RightPanel() {
       className="flex flex-col h-full flex-shrink-0 overflow-hidden"
       style={{
         width: 360,
-        background: '#141418',
-        borderLeft: '1px solid #2a2a2e',
+        background: 'var(--bg-secondary)',
+        borderLeft: '1px solid var(--border-color)',
       }}
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-[#2a2a2e]">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-color)]">
         <button
           onClick={() => setTab('output')}
           className={clsx(
             'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-            tab === 'output' ? 'bg-[#7f77dd]/14 text-[#e8e8ef]' : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
+            tab === 'output' ? 'bg-[#7f77dd]/14 text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
           )}
         >
           Live Output
@@ -130,7 +130,7 @@ export function RightPanel() {
           onClick={() => setTab('terminal')}
           className={clsx(
             'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-            tab === 'terminal' ? 'bg-[#7f77dd]/14 text-[#e8e8ef]' : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
+            tab === 'terminal' ? 'bg-[#7f77dd]/14 text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
           )}
         >
           Terminal
@@ -140,13 +140,13 @@ export function RightPanel() {
       <div className="flex-1 min-h-0 overflow-hidden">
         {tab === 'output' ? (
           <div className="h-full flex flex-col">
-            <div className="px-4 py-3 border-b border-[#2a2a2e]">
-              <div className="text-xs uppercase tracking-[0.18em] text-[#6b6b78]">Current Buffer</div>
-              <div className="text-sm text-[#e8e8ef] truncate mt-1">{liveOutputTitle}</div>
+            <div className="px-4 py-3 border-b border-[var(--border-color)]">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Current Buffer</div>
+              <div className="text-sm text-[var(--text-primary)] truncate mt-1">{liveOutputTitle}</div>
             </div>
             <div className="flex-1 overflow-auto">
               {activeDocumentLoading ? (
-                <div className="p-4 flex items-center gap-2 text-sm text-[#9898a8]">
+                <div className="p-4 flex items-center gap-2 text-sm text-[var(--text-muted)]">
                   <Loader size={14} className="animate-spin" />
                   Loading…
                 </div>
@@ -155,7 +155,7 @@ export function RightPanel() {
                   language={liveOutputLanguage}
                   style={atomOneDark}
                   customStyle={{
-                    background: '#0d0d0f',
+                    background: 'var(--bg-primary)',
                     margin: 0,
                     padding: '16px',
                     minHeight: '100%',
@@ -163,7 +163,7 @@ export function RightPanel() {
                     lineHeight: 1.6,
                   }}
                   showLineNumbers
-                  lineNumberStyle={{ color: '#3a3a42', fontSize: 10 }}
+                  lineNumberStyle={{ color: 'var(--border-color)', fontSize: 10 }}
                 >
                   {liveOutputContent || '// No output yet.'}
                 </SyntaxHighlighter>
@@ -172,11 +172,11 @@ export function RightPanel() {
           </div>
         ) : (
           <div className="h-full flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2e]">
-              <div className="text-sm font-semibold text-[#e8e8ef]">Terminal & Action Log</div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+              <div className="text-sm font-semibold text-[var(--text-primary)]">Terminal & Action Log</div>
               <button
                 onClick={clearTerminal}
-                className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e8e8ef] hover:bg-[#1c1c22] transition-colors"
+                className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
                 title="Clear log"
               >
                 <Trash2 size={13} />
@@ -185,11 +185,11 @@ export function RightPanel() {
 
             <div className="flex-1 overflow-auto px-4 py-3 space-y-3">
               {recentLogs.map(entry => (
-                <div key={entry.id} className="rounded-lg border border-[#2a2a2e] bg-[#0d0d0f] overflow-hidden">
-                  <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6b6b78] border-b border-[#2a2a2e]">
+                <div key={entry.id} className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
+                  <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)] border-b border-[var(--border-color)]">
                     {entry.title}
                   </div>
-                  <pre className="px-3 py-2 text-xs text-[#d6d6de] whitespace-pre-wrap break-words font-mono">
+                  <pre className="px-3 py-2 text-xs text-[var(--text-primary)] whitespace-pre-wrap break-words font-mono">
                     {entry.content}
                   </pre>
                 </div>
@@ -197,7 +197,7 @@ export function RightPanel() {
             </div>
 
             <form
-              className="border-t border-[#2a2a2e] p-3 space-y-2"
+              className="border-t border-[var(--border-color)] p-3 space-y-2"
               onSubmit={event => {
                 event.preventDefault()
                 if (!command.trim()) return
@@ -205,13 +205,13 @@ export function RightPanel() {
                 setCommand('')
               }}
             >
-              <label className="text-xs uppercase tracking-[0.18em] text-[#6b6b78]">Run Command</label>
+              <label className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Run Command</label>
               <div className="flex items-center gap-2">
                 <input
                   value={command}
                   onChange={event => setCommand(event.target.value)}
                   placeholder="npm run build"
-                  className="flex-1 bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono"
+                  className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono"
                 />
                 <button
                   type="submit"
@@ -229,13 +229,13 @@ export function RightPanel() {
       <Section title="Recent Files" icon={<FolderOpen size={13} className="text-[#d4a227]" />}>
         <div className="py-1.5 max-h-36 overflow-auto">
           {recentPaths.length === 0 ? (
-            <div className="px-4 pb-3 text-xs text-[#6b6b78]">No files opened or touched yet.</div>
+            <div className="px-4 pb-3 text-xs text-[var(--text-secondary)]">No files opened or touched yet.</div>
           ) : (
             recentPaths.map(path => (
               <button
                 key={path}
                 onClick={() => void openDocument(path)}
-                className="w-full px-4 py-1.5 text-left text-xs text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22] transition-colors truncate"
+                className="w-full px-4 py-1.5 text-left text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors truncate"
               >
                 {path}
               </button>
@@ -255,7 +255,7 @@ export function RightPanel() {
                     className="w-px flex-1 mt-1"
                     style={{
                       height: 16,
-                      background: step.status === 'complete' ? '#1d9e75' : '#2a2a2e',
+                      background: step.status === 'complete' ? '#1d9e75' : 'var(--border-color)',
                     }}
                   />
                 )}
@@ -263,9 +263,9 @@ export function RightPanel() {
               <span
                 className={clsx(
                   'text-xs leading-tight pt-0.5',
-                  step.status === 'complete' && 'text-[#9898a8] line-through',
-                  step.status === 'running' && 'text-[#e8e8ef] font-medium',
-                  step.status === 'pending' && 'text-[#6b6b78]',
+                  step.status === 'complete' && 'text-[var(--text-muted)] line-through',
+                  step.status === 'running' && 'text-[var(--text-primary)] font-medium',
+                  step.status === 'pending' && 'text-[var(--text-secondary)]',
                   step.status === 'error' && 'text-[#e05050]'
                 )}
               >

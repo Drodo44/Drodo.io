@@ -29,14 +29,14 @@ export function PermissionWarningModal() {
           className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl shadow-2xl overflow-hidden animate-fade-in"
           style={{
             width: 420,
-            background: '#141418',
+            background: 'var(--bg-secondary)',
             border: '1px solid #e05050',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-6 py-5"
-            style={{ borderBottom: '1px solid #2a2a2e' }}
+            style={{ borderBottom: '1px solid var(--border-color)' }}
           >
             <div className="flex items-center gap-3">
               <div
@@ -45,10 +45,10 @@ export function PermissionWarningModal() {
               >
                 <ShieldAlert size={18} style={{ color: '#e05050' }} />
               </div>
-              <Dialog.Title className="font-bold text-[#e8e8ef]">Wide Open Mode</Dialog.Title>
+              <Dialog.Title className="font-bold text-[var(--text-primary)]">Wide Open Mode</Dialog.Title>
             </div>
             <Dialog.Close asChild>
-              <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e8e8ef] hover:bg-[#2a2a2e] transition-colors" onClick={handleCancel}>
+              <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors" onClick={handleCancel}>
                 <X size={16} />
               </button>
             </Dialog.Close>
@@ -61,7 +61,7 @@ export function PermissionWarningModal() {
               style={{ background: '#e0505012', border: '1px solid #e0505030' }}
             >
               <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" style={{ color: '#e05050' }} />
-              <p className="text-sm text-[#e8e8ef] leading-relaxed">
+              <p className="text-sm text-[var(--text-primary)] leading-relaxed">
                 <span className="font-semibold" style={{ color: '#e05050' }}>Wide Open</span> grants Drodo full computer access — it can read, write, execute files, run system commands, and access the network without restriction.
               </p>
             </div>
@@ -73,7 +73,7 @@ export function PermissionWarningModal() {
                 'System commands can be executed without confirmation',
                 'Only enable this for trusted, audited workflows',
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-[#9898a8]">
+                <li key={i} className="flex items-start gap-2 text-xs text-[var(--text-muted)]">
                   <span className="w-1 h-1 rounded-full flex-shrink-0 mt-1.5" style={{ background: '#e05050' }} />
                   {item}
                 </li>
@@ -83,7 +83,7 @@ export function PermissionWarningModal() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={handleCancel}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-[#2a2a2e] text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef] transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 Cancel
               </button>

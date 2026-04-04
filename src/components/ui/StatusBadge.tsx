@@ -7,7 +7,7 @@ interface StatusBadgeProps {
 }
 
 const STATUS_CONFIG = {
-  idle: { dot: 'bg-[#6b6b78]', text: 'text-[#9898a8]', bg: 'bg-[#2a2a2e]', label: 'Idle' },
+  idle: { dot: 'bg-[var(--text-secondary)]', text: 'text-[var(--text-muted)]', bg: 'bg-[var(--border-color)]', label: 'Idle' },
   running: { dot: 'bg-[#7f77dd] animate-pulse-dot', text: 'text-[#a09ae8]', bg: 'bg-[#7f77dd]/10', label: 'Running' },
   complete: { dot: 'bg-[#1d9e75]', text: 'text-[#1d9e75]', bg: 'bg-[#1d9e75]/10', label: 'Complete' },
   error: { dot: 'bg-[#e05050]', text: 'text-[#e05050]', bg: 'bg-[#e05050]/10', label: 'Error' },

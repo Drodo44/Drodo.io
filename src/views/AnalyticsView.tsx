@@ -55,8 +55,8 @@ function BarChart({ data }: { data: { date: string; tokens: number }[] }) {
         const y = PAD.top + H - frac * H
         return (
           <g key={i}>
-            <line x1={PAD.left} y1={y} x2={VBW - PAD.right} y2={y} stroke="#2a2a2e" strokeWidth="1" />
-            <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="#6b6b78">
+            <line x1={PAD.left} y1={y} x2={VBW - PAD.right} y2={y} stroke="var(--border-color)" strokeWidth="1" />
+            <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="var(--text-secondary)">
               {val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}
             </text>
           </g>
@@ -70,7 +70,7 @@ function BarChart({ data }: { data: { date: string; tokens: number }[] }) {
         return (
           <g key={d.date}>
             <rect x={x} y={y} width={barW} height={bh} rx="3" fill="url(#bar-fill)" />
-            <text x={x + barW / 2} y={VBH - 6} textAnchor="middle" fontSize="10" fill="#6b6b78">
+            <text x={x + barW / 2} y={VBH - 6} textAnchor="middle" fontSize="10" fill="var(--text-secondary)">
               {dayLabel(d.date)}
             </text>
           </g>
@@ -87,15 +87,15 @@ function MetricCard({ label, value, sub, Icon, color, bg }: {
   Icon: typeof BarChart3; color: string; bg: string
 }) {
   return (
-    <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418]">
+    <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-[#9898a8]">{label}</span>
+        <span className="text-xs font-medium text-[var(--text-muted)]">{label}</span>
         <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
           <Icon size={14} style={{ color }} />
         </div>
       </div>
-      <div className="text-2xl font-bold text-[#e8e8ef] tabular-nums">{value}</div>
-      {sub && <div className="text-xs text-[#6b6b78] mt-1">{sub}</div>}
+      <div className="text-2xl font-bold text-[var(--text-primary)] tabular-nums">{value}</div>
+      {sub && <div className="text-xs text-[var(--text-secondary)] mt-1">{sub}</div>}
     </div>
   )
 }
@@ -109,15 +109,15 @@ function ProviderRow({ pt, totalTokens }: { pt: ProviderTotals; totalTokens: num
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <div className="min-w-0">
-          <div className="text-xs font-medium text-[#e8e8ef] truncate">{pt.providerName}</div>
-          <div className="text-xs text-[#6b6b78]">{fmtCost(pt.totalCostUsd)}</div>
+          <div className="text-xs font-medium text-[var(--text-primary)] truncate">{pt.providerName}</div>
+          <div className="text-xs text-[var(--text-secondary)]">{fmtCost(pt.totalCostUsd)}</div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-          <span className="text-xs text-[#9898a8]">{fmtTokens(pt.totalTokens)}</span>
+          <span className="text-xs text-[var(--text-muted)]">{fmtTokens(pt.totalTokens)}</span>
           <span className="text-xs font-semibold tabular-nums w-8 text-right" style={{ color }}>{pct}%</span>
         </div>
       </div>
-      <div className="h-1.5 rounded-full bg-[#2a2a2e] overflow-hidden">
+      <div className="h-1.5 rounded-full bg-[var(--border-color)] overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
@@ -128,12 +128,12 @@ function ProviderRow({ pt, totalTokens }: { pt: ProviderTotals; totalTokens: num
 
 function LogRow({ entry }: { entry: UsageEntry }) {
   return (
-    <div className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-[#1c1c22] transition-colors text-xs">
-      <span className="text-[#6b6b78] font-mono w-14 flex-shrink-0">{fmtTime(entry.timestamp)}</span>
-      <span className="text-[#9898a8] w-24 truncate flex-shrink-0">{entry.providerName}</span>
-      <span className="text-[#6b6b78] font-mono flex-1 truncate">{entry.model}</span>
-      <span className="text-[#9898a8] tabular-nums w-14 text-right flex-shrink-0">{fmtTokens(entry.totalTokens)}</span>
-      <span className="text-[#6b6b78] tabular-nums w-14 text-right flex-shrink-0">{fmtCost(entry.estimatedCostUsd)}</span>
+    <div className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-xs">
+      <span className="text-[var(--text-secondary)] font-mono w-14 flex-shrink-0">{fmtTime(entry.timestamp)}</span>
+      <span className="text-[var(--text-muted)] w-24 truncate flex-shrink-0">{entry.providerName}</span>
+      <span className="text-[var(--text-secondary)] font-mono flex-1 truncate">{entry.model}</span>
+      <span className="text-[var(--text-muted)] tabular-nums w-14 text-right flex-shrink-0">{fmtTokens(entry.totalTokens)}</span>
+      <span className="text-[var(--text-secondary)] tabular-nums w-14 text-right flex-shrink-0">{fmtCost(entry.estimatedCostUsd)}</span>
     </div>
   )
 }
@@ -163,19 +163,19 @@ export function AnalyticsView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
       <div
         className="flex items-center justify-between gap-3 px-6 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
             <BarChart3 size={18} style={{ color: '#7f77dd' }} />
           </div>
           <div>
-            <h1 className="font-bold text-[#e8e8ef] text-lg">Analytics</h1>
-            <p className="text-xs text-[#6b6b78]">Real usage across all sessions</p>
+            <h1 className="font-bold text-[var(--text-primary)] text-lg">Analytics</h1>
+            <p className="text-xs text-[var(--text-secondary)]">Real usage across all sessions</p>
           </div>
         </div>
         {/* Reset button */}
@@ -187,18 +187,18 @@ export function AnalyticsView() {
           )}
           {confirmClear ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#9898a8]">Clear all usage history?</span>
+              <span className="text-xs text-[var(--text-muted)]">Clear all usage history?</span>
               <button onClick={handleClear} className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all" style={{ background: '#e05050' }}>
                 Confirm
               </button>
-              <button onClick={() => setConfirmClear(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#9898a8] bg-[#1c1c22] hover:text-[#e8e8ef] transition-colors">
+              <button onClick={() => setConfirmClear(false)} className="px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors">
                 Cancel
               </button>
             </div>
           ) : (
             <button
               onClick={() => setConfirmClear(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-[#2a2a2e] text-[#6b6b78] hover:text-[#e8e8ef] hover:border-[#3a3a42] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-color)] transition-colors"
             >
               <Trash2 size={12} />
               Reset Usage
@@ -212,12 +212,12 @@ export function AnalyticsView() {
         {/* Empty state */}
         {!hasData && (
           <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#1c1c22' }}>
-              <BarChart3 size={28} className="text-[#2a2a2e]" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+              <BarChart3 size={28} className="text-[var(--border-color)]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#6b6b78]">No usage tracked yet.</p>
-              <p className="text-xs text-[#4a4a52] mt-1">Start a conversation to see your stats here.</p>
+              <p className="text-sm font-medium text-[var(--text-secondary)]">No usage tracked yet.</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1">Start a conversation to see your stats here.</p>
             </div>
           </div>
         )}
@@ -249,10 +249,10 @@ export function AnalyticsView() {
             </div>
 
             {/* Bar chart */}
-            <div className="p-5 rounded-xl border border-[#2a2a2e] bg-[#141418]">
+            <div className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-[#e8e8ef]">Token Usage — Last 7 Days</h3>
-                <span className="text-xs text-[#6b6b78] tabular-nums">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Token Usage — Last 7 Days</h3>
+                <span className="text-xs text-[var(--text-secondary)] tabular-nums">
                   {fmtTokens(dailyData.reduce((s, d) => s + d.tokens, 0))} total
                 </span>
               </div>
@@ -262,10 +262,10 @@ export function AnalyticsView() {
             {/* Two-col: provider breakdown + daily breakdown */}
             <div className="grid gap-5" style={{ gridTemplateColumns: '1fr 1fr' }}>
               {/* Provider breakdown */}
-              <div className="p-5 rounded-xl border border-[#2a2a2e] bg-[#141418]">
-                <h3 className="text-sm font-semibold text-[#e8e8ef] mb-4">Provider Breakdown</h3>
+              <div className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Provider Breakdown</h3>
                 {providerTotals.length === 0 ? (
-                  <p className="text-xs text-[#6b6b78]">No provider data yet.</p>
+                  <p className="text-xs text-[var(--text-secondary)]">No provider data yet.</p>
                 ) : (
                   <div className="space-y-4">
                     {providerTotals.map(pt => (
@@ -276,26 +276,26 @@ export function AnalyticsView() {
               </div>
 
               {/* Daily breakdown table */}
-              <div className="p-5 rounded-xl border border-[#2a2a2e] bg-[#141418]">
-                <h3 className="text-sm font-semibold text-[#e8e8ef] mb-4">Daily Breakdown</h3>
+              <div className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Daily Breakdown</h3>
                 <div className="space-y-2">
                   {[...dailyData].reverse().map(d => {
                     const maxTok = Math.max(...dailyData.map(x => x.tokens), 1)
                     const pct = Math.round((d.tokens / maxTok) * 100)
                     return (
                       <div key={d.date} className="flex items-center gap-3">
-                        <span className="text-xs text-[#6b6b78] w-8 flex-shrink-0">{dayLabel(d.date)}</span>
-                        <div className="flex-1 h-1.5 rounded-full bg-[#2a2a2e] overflow-hidden">
+                        <span className="text-xs text-[var(--text-secondary)] w-8 flex-shrink-0">{dayLabel(d.date)}</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-[var(--border-color)] overflow-hidden">
                           <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#7f77dd,#a09ae8)' }} />
                         </div>
-                        <span className="text-xs text-[#9898a8] tabular-nums w-12 text-right">{fmtTokens(d.tokens)}</span>
+                        <span className="text-xs text-[var(--text-muted)] tabular-nums w-12 text-right">{fmtTokens(d.tokens)}</span>
                       </div>
                     )
                   })}
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#2a2a2e] flex items-center justify-between">
-                  <span className="text-xs text-[#6b6b78]">Week total</span>
-                  <span className="text-xs font-semibold text-[#e8e8ef] tabular-nums">
+                <div className="mt-4 pt-3 border-t border-[var(--border-color)] flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-secondary)]">Week total</span>
+                  <span className="text-xs font-semibold text-[var(--text-primary)] tabular-nums">
                     {fmtTokens(dailyData.reduce((s, d) => s + d.tokens, 0))} tokens
                   </span>
                 </div>
@@ -304,10 +304,10 @@ export function AnalyticsView() {
 
             {/* Usage log */}
             {recentLog.length > 0 && (
-              <div className="p-5 rounded-xl border border-[#2a2a2e] bg-[#141418]">
-                <h3 className="text-sm font-semibold text-[#e8e8ef] mb-3">Recent Usage Log</h3>
+              <div className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Recent Usage Log</h3>
                 {/* Header row */}
-                <div className="flex items-center gap-3 px-3 pb-2 border-b border-[#2a2a2e] text-xs text-[#4a4a52] font-medium">
+                <div className="flex items-center gap-3 px-3 pb-2 border-b border-[var(--border-color)] text-xs text-[var(--text-muted)] font-medium">
                   <span className="w-14 flex-shrink-0">Time</span>
                   <span className="w-24 flex-shrink-0">Provider</span>
                   <span className="flex-1">Model</span>

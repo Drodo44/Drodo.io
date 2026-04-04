@@ -64,20 +64,20 @@ function TavilyModal({ onClose }: { onClose: () => void }) {
         />
         <Dialog.Content
           className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl shadow-2xl overflow-hidden"
-          style={{ width: 420, background: '#141418', border: '1px solid #2a2a2e' }}
+          style={{ width: 420, background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
         >
-          <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #2a2a2e' }}>
+          <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
                 <Search size={16} style={{ color: '#7f77dd' }} />
               </div>
               <div>
-                <Dialog.Title className="font-bold text-[#e8e8ef] text-sm">Tavily API Key</Dialog.Title>
-                <Dialog.Description className="text-xs text-[#6b6b78]">Required for Web Search &amp; Web Scraper</Dialog.Description>
+                <Dialog.Title className="font-bold text-[var(--text-primary)] text-sm">Tavily API Key</Dialog.Title>
+                <Dialog.Description className="text-xs text-[var(--text-secondary)]">Required for Web Search &amp; Web Scraper</Dialog.Description>
               </div>
             </div>
             <Dialog.Close asChild>
-              <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e8e8ef] hover:bg-[#2a2a2e] transition-colors">
+              <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors">
                 <X size={16} />
               </button>
             </Dialog.Close>
@@ -90,7 +90,7 @@ function TavilyModal({ onClose }: { onClose: () => void }) {
               </div>
             )}
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                 <Key size={12} />
                 API Key
               </label>
@@ -99,9 +99,9 @@ function TavilyModal({ onClose }: { onClose: () => void }) {
                 value={key}
                 onChange={e => setKey(e.target.value)}
                 placeholder="tvly-xxxxxxxxxxxxxxxx"
-                className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
               />
-              <p className="text-xs text-[#6b6b78]">Stored locally on your device. Never sent to Drodo servers.</p>
+              <p className="text-xs text-[var(--text-secondary)]">Stored locally on your device. Never sent to Drodo servers.</p>
             </div>
             <p className="text-xs" style={{ color: '#7f77dd' }}>
               Get a free key at{' '}
@@ -150,7 +150,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
         width: 42,
         height: 24,
         borderRadius: 12,
-        background: on ? '#7f77dd' : '#2a2a2e',
+        background: on ? '#7f77dd' : 'var(--border-color)',
         border: 'none',
         cursor: 'pointer',
         flexShrink: 0,
@@ -273,7 +273,7 @@ function SkillToggleCard({
         'flex items-start gap-3 p-4 rounded-xl border transition-all duration-200',
         enabled
           ? 'border-[#7f77dd]/30 bg-[#7f77dd]/5'
-          : 'border-[#2a2a2e] bg-[#141418]'
+          : 'border-[var(--border-color)] bg-[var(--bg-secondary)]'
       )}
     >
       <div
@@ -283,14 +283,14 @@ function SkillToggleCard({
         <Icon size={18} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-[#e8e8ef]">{skill.name}</div>
-        <div className="text-xs text-[#6b6b78] mt-1 leading-relaxed">{skill.description}</div>
+        <div className="text-sm font-medium text-[var(--text-primary)]">{skill.name}</div>
+        <div className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">{skill.description}</div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
         {skill.hasTavilyGear && (
           <button
             onClick={onGearClick}
-            className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#9898a8] hover:bg-[#2a2a2e] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors"
             title="Configure Tavily API key"
           >
             <GearIcon size={14} />
@@ -392,8 +392,8 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
   Business: '#4285f4',
   Developer: '#1d9e75',
   Community: '#f97316',
-  Resource: '#9898a8',
-  Reference: '#9898a8',
+  Resource: 'var(--text-muted)',
+  Reference: 'var(--text-muted)',
 }
 
 function PackageCard({
@@ -427,15 +427,15 @@ function PackageCard({
     onInstall()
   }
 
-  const badgeColor = CATEGORY_BADGE_COLORS[pkg.category] ?? '#9898a8'
+  const badgeColor = CATEGORY_BADGE_COLORS[pkg.category] ?? 'var(--text-muted)'
 
   return (
-    <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418] flex flex-col gap-3">
+    <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-[#e8e8ef]">{pkg.name}</span>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">{pkg.name}</span>
             {pkg.recommended && (
               <span
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
@@ -448,11 +448,11 @@ function PackageCard({
           <div className="flex items-center gap-2 mt-1">
             <span
               className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{ background: '#1c1c22', color: '#9898a8', border: '1px solid #2a2a2e' }}
+              style={{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}
             >
               by {pkg.author}
             </span>
-            <div className="flex items-center gap-1 text-xs text-[#6b6b78]">
+            <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
               <Star size={11} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
               {pkg.stars}
             </div>
@@ -478,7 +478,7 @@ function PackageCard({
       </div>
 
       {/* Description */}
-      <p className="text-xs text-[#9898a8] leading-relaxed">{pkg.description}</p>
+      <p className="text-xs text-[var(--text-muted)] leading-relaxed">{pkg.description}</p>
 
       {/* Conflict warning */}
       {confirming && conflict && (
@@ -499,7 +499,7 @@ function PackageCard({
             </button>
             <button
               onClick={() => { setConfirming(false); setConflict(null) }}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#9898a8] bg-[#1c1c22] hover:text-[#e8e8ef] transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
               Cancel
             </button>
@@ -570,9 +570,9 @@ function ConnectModal({
         />
         <Dialog.Content
           className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl shadow-2xl overflow-hidden animate-fade-in"
-          style={{ width: 420, background: '#141418', border: '1px solid #2a2a2e' }}
+          style={{ width: 420, background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
         >
-          <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #2a2a2e' }}>
+          <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-3">
               <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold"
@@ -581,16 +581,16 @@ function ConnectModal({
                 {connector.initials}
               </div>
               <div>
-                <Dialog.Title className="font-bold text-[#e8e8ef] text-sm">
+                <Dialog.Title className="font-bold text-[var(--text-primary)] text-sm">
                   Connect {connector.name}
                 </Dialog.Title>
-                <Dialog.Description className="text-xs text-[#6b6b78]">
+                <Dialog.Description className="text-xs text-[var(--text-secondary)]">
                   {connector.category}
                 </Dialog.Description>
               </div>
             </div>
             <Dialog.Close asChild>
-              <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e8e8ef] hover:bg-[#2a2a2e] transition-colors">
+              <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors">
                 <X size={16} />
               </button>
             </Dialog.Close>
@@ -605,7 +605,7 @@ function ConnectModal({
             )}
 
             <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                 <Key size={12} />
                 API Key / Token
               </label>
@@ -614,9 +614,9 @@ function ConnectModal({
                 value={key || existingKey}
                 onChange={e => setKey(e.target.value)}
                 placeholder={connector.keyPlaceholder ?? 'API key'}
-                className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
               />
-              <p className="text-xs text-[#6b6b78]">
+              <p className="text-xs text-[var(--text-secondary)]">
                 Stored locally on your device. Never sent to Drodo servers.
               </p>
             </div>
@@ -666,7 +666,7 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
         'flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 group',
         connector.isConnected
           ? 'border-[#1d9e75]/30 bg-[#1d9e75]/5 hover:border-[#1d9e75]/50'
-          : 'border-[#2a2a2e] bg-[#141418] hover:border-[#3a3a42]'
+          : 'border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)]'
       )}
     >
       {/* Icon */}
@@ -679,7 +679,7 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
 
       {/* Name + status */}
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-[#e8e8ef] truncate">{connector.name}</div>
+        <div className="text-sm font-medium text-[var(--text-primary)] truncate">{connector.name}</div>
         <div className="flex items-center gap-1.5 mt-0.5">
           {connector.isConnected ? (
             <>
@@ -688,8 +688,8 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
             </>
           ) : (
             <>
-              <Circle size={11} className="text-[#6b6b78]" />
-              <span className="text-xs text-[#6b6b78]">Not connected</span>
+              <Circle size={11} className="text-[var(--text-secondary)]" />
+              <span className="text-xs text-[var(--text-secondary)]">Not connected</span>
             </>
           )}
         </div>
@@ -752,18 +752,18 @@ export function SkillsView() {
   const tavilyConfigured = !!getSettings().tavilyApiKey
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
       <div
         className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
         <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
           <Puzzle size={18} style={{ color: '#7f77dd' }} />
         </div>
         <div>
-          <h1 className="font-bold text-[#e8e8ef] text-lg">Skills & Connectors</h1>
-          <p className="text-xs text-[#6b6b78]">
+          <h1 className="font-bold text-[var(--text-primary)] text-lg">Skills & Connectors</h1>
+          <p className="text-xs text-[var(--text-secondary)]">
             {connectedCount} connected · {connectors.length} available
           </p>
         </div>
@@ -776,8 +776,8 @@ export function SkillsView() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-2 h-2 rounded-full" style={{ background: '#7f77dd' }} />
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[#9898a8]">AI Skills</h2>
-            <span className="text-xs text-[#6b6b78]">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">AI Skills</h2>
+            <span className="text-xs text-[var(--text-secondary)]">
               ({Object.values(enabledSkills).filter(Boolean).length}/{AI_SKILLS.length})
             </span>
             {tavilyConfigured && (
@@ -803,20 +803,20 @@ export function SkillsView() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-2 h-2 rounded-full" style={{ background: '#f97316' }} />
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[#9898a8]">Skill Packages</h2>
-            <span className="text-xs text-[#6b6b78]">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Skill Packages</h2>
+            <span className="text-xs text-[var(--text-secondary)]">
               ({installedPkgs.length} installed)
             </span>
           </div>
           {/* Info banner */}
           <div
-            className="flex items-start gap-2 px-4 py-3 rounded-xl mb-4 text-xs text-[#9898a8] leading-relaxed"
-            style={{ background: '#1c1c22', border: '1px solid #2a2a2e' }}
+            className="flex items-start gap-2 px-4 py-3 rounded-xl mb-4 text-xs text-[var(--text-muted)] leading-relaxed"
+            style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
           >
             <span className="flex-shrink-0 mt-0.5">ℹ️</span>
             <span>
               Skill packages extend your agents with domain expertise. Most users only need one Engineering package.{' '}
-              Packages marked <strong style={{ color: '#9898a8' }}>Reference</strong> and <strong style={{ color: '#9898a8' }}>Resource</strong>{' '}
+              Packages marked <strong style={{ color: 'var(--text-muted)' }}>Reference</strong> and <strong style={{ color: 'var(--text-muted)' }}>Resource</strong>{' '}
               are reading material, not installs.
             </span>
           </div>
@@ -841,8 +841,8 @@ export function SkillsView() {
                 className="w-2 h-2 rounded-full"
                 style={{ background: CATEGORY_COLORS[category] }}
               />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#9898a8]">{category}</h2>
-              <span className="text-xs text-[#6b6b78]">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{category}</h2>
+              <span className="text-xs text-[var(--text-secondary)]">
                 ({items.filter(c => c.isConnected).length}/{items.length})
               </span>
             </div>

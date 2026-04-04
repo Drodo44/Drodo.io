@@ -46,9 +46,9 @@ function FileIcon({ entry }: { entry: FileSystemEntry }) {
     return <FileCode size={14} className="text-[#7f77dd]" />
   }
   if (lower.endsWith('.md') || lower.endsWith('.txt')) {
-    return <FileText size={14} className="text-[#9898a8]" />
+    return <FileText size={14} className="text-[var(--text-muted)]" />
   }
-  return <File size={14} className="text-[#6b6b78]" />
+  return <File size={14} className="text-[var(--text-secondary)]" />
 }
 
 interface TreeItemProps {
@@ -86,19 +86,19 @@ function TreeItem(props: TreeItemProps) {
         className={clsx(
           'w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs transition-colors',
           isActive
-            ? 'bg-[#7f77dd]/12 text-[#e8e8ef]'
-            : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
+            ? 'bg-[#7f77dd]/12 text-[var(--text-primary)]'
+            : 'text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
         )}
         style={{ paddingLeft: 10 + depth * 16 }}
       >
         {entry.isDirectory ? (
           <>
             {isLoading ? (
-              <Loader size={11} className="text-[#6b6b78] animate-spin" />
+              <Loader size={11} className="text-[var(--text-secondary)] animate-spin" />
             ) : isOpen ? (
-              <ChevronDown size={11} className="text-[#6b6b78]" />
+              <ChevronDown size={11} className="text-[var(--text-secondary)]" />
             ) : (
-              <ChevronRight size={11} className="text-[#6b6b78]" />
+              <ChevronRight size={11} className="text-[var(--text-secondary)]" />
             )}
             {isOpen ? (
               <FolderOpen size={14} className="text-[#d4a227]" />
@@ -113,7 +113,7 @@ function TreeItem(props: TreeItemProps) {
           </>
         )}
         <span className="truncate flex-1">{entry.name}</span>
-        {!entry.isDirectory && <span className="text-[10px] text-[#6b6b78]">{formatSize(entry.size)}</span>}
+        {!entry.isDirectory && <span className="text-[10px] text-[var(--text-secondary)]">{formatSize(entry.size)}</span>}
       </button>
 
       {entry.isDirectory && isOpen && children.map(child => (
@@ -216,31 +216,31 @@ export function FilesView() {
   const rootEntries = entriesByPath[rootPath] ?? []
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <div
         className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
         <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#1d9e7522' }}>
           <Files size={18} style={{ color: '#1d9e75' }} />
         </div>
         <div>
-          <h1 className="font-bold text-[#e8e8ef] text-lg">Files</h1>
-          <p className="text-xs text-[#6b6b78]">Real filesystem browser</p>
+          <h1 className="font-bold text-[var(--text-primary)] text-lg">Files</h1>
+          <p className="text-xs text-[var(--text-secondary)]">Real filesystem browser</p>
         </div>
       </div>
 
-      <div className="px-6 py-3 flex items-center gap-2 border-b border-[#2a2a2e] bg-[#101013]">
+      <div className="px-6 py-3 flex items-center gap-2 border-b border-[var(--border-color)] bg-[#101013]">
         <button
           onClick={() => void getHomeDir().then(home => handleNavigate(home))}
-          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          className="p-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           title="Home"
         >
           <Home size={14} />
         </button>
         <button
           onClick={() => void handleNavigate(getParentPath(rootPath))}
-          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          className="p-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           title="Up one level"
           disabled={!rootPath}
         >
@@ -248,7 +248,7 @@ export function FilesView() {
         </button>
         <button
           onClick={() => void loadDirectory(rootPath)}
-          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          className="p-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           title="Refresh"
           disabled={!rootPath}
         >
@@ -266,26 +266,26 @@ export function FilesView() {
           <input
             value={pathInput}
             onChange={event => setPathInput(event.target.value)}
-            className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60"
             placeholder="Enter a folder path"
           />
         </form>
       </div>
 
       <div className="flex-1 min-h-0 grid grid-cols-[360px_1fr]">
-        <div className="border-r border-[#2a2a2e] overflow-y-auto p-4">
+        <div className="border-r border-[var(--border-color)] overflow-y-auto p-4">
           {error && (
             <div className="mb-3 text-xs text-[#e05050] bg-[#e05050]/10 border border-[#e05050]/20 rounded-lg px-3 py-2">
               {error}
             </div>
           )}
 
-          <div className="bg-[#141418] rounded-xl border border-[#2a2a2e] p-2">
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] p-2">
             {rootPath ? (
               <>
                 <button
                   onClick={() => void handleNavigate(rootPath)}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-[#e8e8ef] bg-[#1c1c22]"
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-[var(--text-primary)] bg-[var(--bg-tertiary)]"
                 >
                   <FolderOpen size={14} className="text-[#d4a227]" />
                   <span className="truncate">{rootPath}</span>
@@ -307,27 +307,27 @@ export function FilesView() {
                 </div>
               </>
             ) : (
-              <div className="p-4 text-xs text-[#6b6b78]">Loading home directory…</div>
+              <div className="p-4 text-xs text-[var(--text-secondary)]">Loading home directory…</div>
             )}
           </div>
         </div>
 
         <div className="min-h-0 overflow-hidden flex flex-col">
-          <div className="px-5 py-3 border-b border-[#2a2a2e] bg-[#101013]">
-            <div className="text-xs uppercase tracking-[0.18em] text-[#6b6b78]">Preview</div>
-            <div className="text-sm text-[#e8e8ef] truncate mt-1">
+          <div className="px-5 py-3 border-b border-[var(--border-color)] bg-[#101013]">
+            <div className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Preview</div>
+            <div className="text-sm text-[var(--text-primary)] truncate mt-1">
               {activeDocumentPath || liveOutputTitle}
             </div>
           </div>
 
           <div className="flex-1 overflow-auto p-5">
             {activeDocumentLoading ? (
-              <div className="flex items-center gap-2 text-sm text-[#9898a8]">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
                 <Loader size={14} className="animate-spin" />
                 Loading file…
               </div>
             ) : (
-              <pre className="text-xs leading-6 text-[#d6d6de] whitespace-pre-wrap break-words font-mono">
+              <pre className="text-xs leading-6 text-[var(--text-primary)] whitespace-pre-wrap break-words font-mono">
                 {liveOutputContent}
               </pre>
             )}

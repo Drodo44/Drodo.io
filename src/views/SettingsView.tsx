@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, RotateCcw } from 'lucide-react'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { resetOnboarding } from '../components/Onboarding'
+import { applyThemeClass } from '../lib/theme'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
 
@@ -12,17 +13,6 @@ function setSetting(key: string, value: unknown) {
   const s = getSettings()
   s[key] = value
   localStorage.setItem('drodo_settings', JSON.stringify(s))
-}
-
-function applyTheme(theme: string) {
-  const root = document.getElementById('root')
-  if (theme === 'light') {
-    if (root) root.style.filter = 'invert(0.9) hue-rotate(180deg)'
-    document.documentElement.classList.add('light')
-  } else {
-    if (root) root.style.filter = ''
-    document.documentElement.classList.remove('light')
-  }
 }
 
 // ─── Storage breakdown ────────────────────────────────────────────────────────
@@ -64,13 +54,13 @@ export function SettingsView() {
   )
 
   useEffect(() => {
-    applyTheme(theme)
+    applyThemeClass(theme)
   }, [theme])
 
   const handleTheme = (t: 'dark' | 'light' | 'system') => {
     setTheme(t)
     setSetting('theme', t)
-    applyTheme(t)
+    applyThemeClass(t)
   }
 
   // Default Model
@@ -111,18 +101,18 @@ export function SettingsView() {
   const counts = getStorageCounts()
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
       <div
         className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
-        style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#9898a822' }}>
-          <Settings2 size={18} style={{ color: '#9898a8' }} />
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--text-muted)22' }}>
+          <Settings2 size={18} style={{ color: 'var(--text-muted)' }} />
         </div>
         <div>
-          <h1 className="font-bold text-[#e8e8ef] text-lg">Settings</h1>
-          <p className="text-xs text-[#6b6b78]">Preferences, integrations, and data</p>
+          <h1 className="font-bold text-[var(--text-primary)] text-lg">Settings</h1>
+          <p className="text-xs text-[var(--text-secondary)]">Preferences, integrations, and data</p>
         </div>
       </div>
 
@@ -130,9 +120,9 @@ export function SettingsView() {
 
         {/* ── Appearance ──────────────────────────────────────── */}
         <section>
-          <h2 className="text-xs font-semibold text-[#6b6b78] uppercase tracking-[0.12em] mb-3">Appearance</h2>
-          <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418]">
-            <div className="text-sm font-medium text-[#e8e8ef] mb-3">Theme</div>
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Appearance</h2>
+          <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+            <div className="text-sm font-medium text-[var(--text-primary)] mb-3">Theme</div>
             <div className="flex gap-2 flex-wrap">
               {([
                 { key: 'dark' as const, label: 'Dark', Icon: Moon },
@@ -146,7 +136,7 @@ export function SettingsView() {
                   style={
                     theme === key
                       ? { background: '#7f77dd', color: '#fff' }
-                      : { background: '#1c1c22', color: '#9898a8', border: '1px solid #2a2a2e' }
+                      : { background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }
                   }
                 >
                   <Icon size={14} />
@@ -154,7 +144,7 @@ export function SettingsView() {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-[#6b6b78] mt-3">
+            <p className="text-xs text-[var(--text-secondary)] mt-3">
               Dark and System both use the native dark theme. Light applies an inverted palette as a preview.
             </p>
           </div>
@@ -162,27 +152,27 @@ export function SettingsView() {
 
         {/* ── Default Model ────────────────────────────────────── */}
         <section>
-          <h2 className="text-xs font-semibold text-[#6b6b78] uppercase tracking-[0.12em] mb-3">Default Model</h2>
-          <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418]">
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Default Model</h2>
+          <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
             {configuredProviders.length > 0 ? (
               <>
                 <select
                   value={defaultModel}
                   onChange={e => handleDefaultModel(e.target.value)}
-                  className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
                 >
                   {configuredProviders.map(p => (
-                    <option key={p.id} value={p.id} style={{ background: '#141418' }}>
+                    <option key={p.id} value={p.id} style={{ background: 'var(--bg-secondary)' }}>
                       {p.name} — {savedConfigs[p.id]?.model || p.model || p.name}
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-[#6b6b78] mt-2">
+                <p className="text-xs text-[var(--text-secondary)] mt-2">
                   Used as the active model when no other is selected.
                 </p>
               </>
             ) : (
-              <p className="text-sm text-[#6b6b78]">
+              <p className="text-sm text-[var(--text-secondary)]">
                 No models configured — add one in Model Connections.
               </p>
             )}
@@ -191,26 +181,26 @@ export function SettingsView() {
 
         {/* ── Skills Configuration ─────────────────────────────── */}
         <section>
-          <h2 className="text-xs font-semibold text-[#6b6b78] uppercase tracking-[0.12em] mb-3">Skills Configuration</h2>
-          <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418] space-y-4">
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Skills Configuration</h2>
+          <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Key size={13} className="text-[#9898a8]" />
-                <span className="text-sm font-medium text-[#e8e8ef]">Tavily API Key</span>
+                <Key size={13} className="text-[var(--text-muted)]" />
+                <span className="text-sm font-medium text-[var(--text-primary)]">Tavily API Key</span>
                 {tavilyConfigured && (
                   <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}>
                     Configured ✓
                   </span>
                 )}
               </div>
-              <p className="text-xs text-[#6b6b78] mb-3">Required for Web Search and Web Scraper skills.</p>
+              <p className="text-xs text-[var(--text-secondary)] mb-3">Required for Web Search and Web Scraper skills.</p>
               <div className="flex gap-2">
                 <input
                   type="password"
                   value={tavilyKey}
                   onChange={e => setTavilyKey(e.target.value)}
                   placeholder={tavilyConfigured ? 'Update key…' : 'tvly-xxxxxxxxxxxxxxxx'}
-                  className="flex-1 bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                  className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                 />
                 {tavilyKeySaved ? (
                   <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ color: '#1d9e75' }}>
@@ -234,12 +224,12 @@ export function SettingsView() {
 
         {/* ── Privacy & Data ──────────────────────────────────── */}
         <section>
-          <h2 className="text-xs font-semibold text-[#6b6b78] uppercase tracking-[0.12em] mb-3">Privacy &amp; Data</h2>
-          <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden">
-            <div className="px-4 py-3 border-b border-[#2a2a2e]">
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Privacy &amp; Data</h2>
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-hidden">
+            <div className="px-4 py-3 border-b border-[var(--border-color)]">
               <div className="flex items-center gap-2">
-                <Database size={13} className="text-[#9898a8] flex-shrink-0" />
-                <span className="text-sm font-semibold text-[#e8e8ef]">
+                <Database size={13} className="text-[var(--text-muted)] flex-shrink-0" />
+                <span className="text-sm font-semibold text-[var(--text-primary)]">
                   All your data is stored locally on this device. Nothing is sent to Drodo servers.
                 </span>
               </div>
@@ -253,12 +243,12 @@ export function SettingsView() {
             ].map(({ label, count }) => (
               <div
                 key={label}
-                className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2e] last:border-0"
+                className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)] last:border-0"
               >
-                <span className="text-sm text-[#9898a8]">{label}</span>
+                <span className="text-sm text-[var(--text-muted)]">{label}</span>
                 <span
                   className="text-xs font-mono font-medium"
-                  style={{ color: count > 0 ? '#1d9e75' : '#6b6b78' }}
+                  style={{ color: count > 0 ? '#1d9e75' : 'var(--text-secondary)' }}
                 >
                   {count}
                 </span>
@@ -278,8 +268,8 @@ export function SettingsView() {
             style={{ borderColor: '#e0505040', background: '#e0505008' }}
           >
             <div>
-              <div className="text-sm font-medium text-[#e8e8ef]">Reset Onboarding</div>
-              <div className="text-xs text-[#9898a8] mt-0.5">Show the welcome wizard again on next reload.</div>
+              <div className="text-sm font-medium text-[var(--text-primary)]">Reset Onboarding</div>
+              <div className="text-xs text-[var(--text-muted)] mt-0.5">Show the welcome wizard again on next reload.</div>
             </div>
             <button
               onClick={() => { resetOnboarding(); window.location.reload() }}
@@ -295,8 +285,8 @@ export function SettingsView() {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-sm font-medium text-[#e8e8ef]">Clear All Data</div>
-                <div className="text-xs text-[#9898a8] mt-0.5">
+                <div className="text-sm font-medium text-[var(--text-primary)]">Clear All Data</div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5">
                   Removes all providers, skills, packages, workflows, and memory. Cannot be undone.
                 </div>
               </div>
@@ -313,7 +303,7 @@ export function SettingsView() {
             </div>
             {showDanger && (
               <div className="mt-4 space-y-3">
-                <p className="text-xs text-[#9898a8]">
+                <p className="text-xs text-[var(--text-muted)]">
                   Type <strong className="text-[#e05050]">RESET</strong> to confirm permanent deletion:
                 </p>
                 <input
@@ -322,12 +312,12 @@ export function SettingsView() {
                   onChange={e => setResetInput(e.target.value)}
                   placeholder="Type RESET"
                   autoFocus
-                  className="w-full bg-[#0d0d0f] border border-[#e05050]/30 rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#e05050]/60 font-mono transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[#e05050]/30 rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#e05050]/60 font-mono transition-colors"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={() => { setShowDanger(false); setResetInput('') }}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-[#9898a8] bg-[#1c1c22] hover:text-[#e8e8ef] transition-colors"
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     Cancel
                   </button>

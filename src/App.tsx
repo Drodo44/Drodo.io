@@ -21,6 +21,7 @@ import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
+import { applyThemeClass, getStoredTheme } from './lib/theme'
 
 function MainContent() {
   const activeView = useAppStore(s => s.activeView)
@@ -54,6 +55,10 @@ function App() {
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
 
   useEffect(() => {
+    applyThemeClass(getStoredTheme())
+  }, [])
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
@@ -68,7 +73,7 @@ function App() {
     return (
       <div
         className="flex h-screen w-screen overflow-hidden"
-        style={{ background: '#0d0d0f', color: '#e8e8ef' }}
+        style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       >
         <Sidebar />
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
@@ -87,7 +92,7 @@ function App() {
   return (
     <div
       className="flex h-screen w-screen overflow-hidden"
-      style={{ background: '#0d0d0f', color: '#e8e8ef' }}
+      style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       <Sidebar />
 

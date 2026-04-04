@@ -149,11 +149,11 @@ function PromptCard({
   }
 
   return (
-    <div className="p-4 rounded-xl border border-[#2a2a2e] bg-[#141418] flex flex-col gap-3 hover:border-[#3a3a42] transition-all duration-200">
+    <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col gap-3 hover:border-[var(--border-color)] transition-all duration-200">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[#e8e8ef] truncate">{prompt.title}</div>
+          <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{prompt.title}</div>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <span
               className="text-xs px-2 py-0.5 rounded-full font-medium"
@@ -162,7 +162,7 @@ function PromptCard({
               {prompt.category}
             </span>
             {prompt.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#1c1c22', color: '#6b6b78' }}>
+              <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
                 #{tag}
               </span>
             ))}
@@ -171,14 +171,14 @@ function PromptCard({
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={onEdit}
-            className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#9898a8] hover:bg-[#1c1c22] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
             title="Edit"
           >
             <Edit3 size={13} />
           </button>
           <button
             onClick={onDelete}
-            className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e05050] hover:bg-[#1c1c22] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[var(--bg-tertiary)] transition-colors"
             title="Delete"
           >
             <Trash2 size={13} />
@@ -187,17 +187,17 @@ function PromptCard({
       </div>
 
       {/* Content preview */}
-      <p className="text-xs text-[#9898a8] leading-relaxed line-clamp-3 flex-1 font-mono">
+      <p className="text-xs text-[var(--text-muted)] leading-relaxed line-clamp-3 flex-1 font-mono">
         {prompt.content.slice(0, 180)}{prompt.content.length > 180 ? '…' : ''}
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#2a2a2e]">
-        <span className="text-xs text-[#4a4a52]">Used {prompt.usageCount}×</span>
+      <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border-color)]">
+        <span className="text-xs text-[var(--text-muted)]">Used {prompt.usageCount}×</span>
         <div className="flex items-center gap-1.5">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[#2a2a2e] text-[#9898a8] hover:bg-[#1c1c22] transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             {copied ? <Check size={11} style={{ color: '#1d9e75' }} /> : <Copy size={11} />}
             {copied ? 'Copied!' : 'Copy'}
@@ -245,71 +245,71 @@ function PromptForm({
   }
 
   return (
-    <div className="p-5 rounded-xl border border-[#7f77dd]/30 bg-[#141418] space-y-4">
+    <div className="p-5 rounded-xl border border-[#7f77dd]/30 bg-[var(--bg-secondary)] space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-[#e8e8ef]">{initial ? 'Edit Prompt' : 'New Prompt'}</span>
-        <button onClick={onCancel} className="p-1 rounded text-[#6b6b78] hover:text-[#e8e8ef] transition-colors">
+        <span className="text-sm font-semibold text-[var(--text-primary)]">{initial ? 'Edit Prompt' : 'New Prompt'}</span>
+        <button onClick={onCancel} className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
           <X size={14} />
         </button>
       </div>
 
       {/* Title */}
       <div>
-        <label className="text-xs font-medium text-[#9898a8] mb-1.5 block">Title</label>
+        <label className="text-xs font-medium text-[var(--text-muted)] mb-1.5 block">Title</label>
         <input
           type="text"
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder="e.g. Cold Email Template"
-          className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+          className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
         />
       </div>
 
       {/* Category */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="text-xs font-medium text-[#9898a8] mb-1.5 block">Category</label>
+          <label className="text-xs font-medium text-[var(--text-muted)] mb-1.5 block">Category</label>
           <div className="relative">
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors appearance-none pr-8"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors appearance-none pr-8"
             >
               {PROMPT_CATEGORIES.slice(1).map(cat => (
-                <option key={cat} value={cat} style={{ background: '#141418' }}>{cat}</option>
+                <option key={cat} value={cat} style={{ background: 'var(--bg-secondary)' }}>{cat}</option>
               ))}
             </select>
-            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b6b78] pointer-events-none" />
+            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
           </div>
         </div>
         <div className="flex-1">
-          <label className="text-xs font-medium text-[#9898a8] mb-1.5 block">Tags (comma separated)</label>
+          <label className="text-xs font-medium text-[var(--text-muted)] mb-1.5 block">Tags (comma separated)</label>
           <input
             type="text"
             value={tagsRaw}
             onChange={e => setTagsRaw(e.target.value)}
             placeholder="email, outreach, sales"
-            className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
           />
         </div>
       </div>
 
       {/* Content */}
       <div>
-        <label className="text-xs font-medium text-[#9898a8] mb-1.5 block">Prompt content</label>
+        <label className="text-xs font-medium text-[var(--text-muted)] mb-1.5 block">Prompt content</label>
         <textarea
           value={content}
           onChange={e => setContent(e.target.value)}
           placeholder="Write your prompt here. Use [brackets] for variables."
           rows={5}
-          className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors resize-none font-mono"
+          className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors resize-none font-mono"
         />
       </div>
 
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
-          className="px-4 py-2 rounded-lg text-sm font-medium text-[#9898a8] bg-[#1c1c22] hover:text-[#e8e8ef] transition-colors"
+          className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
         >
           Cancel
         </button>
@@ -410,14 +410,14 @@ export function PromptLibraryView() {
   }
 
   return (
-    <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* ── Left: Category filter (180px) ─── */}
       <div
         className="flex-shrink-0 flex flex-col min-h-0 overflow-hidden"
-        style={{ width: 180, borderRight: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ width: 180, borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
-        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #2a2a2e' }}>
-          <p className="text-xs font-bold uppercase tracking-wider text-[#6b6b78]">Categories</p>
+        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Categories</p>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {PROMPT_CATEGORIES.map(cat => {
@@ -430,7 +430,7 @@ export function PromptLibraryView() {
                 onClick={() => setActiveCategory(cat)}
                 className={clsx(
                   'w-full flex items-center justify-between px-4 py-2 text-xs font-medium transition-colors text-left',
-                  isActive ? 'text-[#e8e8ef]' : 'text-[#6b6b78] hover:text-[#9898a8]'
+                  isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-muted)]'
                 )}
                 style={isActive
                   ? { background: color + '15', borderLeft: `2px solid ${color}` }
@@ -442,8 +442,8 @@ export function PromptLibraryView() {
                   <span
                     className="flex-shrink-0 text-[10px] ml-1 px-1.5 py-0.5 rounded-full"
                     style={{
-                      background: isActive ? color + '25' : '#1c1c22',
-                      color: isActive ? color : '#4a4a52',
+                      background: isActive ? color + '25' : 'var(--bg-tertiary)',
+                      color: isActive ? color : 'var(--text-muted)',
                     }}
                   >
                     {count}
@@ -460,25 +460,25 @@ export function PromptLibraryView() {
         {/* Header */}
         <div
           className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+          style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
         >
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
             <BookMarked size={18} style={{ color: '#7f77dd' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-bold text-[#e8e8ef] text-lg">Prompt Library</h1>
-            <p className="text-xs text-[#6b6b78]">{prompts.length} saved prompts</p>
+            <h1 className="font-bold text-[var(--text-primary)] text-lg">Prompt Library</h1>
+            <p className="text-xs text-[var(--text-secondary)]">{prompts.length} saved prompts</p>
           </div>
 
           {/* Search */}
           <div className="relative flex-shrink-0" style={{ width: 200 }}>
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6b78]" />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search prompts…"
-              className="w-full bg-[#1c1c22] border border-[#2a2a2e] rounded-xl pl-8 pr-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 placeholder:text-[#4a4a52] transition-colors"
+              className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-xl pl-8 pr-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 placeholder:text-[var(--text-muted)] transition-colors"
             />
           </div>
 
@@ -487,13 +487,13 @@ export function PromptLibraryView() {
             <select
               value={sort}
               onChange={e => setSort(e.target.value as SortMode)}
-              className="bg-[#1c1c22] border border-[#2a2a2e] rounded-xl px-3 py-2 text-sm text-[#9898a8] outline-none focus:border-[#7f77dd]/60 transition-colors appearance-none pr-8"
+              className="bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-sm text-[var(--text-muted)] outline-none focus:border-[#7f77dd]/60 transition-colors appearance-none pr-8"
             >
               <option value="newest">Newest</option>
               <option value="most-used">Most Used</option>
               <option value="az">A–Z</option>
             </select>
-            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6b6b78] pointer-events-none" />
+            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] pointer-events-none" />
           </div>
 
           {/* New Prompt */}
@@ -521,15 +521,15 @@ export function PromptLibraryView() {
           {/* Empty state */}
           {filtered.length === 0 && !showForm && (
             <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#1c1c22' }}>
-                <BookMarked size={28} className="text-[#2a2a2e]" />
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+                <BookMarked size={28} className="text-[var(--border-color)]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#6b6b78] mb-1">
+                <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">
                   {search || activeCategory !== 'All' ? 'No prompts match your filters.' : 'No prompts saved yet.'}
                 </p>
                 {!search && activeCategory === 'All' && (
-                  <p className="text-xs text-[#4a4a52] max-w-xs">
+                  <p className="text-xs text-[var(--text-muted)] max-w-xs">
                     Create your first prompt to reuse it across any agent or workflow.
                   </p>
                 )}

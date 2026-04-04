@@ -98,23 +98,23 @@ export function ProviderHubModal() {
           style={{
             width: 780,
             height: 540,
-            background: '#141418',
-            border: '1px solid #2a2a2e',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-6 py-4"
-            style={{ borderBottom: '1px solid #2a2a2e' }}
+            style={{ borderBottom: '1px solid var(--border-color)' }}
           >
             <div>
-              <Dialog.Title className="text-base font-bold text-[#e8e8ef]">Provider Hub</Dialog.Title>
-              <Dialog.Description className="text-xs text-[#6b6b78] mt-0.5">
+              <Dialog.Title className="text-base font-bold text-[var(--text-primary)]">Provider Hub</Dialog.Title>
+              <Dialog.Description className="text-xs text-[var(--text-secondary)] mt-0.5">
                 Connect AI providers · Keys stored locally in your browser
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
-              <button className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e8e8ef] hover:bg-[#2a2a2e] transition-colors">
+              <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors">
                 <X size={16} />
               </button>
             </Dialog.Close>
@@ -124,7 +124,7 @@ export function ProviderHubModal() {
             {/* Provider List */}
             <div
               className="overflow-y-auto py-2"
-              style={{ width: 210, borderRight: '1px solid #2a2a2e', flexShrink: 0 }}
+              style={{ width: 210, borderRight: '1px solid var(--border-color)', flexShrink: 0 }}
             >
               {allProviders.map(provider => {
                 const saved = loadProviderConfig(provider.id)
@@ -136,8 +136,8 @@ export function ProviderHubModal() {
                     className={clsx(
                       'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
                       selectedId === provider.id
-                        ? 'bg-[#7f77dd]/10 text-[#e8e8ef]'
-                        : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
+                        ? 'bg-[#7f77dd]/10 text-[var(--text-primary)]'
+                        : 'text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                     )}
                   >
                     <div className="relative flex-shrink-0">
@@ -150,7 +150,7 @@ export function ProviderHubModal() {
                       {hasSaved && (
                         <span
                           className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 flex items-center justify-center"
-                          style={{ background: '#1d9e75', borderColor: '#141418' }}
+                          style={{ background: '#1d9e75', borderColor: 'var(--bg-secondary)' }}
                         />
                       )}
                     </div>
@@ -176,27 +176,27 @@ export function ProviderHubModal() {
                   {selected.initials}
                 </div>
                 <div>
-                  <div className="font-semibold text-[#e8e8ef]">{selected.name}</div>
+                  <div className="font-semibold text-[var(--text-primary)]">{selected.name}</div>
                   {selected.isLocal ? (
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1d9e7520', color: '#1d9e75' }}>
                       No API key required
                     </span>
                   ) : (
-                    <span className="text-xs text-[#6b6b78]">Endpoint: {normalizeUrl(effectiveBaseUrl)}</span>
+                    <span className="text-xs text-[var(--text-secondary)]">Endpoint: {normalizeUrl(effectiveBaseUrl)}</span>
                   )}
                 </div>
               </div>
 
               {/* Base URL */}
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                   <Link size={12} />
                   Base URL
                 </label>
                 <input
                   value={baseUrl || selected.baseUrl}
                   onChange={e => setBaseUrl(e.target.value)}
-                  className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                   placeholder="https://api.provider.com/v1"
                 />
               </div>
@@ -204,7 +204,7 @@ export function ProviderHubModal() {
               {/* API Key */}
               {!selected.isLocal && (
                 <div className="space-y-1.5">
-                  <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+                  <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                     <Key size={12} />
                     API Key
                     {apiKey && (
@@ -217,7 +217,7 @@ export function ProviderHubModal() {
                     type="password"
                     value={apiKey}
                     onChange={e => { setApiKey(e.target.value); setTestState('idle') }}
-                    className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                    className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                     placeholder={selected.id === 'anthropic' ? 'sk-ant-...' : selected.id === 'openai' ? 'sk-...' : 'API key'}
                   />
                 </div>
@@ -225,14 +225,14 @@ export function ProviderHubModal() {
 
               {/* Model */}
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-[#9898a8]">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
                   <Cpu size={12} />
                   Model
                 </label>
                 <input
                   value={model || selected.model || ''}
                   onChange={e => setModel(e.target.value)}
-                  className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                   placeholder="model-name"
                 />
               </div>
@@ -260,12 +260,12 @@ export function ProviderHubModal() {
                   className={clsx(
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all',
                     testState === 'testing'
-                      ? 'border-[#2a2a2e] text-[#6b6b78] cursor-not-allowed'
+                      ? 'border-[var(--border-color)] text-[var(--text-secondary)] cursor-not-allowed'
                       : testState === 'success'
                       ? 'border-[#1d9e75]/40 text-[#1d9e75]'
                       : testState === 'error'
                       ? 'border-[#e05050]/40 text-[#e05050]'
-                      : 'border-[#2a2a2e] text-[#9898a8] hover:border-[#7f77dd]/40 hover:text-[#e8e8ef]'
+                      : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[#7f77dd]/40 hover:text-[var(--text-primary)]'
                   )}
                 >
                   {testState === 'testing' && <Loader size={14} className="animate-spin" />}
@@ -288,7 +288,7 @@ export function ProviderHubModal() {
                 </button>
               </div>
 
-              <p className="text-xs text-[#6b6b78] pt-1">
+              <p className="text-xs text-[var(--text-secondary)] pt-1">
                 Keys are stored locally in your browser and never sent to Drodo servers.
               </p>
             </div>

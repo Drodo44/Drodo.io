@@ -17,7 +17,7 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
   if (isSystem) {
     return (
       <div className="flex justify-center my-3">
-        <span className="text-xs text-[#6b6b78] bg-[#1c1c22] border border-[#2a2a2e] px-3 py-1 rounded-full">
+        <span className="text-xs text-[var(--text-secondary)] bg-[var(--bg-tertiary)] border border-[var(--border-color)] px-3 py-1 rounded-full">
           {message.content}
         </span>
       </div>
@@ -47,8 +47,8 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
           className={clsx(
             'px-4 py-3 rounded-2xl text-sm leading-relaxed',
             isUser
-              ? 'bg-[#7f77dd]/15 border border-[#7f77dd]/25 text-[#e8e8ef] rounded-tr-sm'
-              : 'bg-[#141418] border border-[#2a2a2e] text-[#e8e8ef] rounded-tl-sm'
+              ? 'bg-[#7f77dd]/15 border border-[#7f77dd]/25 text-[var(--text-primary)] rounded-tr-sm'
+              : 'bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-sm'
           )}
         >
           <span className="whitespace-pre-wrap break-words">{message.content}</span>
@@ -58,7 +58,7 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
         </div>
 
         {/* Timestamp */}
-        <span className="text-xs text-[#6b6b78] px-1">
+        <span className="text-xs text-[var(--text-secondary)] px-1">
           {formatTime(message.timestamp)}
         </span>
       </div>

@@ -63,7 +63,7 @@ interface PaletteItem {
 const STATUS_COLOR: Record<string, string> = {
   running: '#7f77dd',
   complete: '#1d9e75',
-  idle: '#6b6b78',
+  idle: 'var(--text-secondary)',
   error: '#e05050',
 }
 
@@ -117,7 +117,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         id: `agent-${a.id}`,
         label: a.name,
         category: 'Agents',
-        iconColor: STATUS_COLOR[a.status] ?? '#6b6b78',
+        iconColor: STATUS_COLOR[a.status] ?? 'var(--text-secondary)',
         onActivate: () => { setView('swarm'); onClose() },
       })
     })
@@ -218,22 +218,22 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         style={{
           maxWidth: 560,
           maxHeight: '60vh',
-          background: '#141418',
-          border: '1px solid #2a2a2e',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
         }}
       >
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid #2a2a2e' }}>
-          <Search size={16} className="text-[#6b6b78] flex-shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <Search size={16} className="text-[var(--text-secondary)] flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => { setQuery(e.target.value); setSelectedIndex(0) }}
             placeholder="Search views, agents, workflows…"
-            className="flex-1 bg-transparent text-sm text-[#e8e8ef] outline-none placeholder:text-[#4a4a52]"
+            className="flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
           />
-          <kbd className="text-xs text-[#4a4a52] px-1.5 py-0.5 rounded" style={{ background: '#1c1c22', border: '1px solid #2a2a2e' }}>
+          <kbd className="text-xs text-[var(--text-muted)] px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}>
             ESC
           </kbd>
         </div>
@@ -241,7 +241,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         {/* Results */}
         <div className="overflow-y-auto flex-1 py-2">
           {filtered.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-[#6b6b78]">No results for "{query}"</div>
+            <div className="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">No results for "{query}"</div>
           ) : (
             Array.from(grouped.entries()).map(([category, items]) => (
               <div key={category}>
@@ -249,7 +249,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 <div className="px-4 py-1.5 flex items-center gap-2">
                   <span
                     className="text-xs font-bold uppercase tracking-wider"
-                    style={{ color: CATEGORY_COLORS[category] ?? '#9898a8' }}
+                    style={{ color: CATEGORY_COLORS[category] ?? 'var(--text-muted)' }}
                   >
                     {category}
                   </span>
@@ -278,9 +278,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                       ) : (
                         <div
                           className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: (item.iconColor ?? '#6b6b78') + '25' }}
+                          style={{ background: (item.iconColor ?? 'var(--text-secondary)') + '25' }}
                         >
-                          <span className="text-xs font-bold" style={{ color: item.iconColor ?? '#6b6b78' }}>
+                          <span className="text-xs font-bold" style={{ color: item.iconColor ?? 'var(--text-secondary)' }}>
                             {item.label.slice(0, 1)}
                           </span>
                         </div>
@@ -288,14 +288,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                       {/* Label */}
                       <span
                         className="flex-1 text-sm truncate"
-                        style={{ color: isSelected ? '#e8e8ef' : '#9898a8' }}
+                        style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }}
                       >
                         {item.label}
                       </span>
                       {/* Category badge */}
                       <span
                         className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: '#1c1c22', color: '#6b6b78', border: '1px solid #2a2a2e' }}
+                        style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
                       >
                         {item.category}
                       </span>
@@ -309,8 +309,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
         {/* Footer hint */}
         <div
-          className="flex items-center gap-4 px-4 py-2 text-xs text-[#4a4a52]"
-          style={{ borderTop: '1px solid #2a2a2e' }}
+          className="flex items-center gap-4 px-4 py-2 text-xs text-[var(--text-muted)]"
+          style={{ borderTop: '1px solid var(--border-color)' }}
         >
           <span><kbd className="font-mono">↑↓</kbd> navigate</span>
           <span><kbd className="font-mono">↵</kbd> select</span>

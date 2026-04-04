@@ -226,7 +226,7 @@ function TemplateCard({
   const catColor = CATEGORY_COLORS[template.category] ?? '#7f77dd'
 
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-xl border border-[#2a2a2e] bg-[#141418] hover:border-[#3a3a42] transition-all duration-200">
+    <div className="flex flex-col gap-3 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
       {/* Icon + name row */}
       <div className="flex items-start gap-3">
         <div
@@ -236,7 +236,7 @@ function TemplateCard({
           <Icon size={18} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[#e8e8ef] leading-tight">{template.name}</div>
+          <div className="text-sm font-semibold text-[var(--text-primary)] leading-tight">{template.name}</div>
           <span
             className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium"
             style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}28` }}
@@ -247,11 +247,11 @@ function TemplateCard({
       </div>
 
       {/* Description */}
-      <p className="text-xs text-[#9898a8] leading-relaxed flex-1 line-clamp-2">{template.description}</p>
+      <p className="text-xs text-[var(--text-muted)] leading-relaxed flex-1 line-clamp-2">{template.description}</p>
 
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 pt-1">
-        <span className="text-xs text-[#4a4a52] font-mono">Best with: {template.model}</span>
+        <span className="text-xs text-[var(--text-muted)] font-mono">Best with: {template.model}</span>
         <button
           onClick={onDeploy}
           className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all active:scale-95"
@@ -298,14 +298,14 @@ export function AgentTemplatesView() {
   }, [])
 
   return (
-    <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
+    <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       {/* ── Left: Category filter (180px) ─── */}
       <div
         className="flex-shrink-0 flex flex-col min-h-0 overflow-hidden"
-        style={{ width: 180, borderRight: '1px solid #2a2a2e', background: '#141418' }}
+        style={{ width: 180, borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
-        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: '1px solid #2a2a2e' }}>
-          <p className="text-xs font-bold uppercase tracking-wider text-[#6b6b78]">Categories</p>
+        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Categories</p>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {CATEGORIES.map(cat => {
@@ -318,7 +318,7 @@ export function AgentTemplatesView() {
                 onClick={() => setActiveCategory(cat)}
                 className={clsx(
                   'w-full flex items-center justify-between px-4 py-2 text-xs font-medium transition-colors text-left',
-                  isActive ? 'text-[#e8e8ef]' : 'text-[#6b6b78] hover:text-[#9898a8]'
+                  isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-muted)]'
                 )}
                 style={isActive ? { background: color + '15', borderLeft: `2px solid ${color}` } : { borderLeft: '2px solid transparent' }}
               >
@@ -326,8 +326,8 @@ export function AgentTemplatesView() {
                 <span
                   className="flex-shrink-0 text-[10px] ml-1 px-1.5 py-0.5 rounded-full"
                   style={{
-                    background: isActive ? color + '25' : '#1c1c22',
-                    color: isActive ? color : '#4a4a52',
+                    background: isActive ? color + '25' : 'var(--bg-tertiary)',
+                    color: isActive ? color : 'var(--text-muted)',
                   }}
                 >
                   {count}
@@ -343,26 +343,26 @@ export function AgentTemplatesView() {
         {/* Header */}
         <div
           className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
+          style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
         >
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
             <LayoutTemplate size={18} style={{ color: '#7f77dd' }} />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-bold text-[#e8e8ef] text-lg">Agent Templates</h1>
-            <p className="text-xs text-[#6b6b78]">
+            <h1 className="font-bold text-[var(--text-primary)] text-lg">Agent Templates</h1>
+            <p className="text-xs text-[var(--text-secondary)]">
               {TEMPLATES.length} templates across {CATEGORIES.length - 1} categories
             </p>
           </div>
           {/* Search */}
           <div className="relative flex-shrink-0" style={{ width: 240 }}>
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6b78]" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search templates…"
-              className="w-full bg-[#1c1c22] border border-[#2a2a2e] rounded-xl pl-8 pr-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 placeholder:text-[#4a4a52] transition-colors"
+              className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-xl pl-8 pr-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 placeholder:text-[var(--text-muted)] transition-colors"
             />
           </div>
         </div>
@@ -371,12 +371,12 @@ export function AgentTemplatesView() {
         <div className="flex-1 overflow-y-auto p-6">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-              <LayoutTemplate size={32} className="text-[#2a2a2e]" />
-              <p className="text-sm text-[#6b6b78]">No templates match your search.</p>
+              <LayoutTemplate size={32} className="text-[var(--border-color)]" />
+              <p className="text-sm text-[var(--text-secondary)]">No templates match your search.</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-[#4a4a52] mb-4">{filtered.length} template{filtered.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-[var(--text-muted)] mb-4">{filtered.length} template{filtered.length !== 1 ? 's' : ''}</p>
               <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
                 {filtered.map(t => (
                   <TemplateCard key={t.id} template={t} onDeploy={() => handleDeploy(t)} />
