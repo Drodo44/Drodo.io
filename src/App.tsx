@@ -11,6 +11,7 @@ import { MCPServersView } from './views/MCPServersView'
 import { SkillsView } from './views/SkillsView'
 import { WorkflowsView } from './views/WorkflowsView'
 import { AnalyticsView } from './views/AnalyticsView'
+import { ConnectionsView } from './views/ConnectionsView'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 
@@ -33,6 +34,7 @@ function MainContent() {
   if (activeView === 'skills') return <SkillsView />
   if (activeView === 'workflows') return <WorkflowsView />
   if (activeView === 'analytics') return <AnalyticsView />
+  if (activeView === 'connections') return <ConnectionsView />
   return null
 }
 

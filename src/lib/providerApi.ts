@@ -27,6 +27,31 @@ export const PROVIDER_CATALOG: Provider[] = [
   { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: '#6b6b78', initials: 'CU' },
 ]
 
+const CUSTOM_PROVIDERS_KEY = 'drodo_custom_providers'
+
+export function loadCustomProviders(): Provider[] {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PROVIDERS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveCustomProvider(provider: Provider): void {
+  const all = loadCustomProviders().filter(p => p.id !== provider.id)
+  localStorage.setItem(CUSTOM_PROVIDERS_KEY, JSON.stringify([...all, provider]))
+}
+
+export function deleteCustomProvider(id: string): void {
+  const all = loadCustomProviders().filter(p => p.id !== id)
+  localStorage.setItem(CUSTOM_PROVIDERS_KEY, JSON.stringify(all))
+}
+
+export function getAllProviders(): Provider[] {
+  return [...PROVIDER_CATALOG, ...loadCustomProviders()]
+}
+
 export function loadAllSavedConfigs(): Record<string, SavedConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

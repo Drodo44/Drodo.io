@@ -12,6 +12,7 @@ export type NavView =
   | 'workflows'
   | 'analytics'
   | 'swarm'
+  | 'connections'
 
 export interface Provider {
   id: string

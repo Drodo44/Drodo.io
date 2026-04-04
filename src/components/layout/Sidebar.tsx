@@ -10,6 +10,7 @@ import {
   Zap,
   Puzzle,
   ChevronRight,
+  Plug,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Logo } from '../ui/Logo'
@@ -27,6 +28,7 @@ const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
   { view: 'skills', label: 'Skills & Connectors', Icon: Puzzle },
   { view: 'workflows', label: 'Workflows', Icon: GitBranch },
   { view: 'analytics', label: 'Analytics', Icon: BarChart3 },
+  { view: 'connections', label: 'Connections', Icon: Plug },
 ]
 
 function BrandLogo() {
