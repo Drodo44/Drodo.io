@@ -59,18 +59,22 @@ export interface Message {
 export interface Session {
   id: string
   name: string
-  createdAt: Date
+  createdAt: string
   messageCount: number
   model: string
+  preview: string
 }
+
+export type ProjectStatus = 'active' | 'paused' | 'complete'
 
 export interface Project {
   id: string
   name: string
   description: string
+  createdAt: string
   sessionsCount: number
-  lastActivity: Date
-  status: 'active' | 'paused' | 'complete'
+  status: ProjectStatus
+  agentCount: number
 }
 
 export interface MCPServer {

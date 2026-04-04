@@ -1,14 +1,14 @@
-import { FolderOpen, Plus, Clock, MessageSquare, Zap } from 'lucide-react'
+import { FolderOpen, Plus, Clock, MessageSquare, Search, Trash2, Bot } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAppStore } from '../store/appStore'
+import {
+  cycleProjectStatus,
+  deleteProject,
+  formatRelativeTime,
+  loadProjects,
+  saveProjects,
+} from '../lib/dashboardData'
 import type { Project } from '../types'
-
-const MOCK_PROJECTS: Project[] = [
-  { id: 'p1', name: 'E-Commerce Platform', description: 'Full-stack Next.js shop with Stripe integration and inventory management', sessionsCount: 24, lastActivity: new Date(Date.now() - 3600000), status: 'active' },
-  { id: 'p2', name: 'Analytics Dashboard', description: 'Real-time data visualization using D3.js and WebSocket streams', sessionsCount: 11, lastActivity: new Date(Date.now() - 86400000), status: 'active' },
-  { id: 'p3', name: 'Auth Microservice', description: 'JWT + OAuth2 authentication service with Redis session storage', sessionsCount: 8, lastActivity: new Date(Date.now() - 172800000), status: 'paused' },
-  { id: 'p4', name: 'Mobile App Backend', description: 'REST API for React Native app — user profiles, notifications, push', sessionsCount: 31, lastActivity: new Date(Date.now() - 7200000), status: 'active' },
-  { id: 'p5', name: 'Data Pipeline', description: 'ETL pipeline processing 10M records/day with Apache Kafka', sessionsCount: 6, lastActivity: new Date(Date.now() - 604800000), status: 'complete' },
-  { id: 'p6', name: 'ML Model Serving', description: 'FastAPI inference server with model versioning and A/B testing', sessionsCount: 3, lastActivity: new Date(Date.now() - 259200000), status: 'paused' },
-]
 
 const STATUS_CFG = {
   active: { color: '#1d9e75', bg: '#1d9e7515', label: 'Active' },
@@ -16,17 +16,73 @@ const STATUS_CFG = {
   complete: { color: '#6b6b78', bg: '#6b6b7815', label: 'Complete' },
 }
 
-function timeAgo(date: Date) {
-  const s = Math.floor((Date.now() - date.getTime()) / 1000)
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
-  return `${Math.floor(s / 86400)}d ago`
-}
-
 export function ProjectsView() {
+  const setView = useAppStore(s => s.setView)
+  const [query, setQuery] = useState('')
+  const [projects, setProjects] = useState<Project[]>(() => loadProjects())
+  const [showForm, setShowForm] = useState(false)
+  const [nameInput, setNameInput] = useState('')
+  const [descriptionInput, setDescriptionInput] = useState('')
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const syncProjects = () => setProjects(loadProjects())
+    window.addEventListener('storage', syncProjects)
+    return () => window.removeEventListener('storage', syncProjects)
+  }, [])
+
+  const filteredProjects = useMemo(
+    () => projects.filter(project => project.name.toLowerCase().includes(query.toLowerCase())),
+    [projects, query]
+  )
+
+  const resetForm = () => {
+    setShowForm(false)
+    setNameInput('')
+    setDescriptionInput('')
+  }
+
+  const handleCreateProject = () => {
+    const name = nameInput.trim()
+    const description = descriptionInput.trim()
+    if (!name) return
+
+    const nextProjects = [
+      {
+        id: crypto.randomUUID(),
+        name,
+        description,
+        createdAt: new Date().toISOString(),
+        sessionsCount: 0,
+        status: 'active' as const,
+        agentCount: 0,
+      },
+      ...projects,
+    ]
+
+    saveProjects(nextProjects)
+    setProjects(loadProjects())
+    resetForm()
+  }
+
+  const handleToggleStatus = (projectId: string) => {
+    const nextProjects = projects.map(project =>
+      project.id === projectId ? { ...project, status: cycleProjectStatus(project.status) } : project
+    )
+    saveProjects(nextProjects)
+    setProjects(loadProjects())
+  }
+
+  const handleDelete = (projectId: string) => {
+    setProjects(deleteProject(projectId))
+    setPendingDeleteId(current => (current === projectId ? null : current))
+  }
+
+  const hasProjects = projects.length > 0
+  const hasMatches = filteredProjects.length > 0
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
-      {/* Header */}
       <div
         className="flex items-center justify-between px-6 py-4 flex-shrink-0"
         style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
@@ -37,10 +93,11 @@ export function ProjectsView() {
           </div>
           <div>
             <h1 className="font-bold text-[#e8e8ef] text-lg">Projects</h1>
-            <p className="text-xs text-[#6b6b78]">{MOCK_PROJECTS.length} projects</p>
+            <p className="text-xs text-[#6b6b78]">{projects.length} projects</p>
           </div>
         </div>
         <button
+          onClick={() => setShowForm(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
           style={{ background: '#7f77dd' }}
         >
@@ -49,43 +106,165 @@ export function ProjectsView() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-          {MOCK_PROJECTS.map(project => {
-            const sc = STATUS_CFG[project.status]
-            return (
-              <div
-                key={project.id}
-                className="rounded-xl border border-[#2a2a2e] p-5 bg-[#141418] hover:border-[#3a3a42] transition-all cursor-pointer group"
-              >
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <h3 className="font-semibold text-[#e8e8ef] text-sm group-hover:text-[#a09ae8] transition-colors">{project.name}</h3>
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium"
-                    style={{ color: sc.color, background: sc.bg }}
-                  >
-                    {sc.label}
-                  </span>
-                </div>
-                <p className="text-xs text-[#9898a8] leading-relaxed mb-4 line-clamp-2">{project.description}</p>
-                <div className="flex items-center gap-4 text-xs text-[#6b6b78]">
-                  <span className="flex items-center gap-1">
-                    <MessageSquare size={11} />
-                    {project.sessionsCount} sessions
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={11} />
-                    {timeAgo(project.lastActivity)}
-                  </span>
-                  <button className="ml-auto flex items-center gap-1 text-[#7f77dd] opacity-0 group-hover:opacity-100 transition-opacity font-medium">
-                    <Zap size={11} />
-                    Open
-                  </button>
-                </div>
-              </div>
-            )
-          })}
+      <div className="px-6 py-3 space-y-3" style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0d0d0f] border border-[#2a2a2e]">
+          <Search size={14} className="text-[#6b6b78]" />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search projects..."
+            className="flex-1 bg-transparent text-sm text-[#e8e8ef] placeholder-[#6b6b78] outline-none"
+          />
         </div>
+
+        {showForm && (
+          <div className="rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] p-4">
+            <div className="grid gap-3 md:grid-cols-[1fr,1.2fr,auto]">
+              <input
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                placeholder="Project name"
+                className="rounded-lg border border-[#2a2a2e] bg-[#141418] px-3 py-2 text-sm text-[#e8e8ef] outline-none placeholder:text-[#6b6b78]"
+              />
+              <input
+                value={descriptionInput}
+                onChange={e => setDescriptionInput(e.target.value)}
+                placeholder="Description"
+                className="rounded-lg border border-[#2a2a2e] bg-[#141418] px-3 py-2 text-sm text-[#e8e8ef] outline-none placeholder:text-[#6b6b78]"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCreateProject}
+                  disabled={!nameInput.trim()}
+                  className="rounded-lg px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ background: '#7f77dd' }}
+                >
+                  Save
+                </button>
+                <button
+                  onClick={resetForm}
+                  className="rounded-lg border border-[#2a2a2e] px-3 py-2 text-sm font-medium text-[#9898a8]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        {!hasProjects ? (
+          <div className="rounded-2xl border border-[#2a2a2e] bg-[#141418] p-8 text-center">
+            <p className="text-sm text-[#9898a8]">No projects yet. Create one to organize future work.</p>
+            {!showForm && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: '#7f77dd' }}
+              >
+                <Plus size={14} />
+                Create Project
+              </button>
+            )}
+          </div>
+        ) : !hasMatches ? (
+          <div className="rounded-2xl border border-[#2a2a2e] bg-[#141418] p-8 text-center">
+            <p className="text-sm text-[#9898a8]">No projects match your search.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            {filteredProjects.map(project => {
+              const statusConfig = STATUS_CFG[project.status]
+
+              return (
+                <div
+                  key={project.id}
+                  onClick={() => setView('sessions')}
+                  className="rounded-xl border border-[#2a2a2e] p-5 bg-[#141418] hover:border-[#3a3a42] transition-all cursor-pointer group"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-[#e8e8ef] text-sm group-hover:text-[#a09ae8] transition-colors truncate">
+                        {project.name}
+                      </h3>
+                      <p className="mt-2 text-xs text-[#9898a8] leading-relaxed line-clamp-2">{project.description}</p>
+                    </div>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium"
+                      style={{ color: statusConfig.color, background: statusConfig.bg }}
+                    >
+                      {statusConfig.label}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-[#6b6b78]">
+                    <span className="flex items-center gap-1">
+                      <MessageSquare size={11} />
+                      {project.sessionsCount} sessions
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Bot size={11} />
+                      {project.agentCount} agents
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock size={11} />
+                      {formatRelativeTime(project.createdAt)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <button
+                      onClick={event => {
+                        event.stopPropagation()
+                        handleToggleStatus(project.id)
+                      }}
+                      className="rounded-lg border border-[#2a2a2e] px-3 py-1.5 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef]"
+                    >
+                      Cycle Status
+                    </button>
+
+                    {pendingDeleteId === project.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#9898a8]">Delete?</span>
+                        <button
+                          onClick={event => {
+                            event.stopPropagation()
+                            handleDelete(project.id)
+                          }}
+                          className="rounded-lg px-2.5 py-1 text-xs font-semibold text-white"
+                          style={{ background: '#e05050' }}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={event => {
+                            event.stopPropagation()
+                            setPendingDeleteId(null)
+                          }}
+                          className="rounded-lg border border-[#2a2a2e] px-2.5 py-1 text-xs font-medium text-[#9898a8]"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={event => {
+                          event.stopPropagation()
+                          setPendingDeleteId(project.id)
+                        }}
+                        className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e05050]"
+                        aria-label={`Delete ${project.name}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

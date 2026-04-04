@@ -20,6 +20,11 @@ import { INITIAL_CONNECTORS } from '../lib/connectors'
 import { executeCommand, readFile } from '../lib/tauri'
 import { trackUsage, estimateCost } from '../lib/usageTracker'
 import { notify } from '../lib/notifications'
+import {
+  getConversationMessageCount,
+  getLatestConversationPreview,
+  upsertSession,
+} from '../lib/dashboardData'
 
 let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
@@ -67,6 +72,10 @@ function createTaskSteps(): TaskStep[] {
   return INITIAL_TASK_STEPS.map(step => ({ ...step }))
 }
 
+function createSessionId(): string {
+  return crypto.randomUUID()
+}
+
 function updateTaskStep(steps: TaskStep[], id: TaskStep['id'], status: TaskStep['status']): TaskStep[] {
   return steps.map(step => (step.id === id ? { ...step, status } : step))
 }
@@ -110,6 +119,22 @@ function createTerminalEntry(
 function pushRecentPath(paths: string[], next: string): string[] {
   if (!next) return paths
   return [next, ...paths.filter(path => path !== next)].slice(0, 12)
+}
+
+function persistSessionSnapshot(
+  sessionId: string,
+  sessionName: string,
+  provider: Provider,
+  messages: Message[]
+): void {
+  upsertSession({
+    id: sessionId,
+    name: sessionName,
+    createdAt: new Date().toISOString(),
+    messageCount: getConversationMessageCount(messages),
+    model: provider.model ?? provider.name,
+    preview: getLatestConversationPreview(messages),
+  })
 }
 
 function loadConnectors() {
@@ -169,6 +194,7 @@ let agentCounter = 1
 
 interface AppState {
   activeView: NavView
+  sessionId: string
   sessionName: string
   agentRunning: boolean
   permissionTier: PermissionTier
@@ -196,6 +222,7 @@ interface AppState {
   chatDraft: string
 
   setView: (view: NavView) => void
+  startNewSession: () => void
   setSessionName: (name: string) => void
   toggleAgentRunning: () => void
   setPermission: (tier: PermissionTier) => void
@@ -222,6 +249,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeView: 'agent',
+  sessionId: createSessionId(),
   sessionName: 'Drodo Session',
   agentRunning: false,
   permissionTier: 'standard',
@@ -251,6 +279,26 @@ export const useAppStore = create<AppState>((set, get) => ({
   chatDraft: '',
 
   setView: view => set({ activeView: view }),
+  startNewSession: () => {
+    activePrimaryRun?.abort()
+    activePrimaryRun = null
+
+    if (autonomousLoopTimer) {
+      clearTimeout(autonomousLoopTimer)
+      autonomousLoopTimer = null
+    }
+
+    set({
+      sessionId: createSessionId(),
+      sessionName: 'Drodo Session',
+      messages: [createMessage('system', 'Session started. Drodo is ready.')],
+      agentRunning: false,
+      autonomousLoopActive: false,
+      autonomousLoopCount: 0,
+      taskSteps: createTaskSteps(),
+      chatDraft: '',
+    })
+  },
   setSessionName: name => set({ sessionName: name }),
   toggleAgentRunning: () => set(state => ({ agentRunning: !state.agentRunning })),
 
@@ -426,6 +474,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       timestamp: new Date(),
       streaming: true,
     }
+    const nextMessages = [...state.messages.map(m => ({ ...m, streaming: false })), userMessage, assistantMessage]
 
     // Build clean API conversation: system prompt + user/assistant turns only
     const history = state.messages.filter(m => !m.streaming)
@@ -436,7 +485,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     ]
 
     set(current => ({
-      messages: [...current.messages.map(m => ({ ...m, streaming: false })), userMessage, assistantMessage],
+      messages: nextMessages,
       agentRunning: true,
       taskSteps: updateTaskStep(createTaskSteps(), 'respond', 'running'),
       terminalEntries: [
@@ -444,15 +493,18 @@ export const useAppStore = create<AppState>((set, get) => ({
         createTerminalEntry('info', 'User', content),
       ],
     }))
+    persistSessionSnapshot(state.sessionId, state.sessionName, provider, nextMessages)
 
     // No key configured — the ChatPanel inline card already tells the user.
     // Remove the placeholder assistant bubble and bail.
     if (!provider.isLocal && !provider.apiKey) {
+      const failedMessages = nextMessages.filter(message => message.id !== assistantId)
       set(current => ({
         messages: current.messages.filter(m => m.id !== assistantId),
         agentRunning: false,
         taskSteps: createTaskSteps(),
       }))
+      persistSessionSnapshot(state.sessionId, state.sessionName, provider, failedMessages)
       return
     }
 
@@ -487,6 +539,13 @@ export const useAppStore = create<AppState>((set, get) => ({
             createTerminalEntry('info', 'Response', finalContent || '(no content)'),
           ],
         }))
+        const persistedState = get()
+        persistSessionSnapshot(
+          persistedState.sessionId,
+          persistedState.sessionName,
+          provider,
+          persistedState.messages
+        )
 
         // Track usage
         try {
@@ -540,6 +599,8 @@ export const useAppStore = create<AppState>((set, get) => ({
             createTerminalEntry('error', 'API error', error.message),
           ],
         }))
+        const latest = get()
+        persistSessionSnapshot(latest.sessionId, latest.sessionName, provider, latest.messages)
       }
     )
 
