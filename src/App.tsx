@@ -1,6 +1,5 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore } from './store/appStore'
-import { loadAllSavedConfigs } from './lib/providerApi'
 import { Sidebar } from './components/layout/Sidebar'
 import { TopBar } from './components/layout/TopBar'
 import { ChatPanel } from './components/layout/ChatPanel'
@@ -15,7 +14,9 @@ import { WorkflowsView } from './views/WorkflowsView'
 import { AnalyticsView } from './views/AnalyticsView'
 import { ConnectionsView } from './views/ConnectionsView'
 import { SettingsView } from './views/SettingsView'
-import { OnboardingScreen } from './components/Onboarding'
+import { AgentTemplatesView } from './views/AgentTemplatesView'
+import { PromptLibraryView } from './views/PromptLibraryView'
+import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
@@ -41,16 +42,13 @@ function MainContent() {
   if (activeView === 'analytics') return <AnalyticsView />
   if (activeView === 'connections') return <ConnectionsView />
   if (activeView === 'settings') return <SettingsView />
+  if (activeView === 'templates') return <AgentTemplatesView />
+  if (activeView === 'prompts') return <PromptLibraryView />
   return null
 }
 
 function App() {
-  const activeProvider = useAppStore(s => s.activeProvider)
-  const hasConfiguredProvider = useMemo(
-    () => Object.keys(loadAllSavedConfigs()).length > 0,
-    [activeProvider]
-  )
-
+  const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
 
   useEffect(() => {
@@ -64,7 +62,7 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  if (!hasConfiguredProvider) {
+  if (!onboardingDone) {
     return (
       <div
         className="flex h-screen w-screen overflow-hidden"
@@ -74,7 +72,7 @@ function App() {
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
           <TopBar />
           <main className="flex flex-1 min-h-0 overflow-hidden">
-            <OnboardingScreen />
+            <OnboardingScreen onComplete={() => setOnboardingDone(true)} />
           </main>
         </div>
         <ProviderHubModal />

@@ -1,24 +1,13 @@
 import { useState } from 'react'
 import {
-  Bot,
-  FolderOpen,
-  Clock,
-  Files,
-  Server,
-  GitBranch,
-  BarChart3,
-  Zap,
-  Puzzle,
-  ChevronRight,
-  Plug,
-  Settings2,
+  Bot, FolderOpen, Clock, Files, Server, GitBranch, BarChart3, Zap,
+  Puzzle, ChevronRight, Plug, Settings2, LayoutTemplate, BookMarked,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Logo } from '../ui/Logo'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import type { NavView } from '../../types'
-
 import drodoLogo from '../../assets/drodo-logo.png'
 
 const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
@@ -33,9 +22,13 @@ const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
   { view: 'connections', label: 'Connections', Icon: Plug },
 ]
 
+const LIBRARY_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
+  { view: 'templates', label: 'Agent Templates', Icon: LayoutTemplate },
+  { view: 'prompts', label: 'Prompt Library', Icon: BookMarked },
+]
+
 function BrandLogo() {
   const [imgFailed, setImgFailed] = useState(false)
-
   if (!imgFailed) {
     return (
       <img
@@ -72,28 +65,19 @@ export function Sidebar() {
         key={view}
         onClick={() => setView(view)}
         className={clsx(
-          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
+          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
           isActive
             ? 'text-[#e8e8ef] bg-[#7f77dd]/12'
             : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
         )}
       >
         {isActive && (
-          <span
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
-            style={{ background: '#7f77dd' }}
-          />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full" style={{ background: '#7f77dd' }} />
         )}
-        <Icon
-          size={16}
-          style={{ color: isActive ? '#7f77dd' : undefined, flexShrink: 0 }}
-        />
+        <Icon size={16} style={{ color: isActive ? '#7f77dd' : undefined, flexShrink: 0 }} />
         <span className="truncate">{label}</span>
         {badge != null && badge > 0 && (
-          <span
-            className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full"
-            style={{ background: '#7f77dd', color: '#fff', fontSize: 10 }}
-          >
+          <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#7f77dd', color: '#fff', fontSize: 10 }}>
             {badge}
           </span>
         )}
@@ -104,46 +88,44 @@ export function Sidebar() {
   return (
     <aside
       className="flex flex-col h-full flex-shrink-0"
-      style={{
-        width: 220,
-        background: '#141418',
-        borderRight: '1px solid #2a2a2e',
-      }}
+      style={{ width: 220, background: '#141418', borderRight: '1px solid #2a2a2e' }}
     >
-      {/* Logo + Brand */}
+      {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5" style={{ borderBottom: '1px solid #2a2a2e' }}>
         <BrandLogo />
         <div>
-          <div style={{ fontWeight: 700, fontSize: 18, color: '#7f77dd', letterSpacing: '-0.03em', lineHeight: 1 }}>
-            Drodo
-          </div>
-          <div style={{ fontSize: 10, color: '#6b6b78', marginTop: 2, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            AI Agent Platform
-          </div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: '#7f77dd', letterSpacing: '-0.03em', lineHeight: 1 }}>Drodo</div>
+          <div style={{ fontSize: 10, color: '#6b6b78', marginTop: 2, letterSpacing: '0.05em', textTransform: 'uppercase' }}>AI Agent Platform</div>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 py-3 overflow-y-auto">
+        {/* Main nav items */}
         <div className="px-2 space-y-0.5">
           {NAV_ITEMS.map(({ view, label, Icon }) => navButton(view, label, Icon))}
+        </div>
+
+        {/* Library section */}
+        <div className="mx-4 mt-4 mb-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#4a4a52]">Library</p>
+        </div>
+        <div className="px-2 space-y-0.5">
+          {LIBRARY_ITEMS.map(({ view, label, Icon }) => navButton(view, label, Icon))}
         </div>
 
         {/* Divider */}
         <div className="mx-4 my-3" style={{ borderTop: '1px solid #2a2a2e' }} />
 
-        {/* Agent Swarm */}
+        {/* Swarm + Settings */}
         <div className="px-2 space-y-0.5">
           {navButton('swarm', 'Agent Swarm', Zap, runningAgents > 0 ? runningAgents : undefined)}
-
-          {/* Settings — between Swarm and bottom provider section */}
           {navButton('settings', 'Settings', Settings2)}
         </div>
       </nav>
 
       {/* Bottom: Provider + Agent Status */}
       <div style={{ borderTop: '1px solid #2a2a2e' }} className="p-3 space-y-2">
-        {/* Active Provider */}
         <button
           onClick={() => setProviderHubOpen(true)}
           className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-[#1c1c22] transition-colors group"
@@ -161,17 +143,11 @@ export function Sidebar() {
           <ChevronRight size={12} className="text-[#6b6b78] group-hover:text-[#9898a8] flex-shrink-0" />
         </button>
 
-        {/* Agent Status */}
         <div className="flex items-center gap-2 px-3 py-2">
           <span
-            className={clsx(
-              'w-2 h-2 rounded-full flex-shrink-0',
-              agentRunning ? 'bg-[#1d9e75] animate-pulse-dot' : 'bg-[#6b6b78]'
-            )}
+            className={clsx('w-2 h-2 rounded-full flex-shrink-0', agentRunning ? 'bg-[#1d9e75] animate-pulse-dot' : 'bg-[#6b6b78]')}
           />
-          <span className="text-xs text-[#9898a8]">
-            {agentRunning ? 'Agent running...' : 'Agent idle'}
-          </span>
+          <span className="text-xs text-[#9898a8]">{agentRunning ? 'Agent running...' : 'Agent idle'}</span>
         </div>
       </div>
     </aside>

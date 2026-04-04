@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Send, Paperclip, Code2, Zap, Square } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -6,7 +6,7 @@ import { useAppStore } from '../../store/appStore'
 
 export function ChatInput() {
   const [value, setValue] = useState('')
-  const { sendMessage, autonomousMode, toggleAutonomous, agentRunning, stopAll, autonomousLoopActive } = useAppStore(
+  const { sendMessage, autonomousMode, toggleAutonomous, agentRunning, stopAll, autonomousLoopActive, chatDraft, setChatDraft } = useAppStore(
     useShallow(s => ({
       sendMessage: s.sendMessage,
       autonomousMode: s.autonomousMode,
@@ -14,9 +14,20 @@ export function ChatInput() {
       agentRunning: s.agentRunning,
       stopAll: s.stopAll,
       autonomousLoopActive: s.autonomousLoopActive,
+      chatDraft: s.chatDraft,
+      setChatDraft: s.setChatDraft,
     }))
   )
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Consume chatDraft when it changes (set by Prompt Library "Use in Chat")
+  useEffect(() => {
+    if (chatDraft) {
+      setValue(chatDraft)
+      setChatDraft('')
+      textareaRef.current?.focus()
+    }
+  }, [chatDraft, setChatDraft])
 
   const handleSend = () => {
     const trimmed = value.trim()

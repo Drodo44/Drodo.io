@@ -191,6 +191,7 @@ interface AppState {
   recentPaths: string[]
   swarmGoal: string
   swarmRunning: boolean
+  chatDraft: string
 
   setView: (view: NavView) => void
   setSessionName: (name: string) => void
@@ -214,6 +215,7 @@ interface AppState {
   runManualCommand: (command: string) => Promise<void>
   clearTerminal: () => void
   setSwarmGoal: (goal: string) => void
+  setChatDraft: (draft: string) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -244,6 +246,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   recentPaths: [],
   swarmGoal: '',
   swarmRunning: false,
+  chatDraft: '',
 
   setView: view => set({ activeView: view }),
   setSessionName: name => set({ sessionName: name }),
@@ -281,6 +284,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setProviderHubOpen: open => set({ providerHubOpen: open }),
   addMessage: message => set(state => ({ messages: [...state.messages, message] })),
   setSwarmGoal: goal => set({ swarmGoal: goal }),
+  setChatDraft: draft => set({ chatDraft: draft }),
 
   setLiveOutput: (title, content, language) =>
     set({

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2 } from 'lucide-react'
+import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, RotateCcw } from 'lucide-react'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
+import { resetOnboarding } from '../components/Onboarding'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
 
@@ -271,6 +272,23 @@ export function SettingsView() {
           <h2 className="text-xs font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#e05050' }}>
             Danger Zone
           </h2>
+          {/* Reset Onboarding */}
+          <div
+            className="p-4 rounded-xl border mb-3 flex items-center justify-between gap-4"
+            style={{ borderColor: '#e0505040', background: '#e0505008' }}
+          >
+            <div>
+              <div className="text-sm font-medium text-[#e8e8ef]">Reset Onboarding</div>
+              <div className="text-xs text-[#9898a8] mt-0.5">Show the welcome wizard again on next reload.</div>
+            </div>
+            <button
+              onClick={() => { resetOnboarding(); window.location.reload() }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold flex-shrink-0 border border-[#e05050]/30 text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+            >
+              <RotateCcw size={13} />
+              Reset
+            </button>
+          </div>
           <div
             className="p-4 rounded-xl border"
             style={{ borderColor: '#e0505040', background: '#e0505008' }}

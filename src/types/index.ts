@@ -14,6 +14,8 @@ export type NavView =
   | 'swarm'
   | 'connections'
   | 'settings'
+  | 'templates'
+  | 'prompts'
 
 export interface Provider {
   id: string
