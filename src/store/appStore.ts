@@ -1,218 +1,216 @@
 import { create } from 'zustand'
 import type {
-  NavView,
-  PermissionTier,
   AgentInstance,
   Message,
+  NavView,
+  PermissionTier,
   Provider,
   TaskStep,
-  Connector,
+  TerminalEntry,
 } from '../types'
-import { streamCompletion } from '../lib/streamChat'
-import { loadProviderConfig, saveProviderConfig } from '../lib/providerApi'
+import { runAgentSession, type AgentRunHandle } from '../lib/agentRunner'
+import {
+  buildProvider,
+  getConnectedProviders,
+  saveProviderConfig,
+} from '../lib/providerApi'
+import { INITIAL_CONNECTORS } from '../lib/connectors'
+import { executeCommand, readFile } from '../lib/tauri'
 
-// ─── Module-level streaming handle (not in Zustand state — not serializable) ─
-
-let activeStreamHandle: { abort: () => void } | null = null
+let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
-
-// ─── "Done" heuristic for autonomous mode ────────────────────────────────────
+const activeSwarmRuns = new Map<string, AgentRunHandle>()
 
 const DONE_PHRASES = [
-  'task complete', 'task is complete', 'all done', 'that\'s everything',
-  'work is complete', 'finished', 'completed successfully', 'done.',
-  'all steps complete', 'implementation complete', 'i\'ve finished',
+  'task complete',
+  'task is complete',
+  'all done',
+  "that's everything",
+  'work is complete',
+  'finished',
+  'completed successfully',
+  'done.',
+  'all steps complete',
+  'implementation complete',
+  "i've finished",
+]
+
+const INITIAL_TASK_STEPS: TaskStep[] = [
+  { id: 'plan', label: 'Analyze request', status: 'pending' },
+  { id: 'tools', label: 'Use tools if needed', status: 'pending' },
+  { id: 'respond', label: 'Write response', status: 'pending' },
 ]
 
 function looksComplete(text: string): boolean {
   const lower = text.toLowerCase()
-  return DONE_PHRASES.some(p => lower.includes(p))
+  return DONE_PHRASES.some(phrase => lower.includes(phrase))
 }
 
-// ─── State interface ──────────────────────────────────────────────────────────
-
-interface AppState {
-  activeView: NavView
-  sessionName: string
-  agentRunning: boolean
-
-  permissionTier: PermissionTier
-  pendingTier: PermissionTier | null
-  permissionWarningOpen: boolean
-
-  autonomousMode: boolean
-  autonomousLoopActive: boolean
-  autonomousLoopCount: number
-  autonomousMaxLoops: number
-
-  activeProvider: Provider
-  providerHubOpen: boolean
-
-  messages: Message[]
-  agents: AgentInstance[]
-  taskSteps: TaskStep[]
-  connectors: Connector[]
-
-  // Actions
-  setView: (v: NavView) => void
-  setSessionName: (name: string) => void
-  toggleAgentRunning: () => void
-  setPermission: (t: PermissionTier) => void
-  setPendingTier: (t: PermissionTier | null) => void
-  setPermissionWarningOpen: (open: boolean) => void
-  confirmPermission: () => void
-  toggleAutonomous: () => void
-  setActiveProvider: (p: Provider) => void
-  setProviderHubOpen: (open: boolean) => void
-  addMessage: (m: Message) => void
-  sendMessage: (content: string) => void
-  stopAll: () => void
-  spawnAgent: () => void
-  stopAgent: (id: string) => void
-  setConnectorConnected: (id: string, connected: boolean) => void
+function createId(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-function buildDefaultProvider(): Provider {
-  const saved = loadProviderConfig('anthropic')
+function createMessage(role: Message['role'], content: string): Message {
   return {
-    id: 'anthropic',
-    name: 'Anthropic',
-    baseUrl: saved?.baseUrl ?? 'api.anthropic.com',
-    model: saved?.model ?? 'claude-sonnet-4-6',
-    apiKey: saved?.apiKey ?? '',
-    color: '#cc785c',
-    initials: 'AN',
-    isConnected: !!saved?.apiKey,
+    id: createId(role),
+    role,
+    content,
+    timestamp: new Date(),
   }
 }
 
-const MOCK_MESSAGES: Message[] = [
-  {
-    id: '1',
-    role: 'system',
-    content: 'Session started. Drodo is ready.',
-    timestamp: new Date(Date.now() - 120000),
-  },
-  {
-    id: '2',
-    role: 'user',
-    content: 'Analyze the project structure and create a comprehensive test suite for the authentication module.',
-    timestamp: new Date(Date.now() - 90000),
-  },
-  {
-    id: '3',
-    role: 'assistant',
-    content: `I'll analyze the authentication module and create a comprehensive test suite. Let me start by examining the codebase structure.\n\n**Analysis complete.** I found 3 auth-related files:\n- \`src/auth/login.ts\` — JWT login handler\n- \`src/auth/middleware.ts\` — Route protection middleware  \n- \`src/auth/refresh.ts\` — Token refresh logic\n\nCreating test suite now...`,
-    timestamp: new Date(Date.now() - 60000),
-  },
-]
+function createTaskSteps(): TaskStep[] {
+  return INITIAL_TASK_STEPS.map(step => ({ ...step }))
+}
 
-const MOCK_AGENTS: AgentInstance[] = [
-  {
-    id: 'a1',
-    name: 'Architect',
-    model: 'claude-sonnet-4-6',
-    task: 'Designing the database schema for the new analytics pipeline',
-    status: 'running',
-    tokens: 12847,
-    startedAt: new Date(Date.now() - 240000),
-  },
-  {
-    id: 'a2',
-    name: 'Coder',
-    model: 'gpt-4o',
-    task: 'Implementing REST API endpoints for user management',
-    status: 'running',
-    tokens: 8234,
-    startedAt: new Date(Date.now() - 180000),
-  },
-  {
-    id: 'a3',
-    name: 'Reviewer',
-    model: 'claude-sonnet-4-6',
-    task: 'Code review and security audit of the payment module',
-    status: 'complete',
-    tokens: 31209,
-  },
-  {
-    id: 'a4',
-    name: 'Tester',
-    model: 'llama3.2',
-    task: 'Waiting for Coder to finish before running test suite',
-    status: 'idle',
-    tokens: 0,
-  },
-]
+function updateTaskStep(steps: TaskStep[], id: TaskStep['id'], status: TaskStep['status']): TaskStep[] {
+  return steps.map(step => (step.id === id ? { ...step, status } : step))
+}
 
-const MOCK_TASK_STEPS: TaskStep[] = [
-  { id: 's1', label: 'Read project structure', status: 'complete' },
-  { id: 's2', label: 'Analyze auth module', status: 'complete' },
-  { id: 's3', label: 'Generate unit tests', status: 'running' },
-  { id: 's4', label: 'Generate integration tests', status: 'pending' },
-  { id: 's5', label: 'Run test suite', status: 'pending' },
-  { id: 's6', label: 'Fix failing tests', status: 'pending' },
-]
+function detectLanguage(pathOrLabel: string): string {
+  const lower = pathOrLabel.toLowerCase()
+  if (lower.endsWith('.ts') || lower.endsWith('.tsx')) return 'typescript'
+  if (lower.endsWith('.js') || lower.endsWith('.mjs') || lower.endsWith('.cjs')) return 'javascript'
+  if (lower.endsWith('.json')) return 'json'
+  if (lower.endsWith('.rs')) return 'rust'
+  if (lower.endsWith('.md')) return 'markdown'
+  if (lower.endsWith('.css')) return 'css'
+  if (lower.endsWith('.html')) return 'xml'
+  if (lower.endsWith('.sh') || lower.endsWith('.bash')) return 'shell'
+  if (lower.endsWith('.ps1') || lower.includes('powershell')) return 'powershell'
+  return 'plaintext'
+}
 
-const INITIAL_CONNECTORS: Connector[] = [
-  // Social Media
-  { id: 'youtube', name: 'YouTube', category: 'Social Media', color: '#ff0000', initials: 'YT', isConnected: false, requiresKey: true, keyPlaceholder: 'AIza...' },
-  { id: 'tiktok', name: 'TikTok', category: 'Social Media', color: '#010101', initials: 'TK', isConnected: false, requiresKey: true, keyPlaceholder: 'TikTok API key' },
-  { id: 'instagram', name: 'Instagram', category: 'Social Media', color: '#e1306c', initials: 'IG', isConnected: false, requiresKey: true, keyPlaceholder: 'Meta API token' },
-  { id: 'twitter', name: 'Twitter / X', category: 'Social Media', color: '#1da1f2', initials: 'X', isConnected: false, requiresKey: true, keyPlaceholder: 'Bearer token' },
-  { id: 'reddit', name: 'Reddit', category: 'Social Media', color: '#ff4500', initials: 'RD', isConnected: false, requiresKey: true, keyPlaceholder: 'Client secret' },
-  { id: 'linkedin', name: 'LinkedIn', category: 'Social Media', color: '#0077b5', initials: 'LI', isConnected: false, requiresKey: true, keyPlaceholder: 'OAuth token' },
-  // Productivity
-  { id: 'gworkspace', name: 'Google Workspace', category: 'Productivity', color: '#4285f4', initials: 'GW', isConnected: false, requiresKey: true, keyPlaceholder: 'OAuth2 credentials' },
-  { id: 'notion', name: 'Notion', category: 'Productivity', color: '#000000', initials: 'NO', isConnected: false, requiresKey: true, keyPlaceholder: 'secret_...' },
-  { id: 'airtable', name: 'Airtable', category: 'Productivity', color: '#18bfff', initials: 'AT', isConnected: false, requiresKey: true, keyPlaceholder: 'pat...' },
-  { id: 'slack', name: 'Slack', category: 'Productivity', color: '#4a154b', initials: 'SL', isConnected: false, requiresKey: true, keyPlaceholder: 'xoxb-...' },
-  { id: 'discord', name: 'Discord', category: 'Productivity', color: '#5865f2', initials: 'DC', isConnected: false, requiresKey: true, keyPlaceholder: 'Bot token' },
-  { id: 'm365', name: 'Microsoft 365', category: 'Productivity', color: '#0078d4', initials: 'MS', isConnected: false, requiresKey: true, keyPlaceholder: 'Client secret' },
-  // Development
-  { id: 'github', name: 'GitHub', category: 'Development', color: '#181717', initials: 'GH', isConnected: false, requiresKey: true, keyPlaceholder: 'ghp_...' },
-  { id: 'vercel', name: 'Vercel', category: 'Development', color: '#000000', initials: 'VC', isConnected: false, requiresKey: true, keyPlaceholder: 'Vercel token' },
-  { id: 'supabase', name: 'Supabase', category: 'Development', color: '#3ecf8e', initials: 'SB', isConnected: false, requiresKey: true, keyPlaceholder: 'Service role key' },
-  { id: 'cloudflare', name: 'Cloudflare', category: 'Development', color: '#f6821f', initials: 'CF', isConnected: false, requiresKey: true, keyPlaceholder: 'API token' },
-  // Automation
-  { id: 'n8n', name: 'n8n', category: 'Automation', color: '#ea4b71', initials: 'N8', isConnected: false, requiresKey: true, keyPlaceholder: 'Webhook URL or API key' },
-  { id: 'zapier', name: 'Zapier', category: 'Automation', color: '#ff4a00', initials: 'ZP', isConnected: false, requiresKey: true, keyPlaceholder: 'Zapier API key' },
-  { id: 'make', name: 'Make', category: 'Automation', color: '#6d00cc', initials: 'MK', isConnected: false, requiresKey: true, keyPlaceholder: 'API key' },
-  { id: 'pipedream', name: 'Pipedream', category: 'Automation', color: '#3cb371', initials: 'PD', isConnected: false, requiresKey: true, keyPlaceholder: 'API key' },
-  // E-commerce
-  { id: 'shopify', name: 'Shopify', category: 'E-commerce', color: '#96bf48', initials: 'SH', isConnected: false, requiresKey: true, keyPlaceholder: 'shpat_...' },
-  { id: 'stripe', name: 'Stripe', category: 'E-commerce', color: '#635bff', initials: 'ST', isConnected: false, requiresKey: true, keyPlaceholder: 'sk_live_...' },
-  // Media & Creative
-  { id: 'elevenlabs', name: 'ElevenLabs', category: 'Media & Creative', color: '#5a5a5a', initials: 'EL', isConnected: false, requiresKey: true, keyPlaceholder: 'xi_api_key' },
-  { id: 'runway', name: 'Runway', category: 'Media & Creative', color: '#000000', initials: 'RW', isConnected: false, requiresKey: true, keyPlaceholder: 'API key' },
-  { id: 'midjourney', name: 'Midjourney', category: 'Media & Creative', color: '#000000', initials: 'MJ', isConnected: false, requiresKey: true, keyPlaceholder: 'API key' },
-  { id: 'stablediff', name: 'Stable Diffusion', category: 'Media & Creative', color: '#7f77dd', initials: 'SD', isConnected: false, requiresKey: true, keyPlaceholder: 'API key' },
-  // Communication
-  { id: 'gmail', name: 'Gmail', category: 'Communication', color: '#ea4335', initials: 'GM', isConnected: false, requiresKey: true, keyPlaceholder: 'OAuth2 credentials' },
-  { id: 'telegram', name: 'Telegram', category: 'Communication', color: '#229ed9', initials: 'TG', isConnected: false, requiresKey: true, keyPlaceholder: 'Bot token' },
-  { id: 'whatsapp', name: 'WhatsApp Business', category: 'Communication', color: '#25d366', initials: 'WA', isConnected: false, requiresKey: true, keyPlaceholder: 'Access token' },
-]
+function estimateTokens(text: string): number {
+  return Math.max(1, Math.ceil(text.length / 4))
+}
 
-// Load connector status from localStorage
-function loadConnectors(): Connector[] {
+function createTerminalEntry(
+  type: TerminalEntry['type'],
+  title: string,
+  content: string,
+  agentId?: string,
+  exitCode?: number
+): TerminalEntry {
+  return {
+    id: createId('terminal'),
+    type,
+    title,
+    content,
+    timestamp: new Date(),
+    agentId,
+    exitCode,
+  }
+}
+
+function pushRecentPath(paths: string[], next: string): string[] {
+  if (!next) return paths
+  return [next, ...paths.filter(path => path !== next)].slice(0, 12)
+}
+
+function loadConnectors() {
   try {
     const saved = localStorage.getItem('drodo_connectors')
     if (!saved) return INITIAL_CONNECTORS
     const savedMap: Record<string, boolean> = JSON.parse(saved)
-    return INITIAL_CONNECTORS.map(c => ({ ...c, isConnected: savedMap[c.id] ?? false }))
+    return INITIAL_CONNECTORS.map(connector => ({
+      ...connector,
+      isConnected: savedMap[connector.id] ?? false,
+    }))
   } catch {
     return INITIAL_CONNECTORS
   }
 }
 
-let agentCounter = MOCK_AGENTS.length + 1
+function buildDefaultProvider(): Provider {
+  return (
+    buildProvider('anthropic') ?? {
+      id: 'anthropic',
+      name: 'Anthropic',
+      baseUrl: 'api.anthropic.com',
+      model: 'claude-sonnet-4-6',
+      apiKey: '',
+      color: '#cc785c',
+      initials: 'AN',
+      isConnected: false,
+    }
+  )
+}
 
-// ─── Store ────────────────────────────────────────────────────────────────────
+function selectProvider(preferredId: string | undefined, activeProvider: Provider, index: number): Provider {
+  if (preferredId) {
+    return buildProvider(preferredId) ?? activeProvider
+  }
+
+  const connected = getConnectedProviders()
+  if (connected.length === 0) return activeProvider
+  return connected[index % connected.length]
+}
+
+function fallbackSubtasks(goal: string) {
+  return [
+    { name: 'Planner', task: `Inspect the workspace and outline the implementation plan for: ${goal}` },
+    { name: 'Builder', task: `Implement the highest-value changes needed to complete: ${goal}` },
+    { name: 'Verifier', task: `Run checks and identify remaining issues for: ${goal}` },
+  ]
+}
+
+let agentCounter = 1
+
+interface AppState {
+  activeView: NavView
+  sessionName: string
+  agentRunning: boolean
+  permissionTier: PermissionTier
+  pendingTier: PermissionTier | null
+  permissionWarningOpen: boolean
+  autonomousMode: boolean
+  autonomousLoopActive: boolean
+  autonomousLoopCount: number
+  autonomousMaxLoops: number
+  activeProvider: Provider
+  providerHubOpen: boolean
+  messages: Message[]
+  agents: AgentInstance[]
+  taskSteps: TaskStep[]
+  connectors: ReturnType<typeof loadConnectors>
+  terminalEntries: TerminalEntry[]
+  liveOutputTitle: string
+  liveOutputContent: string
+  liveOutputLanguage: string
+  activeDocumentPath: string | null
+  activeDocumentLoading: boolean
+  recentPaths: string[]
+  swarmGoal: string
+  swarmRunning: boolean
+
+  setView: (view: NavView) => void
+  setSessionName: (name: string) => void
+  toggleAgentRunning: () => void
+  setPermission: (tier: PermissionTier) => void
+  setPendingTier: (tier: PermissionTier | null) => void
+  setPermissionWarningOpen: (open: boolean) => void
+  confirmPermission: () => void
+  toggleAutonomous: () => void
+  setActiveProvider: (provider: Provider) => void
+  setProviderHubOpen: (open: boolean) => void
+  addMessage: (message: Message) => void
+  sendMessage: (content: string) => void
+  stopAll: () => void
+  spawnAgent: (task?: string, providerId?: string, name?: string) => Promise<void>
+  launchSwarm: (goal?: string) => Promise<void>
+  stopAgent: (id: string) => void
+  setConnectorConnected: (id: string, connected: boolean) => void
+  openDocument: (path: string) => Promise<void>
+  setLiveOutput: (title: string, content: string, language?: string) => void
+  runManualCommand: (command: string) => Promise<void>
+  clearTerminal: () => void
+  setSwarmGoal: (goal: string) => void
+}
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeView: 'agent',
-  sessionName: 'Auth Module Test Suite',
+  sessionName: 'Drodo Session',
   agentRunning: false,
   permissionTier: 'standard',
   pendingTier: null,
@@ -223,79 +221,191 @@ export const useAppStore = create<AppState>((set, get) => ({
   autonomousMaxLoops: 6,
   activeProvider: buildDefaultProvider(),
   providerHubOpen: false,
-  messages: MOCK_MESSAGES,
-  agents: MOCK_AGENTS,
-  taskSteps: MOCK_TASK_STEPS,
+  messages: [createMessage('system', 'Session started. Drodo is ready.')],
+  agents: [],
+  taskSteps: createTaskSteps(),
   connectors: loadConnectors(),
+  terminalEntries: [
+    createTerminalEntry('info', 'Drodo ready', 'Terminal activity, agent tool calls, and command output will appear here.'),
+  ],
+  liveOutputTitle: 'Live Output',
+  liveOutputContent: '// Live output will appear here when files are opened or tools run.',
+  liveOutputLanguage: 'typescript',
+  activeDocumentPath: null,
+  activeDocumentLoading: false,
+  recentPaths: [],
+  swarmGoal: '',
+  swarmRunning: false,
 
-  setView: (v) => set({ activeView: v }),
-  setSessionName: (name) => set({ sessionName: name }),
-  toggleAgentRunning: () => set((s) => ({ agentRunning: !s.agentRunning })),
+  setView: view => set({ activeView: view }),
+  setSessionName: name => set({ sessionName: name }),
+  toggleAgentRunning: () => set(state => ({ agentRunning: !state.agentRunning })),
 
-  setPermission: (t) => {
-    if (t === 'wide-open') set({ pendingTier: t, permissionWarningOpen: true })
-    else set({ permissionTier: t })
+  setPermission: tier => {
+    if (tier === 'wide-open') set({ pendingTier: tier, permissionWarningOpen: true })
+    else set({ permissionTier: tier })
   },
-  setPendingTier: (t) => set({ pendingTier: t }),
-  setPermissionWarningOpen: (open) => set({ permissionWarningOpen: open }),
+
+  setPendingTier: tier => set({ pendingTier: tier }),
+  setPermissionWarningOpen: open => set({ permissionWarningOpen: open }),
   confirmPermission: () => {
     const { pendingTier } = get()
-    if (pendingTier) set({ permissionTier: pendingTier, pendingTier: null, permissionWarningOpen: false })
+    if (pendingTier) {
+      set({
+        permissionTier: pendingTier,
+        pendingTier: null,
+        permissionWarningOpen: false,
+      })
+    }
   },
 
-  toggleAutonomous: () => set((s) => ({ autonomousMode: !s.autonomousMode })),
+  toggleAutonomous: () => set(state => ({ autonomousMode: !state.autonomousMode })),
 
-  setActiveProvider: (p) => {
-    set({ activeProvider: p })
-    // Persist to localStorage
-    saveProviderConfig(p.id, {
-      apiKey: p.apiKey ?? '',
-      baseUrl: p.baseUrl,
-      model: p.model ?? '',
+  setActiveProvider: provider => {
+    set({ activeProvider: provider })
+    saveProviderConfig(provider.id, {
+      apiKey: provider.apiKey ?? '',
+      baseUrl: provider.baseUrl,
+      model: provider.model ?? '',
     })
   },
 
-  setProviderHubOpen: (open) => set({ providerHubOpen: open }),
+  setProviderHubOpen: open => set({ providerHubOpen: open }),
+  addMessage: message => set(state => ({ messages: [...state.messages, message] })),
+  setSwarmGoal: goal => set({ swarmGoal: goal }),
 
-  addMessage: (m) => set((s) => ({ messages: [...s.messages, m] })),
+  setLiveOutput: (title, content, language) =>
+    set({
+      liveOutputTitle: title,
+      liveOutputContent: content,
+      liveOutputLanguage: language ?? detectLanguage(title),
+    }),
+
+  clearTerminal: () => {
+    set({
+      terminalEntries: [
+        createTerminalEntry('info', 'Terminal cleared', 'New tool activity and command output will appear here.'),
+      ],
+    })
+  },
+
+  openDocument: async path => {
+    set({ activeDocumentLoading: true })
+
+    try {
+      const content = await readFile(path)
+      set(state => ({
+        activeDocumentPath: path,
+        activeDocumentLoading: false,
+        liveOutputTitle: path,
+        liveOutputContent: content,
+        liveOutputLanguage: detectLanguage(path),
+        recentPaths: pushRecentPath(state.recentPaths, path),
+      }))
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      set(state => ({
+        activeDocumentLoading: false,
+        terminalEntries: [
+          ...state.terminalEntries,
+          createTerminalEntry('error', 'File read failed', `${path}\n\n${message}`),
+        ],
+      }))
+    }
+  },
+
+  runManualCommand: async command => {
+    const trimmed = command.trim()
+    if (!trimmed) return
+
+    set(state => ({
+      terminalEntries: [
+        ...state.terminalEntries,
+        createTerminalEntry('command', '$ command', trimmed),
+      ],
+    }))
+
+    try {
+      const result = await executeCommand(trimmed)
+      const output = result.combined.trim() || '(no output)'
+
+      set(state => ({
+        terminalEntries: [
+          ...state.terminalEntries,
+          createTerminalEntry(
+            result.success ? 'output' : 'error',
+            `${result.shell} exit ${result.exitCode}`,
+            output,
+            undefined,
+            result.exitCode
+          ),
+        ],
+        liveOutputTitle: trimmed,
+        liveOutputContent: output,
+        liveOutputLanguage: detectLanguage(result.shell),
+      }))
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      set(state => ({
+        terminalEntries: [
+          ...state.terminalEntries,
+          createTerminalEntry('error', 'Command failed', message),
+        ],
+      }))
+    }
+  },
 
   stopAll: () => {
-    activeStreamHandle?.abort()
-    activeStreamHandle = null
+    activePrimaryRun?.abort()
+    activePrimaryRun = null
+
+    for (const handle of activeSwarmRuns.values()) {
+      handle.abort()
+    }
+    activeSwarmRuns.clear()
+
     if (autonomousLoopTimer) {
       clearTimeout(autonomousLoopTimer)
       autonomousLoopTimer = null
     }
-    set((s) => ({
+
+    set(state => ({
       agentRunning: false,
       autonomousLoopActive: false,
       autonomousLoopCount: 0,
-      // Mark any streaming message as done
-      messages: s.messages.map(m =>
-        m.streaming ? { ...m, streaming: false, content: m.content + ' [stopped]' } : m
+      swarmRunning: false,
+      messages: state.messages.map(message =>
+        message.streaming
+          ? { ...message, streaming: false, content: `${message.content} [stopped]`.trim() }
+          : message
       ),
+      agents: state.agents.map(agent =>
+        agent.status === 'running'
+          ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
+          : agent
+      ),
+      terminalEntries: [
+        ...state.terminalEntries,
+        createTerminalEntry('info', 'Stopped', 'Active agent runs were stopped.'),
+      ],
     }))
   },
 
-  sendMessage: (content) => {
+  sendMessage: content => {
     const state = get()
 
-    // Stop any existing stream
-    activeStreamHandle?.abort()
-    activeStreamHandle = null
+    activePrimaryRun?.abort()
+    activePrimaryRun = null
+
     if (autonomousLoopTimer) {
       clearTimeout(autonomousLoopTimer)
       autonomousLoopTimer = null
     }
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content,
-      timestamp: new Date(),
-    }
-    const assistantId = (Date.now() + 1).toString()
-    const assistantMsg: Message = {
+    const provider = state.activeProvider
+    const userMessage = createMessage('user', content)
+    const assistantId = createId('assistant')
+    const assistantMessage: Message = {
       id: assistantId,
       role: 'assistant',
       content: '',
@@ -303,128 +413,521 @@ export const useAppStore = create<AppState>((set, get) => ({
       streaming: true,
     }
 
-    set((s) => ({
-      messages: [
-        ...s.messages.map(m => ({ ...m, streaming: false })),
-        userMsg,
-        assistantMsg,
-      ],
+    const conversation = [...state.messages.filter(message => !message.streaming), userMessage]
+
+    set(current => ({
+      messages: [...current.messages.map(message => ({ ...message, streaming: false })), userMessage, assistantMessage],
       agentRunning: true,
+      taskSteps: updateTaskStep(createTaskSteps(), 'plan', 'running'),
+      terminalEntries: [
+        ...current.terminalEntries,
+        createTerminalEntry('info', 'User task', content),
+      ],
     }))
 
-    let accumulated = ''
-    const provider = state.activeProvider
-    const currentMessages = [...state.messages.filter(m => !m.streaming), userMsg]
-
-    // If no API key and not local, fall back to a helpful message
     if (!provider.isLocal && !provider.apiKey) {
-      setTimeout(() => {
-        set((s) => ({
-          messages: s.messages.map(m =>
-            m.id === assistantId
-              ? {
-                  ...m,
-                  streaming: false,
-                  content: `No API key configured for **${provider.name}**. Click the provider badge in the sidebar (or top bar) to open the Provider Hub and enter your API key.`,
-                }
-              : m
-          ),
-          agentRunning: false,
-        }))
-      }, 600)
+      set(current => ({
+        messages: current.messages.map(message =>
+          message.id === assistantId
+            ? {
+                ...message,
+                streaming: false,
+                content: `No API key configured for **${provider.name}**. Open Provider Hub and save a working key or use a local provider.`,
+              }
+            : message
+        ),
+        agentRunning: false,
+      }))
       return
     }
 
-    activeStreamHandle = streamCompletion(
+    let accumulated = ''
+    let usedTools = false
+
+    activePrimaryRun = runAgentSession({
       provider,
-      currentMessages,
-      // onChunk
-      (chunk) => {
-        accumulated += chunk
-        set((s) => ({
-          messages: s.messages.map(m =>
-            m.id === assistantId ? { ...m, content: accumulated } : m
+      conversation,
+      onPlanning: () => {
+        set(current => ({
+          taskSteps: updateTaskStep(current.taskSteps, 'plan', 'running'),
+        }))
+      },
+      onToolStart: call => {
+        usedTools = true
+        set(current => ({
+          taskSteps: updateTaskStep(updateTaskStep(current.taskSteps, 'plan', 'complete'), 'tools', 'running'),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry(
+              'tool',
+              `Tool: ${call.tool}`,
+              JSON.stringify(call.arguments, null, 2)
+            ),
+          ],
+          messages: current.messages.slice(-1)[0]?.id === assistantId
+            ? [
+                ...current.messages.slice(0, -1),
+                createMessage('system', `Tool: ${call.tool}`),
+                current.messages[current.messages.length - 1],
+              ]
+            : [...current.messages, createMessage('system', `Tool: ${call.tool}`)],
+        }))
+      },
+      onToolResult: result => {
+        const title = result.tool === 'execute_command'
+          ? String(result.arguments.command ?? result.summary)
+          : String(result.arguments.path ?? result.summary)
+        const rawObject = typeof result.raw === 'object' && result.raw !== null
+          ? result.raw as Record<string, unknown>
+          : null
+
+        set(current => ({
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('output', result.summary, result.contentForModel),
+          ],
+          messages: current.messages.slice(-1)[0]?.id === assistantId
+            ? [
+                ...current.messages.slice(0, -1),
+                createMessage('system', result.summary),
+                current.messages[current.messages.length - 1],
+              ]
+            : [...current.messages, createMessage('system', result.summary)],
+          liveOutputTitle: title,
+          liveOutputContent:
+            typeof result.raw === 'string'
+              ? result.raw
+              : rawObject && typeof rawObject.content === 'string'
+                ? rawObject.content
+                : rawObject && typeof rawObject.combined === 'string'
+                  ? rawObject.combined
+                : result.contentForModel,
+          liveOutputLanguage: detectLanguage(title),
+          activeDocumentPath:
+            result.tool === 'read_file' || result.tool === 'write_file'
+              ? String(result.arguments.path ?? current.activeDocumentPath ?? '')
+              : current.activeDocumentPath,
+          recentPaths:
+            result.tool === 'read_file' || result.tool === 'write_file'
+              ? pushRecentPath(current.recentPaths, String(result.arguments.path ?? ''))
+              : current.recentPaths,
+        }))
+      },
+      onFinalStart: () => {
+        set(current => ({
+          taskSteps: updateTaskStep(
+            updateTaskStep(
+              updateTaskStep(current.taskSteps, 'plan', 'complete'),
+              'tools',
+              usedTools ? 'complete' : 'complete'
+            ),
+            'respond',
+            'running'
           ),
         }))
       },
-      // onDone
-      () => {
-        activeStreamHandle = null
-        const { autonomousMode, autonomousLoopCount, autonomousMaxLoops } = get()
+      onFinalChunk: chunk => {
+        accumulated += chunk
+        set(current => ({
+          messages: current.messages.map(message =>
+            message.id === assistantId ? { ...message, content: accumulated } : message
+          ),
+        }))
+      },
+      onFinal: message => {
+        activePrimaryRun = null
+        const finalContent = message || accumulated
 
-        set((s) => ({
-          messages: s.messages.map(m =>
-            m.id === assistantId ? { ...m, streaming: false, content: accumulated || m.content } : m
+        set(current => ({
+          messages: current.messages.map(entry =>
+            entry.id === assistantId
+              ? { ...entry, streaming: false, content: finalContent || entry.content }
+              : entry
           ),
           agentRunning: false,
           autonomousLoopActive: false,
+          taskSteps: current.taskSteps.map(step => ({ ...step, status: 'complete' })),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('info', 'Agent response complete', finalContent || '(no content)'),
+          ],
         }))
 
-        // Autonomous mode: continue if not done and under loop limit
-        if (autonomousMode && autonomousLoopCount < autonomousMaxLoops && !looksComplete(accumulated)) {
-          set({ autonomousLoopCount: autonomousLoopCount + 1, autonomousLoopActive: true, agentRunning: true })
+        const latestState = get()
+        if (
+          latestState.autonomousMode &&
+          latestState.autonomousLoopCount < latestState.autonomousMaxLoops &&
+          !looksComplete(finalContent)
+        ) {
+          set({
+            autonomousLoopCount: latestState.autonomousLoopCount + 1,
+            autonomousLoopActive: true,
+            agentRunning: true,
+          })
+
           autonomousLoopTimer = setTimeout(() => {
-            get().sendMessage('Continue with the next step. Be thorough and complete the task.')
-          }, 1500)
-        } else if (autonomousMode) {
+            get().sendMessage('Continue with the next step. Use tools as needed and finish the task.')
+          }, 1200)
+        } else if (latestState.autonomousMode) {
           set({ autonomousLoopCount: 0, autonomousLoopActive: false })
         }
       },
-      // onError
-      (err) => {
-        activeStreamHandle = null
-        set((s) => ({
-          messages: s.messages.map(m =>
-            m.id === assistantId
-              ? {
-                  ...m,
-                  streaming: false,
-                  content: `**Error:** ${err.message}\n\nCheck your API key and provider settings in the Provider Hub.`,
-                }
-              : m
+      onError: error => {
+        activePrimaryRun = null
+        set(current => ({
+          messages: current.messages.map(message =>
+            message.id === assistantId
+              ? { ...message, streaming: false, content: `Error: ${error.message}` }
+              : message
           ),
           agentRunning: false,
           autonomousLoopActive: false,
+          taskSteps: updateTaskStep(updateTaskStep(current.taskSteps, 'plan', 'error'), 'respond', 'error'),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('error', 'Agent error', error.message),
+          ],
         }))
-      }
-    )
+      },
+    })
   },
 
-  spawnAgent: () => {
-    const names = ['Planner', 'Debugger', 'Optimizer', 'Researcher', 'Writer']
-    const models = ['claude-sonnet-4-6', 'gpt-4o', 'llama3.2', 'mixtral-8x7b']
-    const tasks = [
-      'Analyzing system performance bottlenecks',
-      'Researching best practices for the current task',
-      'Writing documentation for new modules',
-      'Debugging failing edge cases in the test suite',
+  spawnAgent: async (task, providerId, name) => {
+    const state = get()
+    const agentTask =
+      task?.trim() ||
+      state.swarmGoal.trim() ||
+      state.messages.filter(message => message.role === 'user').slice(-1)[0]?.content ||
+      state.sessionName
+
+    const agentId = `agent-${agentCounter++}`
+    const provider = selectProvider(providerId, state.activeProvider, agentCounter)
+    const conversation = [
+      createMessage('system', 'You are a Drodo swarm worker. Focus only on the assigned subtask.'),
+      createMessage('user', agentTask),
     ]
-    const newAgent: AgentInstance = {
-      id: `a${agentCounter++}`,
-      name: names[Math.floor(Math.random() * names.length)],
-      model: models[Math.floor(Math.random() * models.length)],
-      task: tasks[Math.floor(Math.random() * tasks.length)],
-      status: 'idle',
+
+    const agent: AgentInstance = {
+      id: agentId,
+      name: name?.trim() || `Agent ${agentCounter - 1}`,
+      providerId: provider.id,
+      providerName: provider.name,
+      model: provider.model ?? provider.name,
+      task: agentTask,
+      status: 'running',
       tokens: 0,
+      lastUpdate: 'Starting…',
+      summary: '',
+      context: conversation,
+      toolCalls: 0,
       startedAt: new Date(),
     }
-    set((s) => ({ agents: [...s.agents, newAgent] }))
+
+    set(current => ({
+      agents: [...current.agents, agent],
+      swarmRunning: true,
+      terminalEntries: [
+        ...current.terminalEntries,
+        createTerminalEntry('info', `${agent.name} started`, `${provider.name} · ${agent.model}\n${agentTask}`, agentId),
+      ],
+    }))
+
+    if (!provider.isLocal && !provider.apiKey) {
+      set(current => ({
+        agents: current.agents.map(item =>
+          item.id === agentId
+            ? { ...item, status: 'error' as const, lastUpdate: `Missing API key for ${provider.name}.` }
+            : item
+        ),
+      }))
+      return
+    }
+
+    let accumulated = ''
+    let usedTools = false
+
+    const handle = runAgentSession({
+      provider,
+      conversation,
+      onPlanning: round => {
+        set(current => ({
+          agents: current.agents.map(item =>
+            item.id === agentId ? { ...item, lastUpdate: `Planning round ${round}…` } : item
+          ),
+        }))
+      },
+      onToolStart: call => {
+        usedTools = true
+        set(current => ({
+          agents: current.agents.map(item =>
+            item.id === agentId
+              ? { ...item, toolCalls: item.toolCalls + 1, lastUpdate: `Running ${call.tool}…` }
+              : item
+          ),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('tool', `${agent.name}: ${call.tool}`, JSON.stringify(call.arguments, null, 2), agentId),
+          ],
+        }))
+      },
+      onToolResult: result => {
+        set(current => ({
+          agents: current.agents.map(item =>
+            item.id === agentId
+              ? {
+                  ...item,
+                  tokens: item.tokens + estimateTokens(result.contentForModel),
+                  lastUpdate: result.summary,
+                  summary: result.summary,
+                }
+              : item
+          ),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('output', `${agent.name}: ${result.summary}`, result.contentForModel, agentId),
+          ],
+        }))
+      },
+      onFinalStart: () => {
+        set(current => ({
+          agents: current.agents.map(item =>
+            item.id === agentId ? { ...item, lastUpdate: usedTools ? 'Summarizing work…' : 'Responding…' } : item
+          ),
+        }))
+      },
+      onFinalChunk: chunk => {
+        accumulated += chunk
+        set(current => ({
+          agents: current.agents.map(item =>
+            item.id === agentId
+              ? { ...item, tokens: estimateTokens(accumulated), lastUpdate: accumulated.slice(-120) || item.lastUpdate }
+              : item
+          ),
+        }))
+      },
+      onFinal: message => {
+        activeSwarmRuns.delete(agentId)
+        set(current => {
+          const agents = current.agents.map(item =>
+            item.id === agentId
+              ? {
+                  ...item,
+                  status: 'complete' as const,
+                  summary: message,
+                  lastUpdate: message,
+                  tokens: estimateTokens(message),
+                  context: [...item.context, createMessage('assistant', message)],
+                }
+              : item
+          )
+
+          return {
+            agents,
+            swarmRunning: agents.some(item => item.status === 'running'),
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('info', `${agent.name} complete`, message, agentId),
+            ],
+          }
+        })
+      },
+      onError: error => {
+        activeSwarmRuns.delete(agentId)
+        set(current => {
+          const agents = current.agents.map(item =>
+            item.id === agentId
+              ? { ...item, status: 'error' as const, lastUpdate: error.message, summary: error.message }
+              : item
+          )
+
+          return {
+            agents,
+            swarmRunning: agents.some(item => item.status === 'running'),
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('error', `${agent.name} error`, error.message, agentId),
+            ],
+          }
+        })
+      },
+    })
+
+    activeSwarmRuns.set(agentId, handle)
   },
 
-  stopAgent: (id) => {
-    set((s) => ({
-      agents: s.agents.map(a => a.id === id ? { ...a, status: 'complete' } : a),
+  launchSwarm: async goal => {
+    const state = get()
+    const targetGoal =
+      goal?.trim() ||
+      state.swarmGoal.trim() ||
+      state.messages.filter(message => message.role === 'user').slice(-1)[0]?.content ||
+      state.sessionName
+
+    if (!targetGoal) return
+
+    const provider = state.activeProvider
+    const orchestratorId = `agent-${agentCounter++}`
+
+    const orchestrator: AgentInstance = {
+      id: orchestratorId,
+      name: 'Orchestrator',
+      providerId: provider.id,
+      providerName: provider.name,
+      model: provider.model ?? provider.name,
+      task: `Break down and coordinate: ${targetGoal}`,
+      status: 'running',
+      tokens: 0,
+      lastUpdate: 'Designing the swarm plan…',
+      summary: '',
+      context: [createMessage('user', targetGoal)],
+      toolCalls: 0,
+      orchestrator: true,
+      startedAt: new Date(),
+    }
+
+    set(current => ({
+      swarmGoal: targetGoal,
+      swarmRunning: true,
+      agents: [...current.agents, orchestrator],
+      terminalEntries: [
+        ...current.terminalEntries,
+        createTerminalEntry('info', 'Swarm orchestrator', targetGoal, orchestratorId),
+      ],
     }))
+
+    const plannerProvider = (!provider.isLocal && !provider.apiKey)
+      ? getConnectedProviders()[0] ?? provider
+      : provider
+    const controller = new AbortController()
+    activeSwarmRuns.set(orchestratorId, { abort: () => controller.abort() })
+
+    try {
+      const { completeText } = await import('../lib/streamChat')
+      const prompt = [
+        'Break this goal into 2 to 4 parallel subtasks.',
+        'Return JSON only with this exact shape:',
+        '{"agents":[{"name":"Planner","task":"Specific subtask"}]}',
+        'Make the tasks concrete, non-overlapping, and practical for independent agents.',
+        `Goal: ${targetGoal}`,
+      ].join('\n')
+
+      const plannerText = await completeText(
+        plannerProvider,
+        [
+          createMessage('system', 'You are the Drodo swarm orchestrator.'),
+          createMessage('user', prompt),
+        ],
+        controller.signal
+      )
+
+      let subtasks = fallbackSubtasks(targetGoal)
+      try {
+        const normalized = plannerText
+          .trim()
+          .replace(/^```json\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/\s*```$/i, '')
+        const parsed = JSON.parse(normalized) as {
+          agents?: Array<{ name?: string; task?: string }>
+        }
+        if (Array.isArray(parsed.agents) && parsed.agents.length > 0) {
+          subtasks = parsed.agents
+            .filter(item => item.task)
+            .slice(0, 4)
+            .map((item, index) => ({
+              name: item.name?.trim() || `Agent ${index + 1}`,
+              task: item.task!.trim(),
+            }))
+        }
+      } catch {
+        subtasks = fallbackSubtasks(targetGoal)
+      }
+
+      activeSwarmRuns.delete(orchestratorId)
+
+      set(current => ({
+        agents: current.agents.map(agent =>
+          agent.id === orchestratorId
+            ? {
+                ...agent,
+                status: 'complete' as const,
+                summary: subtasks.map(item => `${item.name}: ${item.task}`).join('\n'),
+                lastUpdate: `Assigned ${subtasks.length} worker agents.`,
+                tokens: estimateTokens(JSON.stringify(subtasks)),
+              }
+            : agent
+        ),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry(
+            'info',
+            'Swarm plan ready',
+            subtasks.map(item => `${item.name}: ${item.task}`).join('\n'),
+            orchestratorId
+          ),
+        ],
+      }))
+
+      const connectedProviders = getConnectedProviders()
+      for (let index = 0; index < subtasks.length; index += 1) {
+        const taskEntry = subtasks[index]
+        const assignedProvider = connectedProviders.length > 0
+          ? connectedProviders[index % connectedProviders.length]
+          : state.activeProvider
+        await get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name)
+      }
+    } catch (error: unknown) {
+      activeSwarmRuns.delete(orchestratorId)
+      const message = error instanceof Error ? error.message : String(error)
+      set(current => ({
+        agents: current.agents.map(agent =>
+          agent.id === orchestratorId
+            ? { ...agent, status: 'error' as const, summary: message, lastUpdate: message }
+            : agent
+        ),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('error', 'Swarm orchestration failed', message, orchestratorId),
+        ],
+      }))
+    }
+  },
+
+  stopAgent: id => {
+    activeSwarmRuns.get(id)?.abort()
+    activeSwarmRuns.delete(id)
+
+    set(current => {
+      const agents = current.agents.map(agent =>
+        agent.id === id
+          ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
+          : agent
+      )
+
+      return {
+        agents,
+        swarmRunning: agents.some(agent => agent.status === 'running'),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('info', 'Agent stopped', id, id),
+        ],
+      }
+    })
   },
 
   setConnectorConnected: (id, connected) => {
-    set((s) => {
-      const updated = s.connectors.map(c => c.id === id ? { ...c, isConnected: connected } : c)
-      // Persist
-      const map: Record<string, boolean> = {}
-      updated.forEach(c => { if (c.isConnected) map[c.id] = true })
-      localStorage.setItem('drodo_connectors', JSON.stringify(map))
-      return { connectors: updated }
+    set(current => {
+      const connectors = current.connectors.map(connector =>
+        connector.id === id ? { ...connector, isConnected: connected } : connector
+      )
+
+      const saved: Record<string, boolean> = {}
+      connectors.forEach(connector => {
+        if (connector.isConnected) saved[connector.id] = true
+      })
+      localStorage.setItem('drodo_connectors', JSON.stringify(saved))
+
+      return { connectors }
     })
   },
 }))

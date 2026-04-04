@@ -1,101 +1,219 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  Files, FolderOpen, FolderClosed, File, FileCode, FileText, ChevronRight, ChevronDown
+  ChevronDown,
+  ChevronRight,
+  File,
+  FileCode,
+  FileText,
+  Files,
+  FolderClosed,
+  FolderOpen,
+  Home,
+  Loader,
+  RefreshCw,
+  ArrowUp,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { getHomeDir, listDirectory } from '../lib/tauri'
+import { useAppStore } from '../store/appStore'
+import type { FileSystemEntry } from '../types'
 
-interface TreeNode {
-  name: string
-  type: 'file' | 'folder'
-  children?: TreeNode[]
-  ext?: string
+function formatSize(size?: number | null) {
+  if (!size) return ''
+  if (size < 1024) return `${size} B`
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-const FILE_TREE: TreeNode[] = [
-  {
-    name: 'src', type: 'folder', children: [
-      {
-        name: 'auth', type: 'folder', children: [
-          { name: 'login.ts', type: 'file', ext: 'ts' },
-          { name: 'middleware.ts', type: 'file', ext: 'ts' },
-          { name: 'refresh.ts', type: 'file', ext: 'ts' },
-        ]
-      },
-      {
-        name: 'db', type: 'folder', children: [
-          { name: 'client.ts', type: 'file', ext: 'ts' },
-          { name: 'migrations', type: 'folder', children: [
-            { name: '001_init.sql', type: 'file', ext: 'sql' },
-            { name: '002_users.sql', type: 'file', ext: 'sql' },
-          ]},
-        ]
-      },
-      {
-        name: 'api', type: 'folder', children: [
-          { name: 'routes.ts', type: 'file', ext: 'ts' },
-          { name: 'handlers.ts', type: 'file', ext: 'ts' },
-        ]
-      },
-      { name: 'index.ts', type: 'file', ext: 'ts' },
-    ]
-  },
-  {
-    name: 'tests', type: 'folder', children: [
-      { name: 'auth.test.ts', type: 'file', ext: 'ts' },
-      { name: 'db.test.ts', type: 'file', ext: 'ts' },
-    ]
-  },
-  { name: 'package.json', type: 'file', ext: 'json' },
-  { name: 'tsconfig.json', type: 'file', ext: 'json' },
-  { name: 'README.md', type: 'file', ext: 'md' },
-]
-
-function FileIcon({ ext }: { ext?: string }) {
-  if (ext === 'ts' || ext === 'tsx' || ext === 'js') return <FileCode size={13} className="text-[#7f77dd]" />
-  if (ext === 'md') return <FileText size={13} className="text-[#9898a8]" />
-  if (ext === 'json') return <FileCode size={13} className="text-[#d4a227]" />
-  if (ext === 'sql') return <FileCode size={13} className="text-[#1d9e75]" />
-  return <File size={13} className="text-[#6b6b78]" />
+function getParentPath(path: string) {
+  const normalized = path.replace(/[\\/]+$/, '')
+  const lastSlash = Math.max(normalized.lastIndexOf('\\'), normalized.lastIndexOf('/'))
+  if (lastSlash <= 0) return path
+  if (/^[A-Za-z]:$/.test(normalized.slice(0, 2)) && lastSlash < 3) {
+    return `${normalized.slice(0, 2)}\\`
+  }
+  return normalized.slice(0, lastSlash)
 }
 
-function TreeItem({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
-  const [open, setOpen] = useState(depth < 1)
-  const isFolder = node.type === 'folder'
+function FileIcon({ entry }: { entry: FileSystemEntry }) {
+  if (entry.isDirectory) {
+    return <FolderClosed size={14} className="text-[#d4a227]" />
+  }
+
+  const lower = entry.name.toLowerCase()
+  if (lower.endsWith('.ts') || lower.endsWith('.tsx') || lower.endsWith('.js') || lower.endsWith('.rs')) {
+    return <FileCode size={14} className="text-[#7f77dd]" />
+  }
+  if (lower.endsWith('.md') || lower.endsWith('.txt')) {
+    return <FileText size={14} className="text-[#9898a8]" />
+  }
+  return <File size={14} className="text-[#6b6b78]" />
+}
+
+interface TreeItemProps {
+  entry: FileSystemEntry
+  depth: number
+  expandedPaths: Record<string, boolean>
+  loadingPaths: Record<string, boolean>
+  entriesByPath: Record<string, FileSystemEntry[]>
+  activeDocumentPath: string | null
+  onToggle: (entry: FileSystemEntry) => void
+  onSelect: (entry: FileSystemEntry) => void
+}
+
+function TreeItem(props: TreeItemProps) {
+  const {
+    entry,
+    depth,
+    expandedPaths,
+    loadingPaths,
+    entriesByPath,
+    activeDocumentPath,
+    onToggle,
+    onSelect,
+  } = props
+
+  const isOpen = !!expandedPaths[entry.path]
+  const isLoading = !!loadingPaths[entry.path]
+  const children = entriesByPath[entry.path] ?? []
+  const isActive = activeDocumentPath === entry.path
 
   return (
     <div>
-      <div
+      <button
+        onClick={() => (entry.isDirectory ? onToggle(entry) : onSelect(entry))}
         className={clsx(
-          'flex items-center gap-1.5 py-1 px-2 cursor-pointer hover:bg-[#1c1c22] transition-colors text-xs rounded-md',
-          'text-[#9898a8] hover:text-[#e8e8ef]'
+          'w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs transition-colors',
+          isActive
+            ? 'bg-[#7f77dd]/12 text-[#e8e8ef]'
+            : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
         )}
-        style={{ paddingLeft: 8 + depth * 16 }}
-        onClick={() => isFolder && setOpen(o => !o)}
+        style={{ paddingLeft: 10 + depth * 16 }}
       >
-        {isFolder ? (
+        {entry.isDirectory ? (
           <>
-            {open ? <ChevronDown size={11} className="text-[#6b6b78]" /> : <ChevronRight size={11} className="text-[#6b6b78]" />}
-            {open ? <FolderOpen size={13} className="text-[#d4a227]" /> : <FolderClosed size={13} className="text-[#d4a227]" />}
+            {isLoading ? (
+              <Loader size={11} className="text-[#6b6b78] animate-spin" />
+            ) : isOpen ? (
+              <ChevronDown size={11} className="text-[#6b6b78]" />
+            ) : (
+              <ChevronRight size={11} className="text-[#6b6b78]" />
+            )}
+            {isOpen ? (
+              <FolderOpen size={14} className="text-[#d4a227]" />
+            ) : (
+              <FolderClosed size={14} className="text-[#d4a227]" />
+            )}
           </>
         ) : (
           <>
-            <span className="w-3" />
-            <FileIcon ext={node.ext} />
+            <span className="w-[11px]" />
+            <FileIcon entry={entry} />
           </>
         )}
-        <span>{node.name}</span>
-      </div>
-      {isFolder && open && node.children?.map((child, i) => (
-        <TreeItem key={i} node={child} depth={depth + 1} />
+        <span className="truncate flex-1">{entry.name}</span>
+        {!entry.isDirectory && <span className="text-[10px] text-[#6b6b78]">{formatSize(entry.size)}</span>}
+      </button>
+
+      {entry.isDirectory && isOpen && children.map(child => (
+        <TreeItem
+          key={child.path}
+          entry={child}
+          depth={depth + 1}
+          expandedPaths={expandedPaths}
+          loadingPaths={loadingPaths}
+          entriesByPath={entriesByPath}
+          activeDocumentPath={activeDocumentPath}
+          onToggle={onToggle}
+          onSelect={onSelect}
+        />
       ))}
     </div>
   )
 }
 
 export function FilesView() {
+  const {
+    openDocument,
+    activeDocumentPath,
+    activeDocumentLoading,
+    liveOutputContent,
+    liveOutputTitle,
+  } = useAppStore(state => ({
+    openDocument: state.openDocument,
+    activeDocumentPath: state.activeDocumentPath,
+    activeDocumentLoading: state.activeDocumentLoading,
+    liveOutputContent: state.liveOutputContent,
+    liveOutputTitle: state.liveOutputTitle,
+  }))
+
+  const [rootPath, setRootPath] = useState('')
+  const [pathInput, setPathInput] = useState('')
+  const [entriesByPath, setEntriesByPath] = useState<Record<string, FileSystemEntry[]>>({})
+  const [expandedPaths, setExpandedPaths] = useState<Record<string, boolean>>({})
+  const [loadingPaths, setLoadingPaths] = useState<Record<string, boolean>>({})
+  const [error, setError] = useState<string | null>(null)
+
+  const loadDirectory = async (path: string, open = true) => {
+    setLoadingPaths(current => ({ ...current, [path]: true }))
+    setError(null)
+
+    try {
+      const entries = await listDirectory(path)
+      setEntriesByPath(current => ({ ...current, [path]: entries }))
+      if (open) {
+        setExpandedPaths(current => ({ ...current, [path]: true }))
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLoadingPaths(current => ({ ...current, [path]: false }))
+    }
+  }
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const home = await getHomeDir()
+        if (!mounted) return
+        setRootPath(home)
+        setPathInput(home)
+        await loadDirectory(home)
+      } catch (err: unknown) {
+        if (!mounted) return
+        setError(err instanceof Error ? err.message : String(err))
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const handleToggle = async (entry: FileSystemEntry) => {
+    if (!entry.isDirectory) return
+    const isOpen = !!expandedPaths[entry.path]
+    if (isOpen) {
+      setExpandedPaths(current => ({ ...current, [entry.path]: false }))
+      return
+    }
+    if (!entriesByPath[entry.path]) {
+      await loadDirectory(entry.path)
+      return
+    }
+    setExpandedPaths(current => ({ ...current, [entry.path]: true }))
+  }
+
+  const handleNavigate = async (path: string) => {
+    setRootPath(path)
+    setPathInput(path)
+    await loadDirectory(path)
+  }
+
+  const rootEntries = entriesByPath[rootPath] ?? []
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
-      {/* Header */}
       <div
         className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
         style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
@@ -105,15 +223,112 @@ export function FilesView() {
         </div>
         <div>
           <h1 className="font-bold text-[#e8e8ef] text-lg">Files</h1>
-          <p className="text-xs text-[#6b6b78]">Project workspace</p>
+          <p className="text-xs text-[#6b6b78]">Real filesystem browser</p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="bg-[#141418] rounded-xl border border-[#2a2a2e] p-3">
-          {FILE_TREE.map((node, i) => (
-            <TreeItem key={i} node={node} />
-          ))}
+      <div className="px-6 py-3 flex items-center gap-2 border-b border-[#2a2a2e] bg-[#101013]">
+        <button
+          onClick={() => void getHomeDir().then(home => handleNavigate(home))}
+          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          title="Home"
+        >
+          <Home size={14} />
+        </button>
+        <button
+          onClick={() => void handleNavigate(getParentPath(rootPath))}
+          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          title="Up one level"
+          disabled={!rootPath}
+        >
+          <ArrowUp size={14} />
+        </button>
+        <button
+          onClick={() => void loadDirectory(rootPath)}
+          className="p-2 rounded-lg bg-[#1c1c22] text-[#9898a8] hover:text-[#e8e8ef] transition-colors"
+          title="Refresh"
+          disabled={!rootPath}
+        >
+          <RefreshCw size={14} />
+        </button>
+        <form
+          className="flex-1"
+          onSubmit={event => {
+            event.preventDefault()
+            if (pathInput.trim()) {
+              void handleNavigate(pathInput.trim())
+            }
+          }}
+        >
+          <input
+            value={pathInput}
+            onChange={event => setPathInput(event.target.value)}
+            className="w-full bg-[#0d0d0f] border border-[#2a2a2e] rounded-lg px-3 py-2 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60"
+            placeholder="Enter a folder path"
+          />
+        </form>
+      </div>
+
+      <div className="flex-1 min-h-0 grid grid-cols-[360px_1fr]">
+        <div className="border-r border-[#2a2a2e] overflow-y-auto p-4">
+          {error && (
+            <div className="mb-3 text-xs text-[#e05050] bg-[#e05050]/10 border border-[#e05050]/20 rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          <div className="bg-[#141418] rounded-xl border border-[#2a2a2e] p-2">
+            {rootPath ? (
+              <>
+                <button
+                  onClick={() => void handleNavigate(rootPath)}
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-[#e8e8ef] bg-[#1c1c22]"
+                >
+                  <FolderOpen size={14} className="text-[#d4a227]" />
+                  <span className="truncate">{rootPath}</span>
+                </button>
+                <div className="mt-2">
+                  {rootEntries.map(entry => (
+                    <TreeItem
+                      key={entry.path}
+                      entry={entry}
+                      depth={0}
+                      expandedPaths={expandedPaths}
+                      loadingPaths={loadingPaths}
+                      entriesByPath={entriesByPath}
+                      activeDocumentPath={activeDocumentPath}
+                      onToggle={entryToToggle => void handleToggle(entryToToggle)}
+                      onSelect={entryToSelect => void openDocument(entryToSelect.path)}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="p-4 text-xs text-[#6b6b78]">Loading home directory…</div>
+            )}
+          </div>
+        </div>
+
+        <div className="min-h-0 overflow-hidden flex flex-col">
+          <div className="px-5 py-3 border-b border-[#2a2a2e] bg-[#101013]">
+            <div className="text-xs uppercase tracking-[0.18em] text-[#6b6b78]">Preview</div>
+            <div className="text-sm text-[#e8e8ef] truncate mt-1">
+              {activeDocumentPath || liveOutputTitle}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-auto p-5">
+            {activeDocumentLoading ? (
+              <div className="flex items-center gap-2 text-sm text-[#9898a8]">
+                <Loader size={14} className="animate-spin" />
+                Loading file…
+              </div>
+            ) : (
+              <pre className="text-xs leading-6 text-[#d6d6de] whitespace-pre-wrap break-words font-mono">
+                {liveOutputContent}
+              </pre>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Square, Eye, Cpu } from 'lucide-react'
+import { Square, Cpu, Wrench } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAppStore } from '../../store/appStore'
 import { StatusBadge } from './StatusBadge'
@@ -18,19 +17,6 @@ interface AgentCardProps {
 
 export function AgentCard({ agent }: AgentCardProps) {
   const stopAgent = useAppStore(s => s.stopAgent)
-  const [displayTokens, setDisplayTokens] = useState(agent.tokens)
-
-  // Live token counter animation for running agents
-  useEffect(() => {
-    if (agent.status !== 'running') {
-      setDisplayTokens(agent.tokens)
-      return
-    }
-    const interval = setInterval(() => {
-      setDisplayTokens(prev => prev + Math.floor(Math.random() * 12) + 2)
-    }, 400)
-    return () => clearInterval(interval)
-  }, [agent.status, agent.tokens])
 
   const formatTokens = (n: number) => {
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
@@ -61,7 +47,7 @@ export function AgentCard({ agent }: AgentCardProps) {
             <div className="font-semibold text-sm text-[#e8e8ef] truncate">{agent.name}</div>
             <div className="flex items-center gap-1 mt-0.5">
               <Cpu size={10} className="text-[#6b6b78] flex-shrink-0" />
-              <span className="text-xs text-[#6b6b78] truncate">{agent.model}</span>
+              <span className="text-xs text-[#6b6b78] truncate">{agent.providerName} · {agent.model}</span>
             </div>
           </div>
         </div>
@@ -73,18 +59,30 @@ export function AgentCard({ agent }: AgentCardProps) {
         {agent.task}
       </p>
 
+      {agent.lastUpdate && (
+        <div className="text-xs leading-relaxed text-[#c8c8d2] bg-[#141418] border border-[#2a2a2e] rounded-lg px-3 py-2">
+          {agent.lastUpdate}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#2a2a2e]">
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-[#6b6b78]">Tokens:</span>
-          <span
-            className={clsx(
-              'text-xs font-mono font-medium tabular-nums',
-              agent.status === 'running' ? 'text-[#a09ae8]' : 'text-[#9898a8]'
-            )}
-          >
-            {formatTokens(displayTokens)}
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-[#6b6b78]">Tokens:</span>
+            <span
+              className={clsx(
+                'text-xs font-mono font-medium tabular-nums',
+                agent.status === 'running' ? 'text-[#a09ae8]' : 'text-[#9898a8]'
+              )}
+            >
+              {formatTokens(agent.tokens)}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-[#6b6b78]">
+            <Wrench size={10} />
+            {agent.toolCalls}
+          </div>
         </div>
         <div className="flex items-center gap-1.5">
           {agent.status === 'running' && (
@@ -96,10 +94,6 @@ export function AgentCard({ agent }: AgentCardProps) {
               Stop
             </button>
           )}
-          <button className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#2a2a2e] text-[#9898a8] text-xs font-medium hover:bg-[#3a3a42] hover:text-[#e8e8ef] transition-colors">
-            <Eye size={10} />
-            View
-          </button>
         </div>
       </div>
     </div>

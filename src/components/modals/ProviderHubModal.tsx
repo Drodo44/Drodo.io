@@ -3,30 +3,20 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { X, Check, Loader, AlertCircle, Key, Link, Cpu, CheckCircle2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAppStore } from '../../store/appStore'
-import { testConnection, loadProviderConfig, saveProviderConfig, normalizeUrl } from '../../lib/providerApi'
+import {
+  getProviderCatalog,
+  loadProviderConfig,
+  normalizeUrl,
+  saveProviderConfig,
+  testConnection,
+} from '../../lib/providerApi'
 import type { Provider } from '../../types'
-
-const ALL_PROVIDERS: Provider[] = [
-  { id: 'nvidia', name: 'NVIDIA NIM', baseUrl: 'integrate.api.nvidia.com/v1', color: '#76b900', initials: 'NV' },
-  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'openrouter.ai/api/v1', color: '#6366f1', initials: 'OR', model: 'openai/gpt-4o' },
-  { id: 'anthropic', name: 'Anthropic', baseUrl: 'api.anthropic.com', color: '#cc785c', initials: 'AN', model: 'claude-sonnet-4-6' },
-  { id: 'openai', name: 'OpenAI', baseUrl: 'api.openai.com/v1', color: '#10a37f', initials: 'OA', model: 'gpt-4o' },
-  { id: 'gemini', name: 'Google Gemini', baseUrl: 'generativelanguage.googleapis.com', color: '#4285f4', initials: 'GG', model: 'gemini-2.0-flash' },
-  { id: 'mistral', name: 'Mistral', baseUrl: 'api.mistral.ai/v1', color: '#ff7000', initials: 'MI', model: 'mistral-large-latest' },
-  { id: 'groq', name: 'Groq', baseUrl: 'api.groq.com/openai/v1', color: '#f55036', initials: 'GR', model: 'llama-3.3-70b-versatile' },
-  { id: 'together', name: 'Together AI', baseUrl: 'api.together.xyz/v1', color: '#0ea5e9', initials: 'TA', model: 'meta-llama/Llama-3-8b-chat-hf' },
-  { id: 'fireworks', name: 'Fireworks AI', baseUrl: 'api.fireworks.ai/inference/v1', color: '#f97316', initials: 'FW', model: 'accounts/fireworks/models/llama-v3-8b-instruct' },
-  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'api.deepseek.com/v1', color: '#2563eb', initials: 'DS', model: 'deepseek-chat' },
-  { id: 'huggingface', name: 'Hugging Face', baseUrl: 'api-inference.huggingface.co', color: '#ffd21e', initials: 'HF', model: 'HuggingFaceH4/zephyr-7b-beta' },
-  { id: 'ollama', name: 'Ollama', baseUrl: 'localhost:11434/v1', color: '#7f77dd', initials: 'OL', isLocal: true, model: 'llama3.2' },
-  { id: 'lmstudio', name: 'LM Studio', baseUrl: 'localhost:1234/v1', color: '#8b5cf6', initials: 'LM', isLocal: true, model: 'local-model' },
-  { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: '#6b6b78', initials: 'CU' },
-]
 
 type TestState = 'idle' | 'testing' | 'success' | 'error'
 
 export function ProviderHubModal() {
   const { providerHubOpen, setProviderHubOpen, setActiveProvider } = useAppStore()
+  const allProviders = getProviderCatalog()
   const [selectedId, setSelectedId] = useState('anthropic')
   const [apiKey, setApiKey] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
@@ -34,7 +24,7 @@ export function ProviderHubModal() {
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
 
-  const selected = ALL_PROVIDERS.find(p => p.id === selectedId) ?? ALL_PROVIDERS[0]
+  const selected = allProviders.find(p => p.id === selectedId) ?? allProviders[0]
 
   // Load saved config when provider changes
   useEffect(() => {
@@ -129,7 +119,7 @@ export function ProviderHubModal() {
               className="overflow-y-auto py-2"
               style={{ width: 210, borderRight: '1px solid #2a2a2e', flexShrink: 0 }}
             >
-              {ALL_PROVIDERS.map(provider => {
+              {allProviders.map(provider => {
                 const saved = loadProviderConfig(provider.id)
                 const hasSaved = !!saved?.apiKey || provider.isLocal
                 return (

@@ -10,6 +10,23 @@ interface SavedConfig {
   model: string
 }
 
+export const PROVIDER_CATALOG: Provider[] = [
+  { id: 'nvidia', name: 'NVIDIA NIM', baseUrl: 'integrate.api.nvidia.com/v1', color: '#76b900', initials: 'NV' },
+  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'openrouter.ai/api/v1', color: '#6366f1', initials: 'OR', model: 'openai/gpt-4o' },
+  { id: 'anthropic', name: 'Anthropic', baseUrl: 'api.anthropic.com', color: '#cc785c', initials: 'AN', model: 'claude-sonnet-4-6' },
+  { id: 'openai', name: 'OpenAI', baseUrl: 'api.openai.com/v1', color: '#10a37f', initials: 'OA', model: 'gpt-4o' },
+  { id: 'gemini', name: 'Google Gemini', baseUrl: 'generativelanguage.googleapis.com', color: '#4285f4', initials: 'GG', model: 'gemini-2.0-flash' },
+  { id: 'mistral', name: 'Mistral', baseUrl: 'api.mistral.ai/v1', color: '#ff7000', initials: 'MI', model: 'mistral-large-latest' },
+  { id: 'groq', name: 'Groq', baseUrl: 'api.groq.com/openai/v1', color: '#f55036', initials: 'GR', model: 'llama-3.3-70b-versatile' },
+  { id: 'together', name: 'Together AI', baseUrl: 'api.together.xyz/v1', color: '#0ea5e9', initials: 'TA', model: 'meta-llama/Llama-3-8b-chat-hf' },
+  { id: 'fireworks', name: 'Fireworks AI', baseUrl: 'api.fireworks.ai/inference/v1', color: '#f97316', initials: 'FW', model: 'accounts/fireworks/models/llama-v3-8b-instruct' },
+  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'api.deepseek.com/v1', color: '#2563eb', initials: 'DS', model: 'deepseek-chat' },
+  { id: 'huggingface', name: 'Hugging Face', baseUrl: 'api-inference.huggingface.co', color: '#ffd21e', initials: 'HF', model: 'HuggingFaceH4/zephyr-7b-beta' },
+  { id: 'ollama', name: 'Ollama', baseUrl: 'localhost:11434/v1', color: '#7f77dd', initials: 'OL', isLocal: true, model: 'llama3.2' },
+  { id: 'lmstudio', name: 'LM Studio', baseUrl: 'localhost:1234/v1', color: '#8b5cf6', initials: 'LM', isLocal: true, model: 'local-model' },
+  { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: '#6b6b78', initials: 'CU' },
+]
+
 export function loadAllSavedConfigs(): Record<string, SavedConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -28,6 +45,31 @@ export function saveProviderConfig(id: string, config: SavedConfig): void {
 export function loadProviderConfig(id: string): SavedConfig | null {
   const all = loadAllSavedConfigs()
   return all[id] ?? null
+}
+
+export function getProviderCatalog(): Provider[] {
+  return PROVIDER_CATALOG
+}
+
+export function buildProvider(id: string): Provider | null {
+  const base = PROVIDER_CATALOG.find(provider => provider.id === id)
+  if (!base) return null
+
+  const saved = loadProviderConfig(id)
+  return {
+    ...base,
+    baseUrl: saved?.baseUrl || base.baseUrl,
+    apiKey: saved?.apiKey || '',
+    model: saved?.model || base.model || '',
+    isConnected: base.isLocal || !!saved?.apiKey,
+  }
+}
+
+export function getConnectedProviders(): Provider[] {
+  return PROVIDER_CATALOG
+    .map(provider => buildProvider(provider.id))
+    .filter((provider): provider is Provider => !!provider)
+    .filter(provider => provider.isLocal || !!provider.apiKey)
 }
 
 // ─── URL normalization ────────────────────────────────────────────────────────
