@@ -14,6 +14,7 @@ import { SkillsView } from './views/SkillsView'
 import { WorkflowsView } from './views/WorkflowsView'
 import { AnalyticsView } from './views/AnalyticsView'
 import { ConnectionsView } from './views/ConnectionsView'
+import { SettingsView } from './views/SettingsView'
 import { OnboardingScreen } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
@@ -38,6 +39,7 @@ function MainContent() {
   if (activeView === 'workflows') return <WorkflowsView />
   if (activeView === 'analytics') return <AnalyticsView />
   if (activeView === 'connections') return <ConnectionsView />
+  if (activeView === 'settings') return <SettingsView />
   return null
 }
 
