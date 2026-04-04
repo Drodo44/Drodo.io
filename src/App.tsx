@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import { useAppStore } from './store/appStore'
+import { loadAllSavedConfigs } from './lib/providerApi'
 import { Sidebar } from './components/layout/Sidebar'
 import { TopBar } from './components/layout/TopBar'
 import { ChatPanel } from './components/layout/ChatPanel'
@@ -12,6 +14,7 @@ import { SkillsView } from './views/SkillsView'
 import { WorkflowsView } from './views/WorkflowsView'
 import { AnalyticsView } from './views/AnalyticsView'
 import { ConnectionsView } from './views/ConnectionsView'
+import { OnboardingScreen } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 
@@ -39,6 +42,33 @@ function MainContent() {
 }
 
 function App() {
+  // Re-read localStorage whenever activeProvider changes.
+  // setActiveProvider always calls saveProviderConfig, so this is the reactive signal.
+  const activeProvider = useAppStore(s => s.activeProvider)
+  const hasConfiguredProvider = useMemo(
+    () => Object.keys(loadAllSavedConfigs()).length > 0,
+    [activeProvider]
+  )
+
+  if (!hasConfiguredProvider) {
+    return (
+      <div
+        className="flex h-screen w-screen overflow-hidden"
+        style={{ background: '#0d0d0f', color: '#e8e8ef' }}
+      >
+        <Sidebar />
+        <div className="flex flex-col flex-1 min-w-0 min-h-0">
+          <TopBar />
+          <main className="flex flex-1 min-h-0 overflow-hidden">
+            <OnboardingScreen />
+          </main>
+        </div>
+        <ProviderHubModal />
+        <PermissionWarningModal />
+      </div>
+    )
+  }
+
   return (
     <div
       className="flex h-screen w-screen overflow-hidden"
