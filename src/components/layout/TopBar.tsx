@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, Zap, Activity, Square } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import { PermissionBadge } from '../ui/PermissionBadge'
 
@@ -9,7 +10,19 @@ export function TopBar() {
     sessionName, setSessionName, agentRunning,
     autonomousMode, autonomousLoopActive, autonomousLoopCount, autonomousMaxLoops,
     agents, stopAll,
-  } = useAppStore()
+  } = useAppStore(
+    useShallow(s => ({
+      sessionName: s.sessionName,
+      setSessionName: s.setSessionName,
+      agentRunning: s.agentRunning,
+      autonomousMode: s.autonomousMode,
+      autonomousLoopActive: s.autonomousLoopActive,
+      autonomousLoopCount: s.autonomousLoopCount,
+      autonomousMaxLoops: s.autonomousMaxLoops,
+      agents: s.agents,
+      stopAll: s.stopAll,
+    }))
+  )
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(sessionName)
 

@@ -160,7 +160,7 @@ function AddCustomForm({ onAdd }: { onAdd: (provider: Provider) => void }) {
 }
 
 export function ConnectionsView() {
-  const { setActiveProvider } = useAppStore()
+  const setActiveProvider = useAppStore(s => s.setActiveProvider)
 
   const [providers, setProviders] = useState<Provider[]>(() => getAllProviders())
   const [selectedId, setSelectedId] = useState(providers[0]?.id ?? 'anthropic')

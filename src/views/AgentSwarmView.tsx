@@ -1,9 +1,18 @@
 import { Plus, Zap, Activity, Sparkles } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import { AgentCard } from '../components/ui/AgentCard'
 
 export function AgentSwarmView() {
-  const { agents, launchSwarm, spawnAgent, swarmGoal, setSwarmGoal } = useAppStore()
+  const { agents, launchSwarm, spawnAgent, swarmGoal, setSwarmGoal } = useAppStore(
+    useShallow(s => ({
+      agents: s.agents,
+      launchSwarm: s.launchSwarm,
+      spawnAgent: s.spawnAgent,
+      swarmGoal: s.swarmGoal,
+      setSwarmGoal: s.setSwarmGoal,
+    }))
+  )
   const running = agents.filter(a => a.status === 'running').length
   const total = agents.length
 

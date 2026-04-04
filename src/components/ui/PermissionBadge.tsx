@@ -1,5 +1,6 @@
 import { Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import type { PermissionTier } from '../../types'
 
@@ -40,7 +41,9 @@ const TIER_CONFIG: Record<PermissionTier, {
 const TIER_ORDER: PermissionTier[] = ['sandboxed', 'standard', 'wide-open']
 
 export function PermissionBadge() {
-  const { permissionTier, setPermission } = useAppStore()
+  const { permissionTier, setPermission } = useAppStore(
+    useShallow(s => ({ permissionTier: s.permissionTier, setPermission: s.setPermission }))
+  )
   const cfg = TIER_CONFIG[permissionTier]
   const { Icon } = cfg
 

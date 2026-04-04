@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X, Check, Loader, AlertCircle, Key, Link, Cpu, CheckCircle2 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import {
   getProviderCatalog,
@@ -15,7 +16,13 @@ import type { Provider } from '../../types'
 type TestState = 'idle' | 'testing' | 'success' | 'error'
 
 export function ProviderHubModal() {
-  const { providerHubOpen, setProviderHubOpen, setActiveProvider } = useAppStore()
+  const { providerHubOpen, setProviderHubOpen, setActiveProvider } = useAppStore(
+    useShallow(s => ({
+      providerHubOpen: s.providerHubOpen,
+      setProviderHubOpen: s.setProviderHubOpen,
+      setActiveProvider: s.setActiveProvider,
+    }))
+  )
   const allProviders = getProviderCatalog()
   const [selectedId, setSelectedId] = useState('anthropic')
   const [apiKey, setApiKey] = useState('')

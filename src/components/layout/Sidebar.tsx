@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Logo } from '../ui/Logo'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import type { NavView } from '../../types'
 
@@ -51,7 +52,16 @@ function BrandLogo() {
 }
 
 export function Sidebar() {
-  const { activeView, setView, activeProvider, agentRunning, setProviderHubOpen, agents } = useAppStore()
+  const { activeView, setView, activeProvider, agentRunning, setProviderHubOpen, agents } = useAppStore(
+    useShallow(s => ({
+      activeView: s.activeView,
+      setView: s.setView,
+      activeProvider: s.activeProvider,
+      agentRunning: s.agentRunning,
+      setProviderHubOpen: s.setProviderHubOpen,
+      agents: s.agents,
+    }))
+  )
   const runningAgents = agents.filter(a => a.status === 'running').length
 
   return (

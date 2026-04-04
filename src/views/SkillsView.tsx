@@ -2,6 +2,7 @@ import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Puzzle, CheckCircle2, Circle, X, Key, Check } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import type { Connector, ConnectorCategory } from '../types'
 
@@ -220,7 +221,9 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function SkillsView() {
-  const { connectors, setConnectorConnected } = useAppStore()
+  const { connectors, setConnectorConnected } = useAppStore(
+    useShallow(s => ({ connectors: s.connectors, setConnectorConnected: s.setConnectorConnected }))
+  )
   const [activeConnector, setActiveConnector] = useState<Connector | null>(null)
 
   const connectedCount = connectors.filter(c => c.isConnected).length

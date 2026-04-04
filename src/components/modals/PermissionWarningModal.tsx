@@ -1,9 +1,17 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { ShieldAlert, X, AlertTriangle } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 
 export function PermissionWarningModal() {
-  const { permissionWarningOpen, setPermissionWarningOpen, confirmPermission, setPendingTier } = useAppStore()
+  const { permissionWarningOpen, setPermissionWarningOpen, confirmPermission, setPendingTier } = useAppStore(
+    useShallow(s => ({
+      permissionWarningOpen: s.permissionWarningOpen,
+      setPermissionWarningOpen: s.setPermissionWarningOpen,
+      confirmPermission: s.confirmPermission,
+      setPendingTier: s.setPendingTier,
+    }))
+  )
 
   const handleCancel = () => {
     setPermissionWarningOpen(false)

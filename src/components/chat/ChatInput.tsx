@@ -1,11 +1,21 @@
 import { useRef, useState } from 'react'
 import { Send, Paperclip, Code2, Zap, Square } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 
 export function ChatInput() {
   const [value, setValue] = useState('')
-  const { sendMessage, autonomousMode, toggleAutonomous, agentRunning, stopAll, autonomousLoopActive } = useAppStore()
+  const { sendMessage, autonomousMode, toggleAutonomous, agentRunning, stopAll, autonomousLoopActive } = useAppStore(
+    useShallow(s => ({
+      sendMessage: s.sendMessage,
+      autonomousMode: s.autonomousMode,
+      toggleAutonomous: s.toggleAutonomous,
+      agentRunning: s.agentRunning,
+      stopAll: s.stopAll,
+      autonomousLoopActive: s.autonomousLoopActive,
+    }))
+  )
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleSend = () => {
