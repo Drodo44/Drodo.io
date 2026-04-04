@@ -1,40 +1,235 @@
-import { useState, useRef } from 'react'
-import { GitBranch, Plus, Play, Square, Trash2, ChevronRight, Loader, History, ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import {
+  GitBranch,
+  Plus,
+  Play,
+  Square,
+  Trash2,
+  ChevronRight,
+  Loader2,
+  History,
+  ChevronDown,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  Circle,
+  Copy,
+  X,
+} from 'lucide-react'
 import { clsx } from 'clsx'
 import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
-import type { Provider, Message } from '../types'
-
-// ─── Storage ──────────────────────────────────────────────────────────────────
+import type { Message, Provider } from '../types'
 
 const WORKFLOWS_KEY = 'drodo_workflow_defs'
 const RUNS_KEY = 'drodo_workflow_runs'
+const LEGACY_PROVIDER_PREFIX = 'drodo_provider_'
+
+type WorkflowTab = 'workflows' | 'builder' | 'history'
+type StepRunStatus = 'pending' | 'running' | 'complete' | 'error' | 'stopped'
+
+interface WorkflowStep {
+  stepId: string
+  label: string
+  prompt: string
+  model: string
+  outputVar: string
+  useOutputFrom?: string
+}
 
 interface StoredWorkflow {
   id: string
   name: string
-  systemPrompt: string
-  userPrompt: string
-  providerId: string
   createdAt: number
+  updatedAt: number
+  steps: WorkflowStep[]
 }
 
 interface WorkflowRun {
   id: string
   workflowId: string
   workflowName: string
-  startedAt: string   // ISO
-  finishedAt: string  // ISO
+  startedAt: string
+  finishedAt: string
   status: 'complete' | 'error' | 'stopped'
   durationMs: number
   output: string
 }
 
-function loadWorkflows(): StoredWorkflow[] {
+interface StepRunState {
+  stepId: string
+  label: string
+  outputVar: string
+  status: StepRunStatus
+  output: string
+  error?: string
+}
+
+type LegacyWorkflow = Partial<StoredWorkflow> & {
+  systemPrompt?: string
+  userPrompt?: string
+  providerId?: string
+}
+
+type SavedProviderConfig = {
+  apiKey?: string
+  baseUrl?: string
+  model?: string
+}
+
+function cloneSteps(steps: WorkflowStep[]): WorkflowStep[] {
+  return steps.map(step => ({ ...step }))
+}
+
+function cloneWorkflow(workflow: StoredWorkflow): StoredWorkflow {
+  return { ...workflow, steps: cloneSteps(workflow.steps) }
+}
+
+function loadLegacyProviderConfigs(): Record<string, SavedProviderConfig> {
+  const configs: Record<string, SavedProviderConfig> = {}
+
+  for (const key of Object.keys(localStorage)) {
+    if (!key.startsWith(LEGACY_PROVIDER_PREFIX) || key === 'drodo_provider_configs') continue
+
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key) ?? '{}') as SavedProviderConfig
+      const providerId = key.slice(LEGACY_PROVIDER_PREFIX.length)
+      if (providerId) configs[providerId] = parsed
+    } catch {
+      // Ignore malformed legacy provider records.
+    }
+  }
+
+  return configs
+}
+
+function getSavedProviders(): Provider[] {
+  const combinedConfigs = {
+    ...loadLegacyProviderConfigs(),
+    ...loadAllSavedConfigs(),
+  }
+
+  return getAllProviders()
+    .filter(provider => combinedConfigs[provider.id])
+    .map(provider => {
+      const config = combinedConfigs[provider.id]
+      return {
+        ...provider,
+        apiKey: config.apiKey ?? '',
+        baseUrl: config.baseUrl || provider.baseUrl,
+        model: config.model || provider.model || '',
+        isConnected: provider.isLocal || !!config.apiKey,
+      }
+    })
+}
+
+function makeStep(modelId: string, index: number): WorkflowStep {
+  return {
+    stepId: crypto.randomUUID(),
+    label: '',
+    prompt: '',
+    model: modelId,
+    outputVar: `step${index + 1}_output`,
+    useOutputFrom: '',
+  }
+}
+
+function makeNewWorkflow(): StoredWorkflow {
+  const now = Date.now()
+  return {
+    id: crypto.randomUUID(),
+    name: 'Untitled Workflow',
+    createdAt: now,
+    updatedAt: now,
+    steps: [],
+  }
+}
+
+function promptFromLegacyWorkflow(workflow: LegacyWorkflow): string {
+  const parts = [
+    typeof workflow.systemPrompt === 'string' && workflow.systemPrompt.trim()
+      ? `System instructions:\n${workflow.systemPrompt.trim()}`
+      : '',
+    typeof workflow.userPrompt === 'string' ? workflow.userPrompt.trim() : '',
+  ].filter(Boolean)
+
+  return parts.join('\n\n')
+}
+
+function normalizeStep(step: Partial<WorkflowStep>, index: number, defaultProviderId: string): WorkflowStep {
+  return {
+    stepId: typeof step.stepId === 'string' && step.stepId ? step.stepId : crypto.randomUUID(),
+    label: typeof step.label === 'string' ? step.label : '',
+    prompt: typeof step.prompt === 'string' ? step.prompt : '',
+    model: typeof step.model === 'string' && step.model ? step.model : defaultProviderId,
+    outputVar: typeof step.outputVar === 'string' && step.outputVar ? step.outputVar : `step${index + 1}_output`,
+    useOutputFrom: typeof step.useOutputFrom === 'string' ? step.useOutputFrom : '',
+  }
+}
+
+function sanitizeStepDependencies(steps: WorkflowStep[]): WorkflowStep[] {
+  return steps.map((step, index) => {
+    const previousVars = new Set(
+      steps
+        .slice(0, index)
+        .map(previousStep => previousStep.outputVar.trim())
+        .filter(Boolean)
+    )
+
+    return previousVars.has(step.useOutputFrom?.trim() ?? '')
+      ? step
+      : { ...step, useOutputFrom: '' }
+  })
+}
+
+function normalizeWorkflow(workflow: LegacyWorkflow, defaultProviderId: string): StoredWorkflow {
+  const createdAt = typeof workflow.createdAt === 'number' ? workflow.createdAt : Date.now()
+  const updatedAt = typeof workflow.updatedAt === 'number' ? workflow.updatedAt : createdAt
+
+  if (Array.isArray(workflow.steps)) {
+    return {
+      id: typeof workflow.id === 'string' && workflow.id ? workflow.id : crypto.randomUUID(),
+      name: typeof workflow.name === 'string' && workflow.name ? workflow.name : 'Untitled Workflow',
+      createdAt,
+      updatedAt,
+      steps: sanitizeStepDependencies(
+        workflow.steps.map((step, index) => normalizeStep(step, index, defaultProviderId))
+      ),
+    }
+  }
+
+  const legacyPrompt = promptFromLegacyWorkflow(workflow)
+
+  return {
+    id: typeof workflow.id === 'string' && workflow.id ? workflow.id : crypto.randomUUID(),
+    name: typeof workflow.name === 'string' && workflow.name ? workflow.name : 'Untitled Workflow',
+    createdAt,
+    updatedAt,
+    steps: legacyPrompt
+      ? [
+          {
+            stepId: crypto.randomUUID(),
+            label: 'Initial Step',
+            prompt: legacyPrompt,
+            model: typeof workflow.providerId === 'string' && workflow.providerId ? workflow.providerId : defaultProviderId,
+            outputVar: 'step1_output',
+            useOutputFrom: '',
+          },
+        ]
+      : [],
+  }
+}
+
+function loadWorkflows(defaultProviderId: string): StoredWorkflow[] {
   try {
     const raw = localStorage.getItem(WORKFLOWS_KEY)
-    return raw ? (JSON.parse(raw) as StoredWorkflow[]) : []
+    if (!raw) return []
+
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+
+    return parsed.map(workflow => normalizeWorkflow(workflow as LegacyWorkflow, defaultProviderId))
   } catch {
     return []
   }
@@ -55,7 +250,6 @@ function loadRuns(): WorkflowRun[] {
 
 function appendRun(run: WorkflowRun): void {
   const runs = loadRuns()
-  // Keep last 100 runs
   localStorage.setItem(RUNS_KEY, JSON.stringify([...runs, run].slice(-100)))
 }
 
@@ -63,30 +257,9 @@ function clearRuns(): void {
   localStorage.removeItem(RUNS_KEY)
 }
 
-function makeNewWorkflow(providerId: string): StoredWorkflow {
-  return {
-    id: `wf_${Date.now()}`,
-    name: 'Untitled Workflow',
-    systemPrompt: '',
-    userPrompt: '',
-    providerId,
-    createdAt: Date.now(),
-  }
+function getWorkflowCountLabel(count: number, singular: string): string {
+  return `${count} ${singular}${count !== 1 ? 's' : ''}`
 }
-
-// ─── Provider helpers ─────────────────────────────────────────────────────────
-
-function getSavedProviders(): Provider[] {
-  const configs = loadAllSavedConfigs()
-  return getAllProviders()
-    .filter(p => configs[p.id])
-    .map(p => {
-      const cfg = configs[p.id]
-      return { ...p, apiKey: cfg.apiKey, model: cfg.model, baseUrl: cfg.baseUrl || p.baseUrl }
-    })
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -101,25 +274,83 @@ function fmtRelative(iso: string): string {
   return new Date(iso).toLocaleDateString()
 }
 
-// ─── Run Card ─────────────────────────────────────────────────────────────────
+function fmtTimestamp(timestamp: number): string {
+  return new Date(timestamp).toLocaleString()
+}
+
+function promptPreview(prompt: string, maxLength = 140): string {
+  const trimmed = prompt.trim()
+  if (!trimmed) return 'No prompt yet.'
+  if (trimmed.length <= maxLength) return trimmed
+  return `${trimmed.slice(0, maxLength).trimEnd()}…`
+}
+
+function buildStepPrompt(step: WorkflowStep, outputsByVar: Record<string, string>): string {
+  const basePrompt = step.prompt.trim()
+  const sourceVar = step.useOutputFrom?.trim()
+  if (!sourceVar) return basePrompt
+
+  return [
+    `Context from ${sourceVar}:`,
+    outputsByVar[sourceVar] ?? '',
+    '',
+    basePrompt,
+  ].join('\n')
+}
+
+function buildRunOutput(stepRuns: StepRunState[]): string {
+  return stepRuns
+    .map(stepRun => {
+      const label = stepRun.label || 'Untitled Step'
+      const body = stepRun.output || stepRun.error || ''
+      return `# ${label}\n${body}`.trim()
+    })
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+function createMessage(content: string): Message {
+  return {
+    id: crypto.randomUUID(),
+    role: 'user',
+    content,
+    timestamp: new Date(),
+  }
+}
+
+function findProvider(savedProviders: Provider[], providerId: string): Provider | null {
+  return savedProviders.find(provider => provider.id === providerId) ?? null
+}
+
+function providerBadge(savedProviders: Provider[], providerId: string): string {
+  const provider = findProvider(savedProviders, providerId)
+  return provider?.model || provider?.name || 'No model'
+}
+
+function statusIcon(status: StepRunStatus) {
+  if (status === 'running') return <Loader2 size={12} className="text-[#7f77dd] animate-spin" />
+  if (status === 'complete') return <Check size={12} className="text-[#1d9e75]" />
+  if (status === 'error') return <X size={12} className="text-[#e05050]" />
+  return <Circle size={10} className="text-[#6b6b78] fill-current" />
+}
 
 function RunCard({ run }: { run: WorkflowRun }) {
   const [expanded, setExpanded] = useState(false)
 
   const statusColor =
     run.status === 'complete' ? '#1d9e75' :
-    run.status === 'error'    ? '#e05050' : '#9898a8'
+    run.status === 'error' ? '#e05050' : '#9898a8'
   const statusBg =
     run.status === 'complete' ? '#1d9e7515' :
-    run.status === 'error'    ? '#e0505015' : '#9898a815'
+    run.status === 'error' ? '#e0505015' : '#9898a815'
   const statusBorder =
     run.status === 'complete' ? '#1d9e7530' :
-    run.status === 'error'    ? '#e0505030' : '#9898a830'
+    run.status === 'error' ? '#e0505030' : '#9898a830'
 
   return (
     <div
       className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden cursor-pointer hover:border-[#3a3a42] transition-colors"
-      onClick={() => setExpanded(e => !e)}
+      onClick={() => setExpanded(current => !current)}
     >
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex-1 min-w-0">
@@ -149,7 +380,7 @@ function RunCard({ run }: { run: WorkflowRun }) {
         />
       </div>
       {expanded && run.output && (
-        <div className="px-4 pb-4" onClick={e => e.stopPropagation()}>
+        <div className="px-4 pb-4" onClick={event => event.stopPropagation()}>
           <div className="bg-[#0d0d0f] border border-[#2a2a2e] rounded-xl px-4 py-3 text-xs text-[#d6d6de] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
             {run.output}
           </div>
@@ -159,158 +390,364 @@ function RunCard({ run }: { run: WorkflowRun }) {
   )
 }
 
-// ─── Main View ────────────────────────────────────────────────────────────────
-
 export function WorkflowsView() {
-  const [tab, setTab] = useState<'workflows' | 'history'>('workflows')
-  const [workflows, setWorkflows] = useState<StoredWorkflow[]>(loadWorkflows)
+  const initialProviderId = getSavedProviders()[0]?.id ?? ''
+  const [tab, setTab] = useState<WorkflowTab>('workflows')
+  const [workflows, setWorkflows] = useState<StoredWorkflow[]>(() => loadWorkflows(initialProviderId))
   const [runs, setRuns] = useState<WorkflowRun[]>(() => loadRuns().slice().reverse())
-  const [selectedId, setSelectedId] = useState<string | null>(() => loadWorkflows()[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(() => loadWorkflows(initialProviderId)[0]?.id ?? null)
   const [draft, setDraft] = useState<StoredWorkflow | null>(() => {
-    const all = loadWorkflows()
-    return all[0] ? { ...all[0] } : null
+    const all = loadWorkflows(initialProviderId)
+    return all[0] ? cloneWorkflow(all[0]) : null
   })
-  const [output, setOutput] = useState('')
-  const [streaming, setStreaming] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const streamRef = useRef<{ abort: () => void } | null>(null)
-  const runStartRef = useRef<number>(0)
+  const [workflowRunning, setWorkflowRunning] = useState(false)
+  const [builderError, setBuilderError] = useState<string | null>(null)
+  const [stepRuns, setStepRuns] = useState<StepRunState[]>([])
+  const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({})
+  const [expandedOutputs, setExpandedOutputs] = useState<Record<string, boolean>>({})
   const [clearConfirm, setClearConfirm] = useState(false)
-
+  const activeStreamRef = useRef<{ abort: () => void } | null>(null)
+  const pendingStepAbortResolverRef = useRef<(() => void) | null>(null)
+  const stepRunsRef = useRef<StepRunState[]>([])
+  const stopRequestedRef = useRef(false)
+  const runStartRef = useRef(0)
   const savedProviders = getSavedProviders()
+
+  useEffect(() => {
+    saveWorkflows(workflows)
+  }, [])
+
+  const applyStepRuns = (
+    updater: StepRunState[] | ((current: StepRunState[]) => StepRunState[])
+  ) => {
+    setStepRuns(current => {
+      const next = typeof updater === 'function' ? updater(current) : updater
+      stepRunsRef.current = next
+      return next
+    })
+  }
+
+  const updateStepRun = (
+    stepId: string,
+    updater: (current: StepRunState) => StepRunState
+  ) => {
+    applyStepRuns(current =>
+      current.map(stepRun => (stepRun.stepId === stepId ? updater(stepRun) : stepRun))
+    )
+  }
 
   const refreshRuns = () => setRuns(loadRuns().slice().reverse())
 
-  const selectWorkflow = (wf: StoredWorkflow) => {
-    setSelectedId(wf.id)
-    setDraft({ ...wf })
-    setOutput('')
-    setError(null)
+  const resetRunState = () => {
+    setBuilderError(null)
+    applyStepRuns([])
+    setExpandedOutputs({})
+  }
+
+  const selectWorkflow = (workflow: StoredWorkflow) => {
+    setSelectedId(workflow.id)
+    setDraft(cloneWorkflow(workflow))
+    setExpandedSteps({})
+    resetRunState()
+  }
+
+  const persistWorkflows = (nextWorkflows: StoredWorkflow[]) => {
+    setWorkflows(nextWorkflows)
+    saveWorkflows(nextWorkflows)
   }
 
   const handleNew = () => {
-    const providerId = savedProviders[0]?.id ?? ''
-    const wf = makeNewWorkflow(providerId)
-    const updated = [...workflows, wf]
-    setWorkflows(updated)
-    saveWorkflows(updated)
-    selectWorkflow(wf)
+    const workflow = makeNewWorkflow()
+    const nextWorkflows = [workflow, ...workflows]
+    persistWorkflows(nextWorkflows)
+    selectWorkflow(workflow)
+    setTab('builder')
   }
 
   const handleSave = () => {
     if (!draft) return
-    const updated = workflows.map(w => (w.id === draft.id ? draft : w))
-    setWorkflows(updated)
-    saveWorkflows(updated)
+
+    const nextWorkflow: StoredWorkflow = {
+      ...cloneWorkflow(draft),
+      updatedAt: Date.now(),
+      steps: sanitizeStepDependencies(cloneSteps(draft.steps)),
+    }
+
+    const nextWorkflows = workflows.some(workflow => workflow.id === nextWorkflow.id)
+      ? workflows.map(workflow => (workflow.id === nextWorkflow.id ? nextWorkflow : workflow))
+      : [nextWorkflow, ...workflows]
+
+    persistWorkflows(nextWorkflows)
+    setDraft(cloneWorkflow(nextWorkflow))
   }
 
-  const handleDelete = (id: string) => {
-    const updated = workflows.filter(w => w.id !== id)
-    setWorkflows(updated)
-    saveWorkflows(updated)
-    if (selectedId === id) {
-      const next = updated[0] ?? null
-      setSelectedId(next?.id ?? null)
-      setDraft(next ? { ...next } : null)
-      setOutput('')
-      setError(null)
+  const handleDeleteWorkflow = (workflowId: string) => {
+    const nextWorkflows = workflows.filter(workflow => workflow.id !== workflowId)
+    persistWorkflows(nextWorkflows)
+
+    if (selectedId === workflowId) {
+      const nextSelectedWorkflow = nextWorkflows[0] ?? null
+      setSelectedId(nextSelectedWorkflow?.id ?? null)
+      setDraft(nextSelectedWorkflow ? cloneWorkflow(nextSelectedWorkflow) : null)
+      setExpandedSteps({})
+      resetRunState()
     }
   }
 
-  const handleRun = () => {
-    if (!draft || streaming) return
-    const provider = savedProviders.find(p => p.id === draft.providerId)
-    if (!provider) {
-      setError('No provider selected. Connect a model first in Connections.')
+  const updateDraft = (updater: (current: StoredWorkflow) => StoredWorkflow) => {
+    setDraft(current => (current ? updater(current) : null))
+  }
+
+  const toggleStepExpanded = (stepId: string) => {
+    setExpandedSteps(current => ({ ...current, [stepId]: !current[stepId] }))
+  }
+
+  const addStep = () => {
+    if (!draft) return
+
+    const defaultProviderId = savedProviders[0]?.id ?? ''
+    const nextStep = makeStep(defaultProviderId, draft.steps.length)
+
+    updateDraft(current => ({
+      ...current,
+      steps: [...current.steps, nextStep],
+    }))
+    setExpandedSteps(current => ({ ...current, [nextStep.stepId]: true }))
+  }
+
+  const updateStep = (stepId: string, patch: Partial<WorkflowStep>) => {
+    updateDraft(current => ({
+      ...current,
+      steps: current.steps.map(step => (step.stepId === stepId ? { ...step, ...patch } : step)),
+    }))
+  }
+
+  const deleteStep = (stepId: string) => {
+    updateDraft(current => ({
+      ...current,
+      steps: sanitizeStepDependencies(current.steps.filter(step => step.stepId !== stepId)),
+    }))
+    setExpandedSteps(current => {
+      const next = { ...current }
+      delete next[stepId]
+      return next
+    })
+  }
+
+  const moveStep = (stepId: string, direction: -1 | 1) => {
+    updateDraft(current => {
+      const index = current.steps.findIndex(step => step.stepId === stepId)
+      const targetIndex = index + direction
+      if (index < 0 || targetIndex < 0 || targetIndex >= current.steps.length) return current
+
+      const nextSteps = cloneSteps(current.steps)
+      const [moved] = nextSteps.splice(index, 1)
+      nextSteps.splice(targetIndex, 0, moved)
+
+      return {
+        ...current,
+        steps: sanitizeStepDependencies(nextSteps),
+      }
+    })
+  }
+
+  const runStep = (
+    step: WorkflowStep,
+    provider: Provider,
+    prompt: string
+  ): Promise<{ status: StepRunStatus; output: string; error?: string }> =>
+    new Promise(resolve => {
+      let streamedOutput = ''
+      let settled = false
+
+      const settle = (result: { status: StepRunStatus; output: string; error?: string }) => {
+        if (settled) return
+        settled = true
+        activeStreamRef.current = null
+        pendingStepAbortResolverRef.current = null
+        resolve(result)
+      }
+
+      pendingStepAbortResolverRef.current = () => {
+        updateStepRun(step.stepId, current => ({
+          ...current,
+          status: 'stopped',
+          output: streamedOutput,
+        }))
+        settle({ status: 'stopped', output: streamedOutput })
+      }
+
+      activeStreamRef.current = streamCompletion(
+        provider,
+        [createMessage(prompt)],
+        chunk => {
+          streamedOutput += chunk
+          updateStepRun(step.stepId, current => ({
+            ...current,
+            output: current.output + chunk,
+          }))
+        },
+        fullText => {
+          const finalOutput = fullText || streamedOutput
+          updateStepRun(step.stepId, current => ({
+            ...current,
+            status: 'complete',
+            output: finalOutput,
+          }))
+          settle({ status: 'complete', output: finalOutput })
+        },
+        error => {
+          const message = error.message
+          updateStepRun(step.stepId, current => ({
+            ...current,
+            status: 'error',
+            output: streamedOutput || message,
+            error: message,
+          }))
+          settle({
+            status: 'error',
+            output: streamedOutput || message,
+            error: message,
+          })
+        }
+      )
+    })
+
+  const handleRun = async () => {
+    if (!draft || workflowRunning) return
+    if (draft.steps.length === 0) {
+      setBuilderError('Add at least one step before running the workflow.')
+      return
+    }
+    if (savedProviders.length === 0) {
+      setBuilderError('No saved providers found. Connect a model first in Connections.')
       return
     }
 
-    const messages: Message[] = []
-    if (draft.systemPrompt.trim()) {
-      messages.push({ id: 'sys', role: 'system', content: draft.systemPrompt.trim(), timestamp: new Date() })
-    }
-    messages.push({ id: 'user', role: 'user', content: draft.userPrompt.trim() || 'Hello', timestamp: new Date() })
-
-    setOutput('')
-    setError(null)
-    setStreaming(true)
-    runStartRef.current = Date.now()
+    const workflow = cloneWorkflow(draft)
     const startedAt = new Date().toISOString()
-    let finalOutput = ''
+    const outputsByVar: Record<string, string> = {}
+    let finalStatus: WorkflowRun['status'] = 'complete'
 
-    const handle = streamCompletion(
-      provider,
-      messages,
-      chunk => {
-        finalOutput += chunk
-        setOutput(prev => prev + chunk)
-      },
-      () => {
-        setStreaming(false)
-        const finishedAt = new Date().toISOString()
-        const durationMs = Date.now() - runStartRef.current
-        const run: WorkflowRun = {
-          id: `run_${Date.now()}`,
-          workflowId: draft.id,
-          workflowName: draft.name || 'Untitled',
-          startedAt,
-          finishedAt,
-          status: 'complete',
-          durationMs,
-          output: finalOutput,
-        }
-        appendRun(run)
-        refreshRuns()
-        void notify('Workflow complete', `"${draft.name || 'Untitled'}" finished in ${fmtDuration(durationMs)}.`)
-      },
-      err => {
-        setError(err.message)
-        setStreaming(false)
-        const finishedAt = new Date().toISOString()
-        const run: WorkflowRun = {
-          id: `run_${Date.now()}`,
-          workflowId: draft.id,
-          workflowName: draft.name || 'Untitled',
-          startedAt,
-          finishedAt,
-          status: 'error',
-          durationMs: Date.now() - runStartRef.current,
-          output: err.message,
-        }
-        appendRun(run)
-        refreshRuns()
-      }
+    setBuilderError(null)
+    stopRequestedRef.current = false
+    runStartRef.current = Date.now()
+    setWorkflowRunning(true)
+
+    const initialStepRuns = workflow.steps.map(step => ({
+      stepId: step.stepId,
+      label: step.label.trim() || 'Untitled Step',
+      outputVar: step.outputVar.trim(),
+      status: 'pending' as const,
+      output: '',
+      error: '',
+    }))
+
+    applyStepRuns(initialStepRuns)
+    setExpandedOutputs(
+      Object.fromEntries(initialStepRuns.map(stepRun => [stepRun.stepId, true]))
     )
-    streamRef.current = handle
+
+    for (const step of workflow.steps) {
+      if (stopRequestedRef.current) {
+        finalStatus = 'stopped'
+        break
+      }
+
+      const provider = findProvider(savedProviders, step.model)
+      if (!provider) {
+        finalStatus = 'error'
+        const message = 'Selected model is no longer available.'
+        setBuilderError(message)
+        updateStepRun(step.stepId, current => ({ ...current, status: 'error', error: message, output: message }))
+        break
+      }
+
+      const trimmedPrompt = step.prompt.trim()
+      if (!trimmedPrompt) {
+        finalStatus = 'error'
+        const message = 'Step prompt is required.'
+        setBuilderError(message)
+        updateStepRun(step.stepId, current => ({ ...current, status: 'error', error: message, output: message }))
+        break
+      }
+
+      const requestedContext = step.useOutputFrom?.trim()
+      if (requestedContext && !Object.prototype.hasOwnProperty.call(outputsByVar, requestedContext)) {
+        finalStatus = 'error'
+        const message = `Context variable "${requestedContext}" is not available.`
+        setBuilderError(message)
+        updateStepRun(step.stepId, current => ({ ...current, status: 'error', error: message, output: message }))
+        break
+      }
+
+      updateStepRun(step.stepId, current => ({
+        ...current,
+        status: 'running',
+        output: '',
+        error: '',
+      }))
+
+      const stepPrompt = buildStepPrompt(step, outputsByVar)
+      const result = await runStep(step, provider, stepPrompt)
+
+      if (result.status === 'complete') {
+        const outputVar = step.outputVar.trim()
+        if (outputVar) outputsByVar[outputVar] = result.output
+        continue
+      }
+
+      if (result.status === 'stopped') {
+        finalStatus = 'stopped'
+        break
+      }
+
+      finalStatus = 'error'
+      setBuilderError(result.error ?? 'Step execution failed.')
+      break
+    }
+
+    if (stopRequestedRef.current && finalStatus === 'complete') {
+      finalStatus = 'stopped'
+    }
+
+    setWorkflowRunning(false)
+    activeStreamRef.current = null
+    pendingStepAbortResolverRef.current = null
+
+    const finishedAt = new Date().toISOString()
+    const durationMs = Date.now() - runStartRef.current
+    const output = buildRunOutput(stepRunsRef.current)
+
+    appendRun({
+      id: `run_${Date.now()}`,
+      workflowId: workflow.id,
+      workflowName: workflow.name || 'Untitled Workflow',
+      startedAt,
+      finishedAt,
+      status: finalStatus,
+      durationMs,
+      output,
+    })
+    refreshRuns()
+
+    if (finalStatus === 'complete') {
+      void notify(workflow.name || 'Untitled Workflow', 'Workflow complete')
+    }
   }
 
   const handleStop = () => {
-    streamRef.current?.abort()
-    setStreaming(false)
-    if (draft) {
-      const finishedAt = new Date().toISOString()
-      const run: WorkflowRun = {
-        id: `run_${Date.now()}`,
-        workflowId: draft.id,
-        workflowName: draft.name || 'Untitled',
-        startedAt: new Date(runStartRef.current).toISOString(),
-        finishedAt,
-        status: 'stopped',
-        durationMs: Date.now() - runStartRef.current,
-        output,
-      }
-      appendRun(run)
-      refreshRuns()
-    }
+    stopRequestedRef.current = true
+    activeStreamRef.current?.abort()
+    pendingStepAbortResolverRef.current?.()
   }
 
-  const updateDraft = (patch: Partial<StoredWorkflow>) => {
-    setDraft(prev => (prev ? { ...prev, ...patch } : null))
-  }
+  const selectedWorkflow = workflows.find(workflow => workflow.id === selectedId) ?? null
+  const combinedOutput = buildRunOutput(stepRuns)
+  const showOutputPanel = workflowRunning || stepRuns.length > 0
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: '#0d0d0f' }}>
-      {/* Header */}
       <div
         className="flex items-center justify-between px-6 py-4 flex-shrink-0"
         style={{ borderBottom: '1px solid #2a2a2e', background: '#141418' }}
@@ -322,27 +759,23 @@ export function WorkflowsView() {
           <div>
             <h1 className="font-bold text-[#e8e8ef] text-lg">Workflows</h1>
             <p className="text-xs text-[#6b6b78]">
-              {workflows.length} workflow{workflows.length !== 1 ? 's' : ''} · {runs.length} run{runs.length !== 1 ? 's' : ''}
+              {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(runs.length, 'run')}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Tabs */}
           <div className="flex rounded-xl border border-[#2a2a2e] overflow-hidden" style={{ background: '#0d0d0f' }}>
             {([
               { key: 'workflows' as const, label: 'Workflows', Icon: GitBranch },
+              { key: 'builder' as const, label: 'Builder', Icon: Plus },
               { key: 'history' as const, label: 'Run History', Icon: History },
             ]).map(({ key, label, Icon }) => (
               <button
                 key={key}
                 onClick={() => setTab(key)}
                 className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold transition-colors"
-                style={
-                  tab === key
-                    ? { background: '#7f77dd', color: '#fff' }
-                    : { color: '#9898a8' }
-                }
+                style={tab === key ? { background: '#7f77dd', color: '#fff' } : { color: '#9898a8' }}
               >
                 <Icon size={12} />
                 {label}
@@ -350,7 +783,7 @@ export function WorkflowsView() {
             ))}
           </div>
 
-          {tab === 'workflows' && (
+          {tab !== 'history' && (
             <button
               onClick={handleNew}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
@@ -363,167 +796,112 @@ export function WorkflowsView() {
         </div>
       </div>
 
-      {/* ── Workflows Tab ── */}
       {tab === 'workflows' && (
         <div className="flex-1 min-h-0 grid" style={{ gridTemplateColumns: '260px 1fr' }}>
-          {/* Left: workflow list */}
           <div className="border-r border-[#2a2a2e] overflow-y-auto p-3 space-y-1">
             {workflows.length === 0 && (
               <p className="text-xs text-[#6b6b78] px-2 py-3">
                 No workflows yet. Click &ldquo;New&rdquo; to create one.
               </p>
             )}
-            {workflows.map(wf => (
+            {workflows.map(workflow => (
               <button
-                key={wf.id}
-                onClick={() => selectWorkflow(wf)}
+                key={workflow.id}
+                onClick={() => selectWorkflow(workflow)}
                 className={clsx(
                   'w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition-colors group',
-                  selectedId === wf.id
+                  selectedId === workflow.id
                     ? 'bg-[#7f77dd]/12 text-[#e8e8ef]'
                     : 'text-[#9898a8] hover:bg-[#1c1c22] hover:text-[#e8e8ef]'
                 )}
               >
                 <GitBranch
                   size={14}
-                  style={{ color: selectedId === wf.id ? '#7f77dd' : undefined, flexShrink: 0 }}
+                  style={{ color: selectedId === workflow.id ? '#7f77dd' : undefined, flexShrink: 0 }}
                 />
-                <span className="flex-1 truncate">{wf.name || 'Untitled'}</span>
+                <span className="flex-1 truncate">{workflow.name || 'Untitled Workflow'}</span>
                 <ChevronRight size={12} className="opacity-0 group-hover:opacity-60 flex-shrink-0" />
               </button>
             ))}
           </div>
 
-          {/* Right: editor */}
-          {draft ? (
+          {selectedWorkflow ? (
             <div className="flex flex-col min-h-0 overflow-hidden">
-              {/* Toolbar */}
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-[#2a2a2e] bg-[#0f0f12]">
-                <input
-                  value={draft.name}
-                  onChange={e => updateDraft({ name: e.target.value })}
-                  className="flex-1 bg-transparent text-[#e8e8ef] font-semibold text-sm outline-none border border-transparent rounded-lg px-2 py-1 hover:border-[#2a2a2e] focus:border-[#7f77dd]/60 transition-colors"
-                  placeholder="Workflow name"
-                />
-                <button
-                  onClick={handleSave}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#9898a8] hover:text-[#e8e8ef] bg-[#1c1c22] hover:bg-[#252529] transition-colors"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => handleDelete(draft.id)}
-                  className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
-                  title="Delete workflow"
-                >
-                  <Trash2 size={14} />
-                </button>
+              <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#2a2a2e] bg-[#0f0f12]">
+                <div>
+                  <h2 className="text-sm font-semibold text-[#e8e8ef]">{selectedWorkflow.name || 'Untitled Workflow'}</h2>
+                  <p className="text-xs text-[#6b6b78] mt-1">
+                    {getWorkflowCountLabel(selectedWorkflow.steps.length, 'step')} · updated {fmtTimestamp(selectedWorkflow.updatedAt)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setTab('builder')}
+                    className="rounded-lg bg-[#1c1c22] px-3 py-1.5 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] hover:bg-[#252529]"
+                  >
+                    Open Builder
+                  </button>
+                  <button
+                    onClick={() => handleDeleteWorkflow(selectedWorkflow.id)}
+                    className="p-1.5 rounded-lg text-[#6b6b78] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                    title="Delete workflow"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                {/* System prompt */}
-                <div>
-                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
-                    System Prompt{' '}
-                    <span className="font-normal normal-case text-[#6b6b78]">(optional)</span>
-                  </label>
-                  <textarea
-                    value={draft.systemPrompt}
-                    onChange={e => updateDraft({ systemPrompt: e.target.value })}
-                    rows={4}
-                    className="w-full bg-[#141418] border border-[#2a2a2e] rounded-xl px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 resize-none font-mono leading-relaxed transition-colors"
-                    placeholder="You are a helpful assistant that..."
-                  />
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Created</div>
+                    <div className="mt-2 text-sm text-[#e8e8ef]">{fmtTimestamp(selectedWorkflow.createdAt)}</div>
+                  </div>
+                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Updated</div>
+                    <div className="mt-2 text-sm text-[#e8e8ef]">{fmtTimestamp(selectedWorkflow.updatedAt)}</div>
+                  </div>
+                  <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
+                    <div className="text-[11px] uppercase tracking-[0.12em] text-[#6b6b78]">Steps</div>
+                    <div className="mt-2 text-sm text-[#e8e8ef]">{selectedWorkflow.steps.length}</div>
+                  </div>
                 </div>
 
-                {/* User prompt */}
-                <div>
-                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
-                    User Prompt
-                  </label>
-                  <textarea
-                    value={draft.userPrompt}
-                    onChange={e => updateDraft({ userPrompt: e.target.value })}
-                    rows={7}
-                    className="w-full bg-[#141418] border border-[#2a2a2e] rounded-xl px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 resize-none font-mono leading-relaxed transition-colors"
-                    placeholder="Summarize the following text:&#10;&#10;{{input}}"
-                  />
-                </div>
-
-                {/* Model selector */}
-                <div>
-                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
-                    Model
-                  </label>
-                  {savedProviders.length > 0 ? (
-                    <select
-                      value={draft.providerId}
-                      onChange={e => updateDraft({ providerId: e.target.value })}
-                      className="w-full bg-[#141418] border border-[#2a2a2e] rounded-xl px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
-                      style={{ colorScheme: 'dark' }}
-                    >
-                      {savedProviders.map(p => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} — {p.model}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <div className="text-xs text-[#e05050] bg-[#e05050]/10 border border-[#e05050]/20 rounded-xl px-4 py-3">
-                      No models connected. Add a provider in Connections first.
+                <div className="space-y-3">
+                  {selectedWorkflow.steps.length === 0 ? (
+                    <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-6 text-sm text-[#9898a8]">
+                      This workflow does not have any steps yet. Open it in Builder to add them.
                     </div>
+                  ) : (
+                    selectedWorkflow.steps.map((step, index) => (
+                      <div key={step.stepId} className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6b6b78]">
+                                Step {index + 1}
+                              </span>
+                              <span className="text-sm font-semibold text-[#e8e8ef]">
+                                {step.label.trim() || 'Untitled Step'}
+                              </span>
+                              <span
+                                className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                style={{ background: '#7f77dd18', color: '#a09ae8' }}
+                              >
+                                {providerBadge(savedProviders, step.model)}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-xs leading-relaxed text-[#9898a8]">{promptPreview(step.prompt)}</p>
+                          </div>
+                          <div className="text-right text-xs text-[#6b6b78]">
+                            <div>{step.outputVar || 'No output var'}</div>
+                            {step.useOutputFrom && <div className="mt-1">uses {step.useOutputFrom}</div>}
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
-
-                {/* Run / Stop */}
-                <div className="flex items-center gap-3">
-                  {!streaming ? (
-                    <button
-                      onClick={handleRun}
-                      disabled={!draft.userPrompt.trim() || savedProviders.length === 0}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:opacity-90 active:scale-[0.98]"
-                      style={{ background: '#7f77dd' }}
-                    >
-                      <Play size={14} />
-                      Run Workflow
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleStop}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-                      style={{ background: '#e05050', color: '#fff' }}
-                    >
-                      <Square size={14} />
-                      Stop
-                    </button>
-                  )}
-                  {streaming && <Loader size={14} className="text-[#7f77dd] animate-spin" />}
-                </div>
-
-                {/* Error */}
-                {error && (
-                  <div className="text-xs text-[#e05050] bg-[#e05050]/10 border border-[#e05050]/20 rounded-xl px-4 py-3">
-                    {error}
-                  </div>
-                )}
-
-                {/* Output */}
-                {(output || streaming) && (
-                  <div>
-                    <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
-                      Output
-                      {streaming && (
-                        <span className="ml-2 normal-case font-normal text-[#7f77dd]">streaming…</span>
-                      )}
-                    </label>
-                    <div className="bg-[#141418] border border-[#2a2a2e] rounded-xl px-4 py-4 text-sm text-[#d6d6de] font-mono leading-relaxed whitespace-pre-wrap">
-                      {output}
-                      {streaming && (
-                        <span className="inline-block w-1.5 h-4 bg-[#7f77dd] ml-0.5 animate-pulse align-text-bottom" />
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ) : (
@@ -542,7 +920,314 @@ export function WorkflowsView() {
         </div>
       )}
 
-      {/* ── Run History Tab ── */}
+      {tab === 'builder' && (
+        <div
+          className="flex-1 min-h-0 grid"
+          style={{ gridTemplateColumns: showOutputPanel ? 'minmax(0, 1fr) minmax(320px, 40%)' : 'minmax(0, 1fr)' }}
+        >
+          {draft ? (
+            <>
+              <div className="flex flex-col min-h-0 overflow-hidden">
+                <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#2a2a2e] bg-[#0f0f12]">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <input
+                      value={draft.name}
+                      onChange={event => updateDraft(current => ({ ...current, name: event.target.value }))}
+                      className="flex-1 bg-transparent text-[#e8e8ef] font-semibold text-sm outline-none border border-transparent rounded-lg px-2 py-1 hover:border-[#2a2a2e] focus:border-[#7f77dd]/60 transition-colors"
+                      placeholder="Workflow name"
+                    />
+                    <button
+                      onClick={handleSave}
+                      className="rounded-lg bg-[#1c1c22] px-3 py-1.5 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] hover:bg-[#252529]"
+                    >
+                      Save Workflow
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {!workflowRunning ? (
+                      <button
+                        onClick={() => void handleRun()}
+                        disabled={draft.steps.length === 0 || savedProviders.length === 0}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:opacity-90"
+                        style={{ background: '#7f77dd' }}
+                      >
+                        <Play size={14} />
+                        Run Workflow
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleStop}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+                        style={{ background: '#e05050' }}
+                      >
+                        <Square size={14} />
+                        Stop
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                  {builderError && (
+                    <div className="text-xs text-[#e05050] bg-[#e05050]/10 border border-[#e05050]/20 rounded-xl px-4 py-3">
+                      {builderError}
+                    </div>
+                  )}
+
+                  {draft.steps.length === 0 ? (
+                    <div className="rounded-xl border border-[#2a2a2e] bg-[#141418] p-6 text-center">
+                      <p className="text-sm text-[#9898a8]">No steps yet. Add one to start building this workflow.</p>
+                    </div>
+                  ) : (
+                    draft.steps.map((step, index) => {
+                      const previousOutputVars = draft.steps
+                        .slice(0, index)
+                        .map(previousStep => previousStep.outputVar.trim())
+                        .filter(Boolean)
+                      const isExpanded = !!expandedSteps[step.stepId]
+
+                      return (
+                        <div
+                          key={step.stepId}
+                          className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden"
+                        >
+                          <button
+                            onClick={() => toggleStepExpanded(step.stepId)}
+                            className="w-full px-4 py-4 text-left"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6b6b78]">
+                                    Step {index + 1}
+                                  </span>
+                                  <span className="text-sm font-semibold text-[#e8e8ef]">
+                                    {step.label.trim() || 'Untitled Step'}
+                                  </span>
+                                  <span
+                                    className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                    style={{ background: '#7f77dd18', color: '#a09ae8' }}
+                                  >
+                                    {providerBadge(savedProviders, step.model)}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-xs leading-relaxed text-[#9898a8]">{promptPreview(step.prompt)}</p>
+                                <div className="mt-3 flex items-center gap-3 text-xs text-[#6b6b78]">
+                                  <span>output: {step.outputVar || 'unset'}</span>
+                                  {step.useOutputFrom && <span>context: {step.useOutputFrom}</span>}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1 flex-shrink-0" onClick={event => event.stopPropagation()}>
+                                <button
+                                  onClick={() => moveStep(step.stepId, -1)}
+                                  disabled={index === 0}
+                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e8e8ef] disabled:opacity-30 disabled:cursor-not-allowed"
+                                  aria-label={`Move ${step.label || `step ${index + 1}`} up`}
+                                >
+                                  <ArrowUp size={14} />
+                                </button>
+                                <button
+                                  onClick={() => moveStep(step.stepId, 1)}
+                                  disabled={index === draft.steps.length - 1}
+                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e8e8ef] disabled:opacity-30 disabled:cursor-not-allowed"
+                                  aria-label={`Move ${step.label || `step ${index + 1}`} down`}
+                                >
+                                  <ArrowDown size={14} />
+                                </button>
+                                <button
+                                  onClick={() => deleteStep(step.stepId)}
+                                  className="rounded-lg border border-[#2a2a2e] p-2 text-[#6b6b78] transition-colors hover:text-[#e05050]"
+                                  aria-label={`Delete ${step.label || `step ${index + 1}`}`}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          </button>
+
+                          {isExpanded && (
+                            <div className="border-t border-[#2a2a2e] px-4 py-4 space-y-4">
+                              <div>
+                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                  Label
+                                </label>
+                                <input
+                                  value={step.label}
+                                  onChange={event => updateStep(step.stepId, { label: event.target.value })}
+                                  placeholder="Research Phase"
+                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                  Prompt
+                                </label>
+                                <textarea
+                                  value={step.prompt}
+                                  onChange={event => updateStep(step.stepId, { prompt: event.target.value })}
+                                  rows={6}
+                                  placeholder="Tell the model what this step should do."
+                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 resize-none font-mono leading-relaxed transition-colors"
+                                />
+                              </div>
+
+                              <div className="grid gap-4 md:grid-cols-2">
+                                <div>
+                                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                    Model
+                                  </label>
+                                  {savedProviders.length > 0 ? (
+                                    <select
+                                      value={step.model}
+                                      onChange={event => updateStep(step.stepId, { model: event.target.value })}
+                                      className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
+                                      style={{ colorScheme: 'dark' }}
+                                    >
+                                      {savedProviders.map(provider => (
+                                        <option key={provider.id} value={provider.id}>
+                                          {provider.name} — {provider.model || provider.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <div className="rounded-xl border border-[#e05050]/20 bg-[#e05050]/10 px-4 py-3 text-xs text-[#e05050]">
+                                      No saved providers found.
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div>
+                                  <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                    Output Variable
+                                  </label>
+                                  <input
+                                    value={step.outputVar}
+                                    onChange={event => updateStep(step.stepId, { outputVar: event.target.value })}
+                                    placeholder="step1_output"
+                                    className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-semibold text-[#9898a8] uppercase tracking-[0.1em] mb-2">
+                                  Use Output From
+                                </label>
+                                <select
+                                  value={step.useOutputFrom || ''}
+                                  onChange={event => updateStep(step.stepId, { useOutputFrom: event.target.value })}
+                                  className="w-full rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-sm text-[#e8e8ef] outline-none focus:border-[#7f77dd]/60 cursor-pointer transition-colors"
+                                  style={{ colorScheme: 'dark' }}
+                                >
+                                  <option value="">No injected context</option>
+                                  {previousOutputVars.map(outputVar => (
+                                    <option key={outputVar} value={outputVar}>
+                                      {outputVar}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
+
+                  <button
+                    onClick={addStep}
+                    className="w-full rounded-xl border border-dashed border-[#2a2a2e] px-4 py-3 text-sm font-medium text-[#9898a8] transition-colors hover:border-[#7f77dd]/40 hover:text-[#e8e8ef]"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Plus size={14} />
+                      Add Step
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {showOutputPanel && (
+                <div className="border-l border-[#2a2a2e] bg-[#0f0f12] flex flex-col min-h-0">
+                  <div className="flex items-center justify-between gap-3 px-4 py-4 border-b border-[#2a2a2e]">
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#e8e8ef]">Live Output</h3>
+                      <p className="text-xs text-[#6b6b78]">
+                        {workflowRunning ? 'Streaming step outputs…' : 'Latest workflow output'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!combinedOutput.trim()) return
+                        void navigator.clipboard.writeText(combinedOutput).catch(() => {})
+                      }}
+                      disabled={!combinedOutput.trim()}
+                      className="inline-flex items-center gap-2 rounded-lg border border-[#2a2a2e] px-3 py-2 text-xs font-medium text-[#9898a8] transition-colors hover:text-[#e8e8ef] disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Copy size={12} />
+                      Copy All Output
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    {stepRuns.map(stepRun => (
+                      <div key={stepRun.stepId} className="rounded-xl border border-[#2a2a2e] bg-[#141418] overflow-hidden">
+                        <button
+                          onClick={() =>
+                            setExpandedOutputs(current => ({
+                              ...current,
+                              [stepRun.stepId]: !current[stepRun.stepId],
+                            }))
+                          }
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left"
+                        >
+                          {statusIcon(stepRun.status)}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-[#e8e8ef]">{stepRun.label}</div>
+                            <div className="text-xs text-[#6b6b78] mt-0.5">
+                              {stepRun.outputVar || 'No output variable'}
+                            </div>
+                          </div>
+                          <ChevronDown
+                            size={14}
+                            className="text-[#6b6b78] transition-transform"
+                            style={{ transform: expandedOutputs[stepRun.stepId] ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          />
+                        </button>
+
+                        {expandedOutputs[stepRun.stepId] && (
+                          <div className="px-4 pb-4">
+                            <div className="rounded-xl border border-[#2a2a2e] bg-[#0d0d0f] px-4 py-3 text-xs text-[#d6d6de] font-mono leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto">
+                              {stepRun.output || stepRun.error || (
+                                <span className="text-[#6b6b78]">No output yet.</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-3">
+                <div
+                  className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center"
+                  style={{ background: '#6366f122' }}
+                >
+                  <GitBranch size={22} style={{ color: '#6366f1' }} />
+                </div>
+                <p className="text-sm text-[#9898a8]">Select or create a workflow to open the builder.</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === 'history' && (
         <div className="flex-1 overflow-y-auto p-6">
           {runs.length === 0 ? (
@@ -556,7 +1241,7 @@ export function WorkflowsView() {
           ) : (
             <div style={{ maxWidth: 720 }}>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-xs text-[#6b6b78]">{runs.length} run{runs.length !== 1 ? 's' : ''} total</p>
+                <p className="text-xs text-[#6b6b78]">{getWorkflowCountLabel(runs.length, 'run')} total</p>
                 {!clearConfirm ? (
                   <button
                     onClick={() => setClearConfirm(true)}
@@ -574,7 +1259,11 @@ export function WorkflowsView() {
                       Cancel
                     </button>
                     <button
-                      onClick={() => { clearRuns(); setRuns([]); setClearConfirm(false) }}
+                      onClick={() => {
+                        clearRuns()
+                        setRuns([])
+                        setClearConfirm(false)
+                      }}
                       className="text-[#e05050] font-semibold hover:opacity-80 transition-opacity"
                     >
                       Clear
@@ -582,6 +1271,7 @@ export function WorkflowsView() {
                   </div>
                 )}
               </div>
+
               <div className="space-y-3">
                 {runs.map(run => (
                   <RunCard key={run.id} run={run} />
