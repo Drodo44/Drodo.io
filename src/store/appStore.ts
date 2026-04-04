@@ -18,6 +18,8 @@ import {
 } from '../lib/providerApi'
 import { INITIAL_CONNECTORS } from '../lib/connectors'
 import { executeCommand, readFile } from '../lib/tauri'
+import { trackUsage, estimateCost } from '../lib/usageTracker'
+import { notify } from '../lib/notifications'
 
 let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
@@ -485,6 +487,24 @@ export const useAppStore = create<AppState>((set, get) => ({
             createTerminalEntry('info', 'Response', finalContent || '(no content)'),
           ],
         }))
+
+        // Track usage
+        try {
+          const totalTokens = Math.max(1, Math.ceil(finalContent.length / 4))
+          const inputTokens = Math.floor(totalTokens * 0.3)
+          const outputTokens = totalTokens - inputTokens
+          trackUsage({
+            providerId: provider.id,
+            providerName: provider.name,
+            model: provider.model ?? provider.name,
+            inputTokens,
+            outputTokens,
+            totalTokens,
+            estimatedCostUsd: estimateCost(provider.model ?? provider.name, inputTokens, outputTokens),
+          })
+        } catch { /* never break the UI over analytics */ }
+
+        void notify('Drodo', 'Agent finished responding.')
 
         const latest = get()
         if (

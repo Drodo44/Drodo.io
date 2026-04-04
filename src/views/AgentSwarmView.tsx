@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Play } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAppStore } from '../store/appStore'
+import { notify } from '../lib/notifications'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -382,6 +383,7 @@ export function AgentSwarmView() {
     const agent = agents.find(a => a.id === agentId)
     if (agent) {
       addLog(agentId, agent.name, 'error', 'Stopped by user')
+      void notify('Drodo', `${agent.name} has stopped.`)
     }
     setAgents(prev => prev.map(a =>
       a.id === agentId ? { ...a, status: 'error' } : a

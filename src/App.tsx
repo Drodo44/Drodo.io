@@ -16,6 +16,7 @@ import { ConnectionsView } from './views/ConnectionsView'
 import { SettingsView } from './views/SettingsView'
 import { AgentTemplatesView } from './views/AgentTemplatesView'
 import { PromptLibraryView } from './views/PromptLibraryView'
+import { AutomationsView } from './views/AutomationsView'
 import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
@@ -44,6 +45,7 @@ function MainContent() {
   if (activeView === 'settings') return <SettingsView />
   if (activeView === 'templates') return <AgentTemplatesView />
   if (activeView === 'prompts') return <PromptLibraryView />
+  if (activeView === 'automations') return <AutomationsView />
   return null
 }
 
