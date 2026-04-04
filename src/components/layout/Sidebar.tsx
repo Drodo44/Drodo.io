@@ -11,7 +11,7 @@ import {
   Puzzle,
   ChevronRight,
   Plug,
-  Settings,
+  Settings2,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Logo } from '../ui/Logo'
@@ -31,7 +31,6 @@ const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
   { view: 'workflows', label: 'Workflows', Icon: GitBranch },
   { view: 'analytics', label: 'Analytics', Icon: BarChart3 },
   { view: 'connections', label: 'Connections', Icon: Plug },
-  { view: 'settings', label: 'Settings', Icon: Settings },
 ]
 
 function BrandLogo() {
@@ -66,6 +65,42 @@ export function Sidebar() {
   )
   const runningAgents = agents.filter(a => a.status === 'running').length
 
+  const navButton = (view: NavView, label: string, Icon: typeof Bot, badge?: number) => {
+    const isActive = activeView === view
+    return (
+      <button
+        key={view}
+        onClick={() => setView(view)}
+        className={clsx(
+          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
+          isActive
+            ? 'text-[#e8e8ef] bg-[#7f77dd]/12'
+            : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
+        )}
+      >
+        {isActive && (
+          <span
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
+            style={{ background: '#7f77dd' }}
+          />
+        )}
+        <Icon
+          size={16}
+          style={{ color: isActive ? '#7f77dd' : undefined, flexShrink: 0 }}
+        />
+        <span className="truncate">{label}</span>
+        {badge != null && badge > 0 && (
+          <span
+            className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full"
+            style={{ background: '#7f77dd', color: '#fff', fontSize: 10 }}
+          >
+            {badge}
+          </span>
+        )}
+      </button>
+    )
+  }
+
   return (
     <aside
       className="flex flex-col h-full flex-shrink-0"
@@ -91,63 +126,18 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 py-3 overflow-y-auto">
         <div className="px-2 space-y-0.5">
-          {NAV_ITEMS.map(({ view, label, Icon }) => {
-            const isActive = activeView === view
-            return (
-              <button
-                key={view}
-                onClick={() => setView(view)}
-                className={clsx(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
-                  isActive
-                    ? 'text-[#e8e8ef] bg-[#7f77dd]/12'
-                    : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
-                )}
-              >
-                {isActive && (
-                  <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
-                    style={{ background: '#7f77dd' }}
-                  />
-                )}
-                <Icon
-                  size={16}
-                  style={{ color: isActive ? '#7f77dd' : undefined, flexShrink: 0 }}
-                />
-                <span className="truncate">{label}</span>
-              </button>
-            )
-          })}
+          {NAV_ITEMS.map(({ view, label, Icon }) => navButton(view, label, Icon))}
         </div>
 
         {/* Divider */}
         <div className="mx-4 my-3" style={{ borderTop: '1px solid #2a2a2e' }} />
 
         {/* Agent Swarm */}
-        <div className="px-2">
-          <button
-            onClick={() => setView('swarm')}
-            className={clsx(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
-              activeView === 'swarm'
-                ? 'text-[#e8e8ef] bg-[#7f77dd]/12'
-                : 'text-[#9898a8] hover:text-[#e8e8ef] hover:bg-[#1c1c22]'
-            )}
-          >
-            {activeView === 'swarm' && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full" style={{ background: '#7f77dd' }} />
-            )}
-            <Zap size={16} style={{ color: activeView === 'swarm' ? '#7f77dd' : undefined, flexShrink: 0 }} />
-            Agent Swarm
-            {runningAgents > 0 && (
-              <span
-                className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: '#7f77dd', color: '#fff', fontSize: 10 }}
-              >
-                {runningAgents}
-              </span>
-            )}
-          </button>
+        <div className="px-2 space-y-0.5">
+          {navButton('swarm', 'Agent Swarm', Zap, runningAgents > 0 ? runningAgents : undefined)}
+
+          {/* Settings — between Swarm and bottom provider section */}
+          {navButton('settings', 'Settings', Settings2)}
         </div>
       </nav>
 

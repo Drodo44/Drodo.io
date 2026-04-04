@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useAppStore } from './store/appStore'
 import { loadAllSavedConfigs } from './lib/providerApi'
 import { Sidebar } from './components/layout/Sidebar'
@@ -18,6 +18,7 @@ import { SettingsView } from './views/SettingsView'
 import { OnboardingScreen } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
+import { CommandPalette } from './components/ui/CommandPalette'
 
 function MainContent() {
   const activeView = useAppStore(s => s.activeView)
@@ -44,13 +45,24 @@ function MainContent() {
 }
 
 function App() {
-  // Re-read localStorage whenever activeProvider changes.
-  // setActiveProvider always calls saveProviderConfig, so this is the reactive signal.
   const activeProvider = useAppStore(s => s.activeProvider)
   const hasConfiguredProvider = useMemo(
     () => Object.keys(loadAllSavedConfigs()).length > 0,
     [activeProvider]
   )
+
+  const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCmdPaletteOpen(prev => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   if (!hasConfiguredProvider) {
     return (
@@ -67,6 +79,7 @@ function App() {
         </div>
         <ProviderHubModal />
         <PermissionWarningModal />
+        <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
       </div>
     )
   }
@@ -87,6 +100,7 @@ function App() {
 
       <ProviderHubModal />
       <PermissionWarningModal />
+      <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
     </div>
   )
 }
