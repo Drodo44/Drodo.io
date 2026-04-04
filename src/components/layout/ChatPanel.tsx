@@ -1,11 +1,20 @@
 import { useEffect, useRef } from 'react'
+import { Plug } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import { MessageBubble } from '../chat/MessageBubble'
 import { ChatInput } from '../chat/ChatInput'
 
 export function ChatPanel() {
-  const messages = useAppStore(s => s.messages)
-  const agentRunning = useAppStore(s => s.agentRunning)
+  const { messages, agentRunning, activeProvider, setView } = useAppStore(
+    useShallow(s => ({
+      messages: s.messages,
+      agentRunning: s.agentRunning,
+      activeProvider: s.activeProvider,
+      setView: s.setView,
+    }))
+  )
+  const noProvider = !activeProvider.isLocal && !activeProvider.apiKey
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -23,6 +32,32 @@ export function ChatPanel() {
             isLast={i === messages.length - 1}
           />
         ))}
+
+        {/* No provider inline card */}
+        {noProvider && (
+          <div className="flex gap-3 mb-4 animate-fade-in">
+            <div
+              className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold mt-1"
+              style={{ background: 'linear-gradient(135deg, #7f77dd, #5a52b0)', color: '#fff' }}
+            >
+              D
+            </div>
+            <div
+              className="px-4 py-3 rounded-2xl rounded-tl-sm border text-sm leading-relaxed"
+              style={{ background: '#141418', borderColor: '#2a2a2e', color: '#9898a8', maxWidth: '75%' }}
+            >
+              No model connected yet.{' '}
+              <button
+                onClick={() => setView('connections')}
+                className="font-semibold transition-colors hover:opacity-80"
+                style={{ color: '#7f77dd' }}
+              >
+                <Plug size={12} className="inline -mt-0.5 mr-0.5" />
+                Connect your first model →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Typing indicator */}
         {agentRunning && !messages[messages.length - 1]?.streaming && (

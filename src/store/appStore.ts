@@ -9,9 +9,11 @@ import type {
   TerminalEntry,
 } from '../types'
 import { runAgentSession, type AgentRunHandle } from '../lib/agentRunner'
+import { streamCompletion } from '../lib/streamChat'
 import {
   buildProvider,
   getConnectedProviders,
+  loadAllSavedConfigs,
   saveProviderConfig,
 } from '../lib/providerApi'
 import { INITIAL_CONNECTORS } from '../lib/connectors'
@@ -123,6 +125,12 @@ function loadConnectors() {
 }
 
 function buildDefaultProvider(): Provider {
+  // Prefer the first provider the user has explicitly saved a config for
+  const saved = loadAllSavedConfigs()
+  for (const id of Object.keys(saved)) {
+    const p = buildProvider(id)
+    if (p) return p
+  }
   return (
     buildProvider('anthropic') ?? {
       id: 'anthropic',
@@ -413,183 +421,105 @@ export const useAppStore = create<AppState>((set, get) => ({
       streaming: true,
     }
 
-    const conversation = [...state.messages.filter(message => !message.streaming), userMessage]
+    // Build clean API conversation: system prompt + user/assistant turns only
+    const history = state.messages.filter(m => !m.streaming)
+    const apiMessages: Message[] = [
+      createMessage('system', 'You are Drodo, a capable desktop AI agent. Be direct, concise, and helpful.'),
+      ...history.filter(m => m.role === 'user' || m.role === 'assistant'),
+      userMessage,
+    ]
 
     set(current => ({
-      messages: [...current.messages.map(message => ({ ...message, streaming: false })), userMessage, assistantMessage],
+      messages: [...current.messages.map(m => ({ ...m, streaming: false })), userMessage, assistantMessage],
       agentRunning: true,
-      taskSteps: updateTaskStep(createTaskSteps(), 'plan', 'running'),
+      taskSteps: updateTaskStep(createTaskSteps(), 'respond', 'running'),
       terminalEntries: [
         ...current.terminalEntries,
-        createTerminalEntry('info', 'User task', content),
+        createTerminalEntry('info', 'User', content),
       ],
     }))
 
+    // No key configured — the ChatPanel inline card already tells the user.
+    // Remove the placeholder assistant bubble and bail.
     if (!provider.isLocal && !provider.apiKey) {
       set(current => ({
-        messages: current.messages.map(message =>
-          message.id === assistantId
-            ? {
-                ...message,
-                streaming: false,
-                content: `No API key configured for **${provider.name}**. Open Provider Hub and save a working key or use a local provider.`,
-              }
-            : message
-        ),
+        messages: current.messages.filter(m => m.id !== assistantId),
         agentRunning: false,
+        taskSteps: createTaskSteps(),
       }))
       return
     }
 
     let accumulated = ''
-    let usedTools = false
 
-    activePrimaryRun = runAgentSession({
+    const handle = streamCompletion(
       provider,
-      conversation,
-      onPlanning: () => {
-        set(current => ({
-          taskSteps: updateTaskStep(current.taskSteps, 'plan', 'running'),
-        }))
-      },
-      onToolStart: call => {
-        usedTools = true
-        set(current => ({
-          taskSteps: updateTaskStep(updateTaskStep(current.taskSteps, 'plan', 'complete'), 'tools', 'running'),
-          terminalEntries: [
-            ...current.terminalEntries,
-            createTerminalEntry(
-              'tool',
-              `Tool: ${call.tool}`,
-              JSON.stringify(call.arguments, null, 2)
-            ),
-          ],
-          messages: current.messages.slice(-1)[0]?.id === assistantId
-            ? [
-                ...current.messages.slice(0, -1),
-                createMessage('system', `Tool: ${call.tool}`),
-                current.messages[current.messages.length - 1],
-              ]
-            : [...current.messages, createMessage('system', `Tool: ${call.tool}`)],
-        }))
-      },
-      onToolResult: result => {
-        const title = result.tool === 'execute_command'
-          ? String(result.arguments.command ?? result.summary)
-          : String(result.arguments.path ?? result.summary)
-        const rawObject = typeof result.raw === 'object' && result.raw !== null
-          ? result.raw as Record<string, unknown>
-          : null
-
-        set(current => ({
-          terminalEntries: [
-            ...current.terminalEntries,
-            createTerminalEntry('output', result.summary, result.contentForModel),
-          ],
-          messages: current.messages.slice(-1)[0]?.id === assistantId
-            ? [
-                ...current.messages.slice(0, -1),
-                createMessage('system', result.summary),
-                current.messages[current.messages.length - 1],
-              ]
-            : [...current.messages, createMessage('system', result.summary)],
-          liveOutputTitle: title,
-          liveOutputContent:
-            typeof result.raw === 'string'
-              ? result.raw
-              : rawObject && typeof rawObject.content === 'string'
-                ? rawObject.content
-                : rawObject && typeof rawObject.combined === 'string'
-                  ? rawObject.combined
-                : result.contentForModel,
-          liveOutputLanguage: detectLanguage(title),
-          activeDocumentPath:
-            result.tool === 'read_file' || result.tool === 'write_file'
-              ? String(result.arguments.path ?? current.activeDocumentPath ?? '')
-              : current.activeDocumentPath,
-          recentPaths:
-            result.tool === 'read_file' || result.tool === 'write_file'
-              ? pushRecentPath(current.recentPaths, String(result.arguments.path ?? ''))
-              : current.recentPaths,
-        }))
-      },
-      onFinalStart: () => {
-        set(current => ({
-          taskSteps: updateTaskStep(
-            updateTaskStep(
-              updateTaskStep(current.taskSteps, 'plan', 'complete'),
-              'tools',
-              usedTools ? 'complete' : 'complete'
-            ),
-            'respond',
-            'running'
-          ),
-        }))
-      },
-      onFinalChunk: chunk => {
+      apiMessages,
+      chunk => {
         accumulated += chunk
         set(current => ({
-          messages: current.messages.map(message =>
-            message.id === assistantId ? { ...message, content: accumulated } : message
+          messages: current.messages.map(m =>
+            m.id === assistantId ? { ...m, content: accumulated } : m
           ),
         }))
       },
-      onFinal: message => {
+      message => {
         activePrimaryRun = null
         const finalContent = message || accumulated
 
         set(current => ({
-          messages: current.messages.map(entry =>
-            entry.id === assistantId
-              ? { ...entry, streaming: false, content: finalContent || entry.content }
-              : entry
+          messages: current.messages.map(m =>
+            m.id === assistantId
+              ? { ...m, streaming: false, content: finalContent || m.content }
+              : m
           ),
           agentRunning: false,
           autonomousLoopActive: false,
-          taskSteps: current.taskSteps.map(step => ({ ...step, status: 'complete' })),
+          taskSteps: current.taskSteps.map(s => ({ ...s, status: 'complete' })),
           terminalEntries: [
             ...current.terminalEntries,
-            createTerminalEntry('info', 'Agent response complete', finalContent || '(no content)'),
+            createTerminalEntry('info', 'Response', finalContent || '(no content)'),
           ],
         }))
 
-        const latestState = get()
+        const latest = get()
         if (
-          latestState.autonomousMode &&
-          latestState.autonomousLoopCount < latestState.autonomousMaxLoops &&
+          latest.autonomousMode &&
+          latest.autonomousLoopCount < latest.autonomousMaxLoops &&
           !looksComplete(finalContent)
         ) {
           set({
-            autonomousLoopCount: latestState.autonomousLoopCount + 1,
+            autonomousLoopCount: latest.autonomousLoopCount + 1,
             autonomousLoopActive: true,
             agentRunning: true,
           })
-
           autonomousLoopTimer = setTimeout(() => {
-            get().sendMessage('Continue with the next step. Use tools as needed and finish the task.')
+            get().sendMessage('Continue with the next step.')
           }, 1200)
-        } else if (latestState.autonomousMode) {
+        } else if (latest.autonomousMode) {
           set({ autonomousLoopCount: 0, autonomousLoopActive: false })
         }
       },
-      onError: error => {
+      error => {
         activePrimaryRun = null
         set(current => ({
-          messages: current.messages.map(message =>
-            message.id === assistantId
-              ? { ...message, streaming: false, content: `Error: ${error.message}` }
-              : message
+          messages: current.messages.map(m =>
+            m.id === assistantId
+              ? { ...m, streaming: false, content: `Error: ${error.message}` }
+              : m
           ),
           agentRunning: false,
           autonomousLoopActive: false,
-          taskSteps: updateTaskStep(updateTaskStep(current.taskSteps, 'plan', 'error'), 'respond', 'error'),
+          taskSteps: updateTaskStep(current.taskSteps, 'respond', 'error'),
           terminalEntries: [
             ...current.terminalEntries,
-            createTerminalEntry('error', 'Agent error', error.message),
+            createTerminalEntry('error', 'API error', error.message),
           ],
         }))
-      },
-    })
+      }
+    )
+
+    activePrimaryRun = handle
   },
 
   spawnAgent: async (task, providerId, name) => {
