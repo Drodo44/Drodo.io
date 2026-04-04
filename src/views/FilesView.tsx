@@ -16,6 +16,7 @@ import {
 import { clsx } from 'clsx'
 import { getHomeDir, listDirectory } from '../lib/tauri'
 import { useAppStore } from '../store/appStore'
+import { useShallow } from 'zustand/react/shallow'
 import type { FileSystemEntry } from '../types'
 
 function formatSize(size?: number | null) {
@@ -139,13 +140,15 @@ export function FilesView() {
     activeDocumentLoading,
     liveOutputContent,
     liveOutputTitle,
-  } = useAppStore(state => ({
-    openDocument: state.openDocument,
-    activeDocumentPath: state.activeDocumentPath,
-    activeDocumentLoading: state.activeDocumentLoading,
-    liveOutputContent: state.liveOutputContent,
-    liveOutputTitle: state.liveOutputTitle,
-  }))
+  } = useAppStore(
+    useShallow(state => ({
+      openDocument: state.openDocument,
+      activeDocumentPath: state.activeDocumentPath,
+      activeDocumentLoading: state.activeDocumentLoading,
+      liveOutputContent: state.liveOutputContent,
+      liveOutputTitle: state.liveOutputTitle,
+    }))
+  )
 
   const [rootPath, setRootPath] = useState('')
   const [pathInput, setPathInput] = useState('')
