@@ -1,4 +1,5 @@
 import type { Provider } from '../types'
+import { decryptStoredKey, encryptStoredKey } from './encryption'
 
 // ─── localStorage persistence ────────────────────────────────────────────────
 
@@ -55,21 +56,44 @@ export function getAllProviders(): Provider[] {
 export function loadAllSavedConfigs(): Record<string, SavedConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
+    if (!raw) return {}
+
+    const parsed = JSON.parse(raw) as Record<string, SavedConfig>
+    return Object.fromEntries(
+      Object.entries(parsed).map(([id, config]) => [
+        id,
+        {
+          ...config,
+          apiKey: decryptStoredKey(config.apiKey ?? ''),
+        },
+      ])
+    )
   } catch {
     return {}
   }
 }
 
 export function saveProviderConfig(id: string, config: SavedConfig): void {
-  const all = loadAllSavedConfigs()
-  all[id] = config
+  const all = loadRawSavedConfigs()
+  all[id] = {
+    ...config,
+    apiKey: encryptStoredKey(config.apiKey),
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
 }
 
 export function loadProviderConfig(id: string): SavedConfig | null {
   const all = loadAllSavedConfigs()
   return all[id] ?? null
+}
+
+function loadRawSavedConfigs(): Record<string, SavedConfig> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) as Record<string, SavedConfig> : {}
+  } catch {
+    return {}
+  }
 }
 
 export function getProviderCatalog(): Provider[] {

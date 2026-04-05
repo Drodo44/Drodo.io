@@ -20,6 +20,7 @@ import { clsx } from 'clsx'
 import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
+import { decryptStoredKey } from '../lib/encryption'
 import type { Message, Provider } from '../types'
 
 const WORKFLOWS_KEY = 'drodo_workflow_defs'
@@ -95,7 +96,12 @@ function loadLegacyProviderConfigs(): Record<string, SavedProviderConfig> {
     try {
       const parsed = JSON.parse(localStorage.getItem(key) ?? '{}') as SavedProviderConfig
       const providerId = key.slice(LEGACY_PROVIDER_PREFIX.length)
-      if (providerId) configs[providerId] = parsed
+      if (providerId) {
+        configs[providerId] = {
+          ...parsed,
+          apiKey: decryptStoredKey(parsed.apiKey ?? ''),
+        }
+      }
     } catch {
       // Ignore malformed legacy provider records.
     }

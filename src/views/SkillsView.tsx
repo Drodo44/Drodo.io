@@ -9,6 +9,8 @@ import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import type { Connector, ConnectorCategory } from '../types'
+import { getAppSettings, setAppSetting } from '../lib/appSettings'
+import { loadConnectorKeys, removeConnectorKey, saveConnectorKey } from '../lib/connectorKeys'
 
 const CATEGORY_ORDER: ConnectorCategory[] = [
   'Social Media',
@@ -32,25 +34,16 @@ const CATEGORY_COLORS: Record<ConnectorCategory, string> = {
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
 
-function getSettings(): Record<string, unknown> {
-  try { return JSON.parse(localStorage.getItem('drodo_settings') ?? '{}') } catch { return {} }
-}
-function setSetting(key: string, value: unknown) {
-  const s = getSettings()
-  s[key] = value
-  localStorage.setItem('drodo_settings', JSON.stringify(s))
-}
-
 // ─── Tavily Key Modal ─────────────────────────────────────────────────────────
 
 function TavilyModal({ onClose }: { onClose: () => void }) {
-  const existingKey = String(getSettings().tavilyApiKey ?? '')
+  const existingKey = String(getAppSettings().tavilyApiKey ?? '')
   const [key, setKey] = useState(existingKey)
   const [saved, setSaved] = useState(false)
 
   const handleSave = () => {
     if (!key.trim()) return
-    setSetting('tavilyApiKey', key.trim())
+    setAppSetting('tavilyApiKey', key.trim())
     setSaved(true)
     setTimeout(onClose, 700)
   }
@@ -536,10 +529,7 @@ function ConnectModal({
 
   const handleSave = () => {
     if (!key.trim()) return
-    // Store key in localStorage
-    const stored = JSON.parse(localStorage.getItem('drodo_connector_keys') ?? '{}')
-    stored[connector.id] = key.trim()
-    localStorage.setItem('drodo_connector_keys', JSON.stringify(stored))
+    saveConnectorKey(connector.id, key.trim())
     setSaved(true)
     setTimeout(() => {
       onSave(key.trim())
@@ -547,17 +537,14 @@ function ConnectModal({
   }
 
   const handleDisconnect = () => {
-    const stored = JSON.parse(localStorage.getItem('drodo_connector_keys') ?? '{}')
-    delete stored[connector.id]
-    localStorage.setItem('drodo_connector_keys', JSON.stringify(stored))
+    removeConnectorKey(connector.id)
     onSave('')
   }
 
   // Load existing key
   const existingKey = (() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('drodo_connector_keys') ?? '{}')
-      return stored[connector.id] ?? ''
+      return loadConnectorKeys()[connector.id] ?? ''
     } catch { return '' }
   })()
 
@@ -749,7 +736,7 @@ export function SkillsView() {
     items: connectors.filter(c => c.category === cat),
   }))
 
-  const tavilyConfigured = !!getSettings().tavilyApiKey
+  const tavilyConfigured = !!getAppSettings().tavilyApiKey
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>

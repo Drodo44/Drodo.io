@@ -6,17 +6,9 @@ import { applyThemeClass } from '../lib/theme'
 import { useAppStore } from '../store/appStore'
 import { signOut } from '../lib/auth'
 import { syncUserData } from '../lib/syncToSupabase'
+import { getAppSettings, setAppSetting } from '../lib/appSettings'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
-
-function getSettings(): Record<string, unknown> {
-  try { return JSON.parse(localStorage.getItem('drodo_settings') ?? '{}') } catch { return {} }
-}
-function setSetting(key: string, value: unknown) {
-  const s = getSettings()
-  s[key] = value
-  localStorage.setItem('drodo_settings', JSON.stringify(s))
-}
 
 // ─── Storage breakdown ────────────────────────────────────────────────────────
 
@@ -50,7 +42,7 @@ function getStorageCounts() {
 
 export function SettingsView() {
   const user = useAppStore(state => state.user)
-  const settings = getSettings()
+  const settings = getAppSettings()
 
   // Appearance
   const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(
@@ -63,7 +55,7 @@ export function SettingsView() {
 
   const handleTheme = (t: 'dark' | 'light' | 'system') => {
     setTheme(t)
-    setSetting('theme', t)
+    setAppSetting('theme', t)
     applyThemeClass(t)
   }
 
@@ -76,7 +68,7 @@ export function SettingsView() {
   )
   const handleDefaultModel = (id: string) => {
     setDefaultModel(id)
-    setSetting('defaultModel', id)
+    setAppSetting('defaultModel', id)
   }
 
   // Tavily key
@@ -87,7 +79,7 @@ export function SettingsView() {
 
   const handleSaveTavilyKey = () => {
     if (!tavilyKey.trim()) return
-    setSetting('tavilyApiKey', tavilyKey.trim())
+    setAppSetting('tavilyApiKey', tavilyKey.trim())
     setTavilyKeySaved(true)
     setTimeout(() => setTavilyKeySaved(false), 2000)
   }
