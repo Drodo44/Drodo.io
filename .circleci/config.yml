@@ -1,0 +1,247 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+workflows:
+  release:
+    jobs:
+      - build-windows:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-macos-intel:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-macos-arm:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build-linux:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+
+jobs:
+  build-windows:
+    machine:
+      image: windows-server-2022-gui:current
+    resource_class: windows.medium
+    steps:
+      - checkout
+      - run:
+          name: Install Node.js
+          command: |
+            nvm install 20
+            nvm use 20
+      - run:
+          name: Install Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            $env:PATH += ";$env:USERPROFILE\.cargo\bin"
+            rustup target add x86_64-pc-windows-msvc
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Build Tauri app
+          command: |
+            $env:PATH += ";$env:USERPROFILE\.cargo\bin"
+            npm run tauri build -- --bundles nsis,msi
+      - run:
+          name: Upload to GitHub Release
+          command: |
+            $tag = $env:CIRCLE_TAG
+            $token = $env:GITHUB_TOKEN
+            $owner = "Drodo44"
+            $repo = "Drodo.io"
+
+            # Get release ID
+            $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers @{Authorization = "Bearer $token"}
+            $releaseId = $release.id
+
+            # Upload exe
+            $exePath = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
+            if ($exePath) {
+              $uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($exePath.Name)"
+              Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers @{Authorization = "Bearer $token"; "Content-Type" = "application/octet-stream"} -InFile $exePath.FullName
+            }
+
+  build-macos-intel:
+    macos:
+      xcode: "15.0.0"
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - run:
+          name: Install Node.js
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 20
+            nvm use 20
+      - run:
+          name: Install Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+            rustup target add x86_64-apple-darwin
+      - run:
+          name: Install dependencies
+          command: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20
+            npm install
+      - run:
+          name: Build Tauri app for Intel Mac
+          command: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20
+            source $HOME/.cargo/env
+            npm run tauri build -- --target x86_64-apple-darwin --bundles dmg
+      - run:
+          name: Upload DMG to GitHub Release
+          command: |
+            TAG=$CIRCLE_TAG
+            TOKEN=$GITHUB_TOKEN
+            OWNER="Drodo44"
+            REPO="Drodo.io"
+
+            RELEASE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
+              "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG" | \
+              python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+            DMG=$(find src-tauri/target/x86_64-apple-darwin/release/bundle/dmg -name "*.dmg" | head -1)
+            if [ -n "$DMG" ]; then
+              FILENAME=$(basename $DMG)
+              curl -s -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$DMG" \
+                "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILENAME"
+            fi
+
+  build-macos-arm:
+    macos:
+      xcode: "15.0.0"
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - run:
+          name: Install Node.js
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 20
+            nvm use 20
+      - run:
+          name: Install Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+            rustup target add aarch64-apple-darwin
+      - run:
+          name: Install dependencies
+          command: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20
+            npm install
+      - run:
+          name: Build Tauri app for Apple Silicon
+          command: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20
+            source $HOME/.cargo/env
+            npm run tauri build -- --target aarch64-apple-darwin --bundles dmg
+      - run:
+          name: Upload DMG to GitHub Release
+          command: |
+            TAG=$CIRCLE_TAG
+            TOKEN=$GITHUB_TOKEN
+            OWNER="Drodo44"
+            REPO="Drodo.io"
+
+            RELEASE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
+              "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG" | \
+              python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+            DMG=$(find src-tauri/target/aarch64-apple-darwin/release/bundle/dmg -name "*.dmg" | head -1)
+            if [ -n "$DMG" ]; then
+              FILENAME=$(basename $DMG)
+              curl -s -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$DMG" \
+                "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILENAME"
+            fi
+
+  build-linux:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install system dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              libwebkit2gtk-4.1-dev \
+              libappindicator3-dev \
+              librsvg2-dev \
+              patchelf \
+              libgtk-3-dev \
+              libayatana-appindicator3-dev \
+              libssl-dev \
+              pkg-config
+      - node/install:
+          node-version: '20'
+      - run:
+          name: Install Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Build Tauri app
+          command: |
+            source $HOME/.cargo/env
+            npm run tauri build -- --bundles appimage,deb
+      - run:
+          name: Upload to GitHub Release
+          command: |
+            TAG=$CIRCLE_TAG
+            TOKEN=$GITHUB_TOKEN
+            OWNER="Drodo44"
+            REPO="Drodo.io"
+
+            RELEASE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
+              "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG" | \
+              python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+            APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
+            if [ -n "$APPIMAGE" ]; then
+              FILENAME=$(basename $APPIMAGE)
+              curl -s -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$APPIMAGE" \
+                "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILENAME"
+            fi
