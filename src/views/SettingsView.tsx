@@ -3,6 +3,9 @@ import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, Rot
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { resetOnboarding } from '../components/Onboarding'
 import { applyThemeClass } from '../lib/theme'
+import { useAppStore } from '../store/appStore'
+import { signOut } from '../lib/auth'
+import { syncUserData } from '../lib/syncToSupabase'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
 
@@ -46,6 +49,7 @@ function getStorageCounts() {
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function SettingsView() {
+  const user = useAppStore(state => state.user)
   const settings = getSettings()
 
   // Appearance
@@ -89,6 +93,7 @@ export function SettingsView() {
   }
 
   // Danger Zone
+  const [syncSuccess, setSyncSuccess] = useState(false)
   const [showDanger, setShowDanger] = useState(false)
   const [resetInput, setResetInput] = useState('')
 
@@ -96,6 +101,19 @@ export function SettingsView() {
     const keys = Object.keys(localStorage).filter(k => k.startsWith('drodo_'))
     keys.forEach(k => localStorage.removeItem(k))
     window.location.reload()
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    localStorage.removeItem('drodo_skip_auth')
+    window.location.reload()
+  }
+
+  const handleSyncData = async () => {
+    if (!user?.id) return
+    await syncUserData(user.id)
+    setSyncSuccess(true)
+    window.setTimeout(() => setSyncSuccess(false), 2000)
   }
 
   const counts = getStorageCounts()
@@ -262,6 +280,40 @@ export function SettingsView() {
           <h2 className="text-xs font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#e05050' }}>
             Danger Zone
           </h2>
+          <div
+            className="p-4 rounded-xl border mb-3"
+            style={{ borderColor: '#e0505040', background: '#e0505008' }}
+          >
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#e05050' }}>
+              Account
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">
+                  {user?.email ?? 'Guest mode'}
+                </div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5">
+                  {user ? 'Signed in to sync workflows, prompts, and sessions.' : 'Local-only mode. Sign out to return to the auth screen.'}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => void handleSyncData()}
+                  disabled={!user?.id}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#7f77dd' }}
+                >
+                  {syncSuccess ? 'Synced!' : 'Sync Data to Cloud'}
+                </button>
+                <button
+                  onClick={() => void handleSignOut()}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold border border-[#e05050]/30 text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
           {/* Reset Onboarding */}
           <div
             className="p-4 rounded-xl border mb-3 flex items-center justify-between gap-4"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from './store/appStore'
 import { Sidebar } from './components/layout/Sidebar'
 import { TopBar } from './components/layout/TopBar'
@@ -17,11 +17,14 @@ import { SettingsView } from './views/SettingsView'
 import { AgentTemplatesView } from './views/AgentTemplatesView'
 import { PromptLibraryView } from './views/PromptLibraryView'
 import { AutomationsView } from './views/AutomationsView'
+import { AuthView } from './views/AuthView'
 import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
+import { getSession, onAuthStateChange } from './lib/auth'
+import { syncUserData } from './lib/syncToSupabase'
 
 function MainContent() {
   const activeView = useAppStore(s => s.activeView)
@@ -51,12 +54,43 @@ function MainContent() {
 }
 
 function App() {
+  const user = useAppStore(s => s.user)
+  const setUser = useAppStore(s => s.setUser)
   const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
 
   useEffect(() => {
     applyThemeClass(getStoredTheme())
   }, [])
+
+  useEffect(() => {
+    let mounted = true
+
+    void getSession()
+      .then(({ data }) => {
+        if (!mounted) return
+        setUser(data.session?.user ?? null)
+      })
+      .finally(() => {
+        if (mounted) setAuthReady(true)
+      })
+
+    const { data } = onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null)
+
+      if (event === 'SIGNED_IN' && session?.user?.id) {
+        await syncUserData(session.user.id).catch(error => {
+          console.error('Failed to sync user data to Supabase.', error)
+        })
+      }
+    })
+
+    return () => {
+      mounted = false
+      data.subscription.unsubscribe()
+    }
+  }, [setUser])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,6 +102,23 @@ function App() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
+
+  if (!authReady) {
+    return (
+      <div
+        className="flex h-screen w-screen items-center justify-center"
+        style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+      >
+        <div className="text-sm text-[var(--text-secondary)]">Loading session…</div>
+      </div>
+    )
+  }
+
+  if (!user && !skipAuth) {
+    return <AuthView />
+  }
 
   if (!onboardingDone) {
     return (

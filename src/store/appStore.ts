@@ -194,6 +194,7 @@ let agentCounter = 1
 
 interface AppState {
   activeView: NavView
+  user: any | null
   sessionId: string
   sessionName: string
   agentRunning: boolean
@@ -222,6 +223,7 @@ interface AppState {
   chatDraft: string
 
   setView: (view: NavView) => void
+  setUser: (user: any | null) => void
   startNewSession: () => void
   setSessionName: (name: string) => void
   toggleAgentRunning: () => void
@@ -249,6 +251,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeView: 'agent',
+  user: null,
   sessionId: createSessionId(),
   sessionName: 'Drodo Session',
   agentRunning: false,
@@ -279,6 +282,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   chatDraft: '',
 
   setView: view => set({ activeView: view }),
+  setUser: user => set({ user }),
   startNewSession: () => {
     activePrimaryRun?.abort()
     activePrimaryRun = null
