@@ -7,6 +7,9 @@ import { useAppStore } from '../store/appStore'
 import { signOut } from '../lib/auth'
 import { syncUserData } from '../lib/syncToSupabase'
 import { getAppSettings, setAppSetting } from '../lib/appSettings'
+import { check } from '@tauri-apps/plugin-updater'
+import { relaunch } from '@tauri-apps/plugin-process'
+import { checkForUpdates, getStoredUpdateInfo, type StoredUpdateInfo } from '../lib/updater'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
 
@@ -86,6 +89,9 @@ export function SettingsView() {
 
   // Danger Zone
   const [syncSuccess, setSyncSuccess] = useState(false)
+  const [updateInfo, setUpdateInfo] = useState<StoredUpdateInfo | null>(() => getStoredUpdateInfo())
+  const [checkingUpdates, setCheckingUpdates] = useState(false)
+  const [installingUpdate, setInstallingUpdate] = useState(false)
   const [showDanger, setShowDanger] = useState(false)
   const [resetInput, setResetInput] = useState('')
 
@@ -106,6 +112,30 @@ export function SettingsView() {
     await syncUserData(user.id)
     setSyncSuccess(true)
     window.setTimeout(() => setSyncSuccess(false), 2000)
+  }
+
+  const refreshUpdateInfo = () => {
+    setUpdateInfo(getStoredUpdateInfo())
+  }
+
+  const handleCheckForUpdates = async () => {
+    setCheckingUpdates(true)
+    await checkForUpdates()
+    refreshUpdateInfo()
+    setCheckingUpdates(false)
+  }
+
+  const handleInstallUpdate = async () => {
+    setInstallingUpdate(true)
+    try {
+      const update = await check()
+      if (update?.available) {
+        await update.downloadAndInstall()
+        await relaunch()
+      }
+    } finally {
+      setInstallingUpdate(false)
+    }
   }
 
   const counts = getStorageCounts()
@@ -268,6 +298,48 @@ export function SettingsView() {
         </section>
 
         {/* ── Danger Zone ─────────────────────────────────────── */}
+        <section>
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Updates</h2>
+          <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+            {updateInfo?.version ? (
+              <div
+                className="rounded-xl border px-4 py-3 mb-4"
+                style={{ background: '#1d9e7512', borderColor: '#1d9e7530' }}
+              >
+                <div className="text-sm font-semibold" style={{ color: '#1d9e75' }}>
+                  Version {updateInfo.version} available
+                </div>
+                {updateInfo.body && (
+                  <p className="text-xs mt-1 text-[var(--text-muted)]">{updateInfo.body}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)] mb-4">Drodo is up to date</p>
+            )}
+
+            <div className="flex gap-2">
+              {updateInfo?.version && (
+                <button
+                  onClick={() => void handleInstallUpdate()}
+                  disabled={installingUpdate}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#1d9e75' }}
+                >
+                  {installingUpdate ? 'Installing…' : 'Install Update'}
+                </button>
+              )}
+              <button
+                onClick={() => void handleCheckForUpdates()}
+                disabled={checkingUpdates}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: '#7f77dd' }}
+              >
+                {checkingUpdates ? 'Checking…' : 'Check for Updates'}
+              </button>
+            </div>
+          </div>
+        </section>
+
         <section>
           <h2 className="text-xs font-semibold uppercase tracking-[0.12em] mb-3" style={{ color: '#e05050' }}>
             Danger Zone

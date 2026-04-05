@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Workflow, ExternalLink, RefreshCw, Circle } from 'lucide-react'
 import { Command } from '@tauri-apps/plugin-shell'
+import { openUrl } from '@tauri-apps/plugin-opener'
 
 const N8N_URL = 'http://localhost:5678'
 
@@ -10,6 +11,8 @@ export function AutomationsView() {
   const [status, setStatus] = useState<Status>('idle')
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [iframeError, setIframeError] = useState(false)
+  const [nodeRequired, setNodeRequired] = useState(false)
+  const [launchError, setLaunchError] = useState('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -40,12 +43,23 @@ export function AutomationsView() {
 
   const handleLaunch = async () => {
     setStatus('launching')
+    setNodeRequired(false)
+    setLaunchError('')
+
+    try {
+      await Command.create('node', ['--version']).execute()
+    } catch (error) {
+      setNodeRequired(true)
+      setStatus('idle')
+      return
+    }
+
     try {
       await Command.create('npx', ['n8n']).spawn()
       pollUntilReady()
     } catch {
-      // npx may not be available or n8n not installed — just start polling anyway
-      pollUntilReady()
+      setLaunchError('Unable to start n8n. Confirm Node.js and n8n are installed, then try again.')
+      setStatus('error')
     }
   }
 
@@ -155,6 +169,26 @@ export function AutomationsView() {
         </div>
       )}
 
+      {status === 'error' && (
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center space-y-4" style={{ maxWidth: 460 }}>
+            <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#e0505022' }}>
+              <Workflow size={22} style={{ color: '#e05050' }} />
+            </div>
+            <p className="text-sm font-medium text-[var(--text-primary)]">n8n did not start</p>
+            <p className="text-xs text-[var(--text-secondary)]">{launchError}</p>
+            <button
+              onClick={() => void handleLaunch()}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
+              style={{ background: '#f59e0b' }}
+            >
+              <RefreshCw size={13} />
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
       {status === 'launching' && (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center space-y-4">
@@ -201,6 +235,36 @@ export function AutomationsView() {
             onError={handleIframeError}
             style={{ display: iframeLoaded ? 'block' : 'block', background: '#fff' }}
           />
+        </div>
+      )}
+
+      {nodeRequired && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center px-6"
+          style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(6px)' }}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border p-8 text-center"
+            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+          >
+            <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-5" style={{ background: '#f59e0b22' }}>
+              <Workflow size={26} style={{ color: '#f59e0b' }} />
+            </div>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">One more step to enable Automations</h2>
+            <p className="text-sm leading-relaxed text-[var(--text-muted)] mb-6">
+              Drodo's automation engine requires Node.js. It's free and installs in 30 seconds.
+            </p>
+            <button
+              onClick={() => void openUrl('https://nodejs.org')}
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
+              style={{ background: '#7f77dd' }}
+            >
+              Download Node.js
+            </button>
+            <p className="text-xs text-[var(--text-secondary)] mt-4">
+              After installing Node.js, restart Drodo and click Launch again.
+            </p>
+          </div>
         </div>
       )}
     </div>

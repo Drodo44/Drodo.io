@@ -25,6 +25,7 @@ import { CommandPalette } from './components/ui/CommandPalette'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
 import { syncUserData } from './lib/syncToSupabase'
+import { checkForUpdates } from './lib/updater'
 
 function MainContent() {
   const activeView = useAppStore(s => s.activeView)
@@ -102,6 +103,11 @@ function App() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  useEffect(() => {
+    if (!authReady) return
+    void checkForUpdates()
+  }, [authReady])
 
   const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
 
