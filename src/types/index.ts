@@ -83,6 +83,8 @@ export interface MCPServer {
   url: string
   status: 'connected' | 'disconnected' | 'error'
   toolsCount: number
+  description: string
+  addedAt: string
 }
 
 export interface Workflow {

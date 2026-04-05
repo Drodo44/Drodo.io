@@ -81,23 +81,23 @@ export function AuthView() {
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center px-6 py-10" style={{ background: '#0d0d0f' }}>
+    <div className="flex h-screen w-screen items-center justify-center px-6 py-10" style={{ background: 'var(--bg-primary)' }}>
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           <Logo size={42} />
-          <h1 className="mt-4 text-3xl font-bold tracking-[-0.03em]" style={{ color: '#e8e8ef' }}>
+          <h1 className="mt-4 text-3xl font-bold tracking-[-0.03em]" style={{ color: 'var(--text-primary)' }}>
             Drodo
           </h1>
-          <p className="mt-2 text-xs uppercase tracking-[0.16em]" style={{ color: '#6b6b78' }}>
+          <p className="mt-2 text-xs uppercase tracking-[0.16em]" style={{ color: 'var(--text-secondary)' }}>
             AI Agent Platform
           </p>
         </div>
 
         <div
           className="rounded-2xl border p-6 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
-          style={{ background: '#141418', borderColor: '#2a2a2e' }}
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
         >
-          <div className="mb-6 flex rounded-xl border p-1" style={{ background: '#0d0d0f', borderColor: '#2a2a2e' }}>
+          <div className="mb-6 flex rounded-xl border p-1" style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
             {([
               { key: 'signin' as const, label: 'Sign In' },
               { key: 'signup' as const, label: 'Sign Up' },
@@ -110,7 +110,7 @@ export function AuthView() {
                 style={
                   mode === tab.key
                     ? { background: '#7f77dd', color: '#ffffff' }
-                    : { color: '#9898a8' }
+                    : { color: 'var(--text-muted)' }
                 }
               >
                 {tab.label}
@@ -120,7 +120,7 @@ export function AuthView() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: '#9898a8' }}>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>
                 Email
               </label>
               <input
@@ -133,13 +133,13 @@ export function AuthView() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                style={{ background: '#0d0d0f', borderColor: emailError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
+                style={{ background: 'var(--bg-primary)', borderColor: emailError ? '#e05050' : 'var(--border-color)', color: 'var(--text-primary)' }}
               />
               {emailError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{emailError}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: '#9898a8' }}>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>
                 Password
               </label>
               <input
@@ -155,14 +155,14 @@ export function AuthView() {
                 placeholder="Enter your password"
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                style={{ background: '#0d0d0f', borderColor: passwordError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
+                style={{ background: 'var(--bg-primary)', borderColor: passwordError ? '#e05050' : 'var(--border-color)', color: 'var(--text-primary)' }}
               />
               {passwordError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{passwordError}</p>}
             </div>
 
             {mode === 'signup' && (
               <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: '#9898a8' }}>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>
                   Confirm Password
                 </label>
                 <input
@@ -175,7 +175,7 @@ export function AuthView() {
                   placeholder="Confirm your password"
                   autoComplete="new-password"
                   className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                  style={{ background: '#0d0d0f', borderColor: confirmPasswordError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
+                  style={{ background: 'var(--bg-primary)', borderColor: confirmPasswordError ? '#e05050' : 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
                 {confirmPasswordError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{confirmPasswordError}</p>}
               </div>
@@ -207,7 +207,7 @@ export function AuthView() {
             type="button"
             onClick={handleContinueWithoutAccount}
             className="mt-5 inline-flex items-center gap-1 text-sm transition-colors"
-            style={{ color: '#9898a8' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Continue without account →
           </button>
