@@ -10,6 +10,7 @@
 [![Release](https://img.shields.io/badge/Version-1.0.0-1d9e75?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/tag/v1.0.0)
 [![License](https://img.shields.io/badge/License-BUSL%201.1-f97316?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Mac%20%7C%20Linux-4285f4?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/Drodo)
 
 </div>
 
@@ -239,6 +240,7 @@ This project is licensed under the Business Source License 1.1. Personal and non
 | 🐧 Linux (AppImage) | Coming in next release |
 
 [View all releases →](https://github.com/Drodo44/Drodo.io/releases)
+[☕ Support Drodo](https://buymeacoffee.com/Drodo)
 
 </div>
 
