@@ -8,6 +8,7 @@ import {
   FolderOpen,
   Search,
   MessageSquare,
+  Mail,
   Globe,
   CheckCircle2,
   XCircle,
@@ -36,6 +37,16 @@ type FeaturedServer = {
 }
 
 const FEATURED_SERVERS: FeaturedServer[] = [
+  {
+    id: 'google-workspace-cli',
+    name: 'Google Workspace',
+    Icon: Mail,
+    color: '#4285f4',
+    stars: 'New',
+    description: 'Give your agents full access to Gmail, Drive, Docs, Sheets, Calendar, and Meet. Read emails, create documents, update spreadsheets, and schedule meetings — all autonomously.',
+    category: 'Productivity',
+    url: 'npx @google/workspace-mcp',
+  },
   {
     id: 'n8n-mcp',
     name: 'n8n-MCP',
@@ -196,7 +207,7 @@ export function MCPServersView() {
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
   const [testingId, setTestingId] = useState<string | null>(null)
   const [addedFeaturedId, setAddedFeaturedId] = useState<string | null>(null)
-  const [showN8nInfo, setShowN8nInfo] = useState(false)
+  const [featuredInfo, setFeaturedInfo] = useState<{ title: string; body: string } | null>(null)
   const testingTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -228,8 +239,16 @@ export function MCPServersView() {
     setAddedFeaturedId(featured.id)
     window.setTimeout(() => setAddedFeaturedId(current => (current === featured.id ? null : current)), 1800)
 
-    if (featured.id === 'n8n-mcp') {
-      setShowN8nInfo(true)
+    if (featured.id === 'google-workspace-cli') {
+      setFeaturedInfo({
+        title: 'Google Workspace Added',
+        body: 'Your agents can now read and send Gmail, create and edit Google Docs and Sheets, manage Drive files, and schedule Calendar events. Connect your Google account in the Connectors section to activate.',
+      })
+    } else if (featured.id === 'n8n-mcp') {
+      setFeaturedInfo({
+        title: 'n8n-MCP Added',
+        body: 'Your agents now have expert knowledge of all 1,396 n8n nodes. When you use the Workflow Builder or Agent→n8n handoff, agents will automatically reference this knowledge to build accurate, working workflows.',
+      })
     }
   }
 
@@ -550,11 +569,11 @@ export function MCPServersView() {
         </div>
       </div>
 
-      {showN8nInfo && (
+      {featuredInfo && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center px-6 py-8"
           style={{ background: 'rgba(0, 0, 0, 0.55)', backdropFilter: 'blur(8px)' }}
-          onClick={() => setShowN8nInfo(false)}
+          onClick={() => setFeaturedInfo(null)}
         >
           <div
             className="w-full max-w-md rounded-2xl border overflow-hidden"
@@ -563,11 +582,11 @@ export function MCPServersView() {
           >
             <div className="flex items-center justify-between border-b border-[var(--border-color)] px-5 py-4">
               <div>
-                <h2 className="text-base font-bold text-[var(--text-primary)]">n8n-MCP Added</h2>
+                <h2 className="text-base font-bold text-[var(--text-primary)]">{featuredInfo.title}</h2>
                 <p className="mt-1 text-xs text-[var(--text-secondary)]">Featured integration enabled</p>
               </div>
               <button
-                onClick={() => setShowN8nInfo(false)}
+                onClick={() => setFeaturedInfo(null)}
                 className="rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
               >
                 <X size={16} />
@@ -576,10 +595,10 @@ export function MCPServersView() {
 
             <div className="p-5">
               <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                Your agents now have expert knowledge of all 1,396 n8n nodes. When you use the Workflow Builder or Agent→n8n handoff, agents will automatically reference this knowledge to build accurate, working workflows.
+                {featuredInfo.body}
               </p>
               <button
-                onClick={() => setShowN8nInfo(false)}
+                onClick={() => setFeaturedInfo(null)}
                 className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
                 style={{ background: '#7f77dd' }}
               >

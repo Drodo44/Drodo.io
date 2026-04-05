@@ -157,6 +157,7 @@ export interface Connector {
   id: string
   name: string
   category: ConnectorCategory
+  description?: string
   color: string
   initials: string
   isConnected: boolean

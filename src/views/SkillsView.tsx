@@ -667,6 +667,11 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
       {/* Name + status */}
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium text-[var(--text-primary)] truncate">{connector.name}</div>
+        {connector.description && (
+          <div className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+            {connector.description}
+          </div>
+        )}
         <div className="flex items-center gap-1.5 mt-0.5">
           {connector.isConnected ? (
             <>
