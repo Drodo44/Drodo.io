@@ -113,6 +113,7 @@ export function ChatInput() {
       )}
 
       <div
+        data-tutorial="chat-input"
         className="rounded-xl border transition-all duration-200"
         style={{
           background: 'var(--bg-tertiary)',

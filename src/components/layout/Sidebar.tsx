@@ -10,22 +10,22 @@ import { useAppStore } from '../../store/appStore'
 import type { NavView } from '../../types'
 import drodoLogo from '../../assets/drodo-logo.png'
 
-const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
-  { view: 'agent', label: 'Agent', Icon: Bot },
+const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot; tutorialId?: string }[] = [
+  { view: 'agent', label: 'Agent', Icon: Bot, tutorialId: 'nav-agent' },
   { view: 'projects', label: 'Projects', Icon: FolderOpen },
   { view: 'sessions', label: 'Sessions', Icon: Clock },
   { view: 'files', label: 'Files', Icon: Files },
-  { view: 'mcp', label: 'MCP Servers', Icon: Server },
-  { view: 'skills', label: 'Skills & Connectors', Icon: Puzzle },
-  { view: 'workflows', label: 'Workflows', Icon: GitBranch },
-  { view: 'automations', label: 'Automations', Icon: Workflow },
-  { view: 'messaging', label: 'Messaging', Icon: MessageCircle },
+  { view: 'mcp', label: 'MCP Servers', Icon: Server, tutorialId: 'nav-mcp' },
+  { view: 'skills', label: 'Skills & Connectors', Icon: Puzzle, tutorialId: 'nav-skills' },
+  { view: 'workflows', label: 'Workflows', Icon: GitBranch, tutorialId: 'nav-workflows' },
+  { view: 'automations', label: 'Automations', Icon: Workflow, tutorialId: 'nav-automations' },
+  { view: 'messaging', label: 'Messaging', Icon: MessageCircle, tutorialId: 'nav-messaging' },
   { view: 'analytics', label: 'Analytics', Icon: BarChart3 },
   { view: 'connections', label: 'Connections', Icon: Plug },
 ]
 
-const LIBRARY_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
-  { view: 'templates', label: 'Agent Templates', Icon: LayoutTemplate },
+const LIBRARY_ITEMS: { view: NavView; label: string; Icon: typeof Bot; tutorialId?: string }[] = [
+  { view: 'templates', label: 'Agent Templates', Icon: LayoutTemplate, tutorialId: 'nav-templates' },
   { view: 'prompts', label: 'Prompt Library', Icon: BookMarked },
 ]
 
@@ -60,11 +60,12 @@ export function Sidebar() {
   )
   const runningAgents = agents.filter(a => a.status === 'running').length
 
-  const navButton = (view: NavView, label: string, Icon: typeof Bot, badge?: number) => {
+  const navButton = (view: NavView, label: string, Icon: typeof Bot, badge?: number, tutorialId?: string) => {
     const isActive = activeView === view
     return (
       <button
         key={view}
+        data-tutorial={tutorialId}
         onClick={() => setView(view)}
         className={clsx(
           'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
@@ -89,6 +90,7 @@ export function Sidebar() {
 
   return (
     <aside
+      data-tutorial="sidebar"
       className="flex flex-col h-full flex-shrink-0"
       style={{ width: 220, background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}
     >
@@ -105,7 +107,7 @@ export function Sidebar() {
       <nav className="flex-1 py-3 overflow-y-auto">
         {/* Main nav items */}
         <div className="px-2 space-y-0.5">
-          {NAV_ITEMS.map(({ view, label, Icon }) => navButton(view, label, Icon))}
+          {NAV_ITEMS.map(({ view, label, Icon, tutorialId }) => navButton(view, label, Icon, undefined, tutorialId))}
         </div>
 
         {/* Library section */}
@@ -113,7 +115,7 @@ export function Sidebar() {
           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">Library</p>
         </div>
         <div className="px-2 space-y-0.5">
-          {LIBRARY_ITEMS.map(({ view, label, Icon }) => navButton(view, label, Icon))}
+          {LIBRARY_ITEMS.map(({ view, label, Icon, tutorialId }) => navButton(view, label, Icon, undefined, tutorialId))}
         </div>
 
         {/* Divider */}
@@ -121,7 +123,7 @@ export function Sidebar() {
 
         {/* Swarm + Settings */}
         <div className="px-2 space-y-0.5">
-          {navButton('swarm', 'Agent Swarm', Zap, runningAgents > 0 ? runningAgents : undefined)}
+          {navButton('swarm', 'Agent Swarm', Zap, runningAgents > 0 ? runningAgents : undefined, 'nav-swarm')}
           {navButton('settings', 'Settings', Settings2)}
         </div>
       </nav>

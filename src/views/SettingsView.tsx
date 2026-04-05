@@ -3,6 +3,7 @@ import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, Rot
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { resetOnboarding } from '../components/Onboarding'
+import { resetTutorial } from '../components/ui/Tutorial'
 import { Logo } from '../components/ui/Logo'
 import { applyThemeClass } from '../lib/theme'
 import { useAppStore } from '../store/appStore'
@@ -480,6 +481,12 @@ export function SettingsView() {
                 className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
               >
                 Report a Bug
+              </button>
+              <button
+                onClick={() => { resetTutorial(); window.location.reload() }}
+                className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+              >
+                Restart Tutorial
               </button>
             </div>
           </div>

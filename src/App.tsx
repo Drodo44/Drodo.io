@@ -20,6 +20,7 @@ import { AutomationsView } from './views/AutomationsView'
 import { MessagingView } from './views/MessagingView'
 import { AuthView } from './views/AuthView'
 import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
+import { Tutorial, isTutorialComplete } from './components/ui/Tutorial'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
@@ -85,6 +86,7 @@ function App() {
   const user = useAppStore(s => s.user)
   const setUser = useAppStore(s => s.setUser)
   const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
+  const [showTutorial, setShowTutorial] = useState(false)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
   const [authReady, setAuthReady] = useState(false)
 
@@ -172,7 +174,14 @@ function App() {
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
           <TopBar />
           <main className="flex flex-1 min-h-0 overflow-hidden">
-            <SafeOnboardingScreen onComplete={() => setOnboardingDone(true)} />
+            <SafeOnboardingScreen
+          onComplete={() => {
+            setOnboardingDone(true)
+            if (!isTutorialComplete()) {
+              setTimeout(() => setShowTutorial(true), 500)
+            }
+          }}
+        />
           </main>
         </div>
         <ProviderHubModal />
@@ -199,6 +208,7 @@ function App() {
       <ProviderHubModal />
       <PermissionWarningModal />
       <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
+      {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}
     </div>
   )
 }
