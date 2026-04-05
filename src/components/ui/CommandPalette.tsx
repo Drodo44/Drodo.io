@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Bot, FolderOpen, Clock, Files, Server, Puzzle, GitBranch,
   BarChart3, Zap, Plug, Settings2, Search, MessageCircle,
+  Workflow, LayoutTemplate, BookMarked,
 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
@@ -28,6 +29,9 @@ const ALL_VIEWS: ViewDef[] = [
   { view: 'connections', label: 'Connections', Icon: Plug },
   { view: 'settings', label: 'Settings', Icon: Settings2 },
   { view: 'swarm', label: 'Agent Swarm', Icon: Zap },
+  { view: 'automations', label: 'Automations', Icon: Workflow },
+  { view: 'templates', label: 'Agent Templates', Icon: LayoutTemplate },
+  { view: 'prompts', label: 'Prompt Library', Icon: BookMarked },
 ]
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────

@@ -461,7 +461,7 @@ export function AgentSwarmView() {
   const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
 
   // Intervals and cycle counters per agent
-  const intervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map())
+  const intervals = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const cycles = useRef<Map<string, number>>(new Map())
   const labelIndexes = useRef<Map<string, number>>(new Map())
 
@@ -483,7 +483,7 @@ export function AgentSwarmView() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      intervals.current.forEach(id => clearInterval(id))
+      intervals.current.forEach(id => clearTimeout(id))
       workflowStreamRef.current?.abort()
     }
   }, [])
@@ -538,17 +538,17 @@ export function AgentSwarmView() {
       // Schedule next tick at random interval 1000-1800ms
       const delay = 1000 + Math.floor(Math.random() * 800)
       const next = setTimeout(tick, delay)
-      intervals.current.set(agentId, next as unknown as ReturnType<typeof setInterval>)
+      intervals.current.set(agentId, next)
     }
 
     const initial = setTimeout(tick, 600 + Math.floor(Math.random() * 400))
-    intervals.current.set(agentId, initial as unknown as ReturnType<typeof setInterval>)
+    intervals.current.set(agentId, initial)
   }, [addLog])
 
   const stopSimulation = useCallback((agentId: string) => {
     const id = intervals.current.get(agentId)
     if (id != null) {
-      clearTimeout(id as unknown as ReturnType<typeof setTimeout>)
+      clearTimeout(id)
       intervals.current.delete(agentId)
     }
   }, [])
