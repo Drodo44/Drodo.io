@@ -1,12 +1,25 @@
 import { useRef, useState, useEffect } from 'react'
-import { Send, Paperclip, Code2, Zap, Square } from 'lucide-react'
+import { Send, Paperclip, Code2, Zap, Square, Users } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 
 export function ChatInput() {
   const [value, setValue] = useState('')
-  const { sendMessage, autonomousMode, toggleAutonomous, agentRunning, stopAll, autonomousLoopActive, chatDraft, setChatDraft } = useAppStore(
+  const {
+    sendMessage,
+    autonomousMode,
+    toggleAutonomous,
+    agentRunning,
+    stopAll,
+    autonomousLoopActive,
+    chatDraft,
+    setChatDraft,
+    multiAgentMode,
+    toggleMultiAgentMode,
+    startOrchestration,
+    orchestrationRun,
+  } = useAppStore(
     useShallow(s => ({
       sendMessage: s.sendMessage,
       autonomousMode: s.autonomousMode,
@@ -16,6 +29,10 @@ export function ChatInput() {
       autonomousLoopActive: s.autonomousLoopActive,
       chatDraft: s.chatDraft,
       setChatDraft: s.setChatDraft,
+      multiAgentMode: s.multiAgentMode,
+      toggleMultiAgentMode: s.toggleMultiAgentMode,
+      startOrchestration: s.startOrchestration,
+      orchestrationRun: s.orchestrationRun,
     }))
   )
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -32,7 +49,13 @@ export function ChatInput() {
   const handleSend = () => {
     const trimmed = value.trim()
     if (!trimmed || agentRunning) return
-    sendMessage(trimmed)
+
+    if (multiAgentMode) {
+      void startOrchestration(trimmed)
+    } else {
+      sendMessage(trimmed)
+    }
+
     setValue('')
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
@@ -53,8 +76,21 @@ export function ChatInput() {
     ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'
   }
 
+  const planningActive = orchestrationRun?.status === 'planning'
+
   return (
     <div className="px-4 pb-4 pt-2">
+      {/* Orchestration planning banner */}
+      {planningActive && (
+        <div
+          className="mb-2 px-4 py-2 rounded-xl flex items-center gap-2 text-xs animate-fade-in"
+          style={{ background: '#7f77dd18', border: '1px solid #7f77dd33' }}
+        >
+          <Users size={12} className="text-[#7f77dd] animate-pulse-dot flex-shrink-0" />
+          <span className="font-medium text-[#a09ae8]">Planning your agent team…</span>
+        </div>
+      )}
+
       {/* Autonomous loop banner */}
       {autonomousLoopActive && (
         <div
@@ -90,7 +126,13 @@ export function ChatInput() {
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder={agentRunning ? 'Agent is working...' : 'Message Drodo... (Ctrl+Enter to send)'}
+          placeholder={
+            agentRunning
+              ? 'Agent is working...'
+              : multiAgentMode
+              ? 'Describe a task for your agent team… (Ctrl+Enter)'
+              : 'Message Drodo... (Ctrl+Enter to send)'
+          }
           disabled={agentRunning}
           rows={1}
           className={clsx(
@@ -125,6 +167,34 @@ export function ChatInput() {
             >
               <Zap size={11} className={autonomousMode ? 'text-[#7f77dd]' : ''} />
               Autonomous
+            </button>
+
+            {/* Multi-Agent toggle */}
+            <button
+              onClick={toggleMultiAgentMode}
+              className={clsx(
+                'relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all duration-200',
+                multiAgentMode
+                  ? 'bg-[#7f77dd]/15 border-[#7f77dd]/50 text-[#a09ae8]'
+                  : 'bg-transparent border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-color)] hover:text-[var(--text-muted)]'
+              )}
+              style={
+                multiAgentMode
+                  ? { boxShadow: '0 0 0 1px rgba(127,119,221,0.25), 0 0 8px rgba(127,119,221,0.15)' }
+                  : undefined
+              }
+              title={multiAgentMode ? 'Multi-Agent mode ON — task will be handled by a team of specialists' : 'Enable multi-agent mode'}
+            >
+              <Users size={11} className={multiAgentMode ? 'text-[#7f77dd]' : ''} />
+              Multi-Agent
+              {multiAgentMode && (
+                <span
+                  className="ml-0.5 px-1 py-px rounded text-[9px] font-bold leading-none"
+                  style={{ background: '#7f77dd', color: '#fff' }}
+                >
+                  ON
+                </span>
+              )}
             </button>
 
             {/* Stop button (visible while running) */}
@@ -163,6 +233,7 @@ export function ChatInput() {
         <span className="text-xs text-[var(--text-secondary)]">
           Ctrl+Enter to send
           {autonomousMode && ' · Autonomous mode active — agent will self-continue'}
+          {multiAgentMode && ' · Multi-Agent mode active — task routed to specialist team'}
         </span>
       </div>
     </div>

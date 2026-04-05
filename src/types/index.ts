@@ -47,6 +47,32 @@ export interface AgentInstance {
   orchestrator?: boolean
   startedAtLabel?: string
   startedAt?: Date
+  orchestrationStepIndex?: number
+}
+
+export interface OrchestrationStep {
+  id: string
+  templateName: string
+  templateTask: string
+  model: string
+  specificTask: string
+  dependsOnStep?: string
+  outputVar: string
+}
+
+export interface OrchestrationPlan {
+  taskSummary: string
+  agents: OrchestrationStep[]
+}
+
+export interface OrchestrationRun {
+  id: string
+  originalTask: string
+  plan: OrchestrationPlan
+  status: 'planning' | 'running' | 'complete' | 'error'
+  stepOutputs: Record<string, string>
+  startedAt: Date
+  finishedAt?: Date
 }
 
 export interface Message {

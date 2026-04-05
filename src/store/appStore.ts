@@ -3,6 +3,7 @@ import type {
   AgentInstance,
   Message,
   NavView,
+  OrchestrationRun,
   PermissionTier,
   Provider,
   TaskStep,
@@ -25,10 +26,13 @@ import {
   getLatestConversationPreview,
   upsertSession,
 } from '../lib/dashboardData'
+import { buildOrchestrationPlan, runOrchestration } from '../lib/orchestrator'
+import { AGENT_TEMPLATE_NAMES } from '../lib/agentTemplates'
 
 let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
+let activeOrchestrationAbort: (() => void) | null = null
 
 const DONE_PHRASES = [
   'task complete',
@@ -221,6 +225,8 @@ interface AppState {
   swarmGoal: string
   swarmRunning: boolean
   chatDraft: string
+  multiAgentMode: boolean
+  orchestrationRun: OrchestrationRun | null
 
   setView: (view: NavView) => void
   setUser: (user: any | null) => void
@@ -247,6 +253,9 @@ interface AppState {
   clearTerminal: () => void
   setSwarmGoal: (goal: string) => void
   setChatDraft: (draft: string) => void
+  toggleMultiAgentMode: () => void
+  setOrchestrationRun: (run: OrchestrationRun | null) => void
+  startOrchestration: (task: string) => Promise<void>
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -280,6 +289,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   swarmGoal: '',
   swarmRunning: false,
   chatDraft: '',
+  multiAgentMode: false,
+  orchestrationRun: null,
 
   setView: view => set({ activeView: view }),
   setUser: user => set({ user }),
@@ -339,6 +350,150 @@ export const useAppStore = create<AppState>((set, get) => ({
   addMessage: message => set(state => ({ messages: [...state.messages, message] })),
   setSwarmGoal: goal => set({ swarmGoal: goal }),
   setChatDraft: draft => set({ chatDraft: draft }),
+  toggleMultiAgentMode: () => set(state => ({ multiAgentMode: !state.multiAgentMode })),
+  setOrchestrationRun: run => set({ orchestrationRun: run }),
+
+  startOrchestration: async task => {
+    const state = get()
+    const provider = state.activeProvider
+
+    if (!provider.isLocal && !provider.apiKey) return
+
+    const runId = createId('orch')
+    const run: OrchestrationRun = {
+      id: runId,
+      originalTask: task,
+      plan: { taskSummary: task, agents: [] },
+      status: 'planning',
+      stepOutputs: {},
+      startedAt: new Date(),
+    }
+
+    set({ orchestrationRun: run, activeView: 'swarm' })
+
+    try {
+      const plan = await buildOrchestrationPlan(task, provider, AGENT_TEMPLATE_NAMES)
+
+      const runningRun: OrchestrationRun = { ...run, plan, status: 'running' }
+      set({ orchestrationRun: runningRun })
+
+      // Create an AgentInstance for each orchestration step
+      const stepAgentIds: Record<string, string> = {}
+      for (let i = 0; i < plan.agents.length; i++) {
+        const step = plan.agents[i]
+        const agentId = `orch-${runId}-step-${i}`
+        const agentProvider = selectProvider(undefined, provider, i)
+        const agent: AgentInstance = {
+          id: agentId,
+          name: step.templateName,
+          providerId: agentProvider.id,
+          providerName: agentProvider.name,
+          model: step.model || (agentProvider.model ?? agentProvider.name),
+          task: step.specificTask,
+          status: 'idle',
+          tokens: 0,
+          lastUpdate: 'Waiting to start…',
+          summary: '',
+          context: [],
+          toolCalls: 0,
+          startedAt: new Date(),
+          orchestrationStepIndex: i + 1,
+        }
+        stepAgentIds[step.id] = agentId
+        set(current => ({
+          agents: [...current.agents, agent],
+          swarmRunning: true,
+        }))
+      }
+
+      const abort = await runOrchestration(
+        runningRun,
+        provider,
+        (stepId, agentName) => {
+          const agentId = stepAgentIds[stepId]
+          if (!agentId) return
+          set(current => ({
+            agents: current.agents.map(a =>
+              a.id === agentId
+                ? { ...a, status: 'running' as const, startedAt: new Date(), lastUpdate: `${agentName} started…` }
+                : a
+            ),
+          }))
+        },
+        (stepId, chunk) => {
+          const agentId = stepAgentIds[stepId]
+          if (!agentId) return
+          set(current => ({
+            agents: current.agents.map(a =>
+              a.id === agentId
+                ? { ...a, tokens: a.tokens + Math.ceil(chunk.length / 4), lastUpdate: chunk.slice(-120) }
+                : a
+            ),
+          }))
+        },
+        (stepId, output) => {
+          const agentId = stepAgentIds[stepId]
+          if (!agentId) return
+          set(current => ({
+            agents: current.agents.map(a =>
+              a.id === agentId
+                ? { ...a, status: 'complete' as const, summary: output, lastUpdate: output.slice(0, 120) }
+                : a
+            ),
+          }))
+          // Persist output to orchestrationRun in store
+          set(current => {
+            if (!current.orchestrationRun) return {}
+            const step = current.orchestrationRun.plan.agents.find(s => s.id === stepId)
+            if (!step) return {}
+            return {
+              orchestrationRun: {
+                ...current.orchestrationRun,
+                stepOutputs: { ...current.orchestrationRun.stepOutputs, [step.outputVar]: output },
+              },
+            }
+          })
+        },
+        completedRun => {
+          activeOrchestrationAbort = null
+          set(current => ({
+            orchestrationRun: {
+              ...completedRun,
+              status: 'complete',
+              finishedAt: new Date(),
+            },
+            swarmRunning: current.agents.some(a => a.status === 'running'),
+          }))
+          void notify('Drodo', 'Multi-agent task complete')
+        },
+        errorMessage => {
+          activeOrchestrationAbort = null
+          set(current => ({
+            orchestrationRun: current.orchestrationRun
+              ? { ...current.orchestrationRun, status: 'error' }
+              : null,
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('error', 'Orchestration failed', errorMessage),
+            ],
+          }))
+        },
+      )
+
+      activeOrchestrationAbort = abort
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      set(current => ({
+        orchestrationRun: current.orchestrationRun
+          ? { ...current.orchestrationRun, status: 'error' }
+          : null,
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('error', 'Orchestration failed', message),
+        ],
+      }))
+    }
+  },
 
   setLiveOutput: (title, content, language) =>
     set({
@@ -429,6 +584,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       handle.abort()
     }
     activeSwarmRuns.clear()
+
+    activeOrchestrationAbort?.()
+    activeOrchestrationAbort = null
 
     if (autonomousLoopTimer) {
       clearTimeout(autonomousLoopTimer)

@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Play, Workflow, Copy, X } from 'lucide-react'
+import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Play, Workflow, Copy, X, Target } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import { notify } from '../lib/notifications'
 import { streamCompletion } from '../lib/streamChat'
+import type { AgentInstance, OrchestrationRun } from '../types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -442,13 +444,167 @@ function WorkflowHandoffModal({
   )
 }
 
+// ─── Orchestration Banner ─────────────────────────────────────────────────────
+
+const STATUS_LABEL: Record<OrchestrationRun['status'], string> = {
+  planning: 'Planning',
+  running: 'Running',
+  complete: 'Complete',
+  error: 'Error',
+}
+
+const STATUS_COLOR: Record<OrchestrationRun['status'], string> = {
+  planning: '#7f77dd',
+  running: '#f97316',
+  complete: '#1d9e75',
+  error: '#e05050',
+}
+
+function OrchestrationBanner({
+  run,
+  storeAgents,
+  onDismiss,
+}: {
+  run: OrchestrationRun
+  storeAgents: AgentInstance[]
+  onDismiss: () => void
+}) {
+  const orchAgents = storeAgents.filter(a => a.orchestrationStepIndex != null)
+  const completedSteps = orchAgents.filter(a => a.status === 'complete').length
+  const totalSteps = run.plan.agents.length || orchAgents.length
+  const statusColor = STATUS_COLOR[run.status]
+
+  return (
+    <div
+      className="flex-shrink-0 flex items-center gap-3 px-5 py-3"
+      style={{ background: '#7f77dd14', borderBottom: '1px solid #7f77dd28' }}
+    >
+      <div
+        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+        style={{ background: '#7f77dd22' }}
+      >
+        <Target size={14} style={{ color: '#7f77dd' }} />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+          {run.plan.taskSummary || run.originalTask}
+        </p>
+        {totalSteps > 0 && run.status !== 'planning' && (
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            Step {Math.min(completedSteps + 1, totalSteps)} of {totalSteps}
+          </p>
+        )}
+      </div>
+
+      <span
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
+        style={{ background: statusColor + '18', color: statusColor, border: `1px solid ${statusColor}30` }}
+      >
+        {run.status === 'running' && (
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor, animation: 'pulse 1.5s infinite' }} />
+        )}
+        {STATUS_LABEL[run.status]}
+      </span>
+
+      <button
+        onClick={onDismiss}
+        className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors flex-shrink-0"
+      >
+        <X size={14} />
+      </button>
+    </div>
+  )
+}
+
+// ─── Orchestration Agent Card ─────────────────────────────────────────────────
+
+const AGENT_STATUS_COLOR: Record<string, string> = {
+  running: '#7f77dd',
+  complete: '#1d9e75',
+  idle: 'var(--text-secondary)',
+  error: '#e05050',
+}
+
+function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
+  const color = AGENT_STATUS_COLOR[agent.status] ?? 'var(--text-secondary)'
+  const stepNum = agent.orchestrationStepIndex ?? 0
+
+  return (
+    <div
+      className={clsx(
+        'rounded-xl border flex flex-col transition-all duration-300 bg-[var(--bg-tertiary)]',
+        agent.status === 'running' && 'border-[#7f77dd]/40 shadow-[0_0_16px_rgba(127,119,221,0.06)]',
+        agent.status === 'complete' && 'border-[#1d9e75]/25',
+        agent.status === 'idle' && 'border-[var(--border-color)]',
+        agent.status === 'error' && 'border-[#e05050]/30',
+      )}
+    >
+      <div className="flex items-center gap-3 p-4 pb-3">
+        {/* Avatar with step badge */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
+            style={{ background: color + '22', color }}
+          >
+            {agent.name.slice(0, 2).toUpperCase()}
+          </div>
+          <span
+            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+            style={{ background: '#7f77dd' }}
+          >
+            {stepNum}
+          </span>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-[var(--text-primary)]">{agent.name}</span>
+            <span
+              className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+              style={{ background: color + '18', color, border: `1px solid ${color}30` }}
+            >
+              {agent.status === 'running' && (
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color, animation: 'pulse 1.5s infinite' }} />
+              )}
+              {agent.status}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5 text-xs text-[var(--text-secondary)]">
+            <span className="font-mono">{agent.tokens.toLocaleString()} tok</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Task / lastUpdate */}
+      <div className="px-4 pb-3">
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed line-clamp-3">
+          {agent.status === 'idle'
+            ? agent.task
+            : agent.lastUpdate || agent.task}
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--border-color)]">
+        <span className="text-xs text-[var(--text-muted)] font-mono">{agent.model}</span>
+        <span className="text-xs text-[var(--text-muted)]">Step {stepNum}</span>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentSwarmView() {
-  const { stopAgentStore, activeProvider } = useAppStore(s => ({
-    stopAgentStore: s.stopAgent,
-    activeProvider: s.activeProvider,
-  }))
+  const { stopAgentStore, activeProvider, orchestrationRun, storeAgents, setOrchestrationRun } = useAppStore(
+    useShallow(s => ({
+      stopAgentStore: s.stopAgent,
+      activeProvider: s.activeProvider,
+      orchestrationRun: s.orchestrationRun,
+      storeAgents: s.agents,
+      setOrchestrationRun: s.setOrchestrationRun,
+    }))
+  )
 
   const [agents, setAgents] = useState<LocalAgent[]>([])
   const [logs, setLogs] = useState<LogEntry[]>([])
@@ -717,9 +873,18 @@ export function AgentSwarmView() {
           </button>
         </div>
 
+        {/* Orchestration banner */}
+        {orchestrationRun && (
+          <OrchestrationBanner
+            run={orchestrationRun}
+            storeAgents={storeAgents}
+            onDismiss={() => setOrchestrationRun(null)}
+          />
+        )}
+
         {/* Agent grid */}
         <div className="flex-1 overflow-y-auto p-5">
-          {agents.length === 0 ? (
+          {agents.length === 0 && storeAgents.filter(a => a.orchestrationStepIndex != null).length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
                 <Zap size={28} className="text-[var(--text-secondary)]" />
@@ -741,6 +906,13 @@ export function AgentSwarmView() {
             </div>
           ) : (
             <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+              {/* Orchestration agents from store */}
+              {storeAgents
+                .filter(a => a.orchestrationStepIndex != null)
+                .map(agent => (
+                  <OrchestrationAgentCard key={agent.id} agent={agent} />
+                ))}
+              {/* Local simulation agents */}
               {agents.map(agent => (
                 <SwarmAgentCard
                   key={agent.id}
