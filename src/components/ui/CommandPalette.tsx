@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import {
   Bot, FolderOpen, Clock, Files, Server, Puzzle, GitBranch,
-  BarChart3, Zap, Plug, Settings2, Search,
+  BarChart3, Zap, Plug, Settings2, Search, MessageCircle,
 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
@@ -23,6 +23,7 @@ const ALL_VIEWS: ViewDef[] = [
   { view: 'mcp', label: 'MCP Servers', Icon: Server },
   { view: 'skills', label: 'Skills & Connectors', Icon: Puzzle },
   { view: 'workflows', label: 'Workflows', Icon: GitBranch },
+  { view: 'messaging', label: 'Messaging', Icon: MessageCircle },
   { view: 'analytics', label: 'Analytics', Icon: BarChart3 },
   { view: 'connections', label: 'Connections', Icon: Plug },
   { view: 'settings', label: 'Settings', Icon: Settings2 },

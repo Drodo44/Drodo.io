@@ -17,6 +17,7 @@ import { SettingsView } from './views/SettingsView'
 import { AgentTemplatesView } from './views/AgentTemplatesView'
 import { PromptLibraryView } from './views/PromptLibraryView'
 import { AutomationsView } from './views/AutomationsView'
+import { MessagingView } from './views/MessagingView'
 import { AuthView } from './views/AuthView'
 import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
@@ -28,6 +29,7 @@ import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
 import { syncUserData } from './lib/syncToSupabase'
 import { checkForUpdates } from './lib/updater'
+import { startBotPolling, stopBotPolling } from './lib/botRunner'
 
 function AgentWorkspace() {
   return (
@@ -52,6 +54,7 @@ const SafeSettingsView = withErrorBoundary(SettingsView)
 const SafeAgentTemplatesView = withErrorBoundary(AgentTemplatesView)
 const SafePromptLibraryView = withErrorBoundary(PromptLibraryView)
 const SafeAutomationsView = withErrorBoundary(AutomationsView)
+const SafeMessagingView = withErrorBoundary(MessagingView)
 const SafeAuthView = withErrorBoundary(AuthView)
 const SafeOnboardingScreen = withErrorBoundary(OnboardingScreen)
 
@@ -74,6 +77,7 @@ function MainContent() {
   if (activeView === 'templates') return <SafeAgentTemplatesView />
   if (activeView === 'prompts') return <SafePromptLibraryView />
   if (activeView === 'automations') return <SafeAutomationsView />
+  if (activeView === 'messaging') return <SafeMessagingView />
   return null
 }
 
@@ -130,6 +134,15 @@ function App() {
   useEffect(() => {
     if (!authReady) return
     void checkForUpdates()
+  }, [authReady])
+
+  useEffect(() => {
+    if (!authReady) return
+
+    startBotPolling(() => useAppStore.getState().activeProvider)
+    return () => {
+      stopBotPolling()
+    }
   }, [authReady])
 
   const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'

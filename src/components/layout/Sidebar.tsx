@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Bot, FolderOpen, Clock, Files, Server, GitBranch, BarChart3, Zap,
-  Puzzle, ChevronRight, Plug, Settings2, LayoutTemplate, BookMarked, Workflow,
+  Puzzle, ChevronRight, Plug, Settings2, LayoutTemplate, BookMarked, Workflow, MessageCircle,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Logo } from '../ui/Logo'
@@ -19,6 +19,7 @@ const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot }[] = [
   { view: 'skills', label: 'Skills & Connectors', Icon: Puzzle },
   { view: 'workflows', label: 'Workflows', Icon: GitBranch },
   { view: 'automations', label: 'Automations', Icon: Workflow },
+  { view: 'messaging', label: 'Messaging', Icon: MessageCircle },
   { view: 'analytics', label: 'Analytics', Icon: BarChart3 },
   { view: 'connections', label: 'Connections', Icon: Plug },
 ]

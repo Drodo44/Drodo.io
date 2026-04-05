@@ -17,6 +17,7 @@ export type NavView =
   | 'templates'
   | 'prompts'
   | 'automations'
+  | 'messaging'
 
 export interface Provider {
   id: string
