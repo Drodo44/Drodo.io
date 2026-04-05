@@ -1,5 +1,6 @@
 import { FolderOpen, Plus, Clock, MessageSquare, Search, Trash2, Bot } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { useAppStore } from '../store/appStore'
 import {
   cycleProjectStatus,
@@ -19,14 +20,21 @@ const STATUS_CFG = {
 export function ProjectsView() {
   const setView = useAppStore(s => s.setView)
   const [query, setQuery] = useState('')
-  const [projects, setProjects] = useState<Project[]>(() => loadProjects())
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [nameInput, setNameInput] = useState('')
   const [descriptionInput, setDescriptionInput] = useState('')
+  const [nameError, setNameError] = useState('')
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
-    const syncProjects = () => setProjects(loadProjects())
+    const syncProjects = () => {
+      setProjects(loadProjects())
+      setLoading(false)
+    }
+
+    syncProjects()
     window.addEventListener('storage', syncProjects)
     return () => window.removeEventListener('storage', syncProjects)
   }, [])
@@ -40,12 +48,16 @@ export function ProjectsView() {
     setShowForm(false)
     setNameInput('')
     setDescriptionInput('')
+    setNameError('')
   }
 
   const handleCreateProject = () => {
     const name = nameInput.trim()
     const description = descriptionInput.trim()
-    if (!name) return
+    if (!name) {
+      setNameError('Project name is required.')
+      return
+    }
 
     const nextProjects = [
       {
@@ -122,9 +134,13 @@ export function ProjectsView() {
             <div className="grid gap-3 md:grid-cols-[1fr,1.2fr,auto]">
               <input
                 value={nameInput}
-                onChange={e => setNameInput(e.target.value)}
+                onChange={e => {
+                  setNameInput(e.target.value)
+                  if (e.target.value.trim()) setNameError('')
+                }}
                 placeholder="Project name"
-                className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+                className="rounded-lg border bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+                style={{ borderColor: nameError ? '#e05050' : 'var(--border-color)' }}
               />
               <input
                 value={descriptionInput}
@@ -149,18 +165,27 @@ export function ProjectsView() {
                 </button>
               </div>
             </div>
+            {nameError && <p className="mt-3 text-xs text-[#e05050]">{nameError}</p>}
           </div>
         )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
-        {!hasProjects ? (
-          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
-            <p className="text-sm text-[var(--text-muted)]">No projects yet. Create one to organize future work.</p>
+        {loading ? (
+          <LoadingSpinner label="Loading projects…" />
+        ) : !hasProjects ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+              <FolderOpen size={28} className="text-[var(--text-secondary)]" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">No projects yet</h2>
+            <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+              Create a project to organize future work, sessions, and agents in one place.
+            </p>
             {!showForm && (
               <button
                 onClick={() => setShowForm(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
                 style={{ background: '#7f77dd' }}
               >
                 <Plus size={14} />
@@ -169,8 +194,14 @@ export function ProjectsView() {
             )}
           </div>
         ) : !hasMatches ? (
-          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
-            <p className="text-sm text-[var(--text-muted)]">No projects match your search.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+              <Search size={28} className="text-[var(--text-secondary)]" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">No matching projects</h2>
+            <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+              Adjust your search to find a project you already created.
+            </p>
           </div>
         ) : (
           <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>

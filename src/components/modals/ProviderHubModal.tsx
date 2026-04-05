@@ -30,6 +30,7 @@ export function ProviderHubModal() {
   const [model, setModel] = useState('')
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   const selected = allProviders.find(p => p.id === selectedId) ?? allProviders[0]
 
@@ -47,6 +48,7 @@ export function ProviderHubModal() {
     }
     setTestState('idle')
     setTestMessage('')
+    setSaveError('')
   }, [selectedId])
 
   const handleSelect = (provider: Provider) => {
@@ -70,6 +72,11 @@ export function ProviderHubModal() {
   }
 
   const handleSave = () => {
+    if (!selected.isLocal && !apiKey.trim()) {
+      setSaveError('API key is required before saving this provider.')
+      return
+    }
+
     const provider: Provider = {
       ...selected,
       baseUrl: effectiveBaseUrl,
@@ -83,6 +90,7 @@ export function ProviderHubModal() {
       baseUrl: effectiveBaseUrl,
       model: effectiveModel,
     })
+    setSaveError('')
     setProviderHubOpen(false)
   }
 
@@ -216,10 +224,15 @@ export function ProviderHubModal() {
                   <input
                     type="password"
                     value={apiKey}
-                    onChange={e => { setApiKey(e.target.value); setTestState('idle') }}
+                    onChange={e => {
+                      setApiKey(e.target.value)
+                      setTestState('idle')
+                      if (e.target.value.trim()) setSaveError('')
+                    }}
                     className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                     placeholder={selected.id === 'anthropic' ? 'sk-ant-...' : selected.id === 'openai' ? 'sk-...' : 'API key'}
                   />
+                  {saveError && <p className="text-xs text-[#e05050]">{saveError}</p>}
                 </div>
               )}
 

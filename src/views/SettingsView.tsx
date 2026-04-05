@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, RotateCcw } from 'lucide-react'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { resetOnboarding } from '../components/Onboarding'
+import { Logo } from '../components/ui/Logo'
 import { applyThemeClass } from '../lib/theme'
 import { useAppStore } from '../store/appStore'
 import { signOut } from '../lib/auth'
@@ -185,7 +187,7 @@ export function SettingsView() {
               ))}
             </div>
             <p className="text-xs text-[var(--text-secondary)] mt-3">
-              Dark and System both use the native dark theme. Light applies an inverted palette as a preview.
+              Choose the palette you want Drodo to use across every view.
             </p>
           </div>
         </section>
@@ -448,6 +450,38 @@ export function SettingsView() {
                 </div>
               </div>
             )}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">About</h2>
+          <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Logo size={28} />
+                <div>
+                  <div className="text-sm font-semibold text-[var(--text-primary)]">Drodo</div>
+                  <div className="text-xs text-[var(--text-secondary)]">Version 1.0.0</div>
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-[var(--text-secondary)]">
+              Built for everyone. Powered by any AI.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => void openUrl('https://github.com/Drodo44/Drodo.io')}
+                className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+              >
+                GitHub
+              </button>
+              <button
+                onClick={() => void openUrl('https://github.com/Drodo44/Drodo.io/issues')}
+                className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+              >
+                Report a Bug
+              </button>
+            </div>
           </div>
         </section>
       </div>

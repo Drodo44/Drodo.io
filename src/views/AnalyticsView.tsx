@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BarChart3, MessageSquare, Cpu, DollarSign, Plug, Trash2, CheckCircle2 } from 'lucide-react'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import {
   getUsageLog, getProviderTotals, getTotals, getUsageByDay, clearUsage,
   type UsageEntry, type ProviderTotals,
@@ -144,6 +145,17 @@ export function AnalyticsView() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
   const [cleared, setCleared] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [contentVisible, setContentVisible] = useState(false)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setLoading(false)
+      window.requestAnimationFrame(() => setContentVisible(true))
+    }, 320)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [refreshKey])
 
   const refresh = () => { setRefreshKey(k => k + 1); setConfirmClear(false); setCleared(true); setTimeout(() => setCleared(false), 1500) }
 
@@ -207,23 +219,29 @@ export function AnalyticsView() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-5">
+      <div className="flex-1 overflow-y-auto p-6">
+        {loading ? (
+          <LoadingSpinner label="Loading analytics…" />
+        ) : (
+          <div className={`space-y-5 transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
 
-        {/* Empty state */}
-        {!hasData && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
-              <BarChart3 size={28} className="text-[var(--border-color)]" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--text-secondary)]">No usage tracked yet.</p>
-              <p className="text-xs text-[var(--text-muted)] mt-1">Start a conversation to see your stats here.</p>
-            </div>
-          </div>
-        )}
+            {/* Empty state */}
+            {!hasData && (
+              <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+                  <BarChart3 size={28} className="text-[var(--text-secondary)]" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-[var(--text-primary)]">No analytics yet</h2>
+                  <p className="text-sm text-[var(--text-secondary)] mt-2">
+                    Start a conversation or run a workflow to begin tracking usage here.
+                  </p>
+                </div>
+              </div>
+            )}
 
-        {hasData && (
-          <>
+            {hasData && (
+              <>
             {/* Metric cards */}
             <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
               <MetricCard
@@ -319,7 +337,9 @@ export function AnalyticsView() {
                 </div>
               </div>
             )}
-          </>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

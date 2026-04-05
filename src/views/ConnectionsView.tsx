@@ -36,6 +36,17 @@ function randomColor() {
   return CUSTOM_COLORS[Math.floor(Math.random() * CUSTOM_COLORS.length)]
 }
 
+function sortProviders(providers: Provider[]): Provider[] {
+  return [...providers].sort((a, b) => {
+    const aSaved = a.isLocal || !!loadProviderConfig(a.id)?.apiKey
+    const bSaved = b.isLocal || !!loadProviderConfig(b.id)?.apiKey
+
+    if (aSaved !== bSaved) return aSaved ? -1 : 1
+    if (a.id.startsWith('custom-') !== b.id.startsWith('custom-')) return a.id.startsWith('custom-') ? -1 : 1
+    return a.name.localeCompare(b.name)
+  })
+}
+
 function ProviderRow({
   provider,
   selected,
@@ -162,7 +173,7 @@ function AddCustomForm({ onAdd }: { onAdd: (provider: Provider) => void }) {
 export function ConnectionsView() {
   const setActiveProvider = useAppStore(s => s.setActiveProvider)
 
-  const [providers, setProviders] = useState<Provider[]>(() => getAllProviders())
+  const [providers, setProviders] = useState<Provider[]>(() => sortProviders(getAllProviders()))
   const [selectedId, setSelectedId] = useState(providers[0]?.id ?? 'anthropic')
   const [apiKey, setApiKey] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
@@ -170,6 +181,20 @@ export function ConnectionsView() {
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    const syncProviders = () => {
+      const nextProviders = sortProviders(getAllProviders())
+      setProviders(nextProviders)
+      if (!nextProviders.some(provider => provider.id === selectedId)) {
+        setSelectedId(nextProviders[0]?.id ?? 'anthropic')
+      }
+    }
+
+    syncProviders()
+    window.addEventListener('storage', syncProviders)
+    return () => window.removeEventListener('storage', syncProviders)
+  }, [selectedId])
 
   const selected = providers.find(p => p.id === selectedId) ?? providers[0]
   const isCustom = !selected?.id.startsWith('custom-') === false
@@ -217,19 +242,20 @@ export function ConnectionsView() {
       baseUrl: effectiveUrl,
       model: effectiveModel,
     })
+    setProviders(sortProviders(getAllProviders()))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
   const handleAddCustom = (provider: Provider) => {
     saveCustomProvider(provider)
-    setProviders(getAllProviders())
+    setProviders(sortProviders(getAllProviders()))
     setSelectedId(provider.id)
   }
 
   const handleDeleteCustom = (id: string) => {
     deleteCustomProvider(id)
-    const updated = getAllProviders()
+    const updated = sortProviders(getAllProviders())
     setProviders(updated)
     if (selectedId === id) setSelectedId(updated[0]?.id ?? 'anthropic')
   }

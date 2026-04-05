@@ -22,35 +22,58 @@ import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
+import { withErrorBoundary } from './components/ui/ErrorBoundary'
+import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
 import { syncUserData } from './lib/syncToSupabase'
 import { checkForUpdates } from './lib/updater'
 
+function AgentWorkspace() {
+  return (
+    <>
+      <ChatPanel />
+      <RightPanel />
+    </>
+  )
+}
+
+const SafeAgentWorkspace = withErrorBoundary(AgentWorkspace)
+const SafeAgentSwarmView = withErrorBoundary(AgentSwarmView)
+const SafeProjectsView = withErrorBoundary(ProjectsView)
+const SafeSessionsView = withErrorBoundary(SessionsView)
+const SafeFilesView = withErrorBoundary(FilesView)
+const SafeMCPServersView = withErrorBoundary(MCPServersView)
+const SafeSkillsView = withErrorBoundary(SkillsView)
+const SafeWorkflowsView = withErrorBoundary(WorkflowsView)
+const SafeAnalyticsView = withErrorBoundary(AnalyticsView)
+const SafeConnectionsView = withErrorBoundary(ConnectionsView)
+const SafeSettingsView = withErrorBoundary(SettingsView)
+const SafeAgentTemplatesView = withErrorBoundary(AgentTemplatesView)
+const SafePromptLibraryView = withErrorBoundary(PromptLibraryView)
+const SafeAutomationsView = withErrorBoundary(AutomationsView)
+const SafeAuthView = withErrorBoundary(AuthView)
+const SafeOnboardingScreen = withErrorBoundary(OnboardingScreen)
+
 function MainContent() {
   const activeView = useAppStore(s => s.activeView)
 
   if (activeView === 'agent') {
-    return (
-      <>
-        <ChatPanel />
-        <RightPanel />
-      </>
-    )
+    return <SafeAgentWorkspace />
   }
-  if (activeView === 'swarm') return <AgentSwarmView />
-  if (activeView === 'projects') return <ProjectsView />
-  if (activeView === 'sessions') return <SessionsView />
-  if (activeView === 'files') return <FilesView />
-  if (activeView === 'mcp') return <MCPServersView />
-  if (activeView === 'skills') return <SkillsView />
-  if (activeView === 'workflows') return <WorkflowsView />
-  if (activeView === 'analytics') return <AnalyticsView />
-  if (activeView === 'connections') return <ConnectionsView />
-  if (activeView === 'settings') return <SettingsView />
-  if (activeView === 'templates') return <AgentTemplatesView />
-  if (activeView === 'prompts') return <PromptLibraryView />
-  if (activeView === 'automations') return <AutomationsView />
+  if (activeView === 'swarm') return <SafeAgentSwarmView />
+  if (activeView === 'projects') return <SafeProjectsView />
+  if (activeView === 'sessions') return <SafeSessionsView />
+  if (activeView === 'files') return <SafeFilesView />
+  if (activeView === 'mcp') return <SafeMCPServersView />
+  if (activeView === 'skills') return <SafeSkillsView />
+  if (activeView === 'workflows') return <SafeWorkflowsView />
+  if (activeView === 'analytics') return <SafeAnalyticsView />
+  if (activeView === 'connections') return <SafeConnectionsView />
+  if (activeView === 'settings') return <SafeSettingsView />
+  if (activeView === 'templates') return <SafeAgentTemplatesView />
+  if (activeView === 'prompts') return <SafePromptLibraryView />
+  if (activeView === 'automations') return <SafeAutomationsView />
   return null
 }
 
@@ -117,13 +140,13 @@ function App() {
         className="flex h-screen w-screen items-center justify-center"
         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       >
-        <div className="text-sm text-[var(--text-secondary)]">Loading session…</div>
+        <LoadingSpinner label="Loading session…" />
       </div>
     )
   }
 
   if (!user && !skipAuth) {
-    return <AuthView />
+    return <SafeAuthView />
   }
 
   if (!onboardingDone) {
@@ -136,7 +159,7 @@ function App() {
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
           <TopBar />
           <main className="flex flex-1 min-h-0 overflow-hidden">
-            <OnboardingScreen onComplete={() => setOnboardingDone(true)} />
+            <SafeOnboardingScreen onComplete={() => setOnboardingDone(true)} />
           </main>
         </div>
         <ProviderHubModal />

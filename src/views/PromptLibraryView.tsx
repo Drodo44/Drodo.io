@@ -231,14 +231,29 @@ function PromptForm({
   const [content, setContent] = useState(initial?.content ?? '')
   const [tagsRaw, setTagsRaw] = useState(initial?.tags.join(', ') ?? '')
   const [category, setCategory] = useState(initial?.category ?? 'Productivity')
+  const [titleError, setTitleError] = useState('')
+  const [contentError, setContentError] = useState('')
 
   const canSave = title.trim() && content.trim()
 
   const handleSave = () => {
-    if (!canSave) return
+    const nextTitle = title.trim()
+    const nextContent = content.trim()
+    let hasError = false
+
+    if (!nextTitle) {
+      setTitleError('Title is required.')
+      hasError = true
+    }
+    if (!nextContent) {
+      setContentError('Prompt content is required.')
+      hasError = true
+    }
+    if (hasError) return
+
     onSave({
-      title: title.trim(),
-      content: content.trim(),
+      title: nextTitle,
+      content: nextContent,
       tags: tagsRaw.split(',').map(t => t.trim()).filter(Boolean),
       category,
     })
@@ -259,10 +274,15 @@ function PromptForm({
         <input
           type="text"
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={e => {
+            setTitle(e.target.value)
+            if (e.target.value.trim()) setTitleError('')
+          }}
           placeholder="e.g. Cold Email Template"
-          className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
+          className="w-full bg-[var(--bg-primary)] border rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
+          style={{ borderColor: titleError ? '#e05050' : 'var(--border-color)' }}
         />
+        {titleError && <p className="mt-2 text-xs text-[#e05050]">{titleError}</p>}
       </div>
 
       {/* Category */}
@@ -299,11 +319,16 @@ function PromptForm({
         <label className="text-xs font-medium text-[var(--text-muted)] mb-1.5 block">Prompt content</label>
         <textarea
           value={content}
-          onChange={e => setContent(e.target.value)}
+          onChange={e => {
+            setContent(e.target.value)
+            if (e.target.value.trim()) setContentError('')
+          }}
           placeholder="Write your prompt here. Use [brackets] for variables."
           rows={5}
-          className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors resize-none font-mono"
+          className="w-full bg-[var(--bg-primary)] border rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors resize-none font-mono"
+          style={{ borderColor: contentError ? '#e05050' : 'var(--border-color)' }}
         />
+        {contentError && <p className="mt-2 text-xs text-[#e05050]">{contentError}</p>}
       </div>
 
       <div className="flex gap-2 justify-end">
@@ -522,15 +547,20 @@ export function PromptLibraryView() {
           {filtered.length === 0 && !showForm && (
             <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
-                <BookMarked size={28} className="text-[var(--border-color)]" />
+                <BookMarked size={28} className="text-[var(--text-secondary)]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">
                   {search || activeCategory !== 'All' ? 'No prompts match your filters.' : 'No prompts saved yet.'}
-                </p>
+                </h2>
                 {!search && activeCategory === 'All' && (
-                  <p className="text-xs text-[var(--text-muted)] max-w-xs">
+                  <p className="text-sm text-[var(--text-secondary)] max-w-md">
                     Create your first prompt to reuse it across any agent or workflow.
+                  </p>
+                )}
+                {(search || activeCategory !== 'All') && (
+                  <p className="text-sm text-[var(--text-secondary)] max-w-md">
+                    Try a different search or category to find saved prompts faster.
                   </p>
                 )}
               </div>

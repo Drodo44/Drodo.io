@@ -1,6 +1,7 @@
 import { Clock, Plus, MessageSquare, Cpu, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { loadSessions, deleteSession, formatRelativeTime } from '../lib/dashboardData'
 import { useAppStore } from '../store/appStore'
 import type { Session } from '../types'
@@ -14,11 +15,17 @@ export function SessionsView() {
     }))
   )
   const [query, setQuery] = useState('')
-  const [sessions, setSessions] = useState<Session[]>(() => loadSessions())
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [loading, setLoading] = useState(true)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
-    const syncSessions = () => setSessions(loadSessions())
+    const syncSessions = () => {
+      setSessions(loadSessions())
+      setLoading(false)
+    }
+
+    syncSessions()
     window.addEventListener('storage', syncSessions)
     return () => window.removeEventListener('storage', syncSessions)
   }, [])
@@ -82,13 +89,38 @@ export function SessionsView() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
-        {!hasSessions ? (
-          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
-            <p className="text-sm text-[var(--text-muted)]">No sessions yet. Start a conversation to see it saved here.</p>
+        {loading ? (
+          <LoadingSpinner label="Loading sessions…" />
+        ) : !hasSessions ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+              <Clock size={28} className="text-[var(--text-secondary)]" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">No sessions yet</h2>
+            <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+              Start a conversation to see it saved here.
+            </p>
+            <button
+              onClick={() => {
+                startNewSession()
+                setView('agent')
+              }}
+              className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+              style={{ background: '#7f77dd' }}
+            >
+              <Plus size={14} />
+              Start Conversation
+            </button>
           </div>
         ) : !hasMatches ? (
-          <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
-            <p className="text-sm text-[var(--text-muted)]">No sessions match your search.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+              <Search size={28} className="text-[var(--text-secondary)]" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-[var(--text-primary)]">No matching sessions</h2>
+            <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+              Try a different search term to find a saved conversation.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">

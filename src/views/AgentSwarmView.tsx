@@ -720,15 +720,24 @@ export function AgentSwarmView() {
         {/* Agent grid */}
         <div className="flex-1 overflow-y-auto p-5">
           {agents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-3">
+            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
-                <Zap size={28} className="text-[var(--border-color)]" />
+                <Zap size={28} className="text-[var(--text-secondary)]" />
               </div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                No agents yet.
-                <br />
-                Click <strong className="text-[var(--text-muted)]">Spawn Agent</strong> to create one and hit Run.
-              </p>
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">No agents yet</h2>
+                <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+                  Spawn an agent to start parallel work, watch its timeline, and hand completed output off to workflows.
+                </p>
+              </div>
+              <button
+                onClick={handleSpawnAgent}
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: '#7f77dd' }}
+              >
+                <Plus size={14} />
+                Spawn Agent
+              </button>
             </div>
           ) : (
             <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
@@ -776,9 +785,16 @@ export function AgentSwarmView() {
         {/* Feed scroll area */}
         <div ref={feedRef} className="flex-1 overflow-y-auto p-4 space-y-1.5">
           {logs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-2 py-10">
-              <span className="text-2xl">📡</span>
-              <p className="text-xs text-[var(--text-secondary)]">Agent activity will appear here in real time</p>
+            <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+                <Activity size={24} className="text-[var(--text-secondary)]" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-[var(--text-primary)]">No live activity yet</h2>
+                <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                  Agent events will stream here as soon as one starts running.
+                </p>
+              </div>
             </div>
           ) : (
             logs.map(entry => (

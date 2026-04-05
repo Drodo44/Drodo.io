@@ -9,6 +9,9 @@ export function AuthView() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -17,6 +20,9 @@ export function AuthView() {
     setMode(nextMode)
     setError('')
     setSuccessMessage('')
+    setEmailError('')
+    setPasswordError('')
+    setConfirmPasswordError('')
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,14 +31,29 @@ export function AuthView() {
 
     setError('')
     setSuccessMessage('')
+    setEmailError('')
+    setPasswordError('')
+    setConfirmPasswordError('')
 
-    if (!email.trim() || !password.trim()) {
-      setError('Email and password are required.')
-      return
+    const nextEmail = email.trim()
+    let hasError = false
+
+    if (!nextEmail || !nextEmail.includes('@')) {
+      setEmailError('Enter a valid email address.')
+      hasError = true
+    }
+
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.')
+      hasError = true
     }
 
     if (mode === 'signup' && password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setConfirmPasswordError('Passwords do not match.')
+      hasError = true
+    }
+
+    if (hasError) {
       return
     }
 
@@ -40,10 +61,10 @@ export function AuthView() {
 
     try {
       if (mode === 'signin') {
-        const { error: signInError } = await signIn(email.trim(), password)
+        const { error: signInError } = await signIn(nextEmail, password)
         if (signInError) throw signInError
       } else {
-        const { error: signUpError } = await signUp(email.trim(), password)
+        const { error: signUpError } = await signUp(nextEmail, password)
         if (signUpError) throw signUpError
         setSuccessMessage('Check your email to confirm your account')
       }
@@ -105,12 +126,16 @@ export function AuthView() {
               <input
                 type="email"
                 value={email}
-                onChange={event => setEmail(event.target.value)}
+                onChange={event => {
+                  setEmail(event.target.value)
+                  if (event.target.value.trim().includes('@')) setEmailError('')
+                }}
                 placeholder="you@example.com"
                 autoComplete="email"
                 className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                style={{ background: '#0d0d0f', borderColor: '#2a2a2e', color: '#e8e8ef' }}
+                style={{ background: '#0d0d0f', borderColor: emailError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
               />
+              {emailError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{emailError}</p>}
             </div>
 
             <div>
@@ -120,12 +145,19 @@ export function AuthView() {
               <input
                 type="password"
                 value={password}
-                onChange={event => setPassword(event.target.value)}
+                onChange={event => {
+                  setPassword(event.target.value)
+                  if (event.target.value.length >= 8) setPasswordError('')
+                  if (mode === 'signup' && confirmPassword && event.target.value === confirmPassword) {
+                    setConfirmPasswordError('')
+                  }
+                }}
                 placeholder="Enter your password"
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                style={{ background: '#0d0d0f', borderColor: '#2a2a2e', color: '#e8e8ef' }}
+                style={{ background: '#0d0d0f', borderColor: passwordError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
               />
+              {passwordError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{passwordError}</p>}
             </div>
 
             {mode === 'signup' && (
@@ -136,12 +168,16 @@ export function AuthView() {
                 <input
                   type="password"
                   value={confirmPassword}
-                  onChange={event => setConfirmPassword(event.target.value)}
+                  onChange={event => {
+                    setConfirmPassword(event.target.value)
+                    if (password === event.target.value) setConfirmPasswordError('')
+                  }}
                   placeholder="Confirm your password"
                   autoComplete="new-password"
                   className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-colors"
-                  style={{ background: '#0d0d0f', borderColor: '#2a2a2e', color: '#e8e8ef' }}
+                  style={{ background: '#0d0d0f', borderColor: confirmPasswordError ? '#e05050' : '#2a2a2e', color: '#e8e8ef' }}
                 />
+                {confirmPasswordError && <p className="mt-2 text-xs" style={{ color: '#e05050' }}>{confirmPasswordError}</p>}
               </div>
             )}
 

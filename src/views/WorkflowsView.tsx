@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
@@ -399,15 +400,14 @@ function RunCard({ run }: { run: WorkflowRun }) {
 export function WorkflowsView() {
   const initialProviderId = getSavedProviders()[0]?.id ?? ''
   const [tab, setTab] = useState<WorkflowTab>('workflows')
-  const [workflows, setWorkflows] = useState<StoredWorkflow[]>(() => loadWorkflows(initialProviderId))
-  const [runs, setRuns] = useState<WorkflowRun[]>(() => loadRuns().slice().reverse())
-  const [selectedId, setSelectedId] = useState<string | null>(() => loadWorkflows(initialProviderId)[0]?.id ?? null)
-  const [draft, setDraft] = useState<StoredWorkflow | null>(() => {
-    const all = loadWorkflows(initialProviderId)
-    return all[0] ? cloneWorkflow(all[0]) : null
-  })
+  const [loading, setLoading] = useState(true)
+  const [workflows, setWorkflows] = useState<StoredWorkflow[]>([])
+  const [runs, setRuns] = useState<WorkflowRun[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<StoredWorkflow | null>(null)
   const [workflowRunning, setWorkflowRunning] = useState(false)
   const [builderError, setBuilderError] = useState<string | null>(null)
+  const [workflowNameError, setWorkflowNameError] = useState<string | null>(null)
   const [stepRuns, setStepRuns] = useState<StepRunState[]>([])
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({})
   const [expandedOutputs, setExpandedOutputs] = useState<Record<string, boolean>>({})
@@ -420,8 +420,13 @@ export function WorkflowsView() {
   const savedProviders = getSavedProviders()
 
   useEffect(() => {
-    saveWorkflows(workflows)
-  }, [])
+    const storedWorkflows = loadWorkflows(initialProviderId)
+    setWorkflows(storedWorkflows)
+    setRuns(loadRuns().slice().reverse())
+    setSelectedId(storedWorkflows[0]?.id ?? null)
+    setDraft(storedWorkflows[0] ? cloneWorkflow(storedWorkflows[0]) : null)
+    setLoading(false)
+  }, [initialProviderId])
 
   const applyStepRuns = (
     updater: StepRunState[] | ((current: StepRunState[]) => StepRunState[])
@@ -454,6 +459,7 @@ export function WorkflowsView() {
     setSelectedId(workflow.id)
     setDraft(cloneWorkflow(workflow))
     setExpandedSteps({})
+    setWorkflowNameError(null)
     resetRunState()
   }
 
@@ -472,9 +478,15 @@ export function WorkflowsView() {
 
   const handleSave = () => {
     if (!draft) return
+    const name = draft.name.trim()
+    if (!name) {
+      setWorkflowNameError('Workflow name is required.')
+      return
+    }
 
     const nextWorkflow: StoredWorkflow = {
       ...cloneWorkflow(draft),
+      name,
       updatedAt: Date.now(),
       steps: sanitizeStepDependencies(cloneSteps(draft.steps)),
     }
@@ -485,6 +497,7 @@ export function WorkflowsView() {
 
     persistWorkflows(nextWorkflows)
     setDraft(cloneWorkflow(nextWorkflow))
+    setWorkflowNameError(null)
   }
 
   const handleDeleteWorkflow = (workflowId: string) => {
@@ -802,13 +815,31 @@ export function WorkflowsView() {
         </div>
       </div>
 
-      {tab === 'workflows' && (
+      {loading ? (
+        <div className="flex-1">
+          <LoadingSpinner label="Loading workflows…" />
+        </div>
+      ) : tab === 'workflows' && (
         <div className="flex-1 min-h-0 grid" style={{ gridTemplateColumns: '260px 1fr' }}>
           <div className="border-r border-[var(--border-color)] overflow-y-auto p-3 space-y-1">
             {workflows.length === 0 && (
-              <p className="text-xs text-[var(--text-secondary)] px-2 py-3">
-                No workflows yet. Click &ldquo;New&rdquo; to create one.
-              </p>
+              <div className="flex flex-col items-start rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 text-left">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--bg-tertiary)]">
+                  <GitBranch size={18} className="text-[var(--text-secondary)]" />
+                </div>
+                <h2 className="mt-4 text-sm font-semibold text-[var(--text-primary)]">No workflows yet</h2>
+                <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
+                  Create your first workflow to start chaining model steps together.
+                </p>
+                <button
+                  onClick={handleNew}
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-white"
+                  style={{ background: '#7f77dd' }}
+                >
+                  <Plus size={12} />
+                  New Workflow
+                </button>
+              </div>
             )}
             {workflows.map(workflow => (
               <button
@@ -875,8 +906,22 @@ export function WorkflowsView() {
 
                 <div className="space-y-3">
                   {selectedWorkflow.steps.length === 0 ? (
-                    <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6 text-sm text-[var(--text-muted)]">
-                      This workflow does not have any steps yet. Open it in Builder to add them.
+                    <div className="flex flex-col items-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+                        <Plus size={22} className="text-[var(--text-secondary)]" />
+                      </div>
+                      <h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">No steps yet</h3>
+                      <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+                        Open this workflow in Builder to add ordered steps and run it.
+                      </p>
+                      <button
+                        onClick={() => setTab('builder')}
+                        className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                        style={{ background: '#7f77dd' }}
+                      >
+                        <Plus size={14} />
+                        Open Builder
+                      </button>
                     </div>
                   ) : (
                     selectedWorkflow.steps.map((step, index) => (
@@ -912,14 +957,25 @@ export function WorkflowsView() {
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <div className="text-center space-y-3">
+              <div className="max-w-sm text-center space-y-3">
                 <div
-                  className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center"
+                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
                   style={{ background: '#6366f122' }}
                 >
                   <GitBranch size={22} style={{ color: '#6366f1' }} />
                 </div>
-                <p className="text-sm text-[var(--text-muted)]">Select or create a workflow</p>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Select a workflow</h2>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Choose a saved workflow from the left or create a new one to inspect its steps.
+                </p>
+                <button
+                  onClick={handleNew}
+                  className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                  style={{ background: '#7f77dd' }}
+                >
+                  <Plus size={14} />
+                  New Workflow
+                </button>
               </div>
             </div>
           )}
@@ -935,19 +991,26 @@ export function WorkflowsView() {
             <>
               <div className="flex flex-col min-h-0 overflow-hidden">
                 <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <input
-                      value={draft.name}
-                      onChange={event => updateDraft(current => ({ ...current, name: event.target.value }))}
-                      className="flex-1 bg-transparent text-[var(--text-primary)] font-semibold text-sm outline-none border border-transparent rounded-lg px-2 py-1 hover:border-[var(--border-color)] focus:border-[#7f77dd]/60 transition-colors"
-                      placeholder="Workflow name"
-                    />
-                    <button
-                      onClick={handleSave}
-                      className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
-                    >
-                      Save Workflow
-                    </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={draft.name}
+                        onChange={event => {
+                          updateDraft(current => ({ ...current, name: event.target.value }))
+                          if (event.target.value.trim()) setWorkflowNameError(null)
+                        }}
+                        className="flex-1 bg-transparent text-[var(--text-primary)] font-semibold text-sm outline-none border rounded-lg px-2 py-1 transition-colors"
+                        style={{ borderColor: workflowNameError ? '#e05050' : 'transparent' }}
+                        placeholder="Workflow name"
+                      />
+                      <button
+                        onClick={handleSave}
+                        className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+                      >
+                        Save Workflow
+                      </button>
+                    </div>
+                    {workflowNameError && <p className="mt-2 text-xs text-[#e05050]">{workflowNameError}</p>}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -982,8 +1045,22 @@ export function WorkflowsView() {
                   )}
 
                   {draft.steps.length === 0 ? (
-                    <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-6 text-center">
-                      <p className="text-sm text-[var(--text-muted)]">No steps yet. Add one to start building this workflow.</p>
+                    <div className="flex flex-col items-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+                        <Plus size={22} className="text-[var(--text-secondary)]" />
+                      </div>
+                      <h2 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">No steps yet</h2>
+                      <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+                        Add a step to define what this workflow should do and how outputs flow forward.
+                      </p>
+                      <button
+                        onClick={addStep}
+                        className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                        style={{ background: '#7f77dd' }}
+                      >
+                        <Plus size={14} />
+                        Add First Step
+                      </button>
                     </div>
                   ) : (
                     draft.steps.map((step, index) => {
@@ -1220,14 +1297,25 @@ export function WorkflowsView() {
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <div className="text-center space-y-3">
+              <div className="max-w-sm text-center space-y-3">
                 <div
-                  className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center"
+                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
                   style={{ background: '#6366f122' }}
                 >
                   <GitBranch size={22} style={{ color: '#6366f1' }} />
                 </div>
-                <p className="text-sm text-[var(--text-muted)]">Select or create a workflow to open the builder.</p>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Open the builder</h2>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Select an existing workflow or create a new one to start editing steps.
+                </p>
+                <button
+                  onClick={handleNew}
+                  className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                  style={{ background: '#7f77dd' }}
+                >
+                  <Plus size={14} />
+                  New Workflow
+                </button>
               </div>
             </div>
           )}
@@ -1238,11 +1326,21 @@ export function WorkflowsView() {
         <div className="flex-1 overflow-y-auto p-6">
           {runs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-16">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#6366f122' }}>
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#6366f122' }}>
                 <History size={22} style={{ color: '#6366f1' }} />
               </div>
-              <p className="text-sm text-[var(--text-muted)]">No runs yet</p>
-              <p className="text-xs text-[var(--text-secondary)]">Run a workflow to see history here.</p>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">No runs yet</h2>
+              <p className="max-w-md text-sm text-[var(--text-secondary)]">
+                Run a workflow to capture step-by-step output history here.
+              </p>
+              <button
+                onClick={() => setTab('builder')}
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: '#7f77dd' }}
+              >
+                <Play size={14} />
+                Open Builder
+              </button>
             </div>
           ) : (
             <div style={{ maxWidth: 720 }}>
