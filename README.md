@@ -213,7 +213,7 @@ Sessions, workflows, and prompt library data can be synced to the cloud while th
 
 ## Roadmap
 
-- [ ] macOS and Linux installers
+- [x] Automated cross-platform builds via GitHub Actions (macOS and Linux available from next release)
 - [ ] Code signing (removes Windows SmartScreen warning)
 - [ ] Pro tier with advanced features
 - [ ] Mobile companion app
@@ -229,10 +229,17 @@ This project is licensed under the Business Source License 1.1. Personal and non
 
 <div align="center">
 
-### [⬇️ Download Drodo v1.0.0 for Windows](https://github.com/Drodo44/Drodo.io/releases/download/v1.0.0/Drodo_1.0.0_x64-setup.exe)
+### Drodo v1.0.0
 
-**Free forever · No account required to start · Your keys, your models, your data**
+| Platform | Download |
+|---|---|
+| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.0.0/Drodo_1.0.0_x64-setup.exe) |
+| 🍎 macOS (Intel) | Coming in next release |
+| 🍎 macOS (Apple Silicon) | Coming in next release |
+| 🐧 Linux (AppImage) | Coming in next release |
 
-[🌐 Visit Website](https://drodo44.github.io/drodo-landing/) · [🐛 Report a Bug](https://github.com/Drodo44/Drodo.io/issues) · [📋 View Releases](https://github.com/Drodo44/Drodo.io/releases)
+[View all releases →](https://github.com/Drodo44/Drodo.io/releases)
 
 </div>
+
+> macOS and Linux builds are automated via GitHub Actions and will be available in the next release. Windows installer is available now.

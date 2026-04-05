@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis,msi
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            bundles: dmg
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            bundles: dmg
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            bundles: appimage,deb
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libayatana-appindicator3-dev
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Drodo ${{ github.ref_name }}'
+          releaseBody: |
+            ## Drodo ${{ github.ref_name }}
+
+            The AI agent platform built for everyone.
+
+            ### Installation
+            - **Windows**: Download and run `Drodo_*_x64-setup.exe`
+            - **macOS (Intel)**: Download `Drodo_*_x64.dmg`
+            - **macOS (Apple Silicon)**: Download `Drodo_*_aarch64.dmg`
+            - **Linux**: Download `Drodo_*_amd64.AppImage` and make executable with `chmod +x`
+
+            ### What's in Drodo
+            - Connect any AI model from any provider using your own API keys
+            - 70+ pre-built agent templates across 19 categories
+            - Multi-agent orchestration with live mission control
+            - Built-in workflow builder with n8n automation
+            - Telegram, Slack, and Discord bot integration
+            - Skill packages marketplace
+            - Cloud sync via Supabase
+
+            See the full changelog at https://drodo44.github.io/drodo-landing/
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: true
+          target: ${{ matrix.target }}
+          args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}

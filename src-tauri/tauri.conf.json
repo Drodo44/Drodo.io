@@ -57,7 +57,7 @@
       "active": true,
       "pubkey": "",
       "endpoints": [
-        "https://drodo.io/updates/{{target}}/{{arch}}/{{current_version}}"
+        "https://github.com/Drodo44/Drodo.io/releases/latest/download/latest.json"
       ]
     }
   }
