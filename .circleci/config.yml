@@ -58,12 +58,30 @@ jobs:
             $token = $env:GITHUB_TOKEN
             $owner = "Drodo44"
             $repo = "Drodo.io"
-            $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers @{Authorization = "Bearer $token"}
-            $releaseId = $release.id
+            $headers = @{
+              Authorization = "Bearer $token"
+              Accept = "application/vnd.github+json"
+            }
+            try {
+              $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers
+            } catch {
+              try {
+                $body = @{
+                  tag_name = $tag
+                  name = $tag
+                  draft = $false
+                  prerelease = $false
+                } | ConvertTo-Json
+                $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases" -Method Post -Headers $headers -Body $body -ContentType "application/json"
+              } catch {
+                $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers
+              }
+            }
+            $uploadUrl = ($release.upload_url -replace '\{\?name,label\}$', '')
             $exePath = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
             if ($exePath) {
-              $uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($exePath.Name)"
-              Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers @{Authorization = "Bearer $token"; "Content-Type" = "application/octet-stream"} -InFile $exePath.FullName
+              $assetUploadUrl = "$uploadUrl?name=$($exePath.Name)"
+              Invoke-RestMethod -Uri $assetUploadUrl -Method Post -Headers @{Authorization = "Bearer $token"; Accept = "application/vnd.github+json"; "Content-Type" = "application/octet-stream"} -InFile $exePath.FullName
             }
 
   build-linux:
@@ -113,17 +131,47 @@ jobs:
             TOKEN=$GITHUB_TOKEN
             OWNER="Drodo44"
             REPO="Drodo.io"
+            RELEASE_RESPONSE=$(curl -s -w "\n%{http_code}" \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG")
+            RELEASE_BODY=$(echo "$RELEASE_RESPONSE" | sed '$d')
+            RELEASE_STATUS=$(echo "$RELEASE_RESPONSE" | tail -n1)
 
-            RELEASE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" \
-              "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG" | \
-              python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+            if [ "$RELEASE_STATUS" = "404" ]; then
+              CREATE_RESPONSE=$(curl -s -w "\n%{http_code}" \
+                -X POST \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                -H "Content-Type: application/json" \
+                -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"draft\":false,\"prerelease\":false}" \
+                "https://api.github.com/repos/$OWNER/$REPO/releases")
+              RELEASE_BODY=$(echo "$CREATE_RESPONSE" | sed '$d')
+              RELEASE_STATUS=$(echo "$CREATE_RESPONSE" | tail -n1)
+              if [ "$RELEASE_STATUS" = "422" ]; then
+                RELEASE_RESPONSE=$(curl -s -w "\n%{http_code}" \
+                  -H "Authorization: Bearer $TOKEN" \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/$OWNER/$REPO/releases/tags/$TAG")
+                RELEASE_BODY=$(echo "$RELEASE_RESPONSE" | sed '$d')
+                RELEASE_STATUS=$(echo "$RELEASE_RESPONSE" | tail -n1)
+              fi
+            fi
+
+            if [ "$RELEASE_STATUS" != "200" ] && [ "$RELEASE_STATUS" != "201" ]; then
+              echo "$RELEASE_BODY"
+              exit 1
+            fi
+
+            UPLOAD_URL=$(echo "$RELEASE_BODY" | python3 -c "import sys,json; print(json.load(sys.stdin)['upload_url'].split('{')[0])")
 
             APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
             if [ -n "$APPIMAGE" ]; then
               FILENAME=$(basename $APPIMAGE)
               curl -s -X POST \
                 -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.github+json" \
                 -H "Content-Type: application/octet-stream" \
                 --data-binary @"$APPIMAGE" \
-                "https://uploads.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets?name=$FILENAME"
+                "$UPLOAD_URL?name=$FILENAME"
             fi
