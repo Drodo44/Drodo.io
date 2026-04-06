@@ -40,36 +40,37 @@ jobs:
       - checkout
       - run:
           name: Install Node.js
+          shell: powershell.exe
           command: |
-            nvm install 20
-            nvm use 20
+            choco install nodejs --version=20.18.0 -y
+            $env:PATH = "C:\Program Files\nodejs;" + $env:PATH
       - run:
           name: Install Rust
+          shell: powershell.exe
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            $env:PATH += ";$env:USERPROFILE\.cargo\bin"
+            choco install rust -y
+            $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
             rustup target add x86_64-pc-windows-msvc
       - run:
-          name: Install dependencies
+          name: Install frontend dependencies
+          shell: powershell.exe
           command: npm install
       - run:
           name: Build Tauri app
+          shell: powershell.exe
           command: |
-            $env:PATH += ";$env:USERPROFILE\.cargo\bin"
-            npm run tauri build -- --bundles nsis,msi
+            $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
+            npm run tauri build -- --bundles nsis
       - run:
           name: Upload to GitHub Release
+          shell: powershell.exe
           command: |
             $tag = $env:CIRCLE_TAG
             $token = $env:GITHUB_TOKEN
             $owner = "Drodo44"
             $repo = "Drodo.io"
-
-            # Get release ID
             $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers @{Authorization = "Bearer $token"}
             $releaseId = $release.id
-
-            # Upload exe
             $exePath = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
             if ($exePath) {
               $uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($exePath.Name)"
@@ -85,31 +86,27 @@ jobs:
       - run:
           name: Install Node.js
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 20
             nvm use 20
+            node --version
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
       - run:
           name: Install Rust
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            source $HOME/.cargo/env
+            echo 'source "$HOME/.cargo/env"' >> $BASH_ENV
+            source "$HOME/.cargo/env"
             rustup target add x86_64-apple-darwin
       - run:
           name: Install dependencies
-          command: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 20
-            npm install
+          command: npm install
       - run:
           name: Build Tauri app for Intel Mac
           command: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 20
-            source $HOME/.cargo/env
             npm run tauri build -- --target x86_64-apple-darwin --bundles dmg
       - run:
           name: Upload DMG to GitHub Release
@@ -142,31 +139,27 @@ jobs:
       - run:
           name: Install Node.js
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             nvm install 20
             nvm use 20
+            node --version
+            echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
       - run:
           name: Install Rust
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            source $HOME/.cargo/env
+            echo 'source "$HOME/.cargo/env"' >> $BASH_ENV
+            source "$HOME/.cargo/env"
             rustup target add aarch64-apple-darwin
       - run:
           name: Install dependencies
-          command: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 20
-            npm install
+          command: npm install
       - run:
           name: Build Tauri app for Apple Silicon
           command: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 20
-            source $HOME/.cargo/env
             npm run tauri build -- --target aarch64-apple-darwin --bundles dmg
       - run:
           name: Upload DMG to GitHub Release
@@ -206,9 +199,13 @@ jobs:
               librsvg2-dev \
               patchelf \
               libgtk-3-dev \
-              libayatana-appindicator3-dev \
               libssl-dev \
-              pkg-config
+              pkg-config \
+              curl \
+              wget \
+              file \
+              libxdo-dev \
+              libglib2.0-dev
       - node/install:
           node-version: '20'
       - run:
