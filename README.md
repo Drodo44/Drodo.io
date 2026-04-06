@@ -6,8 +6,8 @@
 **Connect any AI model. Deploy any agent. Automate anything.**
 *No technical knowledge required.*
 
-[![Download](https://img.shields.io/badge/Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/download/v1.0.0/Drodo_1.0.0_x64-setup.exe)
-[![Release](https://img.shields.io/badge/Version-1.0.0-1d9e75?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/tag/v1.0.0)
+[![Download](https://img.shields.io/badge/Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_x64-setup.exe)
+[![Release](https://img.shields.io/badge/Version-1.2.0-1d9e75?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/tag/v1.2.0)
 [![License](https://img.shields.io/badge/License-BUSL%201.1-f97316?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Mac%20%7C%20Linux-4285f4?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases)
 [![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/Drodo)
@@ -167,7 +167,7 @@ Sessions, workflows, and prompt library data can be synced to the cloud while th
 
 ### Installation (Windows)
 1. Download the installer below
-2. Run `Drodo_1.0.0_x64-setup.exe`
+2. Run `Drodo_1.0.0_x64-setup.exe` (Windows) or mount the `.AppImage` (Linux)
 3. Follow the setup wizard
 4. Connect your first AI model
 5. Deploy your first agent
@@ -175,7 +175,7 @@ Sessions, workflows, and prompt library data can be synced to the cloud while th
 > **Note:** Windows may show a SmartScreen warning on first run. Click "More info" → "Run anyway". This is normal for new applications and will be resolved with code signing in a future release.
 
 ### System Requirements
-- Windows 10 or later (64-bit)
+- Windows 10 or later (64-bit) or Linux (x86_64)
 - 4GB RAM minimum
 - Internet connection for AI model API calls
 - Node.js (optional — required for n8n automation engine)
@@ -214,7 +214,7 @@ Sessions, workflows, and prompt library data can be synced to the cloud while th
 
 ## Roadmap
 
-- [x] Automated cross-platform builds via GitHub Actions (macOS and Linux available from next release)
+- [x] Automated cross-platform builds via CircleCI — Windows (.exe) and Linux (.AppImage) available now
 - [ ] Code signing (removes Windows SmartScreen warning)
 - [ ] Pro tier with advanced features
 - [ ] Mobile companion app
@@ -230,18 +230,17 @@ This project is licensed under the Business Source License 1.1. Personal and non
 
 <div align="center">
 
-### Drodo v1.0.0
+### Drodo v1.2.0
 
 | Platform | Download |
 |---|---|
-| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.0.0/Drodo_1.0.0_x64-setup.exe) |
-| 🍎 macOS (Intel) | Coming in next release |
-| 🍎 macOS (Apple Silicon) | Coming in next release |
-| 🐧 Linux (AppImage) | Coming in next release |
+| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_x64-setup.exe) |
+| 🐧 Linux (AppImage) | [Drodo_1.0.0_amd64.AppImage](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_amd64.AppImage) |
+| 🍎 macOS | Coming in a future release |
 
 [View all releases →](https://github.com/Drodo44/Drodo.io/releases)
 [☕ Support Drodo](https://buymeacoffee.com/Drodo)
 
 </div>
 
-> macOS and Linux builds are automated via GitHub Actions and will be available in the next release. Windows installer is available now.
+> macOS builds are planned for a future release. Windows and Linux builds are available now.
