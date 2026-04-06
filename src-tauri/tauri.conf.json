@@ -23,7 +23,10 @@
     ],
     "security": {
       "csp": null
-    }
+    },
+    "deepLinkProtocols": [
+      "drodo"
+    ]
   },
   "bundle": {
     "active": true,
