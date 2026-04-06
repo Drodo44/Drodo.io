@@ -54,37 +54,59 @@ jobs:
           name: Upload to GitHub Release
           shell: powershell.exe
           command: |
-            $tag = $env:CIRCLE_TAG
-            $token = $env:GITHUB_TOKEN
+            #!powershell.exe
+            $ErrorActionPreference = "Stop"
             $owner = "Drodo44"
             $repo = "Drodo.io"
+            $tag = $env:CIRCLE_TAG
+            $token = $env:GITHUB_TOKEN
+
+            # Find the installer file
+            $installer = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if (-not $installer) {
+              $installer = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.msi" -ErrorAction SilentlyContinue | Select-Object -First 1
+            }
+            if (-not $installer) {
+              Write-Error "No installer found"
+              exit 1
+            }
+            $assetName = $installer.Name
+            $assetPath = $installer.FullName
+            Write-Host "Uploading: $assetName from $assetPath"
+
+            # Create or get the GitHub release
             $headers = @{
-              Authorization = "Bearer $token"
+              Authorization = "token $token"
               Accept = "application/vnd.github+json"
             }
+
+            $existingRelease = $null
             try {
-              $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers
-            } catch {
-              try {
-                $body = @{
-                  tag_name = $tag
-                  name = $tag
-                  draft = $false
-                  prerelease = $false
-                } | ConvertTo-Json
-                $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases" -Method Post -Headers $headers -Body $body -ContentType "application/json"
-              } catch {
-                $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers
-              }
+              $existingRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers -Method Get
+            } catch {}
+
+            if ($existingRelease) {
+              $releaseId = $existingRelease.id
+              Write-Host "Using existing release id: $releaseId"
+            } else {
+              $body = @{ tag_name = $tag; name = $tag; draft = $false; prerelease = $false } | ConvertTo-Json
+              $newRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases" -Headers $headers -Method Post -Body $body -ContentType "application/json"
+              $releaseId = $newRelease.id
+              Write-Host "Created release id: $releaseId"
             }
-            $exePath = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
-            if ($exePath) {
-              $assetName = $exePath.Name
-              $assetUploadUrl = $release.upload_url
-              $assetUploadUrl = $assetUploadUrl -replace '\{[^}]*\}', ''
-              $assetUploadUrl = "$assetUploadUrl?name=$assetName"
-              Invoke-RestMethod -Uri $assetUploadUrl -Method Post -Headers @{Authorization = "Bearer $token"; Accept = "application/vnd.github+json"; "Content-Type" = "application/octet-stream"} -InFile $exePath.FullName
+
+            # Build upload URL directly from release ID — do NOT use upload_url from API response
+            $uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$assetName"
+            Write-Host "Upload URL: $uploadUrl"
+
+            $uploadHeaders = @{
+              Authorization = "token $token"
+              Accept = "application/vnd.github+json"
+              "Content-Type" = "application/octet-stream"
             }
+
+            Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $uploadHeaders -InFile $assetPath
+            Write-Host "Upload complete."
 
   build-linux:
     machine:
