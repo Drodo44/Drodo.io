@@ -10,36 +10,11 @@ import {
   Trash2,
   Play,
 } from 'lucide-react'
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter'
-import ts from 'react-syntax-highlighter/dist/cjs/languages/hljs/typescript'
-import json from 'react-syntax-highlighter/dist/cjs/languages/hljs/json'
-import powershell from 'react-syntax-highlighter/dist/cjs/languages/hljs/powershell'
-import shell from 'react-syntax-highlighter/dist/cjs/languages/hljs/shell'
-import rust from 'react-syntax-highlighter/dist/cjs/languages/hljs/rust'
-import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import type { TaskStep } from '../../types'
 
-function registerLanguageSafely(name: string, languageModule: unknown) {
-  const definition =
-    typeof languageModule === 'function'
-      ? languageModule
-      : typeof (languageModule as { default?: unknown })?.default === 'function'
-        ? (languageModule as { default: (hljs: unknown) => unknown }).default
-        : null
-
-  if (definition) {
-    SyntaxHighlighter.registerLanguage(name, definition)
-  }
-}
-
-registerLanguageSafely('typescript', ts)
-registerLanguageSafely('json', json)
-registerLanguageSafely('powershell', powershell)
-registerLanguageSafely('shell', shell)
-registerLanguageSafely('rust', rust)
 
 function StepIcon({ status }: { status: TaskStep['status'] }) {
   if (status === 'complete') return <CheckCircle size={14} className="text-[#1d9e75] flex-shrink-0" />
@@ -81,7 +56,6 @@ export function RightPanel() {
     activeDocumentLoading,
     clearTerminal,
     liveOutputContent,
-    liveOutputLanguage,
     liveOutputTitle,
     openDocument,
     recentPaths,
@@ -93,7 +67,6 @@ export function RightPanel() {
       activeDocumentLoading: state.activeDocumentLoading,
       clearTerminal: state.clearTerminal,
       liveOutputContent: state.liveOutputContent,
-      liveOutputLanguage: state.liveOutputLanguage,
       liveOutputTitle: state.liveOutputTitle,
       openDocument: state.openDocument,
       recentPaths: state.recentPaths,
@@ -151,22 +124,21 @@ export function RightPanel() {
                   Loading…
                 </div>
               ) : (
-                <SyntaxHighlighter
-                  language={liveOutputLanguage}
-                  style={atomOneDark}
-                  customStyle={{
-                    background: 'var(--bg-primary)',
-                    margin: 0,
-                    padding: '16px',
-                    minHeight: '100%',
-                    fontSize: 11,
-                    lineHeight: 1.6,
-                  }}
-                  showLineNumbers
-                  lineNumberStyle={{ color: 'var(--border-color)', fontSize: 10 }}
-                >
+                <pre style={{
+                  background: 'var(--bg-primary)',
+                  margin: 0,
+                  padding: '16px',
+                  minHeight: '100%',
+                  fontSize: 11,
+                  lineHeight: 1.6,
+                  color: 'var(--text-primary)',
+                  overflow: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  fontFamily: 'monospace',
+                }}>
                   {liveOutputContent || '// No output yet.'}
-                </SyntaxHighlighter>
+                </pre>
               )}
             </div>
           </div>
