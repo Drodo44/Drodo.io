@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import { useAppStore } from './store/appStore'
 import { Sidebar } from './components/layout/Sidebar'
 import { TopBar } from './components/layout/TopBar'
@@ -28,6 +29,7 @@ import { withErrorBoundary } from './components/ui/ErrorBoundary'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
+import { supabase } from './lib/supabase'
 import { syncUserData } from './lib/syncToSupabase'
 import { checkForUpdates } from './lib/updater'
 import { startBotPolling, stopBotPolling } from './lib/botRunner'
@@ -92,6 +94,38 @@ function App() {
 
   useEffect(() => {
     applyThemeClass(getStoredTheme())
+  }, [])
+
+  useEffect(() => {
+    let isActive = true
+    let cleanup: (() => void) | undefined
+
+    void onOpenUrl((urls) => {
+      for (const url of urls) {
+        if (url.startsWith('drodo://auth/callback')) {
+          const hash = url.split('#')[1]
+          if (hash) {
+            const params = new URLSearchParams(hash)
+            const access_token = params.get('access_token')
+            const refresh_token = params.get('refresh_token')
+            if (access_token && refresh_token) {
+              void supabase.auth.setSession({ access_token, refresh_token })
+            }
+          }
+        }
+      }
+    }).then(unlisten => {
+      if (!isActive) {
+        unlisten()
+        return
+      }
+      cleanup = unlisten
+    })
+
+    return () => {
+      isActive = false
+      cleanup?.()
+    }
   }, [])
 
   useEffect(() => {
