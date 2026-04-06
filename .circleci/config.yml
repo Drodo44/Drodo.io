@@ -48,7 +48,8 @@ jobs:
           name: Install Rust
           shell: powershell.exe
           command: |
-            choco install rust -y
+            Invoke-WebRequest -Uri https://win.rustup.rs -OutFile rustup-init.exe
+            .\rustup-init.exe -y --default-toolchain stable --profile minimal
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
             rustup target add x86_64-pc-windows-msvc
       - run:
@@ -79,8 +80,8 @@ jobs:
 
   build-macos-intel:
     macos:
-      xcode: "15.0.0"
-    resource_class: macos.m1.medium.gen1
+      xcode: "15.2.0"
+    resource_class: macos.x86.medium.gen2
     steps:
       - checkout
       - run:
@@ -132,7 +133,7 @@ jobs:
 
   build-macos-arm:
     macos:
-      xcode: "15.0.0"
+      xcode: "15.2.0"
     resource_class: macos.m1.medium.gen1
     steps:
       - checkout
@@ -186,14 +187,16 @@ jobs:
   build-linux:
     machine:
       image: ubuntu-2204:current
+    environment:
+      DEBIAN_FRONTEND: noninteractive
     resource_class: medium
     steps:
       - checkout
       - run:
           name: Install system dependencies
           command: |
-            sudo apt-get update
-            sudo apt-get install -y \
+            DEBIAN_FRONTEND=noninteractive sudo apt-get update
+            DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
               libwebkit2gtk-4.1-dev \
               libappindicator3-dev \
               librsvg2-dev \
