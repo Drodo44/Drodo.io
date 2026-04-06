@@ -77,10 +77,12 @@ jobs:
                 $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/tags/$tag" -Headers $headers
               }
             }
-            $uploadUrl = ($release.upload_url -replace '\{\?name,label\}$', '')
             $exePath = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" | Select-Object -First 1
             if ($exePath) {
-              $assetUploadUrl = "$uploadUrl?name=$($exePath.Name)"
+              $assetName = $exePath.Name
+              $assetUploadUrl = $release.upload_url
+              $assetUploadUrl = $assetUploadUrl -replace '\{[^}]*\}', ''
+              $assetUploadUrl = "$assetUploadUrl?name=$assetName"
               Invoke-RestMethod -Uri $assetUploadUrl -Method Post -Headers @{Authorization = "Bearer $token"; Accept = "application/vnd.github+json"; "Content-Type" = "application/octet-stream"} -InFile $exePath.FullName
             }
 
@@ -163,7 +165,7 @@ jobs:
               exit 1
             fi
 
-            UPLOAD_URL=$(echo "$RELEASE_BODY" | python3 -c "import sys,json; print(json.load(sys.stdin)['upload_url'].split('{')[0])")
+            UPLOAD_URL=$(echo "$RELEASE_BODY" | python3 -c "import sys,json,re; print(re.sub(r'\{[^}]*\}', '', json.load(sys.stdin)['upload_url']))")
 
             APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
             if [ -n "$APPIMAGE" ]; then
