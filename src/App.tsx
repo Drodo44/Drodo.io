@@ -100,6 +100,9 @@ function App() {
     let isActive = true
     let cleanup: (() => void) | undefined
 
+    const isTauri = '__TAURI_INTERNALS__' in window
+    if (!isTauri) return
+
     void onOpenUrl((urls) => {
       for (const url of urls) {
         if (url.startsWith('drodo://auth/callback')) {
