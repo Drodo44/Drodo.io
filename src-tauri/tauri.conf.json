@@ -1,4 +1,4 @@
-h{
+{
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Drodo",
     "version": "1.2.5",
