@@ -31,7 +31,6 @@ import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
 import { supabase } from './lib/supabase'
 import { syncUserData } from './lib/syncToSupabase'
-import { checkForUpdates } from './lib/updater'
 import { startBotPolling, stopBotPolling } from './lib/botRunner'
 
 function AgentWorkspace() {
