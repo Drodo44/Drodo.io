@@ -1,5 +1,5 @@
 import type { Message, Provider } from '../types'
-import { normalizeUrl } from './providerApi'
+import { normalizeUrl, proxyFetch } from './providerApi'
 
 type ChunkCallback = (text: string) => void
 type DoneCallback = (fullText: string) => void
@@ -187,7 +187,7 @@ async function completeOpenAICompatible(
   messages: Message[],
   signal?: AbortSignal
 ): Promise<string> {
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await proxyFetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     signal,
     headers: {
@@ -218,7 +218,7 @@ async function streamOpenAICompatible(
   onChunk: ChunkCallback,
   signal: AbortSignal
 ): Promise<void> {
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  const response = await proxyFetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     signal,
     headers: {
@@ -264,7 +264,7 @@ async function completeAnthropic(
   const endpoint = baseUrl.includes('/v1') ? `${baseUrl}/messages` : `${baseUrl}/v1/messages`
   const anthropicInput = toAnthropicInput(messages)
 
-  const response = await fetch(endpoint, {
+  const response = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: {
@@ -300,7 +300,7 @@ async function streamAnthropic(
   const endpoint = baseUrl.includes('/v1') ? `${baseUrl}/messages` : `${baseUrl}/v1/messages`
   const anthropicInput = toAnthropicInput(messages)
 
-  const response = await fetch(endpoint, {
+  const response = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: {
@@ -349,7 +349,7 @@ async function completeGemini(
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${provider.apiKey ?? ''}`
   const geminiInput = toGeminiInput(messages)
 
-  const response = await fetch(endpoint, {
+  const response = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: { 'Content-Type': 'application/json' },
@@ -376,7 +376,7 @@ async function streamGemini(
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${provider.apiKey ?? ''}`
   const geminiInput = toGeminiInput(messages)
 
-  const response = await fetch(endpoint, {
+  const response = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: { 'Content-Type': 'application/json' },

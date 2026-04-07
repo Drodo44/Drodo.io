@@ -13,7 +13,7 @@ interface SavedConfig {
 
 export const PROVIDER_CATALOG: Provider[] = [
   { id: 'nvidia', name: 'NVIDIA NIM', baseUrl: 'integrate.api.nvidia.com/v1', color: '#76b900', initials: 'NV' },
-  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'openrouter.ai/api/v1', color: '#6366f1', initials: 'OR', model: 'openai/gpt-4o' },
+  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'openrouter.ai/api/v1', color: '#6366f1', initials: 'OR', model: 'mistralai/mistral-7b-instruct:free' },
   { id: 'anthropic', name: 'Anthropic', baseUrl: 'api.anthropic.com', color: '#cc785c', initials: 'AN', model: 'claude-sonnet-4-6' },
   { id: 'openai', name: 'OpenAI', baseUrl: 'api.openai.com/v1', color: '#10a37f', initials: 'OA', model: 'gpt-4o' },
   { id: 'gemini', name: 'Google Gemini', baseUrl: 'generativelanguage.googleapis.com', color: '#4285f4', initials: 'GG', model: 'gemini-2.0-flash' },
@@ -121,6 +121,33 @@ export function getConnectedProviders(): Provider[] {
     .filter(provider => provider.isLocal || !!provider.apiKey)
 }
 
+// ─── CORS proxy ──────────────────────────────────────────────────────────────
+
+const PROXY_URL = 'https://povfsxttqhconkvznmwq.supabase.co/functions/v1/proxy-llm'
+
+function isLocalUrl(url: string): boolean {
+  return url.includes('localhost') || url.includes('127.0.0.1')
+}
+
+export async function proxyFetch(
+  targetUrl: string,
+  init: { method: string; headers: Record<string, string>; body: string; signal?: AbortSignal }
+): Promise<Response> {
+  if (isLocalUrl(targetUrl)) {
+    return fetch(targetUrl, init)
+  }
+  return fetch(PROXY_URL, {
+    method: 'POST',
+    signal: init.signal,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      targetUrl,
+      headers: init.headers,
+      body: JSON.parse(init.body),
+    }),
+  })
+}
+
 // ─── URL normalization ────────────────────────────────────────────────────────
 
 export function normalizeUrl(raw: string): string {
@@ -182,7 +209,7 @@ async function testOpenAICompatible(
   model: string,
   signal?: AbortSignal
 ): Promise<TestResult> {
-  const res = await fetch(`${baseUrl}/chat/completions`, {
+  const res = await proxyFetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     signal,
     headers: {
@@ -208,7 +235,7 @@ async function testAnthropic(
   signal?: AbortSignal
 ): Promise<TestResult> {
   const endpoint = baseUrl.includes('/v1') ? `${baseUrl}/messages` : `${baseUrl}/v1/messages`
-  const res = await fetch(endpoint, {
+  const res = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: {
@@ -235,7 +262,7 @@ async function testGemini(
   signal?: AbortSignal
 ): Promise<TestResult> {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
-  const res = await fetch(endpoint, {
+  const res = await proxyFetch(endpoint, {
     method: 'POST',
     signal,
     headers: { 'Content-Type': 'application/json' },
