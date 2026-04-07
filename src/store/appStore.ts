@@ -14,6 +14,7 @@ import { streamCompletion } from '../lib/streamChat'
 import {
   buildProvider,
   getConnectedProviders,
+  getAllSavedModels,
   loadAllSavedConfigs,
   saveProviderConfig,
 } from '../lib/providerApi'
@@ -186,6 +187,21 @@ function selectProvider(preferredId: string | undefined, activeProvider: Provide
   return connected[index % connected.length]
 }
 
+function resolveProviderForModel(model: string | undefined, fallback: Provider): Provider {
+  if (!model) return fallback
+
+  const match = getAllSavedModels().find(entry => entry.model.id === model || entry.model.label === model)
+  if (!match) return { ...fallback, model }
+
+  const provider = buildProvider(match.providerId)
+  if (!provider) return { ...fallback, model }
+
+  return {
+    ...provider,
+    model: match.model.id,
+  }
+}
+
 function fallbackSubtasks(goal: string) {
   return [
     { name: 'Planner', task: `Inspect the workspace and outline the implementation plan for: ${goal}` },
@@ -243,7 +259,7 @@ interface AppState {
   addMessage: (message: Message) => void
   sendMessage: (content: string) => void
   stopAll: () => void
-  spawnAgent: (task?: string, providerId?: string, name?: string) => Promise<void>
+  spawnAgent: (task?: string, providerId?: string, name?: string, model?: string) => Promise<void>
   launchSwarm: (goal?: string) => Promise<void>
   stopAgent: (id: string) => void
   setConnectorConnected: (id: string, connected: boolean) => void
@@ -379,10 +395,12 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // Create an AgentInstance for each orchestration step
       const stepAgentIds: Record<string, string> = {}
+      const stepProviders = new Map<string, Provider>()
       for (let i = 0; i < plan.agents.length; i++) {
         const step = plan.agents[i]
         const agentId = `orch-${runId}-step-${i}`
-        const agentProvider = selectProvider(undefined, provider, i)
+        const agentProvider = resolveProviderForModel(step.model, selectProvider(undefined, provider, i))
+        stepProviders.set(step.id, agentProvider)
         const agent: AgentInstance = {
           id: agentId,
           name: step.templateName,
@@ -478,6 +496,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             ],
           }))
         },
+        step => stepProviders.get(step.id) ?? provider,
       )
 
       activeOrchestrationAbort = abort
@@ -769,7 +788,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     activePrimaryRun = handle
   },
 
-  spawnAgent: async (task, providerId, name) => {
+  spawnAgent: async (task, providerId, name, model) => {
     const state = get()
     const agentTask =
       task?.trim() ||
@@ -778,7 +797,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       state.sessionName
 
     const agentId = `agent-${agentCounter++}`
-    const provider = selectProvider(providerId, state.activeProvider, agentCounter)
+    const selectedProvider = selectProvider(providerId, state.activeProvider, agentCounter)
+    const provider = model ? { ...selectedProvider, model } : selectedProvider
     const conversation = [
       createMessage('system', 'You are a Drodo swarm worker. Focus only on the assigned subtask.'),
       createMessage('user', agentTask),
@@ -789,7 +809,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       name: name?.trim() || `Agent ${agentCounter - 1}`,
       providerId: provider.id,
       providerName: provider.name,
-      model: provider.model ?? provider.name,
+      model: model ?? provider.model ?? provider.name,
       task: agentTask,
       status: 'running',
       tokens: 0,

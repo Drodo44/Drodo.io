@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Play, Workflow, Copy, X, Target } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import { notify } from '../lib/notifications'
+import { getAllSavedModels } from '../lib/providerApi'
 import { streamCompletion } from '../lib/streamChat'
 import type { AgentInstance, OrchestrationRun } from '../types'
 
@@ -38,6 +39,13 @@ interface WorkflowModalState {
   sourceOutput: string
 }
 
+interface ModelOption {
+  key: string
+  providerId: string
+  modelId: string
+  label: string
+}
+
 // ─── Simulation data ──────────────────────────────────────────────────────────
 
 const THINKING_LABELS = [
@@ -66,22 +74,8 @@ const STREAM_LABELS = [
 
 const LOG_SEQUENCE: LogType[] = ['thinking', 'tool_call', 'tool_result', 'thinking', 'stream']
 
-const RANDOM_NAMES = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta']
-const RANDOM_TASKS = [
-  'Analyze competitor pricing data and summarize findings',
-  'Review and improve test coverage for core modules',
-  'Research latest developments in transformer architectures',
-  'Draft technical documentation for the API endpoints',
-  'Audit security vulnerabilities in the authentication flow',
-  'Optimize database query performance for analytics',
-  'Generate comprehensive test cases for the payment module',
-  'Summarize recent papers on multi-agent coordination',
-]
-const RANDOM_MODELS = ['claude-sonnet-4-6', 'gpt-4o', 'gemini-2.0-flash', 'llama-3.3-70b']
 const COMPLETE_AFTER_EVENTS = 8
 const N8N_SYSTEM_PROMPT = 'You are an n8n workflow expert. Convert the following task and output into a valid n8n workflow JSON that accomplishes the same goal permanently and repeatably. Return ONLY valid n8n workflow JSON, nothing else.'
-
-function randomFrom<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 
 function getLabelForType(type: LogType, index: number): string {
   switch (type) {
@@ -106,22 +100,6 @@ const STATUS_AVATAR_COLOR: Record<AgentStatus, string> = {
   complete: '#1d9e75',
   idle: 'var(--text-secondary)',
   error: '#e05050',
-}
-
-let agentSeq = 1
-
-function createLocalAgent(): LocalAgent {
-  const n = agentSeq++
-  const nameIndex = (n - 1) % RANDOM_NAMES.length
-  return {
-    id: `local-${n}-${Date.now()}`,
-    name: RANDOM_NAMES[nameIndex],
-    task: randomFrom(RANDOM_TASKS),
-    model: randomFrom(RANDOM_MODELS),
-    status: 'idle',
-    tokens: 0,
-    startedAt: null,
-  }
 }
 
 function formatElapsed(seconds: number): string {
@@ -444,6 +422,115 @@ function WorkflowHandoffModal({
   )
 }
 
+function SpawnAgentModal({
+  name,
+  task,
+  selectedModel,
+  modelOptions,
+  onClose,
+  onNameChange,
+  onTaskChange,
+  onModelChange,
+  onSubmit,
+}: {
+  name: string
+  task: string
+  selectedModel: string
+  modelOptions: ModelOption[]
+  onClose: () => void
+  onNameChange: (value: string) => void
+  onTaskChange: (value: string) => void
+  onModelChange: (value: string) => void
+  onSubmit: () => void
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-6 py-8"
+      style={{ background: 'rgba(0, 0, 0, 0.55)', backdropFilter: 'blur(8px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-xl rounded-2xl border overflow-hidden"
+        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+        onClick={event => event.stopPropagation()}
+      >
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ borderBottom: '1px solid var(--border-color)' }}
+        >
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Spawn Agent</h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
+              Pick a model and launch a worker into the swarm.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Agent Name</label>
+            <input
+              value={name}
+              onChange={event => onNameChange(event.target.value)}
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60"
+              placeholder="Research Analyst"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Task</label>
+            <textarea
+              value={task}
+              onChange={event => onTaskChange(event.target.value)}
+              className="min-h-[120px] w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60"
+              placeholder="Describe the work this agent should handle..."
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Model</label>
+            <select
+              value={selectedModel}
+              onChange={event => onModelChange(event.target.value)}
+              className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60"
+            >
+              {modelOptions.map(option => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onSubmit}
+              disabled={!task.trim()}
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: '#7f77dd' }}
+            >
+              <Plus size={14} />
+              Spawn Agent
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Orchestration Banner ─────────────────────────────────────────────────────
 
 const STATUS_LABEL: Record<OrchestrationRun['status'], string> = {
@@ -526,9 +613,15 @@ const AGENT_STATUS_COLOR: Record<string, string> = {
   error: '#e05050',
 }
 
-function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
+function ManagedAgentCard({
+  agent,
+  onStop,
+}: {
+  agent: AgentInstance
+  onStop?: () => void
+}) {
   const color = AGENT_STATUS_COLOR[agent.status] ?? 'var(--text-secondary)'
-  const stepNum = agent.orchestrationStepIndex ?? 0
+  const stepNum = agent.orchestrationStepIndex
 
   return (
     <div
@@ -549,12 +642,14 @@ function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
           >
             {agent.name.slice(0, 2).toUpperCase()}
           </div>
-          <span
-            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
-            style={{ background: '#7f77dd' }}
-          >
-            {stepNum}
-          </span>
+          {stepNum != null && (
+            <span
+              className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+              style={{ background: '#7f77dd' }}
+            >
+              {stepNum}
+            </span>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -574,6 +669,15 @@ function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
             <span className="font-mono">{agent.tokens.toLocaleString()} tok</span>
           </div>
         </div>
+        {onStop && agent.status === 'running' && (
+          <button
+            onClick={onStop}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[#e05050]/20 text-[#e05050] bg-[#e05050]/10 hover:bg-[#e05050]/20 transition-colors"
+          >
+            <Square size={10} />
+            Stop
+          </button>
+        )}
       </div>
 
       {/* Task / lastUpdate */}
@@ -587,7 +691,9 @@ function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
 
       <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--border-color)]">
         <span className="text-xs text-[var(--text-muted)] font-mono">{agent.model}</span>
-        <span className="text-xs text-[var(--text-muted)]">Step {stepNum}</span>
+        <span className="text-xs text-[var(--text-muted)]">
+          {stepNum != null ? `Step ${stepNum}` : agent.providerName}
+        </span>
       </div>
     </div>
   )
@@ -596,9 +702,10 @@ function OrchestrationAgentCard({ agent }: { agent: AgentInstance }) {
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentSwarmView() {
-  const { stopAgentStore, activeProvider, orchestrationRun, storeAgents, setOrchestrationRun } = useAppStore(
+  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, setOrchestrationRun } = useAppStore(
     useShallow(s => ({
       stopAgentStore: s.stopAgent,
+      spawnAgentStore: s.spawnAgent,
       activeProvider: s.activeProvider,
       orchestrationRun: s.orchestrationRun,
       storeAgents: s.agents,
@@ -614,6 +721,10 @@ export function AgentSwarmView() {
   const [workflowGenerationRunning, setWorkflowGenerationRunning] = useState(false)
   const [workflowGenerationError, setWorkflowGenerationError] = useState<string | null>(null)
   const [n8nImportStatus, setN8nImportStatus] = useState<string | null>(null)
+  const [spawnModalOpen, setSpawnModalOpen] = useState(false)
+  const [spawnName, setSpawnName] = useState('')
+  const [spawnTask, setSpawnTask] = useState('')
+  const [selectedModelKey, setSelectedModelKey] = useState('')
   const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
 
   // Intervals and cycle counters per agent
@@ -643,6 +754,37 @@ export function AgentSwarmView() {
       workflowStreamRef.current?.abort()
     }
   }, [])
+
+  const modelOptions = useMemo(() => {
+    const defaultModel = activeProvider.model ?? activeProvider.name
+    const options: ModelOption[] = [
+      {
+        key: `${activeProvider.id}::${defaultModel}`,
+        providerId: activeProvider.id,
+        modelId: defaultModel,
+        label: `${activeProvider.name} — ${defaultModel}`,
+      },
+    ]
+
+    for (const entry of getAllSavedModels()) {
+      const key = `${entry.providerId}::${entry.model.id}`
+      if (options.some(option => option.key === key)) continue
+      options.push({
+        key,
+        providerId: entry.providerId,
+        modelId: entry.model.id,
+        label: `${entry.providerName} — ${entry.model.label}`,
+      })
+    }
+
+    return options
+  }, [activeProvider])
+
+  useEffect(() => {
+    if (!modelOptions.some(option => option.key === selectedModelKey)) {
+      setSelectedModelKey(modelOptions[0]?.key ?? '')
+    }
+  }, [modelOptions, selectedModelKey])
 
   const addLog = useCallback((agentId: string, agentName: string, type: LogType, label: string) => {
     const entry: LogEntry = {
@@ -710,8 +852,10 @@ export function AgentSwarmView() {
   }, [])
 
   const handleSpawnAgent = () => {
-    const agent = createLocalAgent()
-    setAgents(prev => [...prev, agent])
+    setSpawnName('')
+    setSpawnTask('')
+    setSelectedModelKey(modelOptions[0]?.key ?? '')
+    setSpawnModalOpen(true)
   }
 
   const handleRun = (agentId: string) => {
@@ -838,7 +982,25 @@ export function AgentSwarmView() {
     }
   }
 
-  const runningCount = agents.filter(a => a.status === 'running').length
+  const handleSubmitSpawn = () => {
+    const selectedModel = modelOptions.find(option => option.key === selectedModelKey) ?? modelOptions[0]
+    if (!selectedModel || !spawnTask.trim()) return
+
+    void spawnAgentStore(
+      spawnTask.trim(),
+      selectedModel.providerId,
+      spawnName.trim() || undefined,
+      selectedModel.modelId,
+    )
+    setSpawnModalOpen(false)
+    setSpawnName('')
+    setSpawnTask('')
+  }
+
+  const visibleStoreAgents = storeAgents.filter(agent => !agent.orchestrator)
+  const runningCount =
+    agents.filter(a => a.status === 'running').length +
+    visibleStoreAgents.filter(agent => agent.status === 'running').length
 
   return (
     <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
@@ -858,7 +1020,7 @@ export function AgentSwarmView() {
               <div className="flex items-center gap-2 mt-0.5">
                 <Activity size={11} className="text-[var(--text-secondary)]" />
                 <span className="text-xs text-[var(--text-secondary)]">
-                  {runningCount} running · {agents.length} total
+                  {runningCount} running · {agents.length + visibleStoreAgents.length} total
                 </span>
               </div>
             </div>
@@ -884,7 +1046,7 @@ export function AgentSwarmView() {
 
         {/* Agent grid */}
         <div className="flex-1 overflow-y-auto p-5">
-          {agents.length === 0 && storeAgents.filter(a => a.orchestrationStepIndex != null).length === 0 ? (
+          {agents.length === 0 && visibleStoreAgents.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
                 <Zap size={28} className="text-[var(--text-secondary)]" />
@@ -906,11 +1068,13 @@ export function AgentSwarmView() {
             </div>
           ) : (
             <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-              {/* Orchestration agents from store */}
-              {storeAgents
-                .filter(a => a.orchestrationStepIndex != null)
+              {visibleStoreAgents
                 .map(agent => (
-                  <OrchestrationAgentCard key={agent.id} agent={agent} />
+                  <ManagedAgentCard
+                    key={agent.id}
+                    agent={agent}
+                    onStop={agent.orchestrationStepIndex == null ? () => stopAgentStore(agent.id) : undefined}
+                  />
                 ))}
               {/* Local simulation agents */}
               {agents.map(agent => (
@@ -998,6 +1162,19 @@ export function AgentSwarmView() {
           onGenerate={handleGenerateWorkflow}
           onCopy={handleCopyWorkflowJson}
           onImport={() => void handleImportToN8n()}
+        />
+      )}
+      {spawnModalOpen && (
+        <SpawnAgentModal
+          name={spawnName}
+          task={spawnTask}
+          selectedModel={selectedModelKey}
+          modelOptions={modelOptions}
+          onClose={() => setSpawnModalOpen(false)}
+          onNameChange={setSpawnName}
+          onTaskChange={setSpawnTask}
+          onModelChange={setSelectedModelKey}
+          onSubmit={handleSubmitSpawn}
         />
       )}
     </div>

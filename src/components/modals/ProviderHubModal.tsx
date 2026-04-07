@@ -5,12 +5,16 @@ import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import {
+  addSavedModel,
+  getSavedModels,
   getProviderCatalog,
   loadProviderConfig,
   normalizeUrl,
+  removeSavedModel,
   saveProviderConfig,
   testConnection,
 } from '../../lib/providerApi'
+import type { SavedModel } from '../../lib/providerApi'
 import type { Provider } from '../../types'
 
 type TestState = 'idle' | 'testing' | 'success' | 'error'
@@ -28,6 +32,9 @@ export function ProviderHubModal() {
   const [apiKey, setApiKey] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
   const [model, setModel] = useState('')
+  const [savedModels, setSavedModels] = useState<SavedModel[]>([])
+  const [newModelId, setNewModelId] = useState('')
+  const [newModelLabel, setNewModelLabel] = useState('')
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
   const [saveError, setSaveError] = useState('')
@@ -46,6 +53,9 @@ export function ProviderHubModal() {
       setBaseUrl(selected.baseUrl)
       setModel(selected.model ?? '')
     }
+    setSavedModels(getSavedModels(selectedId))
+    setNewModelId('')
+    setNewModelLabel('')
     setTestState('idle')
     setTestMessage('')
     setSaveError('')
@@ -92,6 +102,25 @@ export function ProviderHubModal() {
     })
     setSaveError('')
     setProviderHubOpen(false)
+  }
+
+  const handleAddSavedModel = () => {
+    if (!newModelId.trim()) return
+
+    const nextModel = {
+      id: newModelId.trim(),
+      label: newModelLabel.trim() || newModelId.trim(),
+    }
+
+    addSavedModel(selectedId, nextModel)
+    setSavedModels(getSavedModels(selectedId))
+    setNewModelId('')
+    setNewModelLabel('')
+  }
+
+  const handleRemoveSavedModel = (modelId: string) => {
+    removeSavedModel(selectedId, modelId)
+    setSavedModels(getSavedModels(selectedId))
   }
 
   return (
@@ -248,6 +277,57 @@ export function ProviderHubModal() {
                   className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                   placeholder="model-name"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-[var(--text-muted)]">Saved Models</label>
+                <div className="flex flex-wrap gap-2">
+                  {savedModels.length > 0 ? savedModels.map(savedModel => (
+                    <div
+                      key={savedModel.id}
+                      className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
+                      style={{ borderColor: 'var(--border-color)', background: 'var(--bg-primary)' }}
+                    >
+                      <span className="text-[var(--text-primary)]">
+                        {savedModel.label}
+                        {savedModel.label !== savedModel.id && (
+                          <span className="ml-1 font-mono text-[var(--text-secondary)]">{savedModel.id}</span>
+                        )}
+                      </span>
+                      <button
+                        onClick={() => handleRemoveSavedModel(savedModel.id)}
+                        className="text-[var(--text-secondary)] hover:text-[#e05050] transition-colors"
+                        aria-label={`Remove ${savedModel.label}`}
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-[var(--text-secondary)]">No saved models yet.</p>
+                  )}
+                </div>
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2">
+                  <input
+                    value={newModelId}
+                    onChange={e => setNewModelId(e.target.value)}
+                    className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                    placeholder="Model id"
+                  />
+                  <input
+                    value={newModelLabel}
+                    onChange={e => setNewModelLabel(e.target.value)}
+                    className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                    placeholder="Label (optional)"
+                  />
+                  <button
+                    onClick={handleAddSavedModel}
+                    disabled={!newModelId.trim()}
+                    className="px-3 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ background: '#7f77dd' }}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
 
               {/* Test result message */}

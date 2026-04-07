@@ -23,6 +23,7 @@ import {
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
+import { getAllSavedModels } from '../lib/providerApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,13 @@ interface AgentTemplate {
   color: string
   Icon: LucideIcon
   task: string
+}
+
+interface ModelOption {
+  key: string
+  providerId: string
+  modelId: string
+  label: string
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────
@@ -218,13 +226,17 @@ const TEMPLATES: AgentTemplate[] = [
 
 function TemplateCard({
   template,
+  modelOptions,
   onDeploy,
 }: {
   template: AgentTemplate
-  onDeploy: () => void
+  modelOptions: ModelOption[]
+  onDeploy: (optionKey: string) => void
 }) {
   const { Icon } = template
   const catColor = CATEGORY_COLORS[template.category] ?? '#7f77dd'
+  const [selectedOption, setSelectedOption] = useState(modelOptions[0]?.key ?? '')
+  const activeOption = modelOptions.find(option => option.key === selectedOption) ?? modelOptions[0]
 
   return (
     <div className="flex flex-col gap-3 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
@@ -253,13 +265,26 @@ function TemplateCard({
       {/* Footer */}
       <div className="flex items-center justify-between gap-2 pt-1">
         <span className="text-xs text-[var(--text-muted)] font-mono">Best with: {template.model}</span>
-        <button
-          onClick={onDeploy}
-          className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all active:scale-95"
-          style={{ background: template.color }}
-        >
-          Deploy →
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={activeOption?.key ?? ''}
+            onChange={e => setSelectedOption(e.target.value)}
+            className="max-w-[180px] rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none"
+          >
+            {modelOptions.map(option => (
+              <option key={option.key} value={option.key}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => activeOption && onDeploy(activeOption.key)}
+            className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all active:scale-95"
+            style={{ background: template.color }}
+          >
+            Deploy →
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -268,10 +293,39 @@ function TemplateCard({
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentTemplatesView() {
-  const { spawnAgent, setView } = useAppStore(useShallow(s => ({ spawnAgent: s.spawnAgent, setView: s.setView })))
+  const { spawnAgent, setView, activeProvider } = useAppStore(useShallow(s => ({
+    spawnAgent: s.spawnAgent,
+    setView: s.setView,
+    activeProvider: s.activeProvider,
+  })))
 
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
+
+  const modelOptions = useMemo(() => {
+    const defaultModel = activeProvider.model ?? activeProvider.name
+    const options: ModelOption[] = [
+      {
+        key: `${activeProvider.id}::${defaultModel}`,
+        providerId: activeProvider.id,
+        modelId: defaultModel,
+        label: `${activeProvider.name} — ${defaultModel}`,
+      },
+    ]
+
+    for (const entry of getAllSavedModels()) {
+      const key = `${entry.providerId}::${entry.model.id}`
+      if (options.some(option => option.key === key)) continue
+      options.push({
+        key,
+        providerId: entry.providerId,
+        modelId: entry.model.id,
+        label: `${entry.providerName} — ${entry.model.label}`,
+      })
+    }
+
+    return options
+  }, [activeProvider])
 
   const filtered = useMemo(() => {
     let list = TEMPLATES
@@ -285,8 +339,11 @@ export function AgentTemplatesView() {
     return list
   }, [activeCategory, search])
 
-  const handleDeploy = (template: AgentTemplate) => {
-    void spawnAgent(template.task, undefined, template.name)
+  const handleDeploy = (template: AgentTemplate, optionKey: string) => {
+    const option = modelOptions.find(item => item.key === optionKey) ?? modelOptions[0]
+    if (!option) return
+
+    void spawnAgent(template.task, option.providerId, template.name, option.modelId)
     setView('swarm')
   }
 
@@ -380,7 +437,12 @@ export function AgentTemplatesView() {
               <p className="text-xs text-[var(--text-muted)] mb-4">{filtered.length} template{filtered.length !== 1 ? 's' : ''}</p>
               <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
                 {filtered.map(t => (
-                  <TemplateCard key={t.id} template={t} onDeploy={() => handleDeploy(t)} />
+                  <TemplateCard
+                    key={t.id}
+                    template={t}
+                    modelOptions={modelOptions}
+                    onDeploy={optionKey => handleDeploy(t, optionKey)}
+                  />
                 ))}
               </div>
             </>

@@ -89,6 +89,7 @@ export async function runOrchestration(
   onStepComplete: (stepId: string, output: string) => void,
   onComplete: (run: OrchestrationRun) => void,
   onError: (error: string) => void,
+  resolveProvider?: (step: OrchestrationStep) => Provider,
 ): Promise<() => void> {
   let aborted = false
   let currentAbort: (() => void) | null = null
@@ -117,12 +118,13 @@ export async function runOrchestration(
           ),
           msg('user', `${context}Your specific task: ${step.specificTask}`),
         ]
+        const stepProvider = resolveProvider?.(step) ?? provider
 
         let accumulated = ''
 
         await new Promise<void>((resolve, reject) => {
           const handle = streamCompletion(
-            provider,
+            stepProvider,
             messages,
             chunk => {
               accumulated += chunk

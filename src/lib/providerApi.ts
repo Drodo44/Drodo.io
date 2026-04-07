@@ -5,10 +5,16 @@ import { decryptStoredKey, encryptStoredKey } from './encryption'
 
 const STORAGE_KEY = 'drodo_provider_configs'
 
+export interface SavedModel {
+  id: string
+  label: string
+}
+
 interface SavedConfig {
   apiKey: string
   baseUrl: string
   model: string
+  savedModels?: SavedModel[]
 }
 
 export const PROVIDER_CATALOG: Provider[] = [
@@ -53,6 +59,28 @@ export function getAllProviders(): Provider[] {
   return [...PROVIDER_CATALOG, ...loadCustomProviders()]
 }
 
+function sanitizeSavedModel(model: SavedModel): SavedModel | null {
+  const id = model.id.trim()
+  if (!id) return null
+  return {
+    id,
+    label: model.label.trim() || id,
+  }
+}
+
+function sanitizeSavedModels(models?: SavedModel[]): SavedModel[] | undefined {
+  if (!models?.length) return undefined
+
+  const deduped = new Map<string, SavedModel>()
+  for (const model of models) {
+    const next = sanitizeSavedModel(model)
+    if (!next) continue
+    deduped.set(next.id, next)
+  }
+
+  return deduped.size > 0 ? [...deduped.values()] : undefined
+}
+
 export function loadAllSavedConfigs(): Record<string, SavedConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -65,6 +93,7 @@ export function loadAllSavedConfigs(): Record<string, SavedConfig> {
         {
           ...config,
           apiKey: decryptStoredKey(config.apiKey ?? ''),
+          savedModels: sanitizeSavedModels(config.savedModels),
         },
       ])
     )
@@ -75,9 +104,16 @@ export function loadAllSavedConfigs(): Record<string, SavedConfig> {
 
 export function saveProviderConfig(id: string, config: SavedConfig): void {
   const all = loadRawSavedConfigs()
+  const existing = all[id]
+  const savedModels = Object.prototype.hasOwnProperty.call(config, 'savedModels')
+    ? sanitizeSavedModels(config.savedModels)
+    : existing?.savedModels
+
   all[id] = {
+    ...existing,
     ...config,
     apiKey: encryptStoredKey(config.apiKey),
+    savedModels,
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
 }
@@ -101,7 +137,7 @@ export function getProviderCatalog(): Provider[] {
 }
 
 export function buildProvider(id: string): Provider | null {
-  const base = PROVIDER_CATALOG.find(provider => provider.id === id)
+  const base = getAllProviders().find(provider => provider.id === id)
   if (!base) return null
 
   const saved = loadProviderConfig(id)
@@ -115,10 +151,52 @@ export function buildProvider(id: string): Provider | null {
 }
 
 export function getConnectedProviders(): Provider[] {
-  return PROVIDER_CATALOG
+  return getAllProviders()
     .map(provider => buildProvider(provider.id))
     .filter((provider): provider is Provider => !!provider)
     .filter(provider => provider.isLocal || !!provider.apiKey)
+}
+
+export function getSavedModels(providerId: string): SavedModel[] {
+  return loadProviderConfig(providerId)?.savedModels ?? []
+}
+
+export function addSavedModel(providerId: string, model: SavedModel): void {
+  const next = sanitizeSavedModel(model)
+  if (!next) return
+
+  const current = loadProviderConfig(providerId) ?? {
+    apiKey: '',
+    baseUrl: '',
+    model: '',
+  }
+
+  saveProviderConfig(providerId, {
+    ...current,
+    savedModels: [...(current.savedModels ?? []).filter(item => item.id !== next.id), next],
+  })
+}
+
+export function removeSavedModel(providerId: string, modelId: string): void {
+  const current = loadProviderConfig(providerId)
+  if (!current) return
+
+  saveProviderConfig(providerId, {
+    ...current,
+    savedModels: (current.savedModels ?? []).filter(model => model.id !== modelId),
+  })
+}
+
+export function getAllSavedModels(): { providerId: string; providerName: string; model: SavedModel }[] {
+  const allSaved = loadAllSavedConfigs()
+
+  return getAllProviders().flatMap(provider =>
+    (allSaved[provider.id]?.savedModels ?? []).map(model => ({
+      providerId: provider.id,
+      providerName: provider.name,
+      model,
+    }))
+  )
 }
 
 // ─── CORS proxy ──────────────────────────────────────────────────────────────

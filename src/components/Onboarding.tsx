@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
-import { Logo } from './ui/Logo'
+import drodoLogo from '../assets/drodo-logo.png'
 import { useAppStore } from '../store/appStore'
 import { loadAllSavedConfigs } from '../lib/providerApi'
 
@@ -126,7 +126,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             className="w-20 h-20 rounded-3xl flex items-center justify-center"
             style={{ background: '#7f77dd18', border: '2px solid #7f77dd30' }}
           >
-            <Logo size={48} />
+            <img src={drodoLogo} alt="Drodo" style={{ width: 48, height: 48 }} />
           </div>
           <div>
             <h1 style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>

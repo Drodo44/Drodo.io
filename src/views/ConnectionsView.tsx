@@ -15,14 +15,18 @@ import {
 import { clsx } from 'clsx'
 import { useAppStore } from '../store/appStore'
 import {
+  addSavedModel,
   deleteCustomProvider,
   getAllProviders,
+  getSavedModels,
   loadProviderConfig,
   normalizeUrl,
+  removeSavedModel,
   saveCustomProvider,
   saveProviderConfig,
   testConnection,
 } from '../lib/providerApi'
+import type { SavedModel } from '../lib/providerApi'
 import type { Provider } from '../types'
 
 type TestState = 'idle' | 'testing' | 'success' | 'error'
@@ -178,6 +182,9 @@ export function ConnectionsView() {
   const [apiKey, setApiKey] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
   const [model, setModel] = useState('')
+  const [savedModels, setSavedModels] = useState<SavedModel[]>([])
+  const [newModelId, setNewModelId] = useState('')
+  const [newModelLabel, setNewModelLabel] = useState('')
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
   const [saved, setSaved] = useState(false)
@@ -205,6 +212,9 @@ export function ConnectionsView() {
     setApiKey(config?.apiKey ?? '')
     setBaseUrl(config?.baseUrl || selected.baseUrl)
     setModel(config?.model || selected.model || '')
+    setSavedModels(getSavedModels(selected.id))
+    setNewModelId('')
+    setNewModelLabel('')
     setTestState('idle')
     setTestMessage('')
     setSaved(false)
@@ -258,6 +268,26 @@ export function ConnectionsView() {
     const updated = sortProviders(getAllProviders())
     setProviders(updated)
     if (selectedId === id) setSelectedId(updated[0]?.id ?? 'anthropic')
+  }
+
+  const handleAddSavedModel = () => {
+    if (!selected || !newModelId.trim()) return
+
+    addSavedModel(selected.id, {
+      id: newModelId.trim(),
+      label: newModelLabel.trim() || newModelId.trim(),
+    })
+    setSavedModels(getSavedModels(selected.id))
+    setNewModelId('')
+    setNewModelLabel('')
+    setSaved(false)
+  }
+
+  const handleRemoveSavedModel = (modelId: string) => {
+    if (!selected) return
+    removeSavedModel(selected.id, modelId)
+    setSavedModels(getSavedModels(selected.id))
+    setSaved(false)
   }
 
   if (!selected) return null
@@ -386,6 +416,57 @@ export function ConnectionsView() {
                 className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
                 placeholder="model-name"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-[var(--text-muted)]">Saved Models</label>
+              <div className="flex flex-wrap gap-2">
+                {savedModels.length > 0 ? savedModels.map(savedModel => (
+                  <div
+                    key={savedModel.id}
+                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
+                    style={{ borderColor: 'var(--border-color)', background: 'var(--bg-secondary)' }}
+                  >
+                    <span className="text-[var(--text-primary)]">
+                      {savedModel.label}
+                      {savedModel.label !== savedModel.id && (
+                        <span className="ml-1 font-mono text-[var(--text-secondary)]">{savedModel.id}</span>
+                      )}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveSavedModel(savedModel.id)}
+                      className="text-[var(--text-secondary)] hover:text-[#e05050] transition-colors"
+                      aria-label={`Remove ${savedModel.label}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )) : (
+                  <p className="text-xs text-[var(--text-secondary)]">No saved models yet.</p>
+                )}
+              </div>
+              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2">
+                <input
+                  value={newModelId}
+                  onChange={e => setNewModelId(e.target.value)}
+                  className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                  placeholder="Model id"
+                />
+                <input
+                  value={newModelLabel}
+                  onChange={e => setNewModelLabel(e.target.value)}
+                  className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                  placeholder="Label (optional)"
+                />
+                <button
+                  onClick={handleAddSavedModel}
+                  disabled={!newModelId.trim()}
+                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: '#7f77dd' }}
+                >
+                  Add
+                </button>
+              </div>
             </div>
 
             {/* Test result */}
