@@ -21,6 +21,7 @@ import {
   Briefcase, Map, ShoppingCart,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -267,7 +268,7 @@ function TemplateCard({
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentTemplatesView() {
-  const { spawnAgent, setView } = useAppStore(s => ({ spawnAgent: s.spawnAgent, setView: s.setView }))
+  const { spawnAgent, setView } = useAppStore(useShallow(s => ({ spawnAgent: s.spawnAgent, setView: s.setView })))
 
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')

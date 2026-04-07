@@ -3,6 +3,7 @@ import {
   BookMarked, Plus, Copy, Check, Edit3, Trash2, ArrowRight, Search, X, ChevronDown,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -354,7 +355,7 @@ function PromptForm({
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function PromptLibraryView() {
-  const { setView, setChatDraft } = useAppStore(s => ({ setView: s.setView, setChatDraft: s.setChatDraft }))
+  const { setView, setChatDraft } = useAppStore(useShallow(s => ({ setView: s.setView, setChatDraft: s.setChatDraft })))
 
   const [prompts, setPrompts] = useState<SavedPrompt[]>(() => {
     const loaded = loadPrompts()

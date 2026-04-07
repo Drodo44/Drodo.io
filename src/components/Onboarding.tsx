@@ -5,6 +5,7 @@ import {
   LineChart, Share2, Star,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { Logo } from './ui/Logo'
 import { useAppStore } from '../store/appStore'
 import { loadAllSavedConfigs } from '../lib/providerApi'
@@ -79,11 +80,11 @@ interface OnboardingScreenProps {
 }
 
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
-  const { setView, spawnAgent, setProviderHubOpen } = useAppStore(s => ({
+  const { setView, spawnAgent, setProviderHubOpen } = useAppStore(useShallow(s => ({
     setView: s.setView,
     spawnAgent: s.spawnAgent,
     setProviderHubOpen: s.setProviderHubOpen,
-  }))
+  })))
 
   const [step, setStep] = useState(0)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
