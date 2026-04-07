@@ -172,7 +172,7 @@ function App() {
 
   useEffect(() => {
     if (!authReady) return
-    void checkForUpdates()
+    // void checkForUpdates() — disabled until updater pubkey is configured
   }, [authReady])
 
   useEffect(() => {

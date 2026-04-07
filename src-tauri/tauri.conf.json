@@ -61,11 +61,9 @@
       }
     },
     "updater": {
-      "active": true,
+      "active": false,
       "pubkey": "",
-      "endpoints": [
-        "https://github.com/Drodo44/Drodo.io/releases/latest/download/latest.json"
-      ]
+      "endpoints": []
     }
   }
 }
