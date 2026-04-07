@@ -6,7 +6,7 @@
 **Connect any AI model. Deploy any agent. Automate anything.**
 *No technical knowledge required.*
 
-[![Download](https://img.shields.io/badge/Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_x64-setup.exe)
+[![Download](https://img.shields.io/badge/Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.8/Drodo_1.2.6_x64-setup.exe)
 [![Release](https://img.shields.io/badge/Version-1.2.0-1d9e75?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/tag/v1.2.0)
 [![License](https://img.shields.io/badge/License-BUSL%201.1-f97316?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Mac%20%7C%20Linux-4285f4?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases)
@@ -234,7 +234,7 @@ This project is licensed under the Business Source License 1.1. Personal and non
 
 | Platform | Download |
 |---|---|
-| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_x64-setup.exe) |
+| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.8/Drodo_1.2.6_x64-setup.exe) |
 | 🐧 Linux (AppImage) | [Drodo_1.0.0_amd64.AppImage](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_amd64.AppImage) |
 | 🍎 macOS | Coming in a future release |
 
@@ -244,3 +244,4 @@ This project is licensed under the Business Source License 1.1. Personal and non
 </div>
 
 > macOS builds are planned for a future release. Windows and Linux builds are available now.
+
