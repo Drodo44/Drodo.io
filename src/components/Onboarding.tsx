@@ -6,13 +6,13 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
-import drodoLogo from '../assets/drodo-logo.png'
 import { useAppStore } from '../store/appStore'
 import { loadAllSavedConfigs } from '../lib/providerApi'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ONBOARDING_KEY = 'drodo_onboarding_complete'
+const drodoLogoUrl = new URL('../assets/drodo-logo.png', import.meta.url).href
 
 export function markOnboardingComplete() {
   localStorage.setItem(ONBOARDING_KEY, '1')
@@ -126,7 +126,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             className="w-20 h-20 rounded-3xl flex items-center justify-center"
             style={{ background: '#7f77dd18', border: '2px solid #7f77dd30' }}
           >
-            <img src={drodoLogo} alt="Drodo" style={{ width: 48, height: 48 }} />
+            <img src={drodoLogoUrl} alt="Drodo" style={{ width: 48, height: 48 }} />
           </div>
           <div>
             <h1 style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>

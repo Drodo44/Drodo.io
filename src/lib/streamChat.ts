@@ -12,6 +12,27 @@ export interface StreamHandle {
 type ProviderType = 'anthropic' | 'gemini' | 'openai-compatible'
 
 const SESSION_READY_MESSAGE = 'Session started. Drodo is ready.'
+const DRODO_IDENTITY_PROMPT = 'You are Drodo, an AI agent platform built by Drodo. Do not identify yourself as any specific AI model or company. You are Drodo.'
+
+function withDrodoIdentity(messages: Message[]): Message[] {
+  const firstRelevantSystem = messages.find(
+    message => message.role === 'system' && message.content !== SESSION_READY_MESSAGE
+  )
+
+  if (firstRelevantSystem?.content.startsWith(DRODO_IDENTITY_PROMPT)) {
+    return messages
+  }
+
+  return [
+    {
+      id: 'system-drodo-identity',
+      role: 'system',
+      content: DRODO_IDENTITY_PROMPT,
+      timestamp: new Date(),
+    },
+    ...messages,
+  ]
+}
 
 function detectType(id: string, baseUrl: string): ProviderType {
   if (id === 'anthropic' || baseUrl.includes('anthropic.com')) return 'anthropic'
@@ -20,12 +41,13 @@ function detectType(id: string, baseUrl: string): ProviderType {
 }
 
 function splitSystemMessages(messages: Message[]) {
-  const system = messages
+  const normalizedMessages = withDrodoIdentity(messages)
+  const system = normalizedMessages
     .filter(message => message.role === 'system' && message.content !== SESSION_READY_MESSAGE)
     .map(message => message.content)
     .join('\n\n')
 
-  const conversation = messages.filter(
+  const conversation = normalizedMessages.filter(
     message => message.role !== 'system' || message.content !== SESSION_READY_MESSAGE
   )
 
@@ -33,7 +55,7 @@ function splitSystemMessages(messages: Message[]) {
 }
 
 function toOpenAIMessages(messages: Message[]) {
-  return messages
+  return withDrodoIdentity(messages)
     .filter(message => message.role !== 'system' || message.content !== SESSION_READY_MESSAGE)
     .map(message => ({
       role: message.role,

@@ -49,6 +49,8 @@ const DONE_PHRASES = [
   "i've finished",
 ]
 
+const DRODO_IDENTITY_PROMPT = 'You are Drodo, an AI agent platform built by Drodo. Do not identify yourself as any specific AI model or company. You are Drodo.'
+
 const INITIAL_TASK_STEPS: TaskStep[] = [
   { id: 'plan', label: 'Analyze request', status: 'pending' },
   { id: 'tools', label: 'Use tools if needed', status: 'pending' },
@@ -660,7 +662,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // Build clean API conversation: system prompt + user/assistant turns only
     const history = state.messages.filter(m => !m.streaming)
     const apiMessages: Message[] = [
-      createMessage('system', 'You are Drodo, a capable desktop AI agent. Be direct, concise, and helpful.'),
+      createMessage('system', `${DRODO_IDENTITY_PROMPT} Be direct, concise, and helpful.`),
       ...history.filter(m => m.role === 'user' || m.role === 'assistant'),
       userMessage,
     ]
