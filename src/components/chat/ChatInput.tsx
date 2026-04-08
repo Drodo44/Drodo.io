@@ -3,6 +3,7 @@ import { Send, Paperclip, Code2, Zap, Square, Users } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
+import { ModelSwitcher } from './ModelSwitcher'
 
 export function ChatInput() {
   const [value, setValue] = useState('')
@@ -145,13 +146,15 @@ export function ChatInput() {
 
         {/* Toolbar */}
         <div className="flex items-center justify-between px-3 pb-2.5 gap-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
               <Paperclip size={15} />
             </button>
             <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
               <Code2 size={15} />
             </button>
+            <div className="w-px h-4 bg-[var(--border-color)]" />
+            <ModelSwitcher />
           </div>
 
           <div className="flex items-center gap-2.5">

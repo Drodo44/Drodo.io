@@ -92,6 +92,14 @@ export interface Session {
   preview: string
 }
 
+export interface ChatSession {
+  id: string
+  name: string
+  messages: Message[]
+  providerId: string
+  modelId: string
+}
+
 export type ProjectStatus = 'active' | 'paused' | 'complete'
 
 export interface Project {

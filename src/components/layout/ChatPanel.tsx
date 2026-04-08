@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import { MessageBubble } from '../chat/MessageBubble'
 import { ChatInput } from '../chat/ChatInput'
+import { ChatSessionTabs } from '../chat/ChatSessionTabs'
 
 export function ChatPanel() {
   const { messages, agentRunning, activeProvider, setView } = useAppStore(
@@ -23,6 +24,9 @@ export function ChatPanel() {
 
   return (
     <div className="flex flex-col flex-1 min-w-0 min-h-0" style={{ background: 'var(--bg-primary)' }}>
+      {/* Session tabs */}
+      <ChatSessionTabs />
+
       {/* Messages scroll area */}
       <div className="flex-1 overflow-y-auto px-6 py-4" style={{ scrollbarGutter: 'stable' }}>
         {messages.map((msg, i) => (

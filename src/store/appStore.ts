@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type {
   AgentInstance,
+  ChatSession,
   Message,
   NavView,
   OrchestrationRun,
@@ -34,6 +35,35 @@ let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: (() => void) | null = null
+
+// ─── Chat session persistence ─────────────────────────────────────────────────
+
+const CHAT_SESSIONS_KEY = 'drodo_chat_sessions'
+const ACTIVE_CHAT_SESSION_KEY = 'drodo_active_chat_session'
+
+function reviveMessages(raw: unknown[]): Message[] {
+  return (raw ?? []).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }))
+}
+
+function persistChatSessions(sessions: ChatSession[], activeId: string): void {
+  try {
+    localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(sessions))
+    localStorage.setItem(ACTIVE_CHAT_SESSION_KEY, activeId)
+  } catch { /* storage full */ }
+}
+
+function loadPersistedChatSessions(): { sessions: ChatSession[]; activeId: string } {
+  try {
+    const raw = localStorage.getItem(CHAT_SESSIONS_KEY)
+    const activeId = localStorage.getItem(ACTIVE_CHAT_SESSION_KEY) ?? ''
+    if (!raw) return { sessions: [], activeId }
+    const parsed = JSON.parse(raw) as ChatSession[]
+    const sessions = parsed.map(s => ({ ...s, messages: reviveMessages(s.messages) }))
+    return { sessions, activeId }
+  } catch {
+    return { sessions: [], activeId: '' }
+  }
+}
 
 const DONE_PHRASES = [
   'task complete',
@@ -179,6 +209,34 @@ function buildDefaultProvider(): Provider {
   )
 }
 
+function initChatSessions(defaultProvider: Provider, defaultMessages: Message[]): {
+  chatSessions: ChatSession[]
+  activeChatSessionId: string
+  messages: Message[]
+  activeProvider: Provider
+} {
+  const { sessions, activeId } = loadPersistedChatSessions()
+
+  if (sessions.length > 0) {
+    const validActiveId = sessions.some(s => s.id === activeId) ? activeId : sessions[0].id
+    const activeSession = sessions.find(s => s.id === validActiveId)!
+    const sessionProvider = buildProvider(activeSession.providerId)
+    const resolvedProvider = sessionProvider
+      ? { ...sessionProvider, model: activeSession.modelId || sessionProvider.model }
+      : defaultProvider
+    return { chatSessions: sessions, activeChatSessionId: validActiveId, messages: activeSession.messages, activeProvider: resolvedProvider }
+  }
+
+  const session: ChatSession = {
+    id: createSessionId(),
+    name: 'Chat 1',
+    messages: defaultMessages,
+    providerId: defaultProvider.id,
+    modelId: defaultProvider.model ?? '',
+  }
+  return { chatSessions: [session], activeChatSessionId: session.id, messages: defaultMessages, activeProvider: defaultProvider }
+}
+
 function selectProvider(preferredId: string | undefined, activeProvider: Provider, index: number): Provider {
   if (preferredId) {
     return buildProvider(preferredId) ?? activeProvider
@@ -245,6 +303,8 @@ interface AppState {
   chatDraft: string
   multiAgentMode: boolean
   orchestrationRun: OrchestrationRun | null
+  chatSessions: ChatSession[]
+  activeChatSessionId: string
 
   setView: (view: NavView) => void
   setUser: (user: any | null) => void
@@ -274,13 +334,22 @@ interface AppState {
   toggleMultiAgentMode: () => void
   setOrchestrationRun: (run: OrchestrationRun | null) => void
   startOrchestration: (task: string) => Promise<void>
+  createChatSession: () => void
+  switchChatSession: (id: string) => void
+  closeChatSession: (id: string) => void
+  renameChatSession: (id: string, name: string) => void
+  setSessionModel: (providerId: string, modelId: string) => void
 }
+
+const _defaultProvider = buildDefaultProvider()
+const _defaultMessages = [createMessage('system', 'Session started. Drodo is ready.')]
+const _chatInit = initChatSessions(_defaultProvider, _defaultMessages)
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeView: 'agent',
   user: null,
-  sessionId: createSessionId(),
-  sessionName: 'Drodo Session',
+  sessionId: _chatInit.activeChatSessionId,
+  sessionName: _chatInit.chatSessions.find(s => s.id === _chatInit.activeChatSessionId)?.name ?? 'Chat 1',
   agentRunning: false,
   permissionTier: 'standard',
   pendingTier: null,
@@ -289,9 +358,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   autonomousLoopActive: false,
   autonomousLoopCount: 0,
   autonomousMaxLoops: 6,
-  activeProvider: buildDefaultProvider(),
+  activeProvider: _chatInit.activeProvider,
   providerHubOpen: false,
-  messages: [createMessage('system', 'Session started. Drodo is ready.')],
+  messages: _chatInit.messages,
   agents: [],
   taskSteps: createTaskSteps(),
   connectors: loadConnectors(),
@@ -309,28 +378,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   chatDraft: '',
   multiAgentMode: false,
   orchestrationRun: null,
+  chatSessions: _chatInit.chatSessions,
+  activeChatSessionId: _chatInit.activeChatSessionId,
 
   setView: view => set({ activeView: view }),
   setUser: user => set({ user }),
   startNewSession: () => {
-    activePrimaryRun?.abort()
-    activePrimaryRun = null
-
-    if (autonomousLoopTimer) {
-      clearTimeout(autonomousLoopTimer)
-      autonomousLoopTimer = null
-    }
-
-    set({
-      sessionId: createSessionId(),
-      sessionName: 'Drodo Session',
-      messages: [createMessage('system', 'Session started. Drodo is ready.')],
-      agentRunning: false,
-      autonomousLoopActive: false,
-      autonomousLoopCount: 0,
-      taskSteps: createTaskSteps(),
-      chatDraft: '',
-    })
+    // Delegate to createChatSession for consistency
+    get().createChatSession()
   },
   setSessionName: name => set({ sessionName: name }),
   toggleAgentRunning: () => set(state => ({ agentRunning: !state.agentRunning })),
@@ -614,26 +669,34 @@ export const useAppStore = create<AppState>((set, get) => ({
       autonomousLoopTimer = null
     }
 
-    set(state => ({
-      agentRunning: false,
-      autonomousLoopActive: false,
-      autonomousLoopCount: 0,
-      swarmRunning: false,
-      messages: state.messages.map(message =>
+    set(state => {
+      const stoppedMessages = state.messages.map(message =>
         message.streaming
           ? { ...message, streaming: false, content: `${message.content} [stopped]`.trim() }
           : message
-      ),
-      agents: state.agents.map(agent =>
-        agent.status === 'running'
-          ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
-          : agent
-      ),
-      terminalEntries: [
-        ...state.terminalEntries,
-        createTerminalEntry('info', 'Stopped', 'Active agent runs were stopped.'),
-      ],
-    }))
+      )
+      return {
+        agentRunning: false,
+        autonomousLoopActive: false,
+        autonomousLoopCount: 0,
+        swarmRunning: false,
+        messages: stoppedMessages,
+        chatSessions: state.chatSessions.map(s =>
+          s.id === state.activeChatSessionId ? { ...s, messages: stoppedMessages } : s
+        ),
+        agents: state.agents.map(agent =>
+          agent.status === 'running'
+            ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
+            : agent
+        ),
+        terminalEntries: [
+          ...state.terminalEntries,
+          createTerminalEntry('info', 'Stopped', 'Active agent runs were stopped.'),
+        ],
+      }
+    })
+    const s = get()
+    persistChatSessions(s.chatSessions, s.activeChatSessionId)
   },
 
   sendMessage: content => {
@@ -708,21 +771,28 @@ export const useAppStore = create<AppState>((set, get) => ({
         activePrimaryRun = null
         const finalContent = message || accumulated
 
-        set(current => ({
-          messages: current.messages.map(m =>
+        set(current => {
+          const finalMessages = current.messages.map(m =>
             m.id === assistantId
               ? { ...m, streaming: false, content: finalContent || m.content }
               : m
-          ),
-          agentRunning: false,
-          autonomousLoopActive: false,
-          taskSteps: current.taskSteps.map(s => ({ ...s, status: 'complete' })),
-          terminalEntries: [
-            ...current.terminalEntries,
-            createTerminalEntry('info', 'Response', finalContent || '(no content)'),
-          ],
-        }))
+          )
+          return {
+            messages: finalMessages,
+            chatSessions: current.chatSessions.map(s =>
+              s.id === current.activeChatSessionId ? { ...s, messages: finalMessages } : s
+            ),
+            agentRunning: false,
+            autonomousLoopActive: false,
+            taskSteps: current.taskSteps.map(s => ({ ...s, status: 'complete' })),
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('info', 'Response', finalContent || '(no content)'),
+            ],
+          }
+        })
         const persistedState = get()
+        persistChatSessions(persistedState.chatSessions, persistedState.activeChatSessionId)
         persistSessionSnapshot(
           persistedState.sessionId,
           persistedState.sessionName,
@@ -1128,5 +1198,136 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       return { connectors }
     })
+  },
+
+  createChatSession: () => {
+    activePrimaryRun?.abort()
+    activePrimaryRun = null
+    if (autonomousLoopTimer) {
+      clearTimeout(autonomousLoopTimer)
+      autonomousLoopTimer = null
+    }
+
+    const state = get()
+    const updatedSessions = state.chatSessions.map(s =>
+      s.id === state.activeChatSessionId ? { ...s, messages: state.messages } : s
+    )
+    const newSession: ChatSession = {
+      id: createSessionId(),
+      name: `Chat ${updatedSessions.length + 1}`,
+      messages: [createMessage('system', 'Session started. Drodo is ready.')],
+      providerId: state.activeProvider.id,
+      modelId: state.activeProvider.model ?? '',
+    }
+    const allSessions = [...updatedSessions, newSession]
+    set({
+      chatSessions: allSessions,
+      activeChatSessionId: newSession.id,
+      messages: newSession.messages,
+      sessionId: newSession.id,
+      sessionName: newSession.name,
+      agentRunning: false,
+      autonomousLoopActive: false,
+      autonomousLoopCount: 0,
+      taskSteps: createTaskSteps(),
+      chatDraft: '',
+    })
+    persistChatSessions(allSessions, newSession.id)
+  },
+
+  switchChatSession: id => {
+    const state = get()
+    if (id === state.activeChatSessionId) return
+
+    activePrimaryRun?.abort()
+    activePrimaryRun = null
+    if (autonomousLoopTimer) {
+      clearTimeout(autonomousLoopTimer)
+      autonomousLoopTimer = null
+    }
+
+    const updatedSessions = state.chatSessions.map(s =>
+      s.id === state.activeChatSessionId ? { ...s, messages: state.messages } : s
+    )
+    const target = updatedSessions.find(s => s.id === id)
+    if (!target) return
+
+    const sessionProvider = buildProvider(target.providerId)
+    const resolvedProvider = sessionProvider
+      ? { ...sessionProvider, model: target.modelId || sessionProvider.model }
+      : state.activeProvider
+
+    set({
+      chatSessions: updatedSessions,
+      activeChatSessionId: id,
+      messages: target.messages,
+      activeProvider: resolvedProvider,
+      sessionId: target.id,
+      sessionName: target.name,
+      agentRunning: false,
+      autonomousLoopActive: false,
+      autonomousLoopCount: 0,
+      taskSteps: createTaskSteps(),
+    })
+    persistChatSessions(updatedSessions, id)
+  },
+
+  closeChatSession: id => {
+    const state = get()
+    if (state.chatSessions.length <= 1) return
+
+    const idx = state.chatSessions.findIndex(s => s.id === id)
+    if (idx === -1) return
+
+    const remaining = state.chatSessions.filter(s => s.id !== id)
+
+    if (id === state.activeChatSessionId) {
+      activePrimaryRun?.abort()
+      activePrimaryRun = null
+
+      const nextSession = remaining[Math.min(idx, remaining.length - 1)]
+      const sessionProvider = buildProvider(nextSession.providerId)
+      const resolvedProvider = sessionProvider
+        ? { ...sessionProvider, model: nextSession.modelId || sessionProvider.model }
+        : state.activeProvider
+
+      set({
+        chatSessions: remaining,
+        activeChatSessionId: nextSession.id,
+        messages: nextSession.messages,
+        activeProvider: resolvedProvider,
+        sessionId: nextSession.id,
+        sessionName: nextSession.name,
+        agentRunning: false,
+        autonomousLoopActive: false,
+        taskSteps: createTaskSteps(),
+      })
+      persistChatSessions(remaining, nextSession.id)
+    } else {
+      set({ chatSessions: remaining })
+      persistChatSessions(remaining, state.activeChatSessionId)
+    }
+  },
+
+  renameChatSession: (id, name) => {
+    const state = get()
+    const updated = state.chatSessions.map(s => s.id === id ? { ...s, name } : s)
+    const patch: Partial<AppState> = { chatSessions: updated }
+    if (id === state.activeChatSessionId) patch.sessionName = name
+    set(patch)
+    persistChatSessions(updated, state.activeChatSessionId)
+  },
+
+  setSessionModel: (providerId, modelId) => {
+    const state = get()
+    const base = buildProvider(providerId)
+    if (!base) return
+    const provider = { ...base, model: modelId }
+    const updated = state.chatSessions.map(s =>
+      s.id === state.activeChatSessionId ? { ...s, providerId, modelId } : s
+    )
+    set({ activeProvider: provider, chatSessions: updated })
+    saveProviderConfig(providerId, { apiKey: base.apiKey ?? '', baseUrl: base.baseUrl, model: modelId })
+    persistChatSessions(updated, state.activeChatSessionId)
   },
 }))
