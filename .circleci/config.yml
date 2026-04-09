@@ -24,6 +24,8 @@ jobs:
     machine:
       image: windows-server-2022-gui:current
     resource_class: windows.medium
+    environment:
+      NODE_OPTIONS: --max-old-space-size=8192
     steps:
       - checkout
       - run:
@@ -113,6 +115,7 @@ jobs:
       image: ubuntu-2204:current
     environment:
       DEBIAN_FRONTEND: noninteractive
+      NODE_OPTIONS: --max-old-space-size=8192
     resource_class: medium
     steps:
       - checkout

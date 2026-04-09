@@ -11,7 +11,7 @@ import type {
   TerminalEntry,
 } from '../types'
 import { runAgentSession, type AgentRunHandle } from '../lib/agentRunner'
-import { streamCompletion } from '../lib/streamChat'
+import { completeText, streamCompletion } from '../lib/streamChat'
 import {
   buildProvider,
   getConnectedProviders,
@@ -1071,7 +1071,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     activeSwarmRuns.set(orchestratorId, { abort: () => controller.abort() })
 
     try {
-      const { completeText } = await import('../lib/streamChat')
       const prompt = [
         'Break this goal into 2 to 4 parallel subtasks.',
         'Return JSON only with this exact shape:',

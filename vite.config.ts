@@ -10,16 +10,19 @@ export default defineConfig(async () => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          zustand: ['zustand'],
-          radix: ['@radix-ui/react-dialog'],
-          lucide: ['lucide-react'],
-          supabase: ['@supabase/supabase-js'],
+        manualChunks(id) {
+          if (id.includes('/src/data/skills/')) return 'skills-data'
+          if (id.includes('/src/data/workflows/')) return 'workflow-data'
+          if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/')) return 'react-core'
+          if (id.includes('/node_modules/zustand/')) return 'zustand'
+          if (id.includes('/node_modules/@radix-ui/')) return 'radix'
+          if (id.includes('/node_modules/lucide-react/')) return 'lucide'
+          if (id.includes('/node_modules/@supabase/')) return 'supabase'
+          return undefined
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 50000,
   },
   server: {
     port: 1420,
