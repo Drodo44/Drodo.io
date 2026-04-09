@@ -3,6 +3,7 @@ import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Workflow, Copy,
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
+import { getMemoryStats, onMemoryStatsChange, type MemoryStats } from '../lib/agentMemory'
 import { notify } from '../lib/notifications'
 import { getAllSavedModels } from '../lib/providerApi'
 import { streamCompletion } from '../lib/streamChat'
@@ -514,19 +515,19 @@ function ManagedAgentCard({
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentSwarmView() {
-  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, swarmFeed, clearSwarmFeed, setOrchestrationRun } = useAppStore(
+  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, setOrchestrationRun } = useAppStore(
     useShallow(s => ({
       stopAgentStore: s.stopAgent,
       spawnAgentStore: s.spawnAgent,
       activeProvider: s.activeProvider,
       orchestrationRun: s.orchestrationRun,
       storeAgents: s.agents,
-      swarmFeed: s.swarmFeed,
-      clearSwarmFeed: s.clearSwarmFeed,
       setOrchestrationRun: s.setOrchestrationRun,
     }))
   )
 
+  const [feedEntries, setFeedEntries] = useState<SwarmFeedEntry[]>([])
+  const [memoryStats, setMemoryStats] = useState<MemoryStats>({ count: 0, lastUpdated: null })
   const [workflowModal, setWorkflowModal] = useState<WorkflowModalState | null>(null)
   const [generatedWorkflowJson, setGeneratedWorkflowJson] = useState('')
   const [workflowGenerationRunning, setWorkflowGenerationRunning] = useState(false)
@@ -538,6 +539,7 @@ export function AgentSwarmView() {
   const [selectedModelKey, setSelectedModelKey] = useState('')
   const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
   const feedRef = useRef<HTMLDivElement>(null)
+  const previousAgentStateRef = useRef<Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>>(new Map())
 
   // Auto-scroll live feed to bottom when new entries arrive
   useEffect(() => {
@@ -545,7 +547,99 @@ export function AgentSwarmView() {
     if (!el) return
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
     if (isNearBottom) el.scrollTop = el.scrollHeight
-  }, [swarmFeed])
+  }, [feedEntries])
+
+  useEffect(() => {
+    let mounted = true
+
+    void getMemoryStats().then(stats => {
+      if (mounted) setMemoryStats(stats)
+    })
+
+    const unsubscribe = onMemoryStatsChange(setMemoryStats)
+    return () => {
+      mounted = false
+      unsubscribe()
+    }
+  }, [])
+
+  useEffect(() => {
+    const nextSnapshots = new Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>()
+
+    setFeedEntries(current => {
+      const nextFeed = [...current]
+
+      for (const agent of storeAgents) {
+        const previous = previousAgentStateRef.current.get(agent.id)
+        const snapshot = {
+          status: agent.status,
+          tokens: agent.tokens,
+          lastUpdate: agent.lastUpdate,
+          summary: agent.summary,
+        }
+
+        nextSnapshots.set(agent.id, snapshot)
+
+        if (!previous) {
+          nextFeed.push({
+            id: `feed-${agent.id}-start-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            agentName: agent.name,
+            type: 'start',
+            content: agent.task,
+            timestamp: new Date(),
+          })
+          continue
+        }
+
+        if (previous.status !== agent.status) {
+          if (agent.status === 'running') {
+            nextFeed.push({
+              id: `feed-${agent.id}-resume-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              agentName: agent.name,
+              type: 'start',
+              content: agent.lastUpdate || agent.task,
+              timestamp: new Date(),
+            })
+          } else if (agent.status === 'complete') {
+            nextFeed.push({
+              id: `feed-${agent.id}-complete-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              agentName: agent.name,
+              type: 'complete',
+              content: agent.summary || agent.lastUpdate || agent.task,
+              timestamp: new Date(),
+            })
+          } else if (agent.status === 'error') {
+            nextFeed.push({
+              id: `feed-${agent.id}-error-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              agentName: agent.name,
+              type: 'error',
+              content: agent.summary || agent.lastUpdate || agent.task,
+              timestamp: new Date(),
+            })
+          }
+          continue
+        }
+
+        if (
+          agent.status === 'running' &&
+          (previous.lastUpdate !== agent.lastUpdate || previous.tokens !== agent.tokens) &&
+          agent.lastUpdate
+        ) {
+          nextFeed.push({
+            id: `feed-${agent.id}-chunk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            agentName: agent.name,
+            type: 'chunk',
+            content: agent.lastUpdate,
+            timestamp: new Date(),
+          })
+        }
+      }
+
+      return nextFeed.slice(-3000)
+    })
+
+    previousAgentStateRef.current = nextSnapshots
+  }, [storeAgents])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -709,6 +803,9 @@ export function AgentSwarmView() {
 
   const visibleStoreAgents = storeAgents.filter(agent => !agent.orchestrator)
   const runningCount = visibleStoreAgents.filter(a => a.status === 'running').length
+  const formattedMemoryUpdated = memoryStats.lastUpdated
+    ? new Date(memoryStats.lastUpdated).toLocaleString()
+    : 'No memory yet'
 
   return (
     <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
@@ -753,7 +850,25 @@ export function AgentSwarmView() {
         )}
 
         {/* Agent grid */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div
+            className="rounded-2xl border px-4 py-3"
+            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">Memory</div>
+                <div className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+                  {memoryStats.count.toLocaleString()} persistent entries
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-[var(--text-secondary)]">Last updated</div>
+                <div className="mt-1 text-xs text-[var(--text-muted)]">{formattedMemoryUpdated}</div>
+              </div>
+            </div>
+          </div>
+
           {visibleStoreAgents.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
@@ -804,10 +919,10 @@ export function AgentSwarmView() {
                 style={{ background: '#1d9e75', animation: 'pulse 1.5s infinite' }}
               />
             )}
-            <span className="text-xs text-[var(--text-secondary)]">({swarmFeed.length})</span>
+            <span className="text-xs text-[var(--text-secondary)]">({feedEntries.length})</span>
           </div>
           <button
-            onClick={clearSwarmFeed}
+            onClick={() => setFeedEntries([])}
             className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             Clear
@@ -816,7 +931,7 @@ export function AgentSwarmView() {
 
         {/* Feed scroll area — real data from store */}
         <div ref={feedRef} className="flex-1 overflow-y-auto p-4 space-y-1.5">
-          {swarmFeed.length === 0 ? (
+          {feedEntries.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
                 <Activity size={24} className="text-[var(--text-secondary)]" />
@@ -829,7 +944,7 @@ export function AgentSwarmView() {
               </div>
             </div>
           ) : (
-            swarmFeed.map(entry => (
+            feedEntries.map(entry => (
               <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
                 <span
                   className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"

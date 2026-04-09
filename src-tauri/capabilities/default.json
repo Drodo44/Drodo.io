@@ -6,6 +6,9 @@
   "permissions": [
     "core:default",
     "fs:default",
+    "fs:scope-localdata-recursive",
+    "fs:allow-localdata-read-recursive",
+    "fs:allow-localdata-write-recursive",
     "notification:default",
     "shell:default",
     "opener:default"

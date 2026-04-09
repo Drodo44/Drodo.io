@@ -1,4 +1,5 @@
-import initSqlJs, { type Database, type SqlJsStatic } from 'sql.js'
+import initSqlJs from 'sql.js'
+import type { Database, SqlJsStatic } from 'sql.js'
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
 import { BaseDirectory } from '@tauri-apps/api/path'
 import {
@@ -343,6 +344,10 @@ export async function getMemoryStats(): Promise<MemoryStats> {
 }
 
 export function onMemoryStatsChange(listener: (stats: MemoryStats) => void): () => void {
+  if (typeof window === 'undefined') {
+    return () => {}
+  }
+
   const handler = (event: Event) => {
     const stats = (event as CustomEvent<MemoryStats>).detail
     listener(stats)

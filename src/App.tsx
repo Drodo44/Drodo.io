@@ -35,7 +35,7 @@ import { startBotPolling, stopBotPolling } from './lib/botRunner'
 
 function AgentWorkspace() {
   return (
-    <div className="flex flex-1 min-w-0 min-h-0 overflow-hidden flex-col lg:flex-row">
+    <div className="app-shell__content flex min-w-0 min-h-0 flex-1 overflow-hidden flex-col lg:flex-row">
       <ChatPanel />
       <RightPanel />
     </div>
@@ -239,7 +239,7 @@ function App() {
   if (!authReady) {
     return (
       <div
-        className="flex h-screen w-screen items-center justify-center"
+        className="app-shell flex items-center justify-center"
         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       >
         <LoadingSpinner label="Loading session…" />
@@ -254,21 +254,23 @@ function App() {
   if (!onboardingDone) {
     return (
       <div
-        className="flex h-screen w-screen overflow-hidden"
+        className="app-shell"
         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       >
-        <Sidebar />
-        <div className="flex flex-col flex-1 min-w-0 min-h-0">
+        <div className="app-shell__sidebar">
+          <Sidebar />
+        </div>
+        <div className="app-shell__main">
           <TopBar />
-          <main className="flex flex-1 min-h-0 overflow-hidden">
+          <main className="app-shell__content">
             <SafeOnboardingScreen
-          onComplete={() => {
-            setOnboardingDone(true)
-            if (!isTutorialComplete()) {
-              setTimeout(() => setShowTutorial(true), 500)
-            }
-          }}
-        />
+              onComplete={() => {
+                setOnboardingDone(true)
+                if (!isTutorialComplete()) {
+                  setTimeout(() => setShowTutorial(true), 500)
+                }
+              }}
+            />
           </main>
         </div>
         <ProviderHubModal />
@@ -280,14 +282,16 @@ function App() {
 
   return (
     <div
-      className="flex h-screen w-screen overflow-hidden"
+      className="app-shell"
       style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
-      <Sidebar />
+      <div className="app-shell__sidebar">
+        <Sidebar />
+      </div>
 
-      <div className="flex flex-col flex-1 min-w-0 min-h-0">
+      <div className="app-shell__main">
         <TopBar />
-        <main className="flex flex-1 min-h-0 overflow-hidden">
+        <main className="app-shell__content">
           <MainContent />
         </main>
       </div>

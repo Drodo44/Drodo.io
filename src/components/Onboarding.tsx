@@ -7,7 +7,7 @@ import {
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
-import { loadAllSavedConfigs } from '../lib/providerApi'
+import { getAllSavedModels, getConnectedProviders } from '../lib/providerApi'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -22,10 +22,12 @@ export function resetOnboarding() {
   localStorage.removeItem(ONBOARDING_KEY)
 }
 
+function hasCompletedProviderSetup(): boolean {
+  return getAllSavedModels().length > 0 || getConnectedProviders().length > 0
+}
+
 export function isOnboardingComplete(): boolean {
-  const hasSavedProviderKey = Object.values(loadAllSavedConfigs())
-    .some(config => typeof config.apiKey === 'string' && config.apiKey.trim().length > 0)
-  return !!localStorage.getItem(ONBOARDING_KEY) || hasSavedProviderKey
+  return !!localStorage.getItem(ONBOARDING_KEY) || hasCompletedProviderSetup()
 }
 
 // ─── Step dots ────────────────────────────────────────────────────────────────
@@ -91,9 +93,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const [step, setStep] = useState(0)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
 
-  const hasProvider = Object.values(loadAllSavedConfigs()).some(c => c.apiKey || false)
+  const hasProvider = hasCompletedProviderSetup()
 
-  // If any API key is already saved, skip onboarding immediately
+  // If any saved model or connected provider already exists, skip onboarding immediately
   useEffect(() => {
     if (isOnboardingComplete()) {
       onComplete()

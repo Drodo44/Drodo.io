@@ -7,12 +7,14 @@ const host = process.env.TAURI_DEV_HOST;
 export default defineConfig(async () => ({
   plugins: [react(), tailwindcss()],
   clearScreen: false,
+  assetsInclude: ['**/*.ndjson'],
   build: {
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('/src/data/skills/')) return 'skills-data'
           if (id.includes('/src/data/workflows/')) return 'workflow-data'
+          if (id.includes('/model_registry/')) return 'model-registry'
           if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/')) return 'react-core'
           if (id.includes('/node_modules/zustand/')) return 'zustand'
           if (id.includes('/node_modules/@radix-ui/')) return 'radix'

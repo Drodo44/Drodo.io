@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, RotateCcw } from 'lucide-react'
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
+import { getAllSavedModels, loadAllSavedConfigs } from '../lib/providerApi'
 import { resetOnboarding } from '../components/Onboarding'
 import { resetTutorial } from '../components/ui/Tutorial'
 import { Logo } from '../components/ui/Logo'
@@ -27,7 +27,7 @@ function getStorageCounts() {
   })()
 
   const memoryEntries = (() => {
-    try { return (JSON.parse(localStorage.getItem('drodo_agent_memory') ?? '[]') as unknown[]).length }
+    try { return Number((JSON.parse(localStorage.getItem('drodo_agent_memory_meta') ?? '{}') as { count?: number }).count ?? 0) }
     catch { return 0 }
   })()
 
@@ -48,6 +48,8 @@ function getStorageCounts() {
 
 export function SettingsView() {
   const user = useAppStore(state => state.user)
+  const activeProvider = useAppStore(state => state.activeProvider)
+  const setSessionModel = useAppStore(state => state.setSessionModel)
   const settings = getAppSettings()
 
   // Appearance
@@ -66,15 +68,48 @@ export function SettingsView() {
   }
 
   // Default Model
-  const savedConfigs = loadAllSavedConfigs()
-  const allProviders = getAllProviders()
-  const configuredProviders = allProviders.filter(p => savedConfigs[p.id])
-  const [defaultModel, setDefaultModel] = useState<string>(
-    (settings.defaultModel as string) ?? (configuredProviders[0]?.id ?? '')
-  )
-  const handleDefaultModel = (id: string) => {
-    setDefaultModel(id)
-    setAppSetting('defaultModel', id)
+  const savedModelOptions = useMemo(() => {
+    const activeModelId = activeProvider.model ?? activeProvider.name
+    const activeKey = `${activeProvider.id}::${activeModelId}`
+    const options = getAllSavedModels().map(entry => ({
+      key: `${entry.providerId}::${entry.model.id}`,
+      providerId: entry.providerId,
+      modelId: entry.model.id,
+      label: `${entry.providerName} — ${entry.model.label}`,
+    }))
+
+    if (!options.some(option => option.key === activeKey)) {
+      options.unshift({
+        key: activeKey,
+        providerId: activeProvider.id,
+        modelId: activeModelId,
+        label: `${activeProvider.name} — ${activeModelId}`,
+      })
+    }
+
+    return options
+  }, [activeProvider])
+
+  const [defaultModel, setDefaultModel] = useState<string>(() => {
+    const savedDefault = settings.defaultModel as string | undefined
+    return savedDefault && savedDefault.includes('::')
+      ? savedDefault
+      : `${activeProvider.id}::${activeProvider.model ?? activeProvider.name}`
+  })
+
+  useEffect(() => {
+    const activeKey = `${activeProvider.id}::${activeProvider.model ?? activeProvider.name}`
+    if (savedModelOptions.some(option => option.key === defaultModel)) return
+    setDefaultModel(activeKey)
+  }, [activeProvider, defaultModel, savedModelOptions])
+
+  const handleDefaultModel = (value: string) => {
+    const [providerId, modelId] = value.split('::')
+    if (!providerId || !modelId) return
+
+    setDefaultModel(value)
+    setAppSetting('defaultModel', value)
+    setSessionModel(providerId, modelId)
   }
 
   // Tavily key
@@ -197,16 +232,16 @@ export function SettingsView() {
         <section>
           <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Default Model</h2>
           <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-            {configuredProviders.length > 0 ? (
+            {savedModelOptions.length > 0 ? (
               <>
                 <select
                   value={defaultModel}
                   onChange={e => handleDefaultModel(e.target.value)}
                   className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
                 >
-                  {configuredProviders.map(p => (
-                    <option key={p.id} value={p.id} style={{ background: 'var(--bg-secondary)' }}>
-                      {p.name} — {savedConfigs[p.id]?.model || p.model || p.name}
+                  {savedModelOptions.map(option => (
+                    <option key={option.key} value={option.key} style={{ background: 'var(--bg-secondary)' }}>
+                      {option.label}
                     </option>
                   ))}
                 </select>

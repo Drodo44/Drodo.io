@@ -4,6 +4,7 @@ import type { Provider } from '../types'
 import { decryptStoredKey } from './encryption'
 import { completeText } from './streamChat'
 import {
+  ACCESS_PROVIDER_BY_APP_PROVIDER_ID,
   APP_PROVIDER_ID_BY_ACCESS_PROVIDER,
   getProviderCatalogEntry,
 } from './providerCatalog'
@@ -349,10 +350,7 @@ export function rankModelsForTask(task: string, userProviderIds: string[]): Prov
   const domains = classifyTask(task)
   const requiredCapabilities = determineRequiredCapabilities(task, domains)
   const allowedAccessProviders = new Set(
-    userProviderIds.flatMap(providerId => {
-      const accessProviders = APP_PROVIDER_ID_BY_ACCESS_PROVIDER[providerId]
-      return accessProviders ? [accessProviders] : []
-    }).flat(),
+    userProviderIds.flatMap(providerId => ACCESS_PROVIDER_BY_APP_PROVIDER_ID[providerId] ?? []),
   )
 
   const filteredModels = filterModelsByCapability(domains, requiredCapabilities)
