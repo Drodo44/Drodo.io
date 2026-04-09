@@ -48,6 +48,7 @@ jobs:
           command: npm install
       - run:
           name: Build Tauri app
+          no_output_timeout: 60m
           shell: powershell.exe
           command: |
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
@@ -148,6 +149,7 @@ jobs:
           command: npm install
       - run:
           name: Build Tauri app
+          no_output_timeout: 60m
           command: |
             source $HOME/.cargo/env
             npm run tauri build -- --bundles appimage,deb
