@@ -1,0 +1,87 @@
+{
+  "id": "official-498",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/498",
+    "template_id": 498
+  },
+  "name": "Send a private message on Zulip",
+  "description": "Send a private message on Zulip",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Zulip",
+    "Manual Trigger",
+    "send",
+    "private",
+    "message",
+    "zulip"
+  ],
+  "task_keywords": [
+    "send a private message on zulip",
+    "manual",
+    "send manual",
+    "zulip",
+    "send zulip",
+    "manual trigger",
+    "send private",
+    "private message",
+    "message zulip",
+    "zulip send"
+  ],
+  "required_services": [
+    "manual",
+    "Zulip"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "126",
+    "name": "Send a private message on Zulip",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Zulip",
+        "type": "n8n-nodes-base.zulip",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "to": []
+        },
+        "credentials": {
+          "zulipApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Zulip",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

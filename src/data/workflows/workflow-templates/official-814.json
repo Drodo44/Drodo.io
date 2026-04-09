@@ -1,0 +1,152 @@
+{
+  "id": "official-814",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/814",
+    "template_id": 814
+  },
+  "name": "Receive messages from a topic via Kafka and send an SMS",
+  "description": "Receive messages from a topic via Kafka and send an SMS",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "Kafka",
+    "Vonage",
+    "No Operation, do nothing",
+    "Kafka Trigger",
+    "receive",
+    "messages",
+    "topic",
+    "via",
+    "kafka",
+    "send"
+  ],
+  "task_keywords": [
+    "receive messages from a topic via kafka and send an sms",
+    "kafka",
+    "send kafka",
+    "vonage",
+    "send vonage",
+    "no operation, do nothing",
+    "send no operation, do nothing",
+    "kafka trigger",
+    "receive messages",
+    "messages topic",
+    "topic via",
+    "via kafka"
+  ],
+  "required_services": [
+    "Kafka",
+    "Vonage",
+    "No Operation, do nothing"
+  ],
+  "triggers": [
+    "Kafka Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "166",
+    "name": "Receive messages from a topic and send an SMS",
+    "nodes": [
+      {
+        "name": "Kafka Trigger",
+        "type": "n8n-nodes-base.kafkaTrigger",
+        "position": [
+          490,
+          260
+        ],
+        "parameters": {
+          "topic": "topic_test",
+          "groupId": "n8n",
+          "options": {
+            "jsonParseMessage": true
+          }
+        },
+        "credentials": {
+          "kafka": "kafka"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          690,
+          260
+        ],
+        "parameters": {
+          "conditions": {
+            "number": [
+              {
+                "value1": "={{$node[\"Kafka Trigger\"].json[\"message\"][\"temp\"]}}",
+                "value2": 50,
+                "operation": "larger"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Vonage",
+        "type": "n8n-nodes-base.vonage",
+        "position": [
+          890,
+          160
+        ],
+        "parameters": {
+          "from": "Vonage APIs",
+          "message": "=Alert!\nThe value of temp is {{$node[\"Kafka Trigger\"].json[\"message\"][\"temp\"]}}.",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "vonageApi": "vonage"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "NoOp",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          890,
+          360
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "Vonage",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "NoOp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Kafka Trigger": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

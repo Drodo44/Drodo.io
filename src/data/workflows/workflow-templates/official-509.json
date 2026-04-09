@@ -1,0 +1,66 @@
+{
+  "id": "official-509",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/509",
+    "template_id": 509
+  },
+  "name": "Receive updates for AWS SNS events",
+  "description": "Companion workflow for AWS SNS Trigger node docs",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "AWS SNS",
+    "AWS SNS Trigger",
+    "receive",
+    "updates",
+    "aws",
+    "sns",
+    "events",
+    "companion"
+  ],
+  "task_keywords": [
+    "receive updates for aws sns events",
+    "aws sns",
+    "update aws sns",
+    "aws sns trigger",
+    "receive updates",
+    "updates aws",
+    "sns events",
+    "events companion",
+    "companion workflow",
+    "workflow aws",
+    "sns trigger",
+    "trigger node"
+  ],
+  "required_services": [
+    "AWS SNS"
+  ],
+  "triggers": [
+    "AWS SNS Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "AWS-SNS-Trigger",
+        "type": "n8n-nodes-base.awsSnsTrigger",
+        "position": [
+          440,
+          300
+        ],
+        "parameters": {
+          "topic": "arn:aws:sns:ap-south-1:1+1234567890:n8n-rocks"
+        },
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

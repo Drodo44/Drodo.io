@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-1873-f2d558bf70",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/CRM/government_&_non-profit_1873_cron_crm.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/CRM/government_&_non-profit_1873_cron_crm.json"
+  },
+  "name": "Template 1873",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1873",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "CRM",
+    "cron",
+    "crm",
+    "pdfparser",
+    "cron Trigger",
+    "template",
+    "1873",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1873",
+    "cron",
+    "pdfparser",
+    "cron trigger",
+    "1873 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "cron",
+    "crm",
+    "pdfparser"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1873",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/18 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CRM",
+        "type": "n8n-nodes-base.crm",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PDF Parser",
+        "type": "n8n-nodes-base.pdfparser",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CRM": {
+        "main": [
+          [
+            {
+              "node": "PDF Parser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1873
+  }
+}

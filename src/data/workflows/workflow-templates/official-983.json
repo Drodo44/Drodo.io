@@ -1,0 +1,121 @@
+{
+  "id": "official-983",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/983",
+    "template_id": 983
+  },
+  "name": "Add new leads in Lemlist from Airtable",
+  "description": "This workflow allows you to add new leads in Lemlist from Airtable.",
+  "category": "AI",
+  "tags": [
+    "Lead Nurturing",
+    "Airtable",
+    "Lemlist",
+    "add",
+    "leads",
+    "lemlist",
+    "airtable",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "add new leads in lemlist from airtable",
+    "airtable",
+    "lemlist",
+    "add leads",
+    "leads lemlist",
+    "lemlist airtable",
+    "airtable workflow",
+    "workflow allows",
+    "allows you",
+    "you add"
+  ],
+  "required_services": [
+    "Airtable",
+    "Lemlist"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          440,
+          320
+        ],
+        "parameters": {
+          "operation": "list",
+          "additionalOptions": {}
+        },
+        "credentials": {
+          "airtableApi": "Airtable Credentials n8n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Lemlist",
+        "type": "n8n-nodes-base.lemlist",
+        "position": [
+          640,
+          320
+        ],
+        "parameters": {
+          "email": "={{$json[\"fields\"][\"Email\"]}}",
+          "resource": "lead",
+          "campaignId": "cam_H5pYEryq6mRKBiy5v",
+          "additionalFields": {
+            "firstName": "={{$json[\"fields\"][\"Name\"]}}"
+          }
+        },
+        "credentials": {
+          "lemlistApi": "Lemlist API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Lemlist1",
+        "type": "n8n-nodes-base.lemlist",
+        "position": [
+          840,
+          320
+        ],
+        "parameters": {
+          "email": "={{$node[\"Airtable\"].json[\"fields\"][\"Email\"]}}",
+          "resource": "lead",
+          "operation": "get"
+        },
+        "credentials": {
+          "lemlistApi": "Lemlist API Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Lemlist": {
+        "main": [
+          [
+            {
+              "node": "Lemlist1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Airtable": {
+        "main": [
+          [
+            {
+              "node": "Lemlist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

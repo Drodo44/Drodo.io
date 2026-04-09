@@ -1,0 +1,93 @@
+{
+  "id": "n8n-workflow-templates-1099-error-gmail-send-triggered-c25a4142a4",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1099_Error_Gmail_Send_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1099_Error_Gmail_Send_Triggered.json"
+  },
+  "name": "1099 Error Gmail Send Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1099 Error Gmail Send Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "error",
+    "gmail",
+    "error Trigger",
+    "1099",
+    "send",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "1099 error gmail send triggered",
+    "error",
+    "send error",
+    "gmail",
+    "send gmail",
+    "error trigger",
+    "1099 error",
+    "error gmail",
+    "gmail send",
+    "send triggered",
+    "triggered n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "error",
+    "gmail"
+  ],
+  "triggers": [
+    "error Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Error Trigger",
+        "type": "n8n-nodes-base.errorTrigger",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "toList": [
+            "recipient@email.com"
+          ],
+          "message": "=Workflow: {{$json[\"workflow\"][\"name\"]}}\nError: {{$json[\"execution\"][\"error\"][\"message\"]}}\nLast node executed: {{$json[\"execution\"][\"lastNodeExecuted\"]}}\nExecution URL: {{$json[\"execution\"][\"url\"]}}\nStacktrace:\n{{$json[\"execution\"][\"error\"][\"stack\"]}}",
+          "subject": "=n8n Workflow Failure:  {{$json[\"workflow\"][\"name\"]}}",
+          "resource": "message",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "gmailOAuth2": "TBD"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Error Trigger": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "n8n-automation-templates-5000-template-188-7191e7643c",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/AWS/it_operations_188_webhook_aws_lambda_to_github.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/AWS/it_operations_188_webhook_aws_lambda_to_github.json"
+  },
+  "name": "Template 188",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 188",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "AWS",
+    "awslambda",
+    "github",
+    "xero",
+    "webhook",
+    "template",
+    "188",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 188",
+    "awslambda",
+    "github",
+    "xero",
+    "webhook",
+    "188 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "awslambda",
+    "github",
+    "xero"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 188",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-188",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS Lambda",
+        "type": "n8n-nodes-base.awslambda",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "GitHub",
+        "type": "n8n-nodes-base.github",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Xero",
+        "type": "n8n-nodes-base.xero",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "AWS Lambda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS Lambda": {
+        "main": [
+          [
+            {
+              "node": "GitHub",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GitHub": {
+        "main": [
+          [
+            {
+              "node": "Xero",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 188
+  }
+}

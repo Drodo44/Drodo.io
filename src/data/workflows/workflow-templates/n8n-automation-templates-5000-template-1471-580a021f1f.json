@@ -1,0 +1,175 @@
+{
+  "id": "n8n-automation-templates-5000-template-1471-580a021f1f",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Transcription/meeting_summaries_1471_cron_openai_to_transcription_api.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Transcription/meeting_summaries_1471_cron_openai_to_transcription_api.json"
+  },
+  "name": "Template 1471",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1471",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Transcription",
+    "cron",
+    "openai",
+    "transcriptionapi",
+    "telegram",
+    "cron Trigger",
+    "template",
+    "1471",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1471",
+    "cron",
+    "openai",
+    "transcriptionapi",
+    "telegram",
+    "cron trigger",
+    "1471 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "cron",
+    "openai",
+    "transcriptionapi",
+    "telegram"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Template 1471",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/6 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Transcription API",
+        "type": "n8n-nodes-base.transcriptionapi",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Translate the content to Spanish and send it via Telegram."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Transcription API",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Transcription API": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1471
+  }
+}

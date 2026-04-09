@@ -1,0 +1,127 @@
+{
+  "id": "official-1387",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1387",
+    "template_id": 1387
+  },
+  "name": "Send automated daily reminders on Telegram",
+  "description": "A goal for 2022 is to write 1 thing I do each day.",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "Cron",
+    "Function Item",
+    "Telegram",
+    "Cron Trigger",
+    "send",
+    "automated",
+    "daily",
+    "reminders",
+    "telegram",
+    "goal"
+  ],
+  "task_keywords": [
+    "send automated daily reminders on telegram",
+    "cron",
+    "send cron",
+    "function item",
+    "send function item",
+    "telegram",
+    "send telegram",
+    "cron trigger",
+    "send automated",
+    "automated daily",
+    "daily reminders",
+    "reminders telegram"
+  ],
+  "required_services": [
+    "Cron",
+    "Function Item",
+    "Telegram"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 1,
+    "name": "Daily Journal Reminder",
+    "nodes": [
+      {
+        "name": "Morning reminder",
+        "type": "n8n-nodes-base.cron",
+        "notes": "Trigger very morning",
+        "position": [
+          220,
+          60
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 6
+              }
+            ]
+          }
+        },
+        "notesInFlow": true,
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "format reminder",
+        "type": "n8n-nodes-base.functionItem",
+        "position": [
+          460,
+          60
+        ],
+        "parameters": {
+          "functionCode": "\n// Creates message with todays date\nconst today = new Date()\nconst yesterday = new Date(today)\n\nyesterday.setDate(yesterday.getDate() - 1)\nconst message = `What did you do: ${yesterday.toISOString().split('T')[0]}`\n\nreturn {message};"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send journal reminder",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          700,
+          60
+        ],
+        "parameters": {
+          "text": "={{$node[\"format reminder\"].json[\"message\"]}}",
+          "chatId": "123456789",
+          "additionalFields": {}
+        },
+        "credentials": {},
+        "typeVersion": 1
+      }
+    ],
+    "active": true,
+    "settings": {},
+    "connections": {
+      "format reminder": {
+        "main": [
+          [
+            {
+              "node": "Send journal reminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Morning reminder": {
+        "main": [
+          [
+            {
+              "node": "format reminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

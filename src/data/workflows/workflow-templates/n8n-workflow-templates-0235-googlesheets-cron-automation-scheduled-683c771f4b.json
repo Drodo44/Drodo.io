@@ -1,0 +1,135 @@
+{
+  "id": "n8n-workflow-templates-0235-googlesheets-cron-automation-scheduled-683c771f4b",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0235_GoogleSheets_Cron_Automation_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0235_GoogleSheets_Cron_Automation_Scheduled.json"
+  },
+  "name": "0235 GoogleSheets Cron Automation Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0235 GoogleSheets Cron Automation Scheduled",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "cron",
+    "my Sql",
+    "google Sheets",
+    "cron Trigger",
+    "0235",
+    "googlesheets",
+    "automation",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0235 googlesheets cron automation scheduled",
+    "cron",
+    "my sql",
+    "google sheets",
+    "cron trigger",
+    "0235 googlesheets",
+    "googlesheets cron",
+    "cron automation",
+    "automation scheduled",
+    "scheduled n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "cron",
+    "my Sql",
+    "google Sheets"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          100,
+          420
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 5,
+                "mode": "everyWeek"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "MySQL - select",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          300,
+          420
+        ],
+        "parameters": {
+          "query": "SELECT * FROM books;",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "mySql": {
+            "id": "82",
+            "name": "MySQL account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets - write",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          500,
+          420
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "qwertz",
+          "operation": "append",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "2",
+            "name": "google_sheets_oauth"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "MySQL - select",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "MySQL - select": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets - write",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

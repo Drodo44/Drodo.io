@@ -1,0 +1,181 @@
+{
+  "id": "n8n-automation-templates-5000-auto-update-product-documentation-from-support-insights-e7c419718a",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n advance/auto-update-product-documentation-from-support-insights.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n advance/auto-update-product-documentation-from-support-insights.json"
+  },
+  "name": "auto-update-product-documentation-from-support-insights",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: auto-update-product-documentation-from-support-insights",
+  "category": "AI",
+  "tags": [
+    "n8n advance",
+    "cron",
+    "openai",
+    "google Sheets",
+    "cron Trigger",
+    "auto",
+    "update",
+    "product",
+    "documentation",
+    "support",
+    "insights"
+  ],
+  "task_keywords": [
+    "auto-update-product-documentation-from-support-insights",
+    "cron",
+    "update cron",
+    "openai",
+    "update openai",
+    "google sheets",
+    "update google sheets",
+    "cron trigger",
+    "auto update",
+    "update product",
+    "product documentation",
+    "documentation support"
+  ],
+  "required_services": [
+    "cron",
+    "openai",
+    "google Sheets"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "auto-update-product-documentation-from-support-insights",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "0 7 * * 1"
+        },
+        "id": "pd1",
+        "name": "Weekly Mon 07:00 UTC",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          100,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "url": "https://api.helpdesk.com/v1/insights/common_issues?range=7d",
+          "authentication": "none",
+          "options": {
+            "headersUi": {
+              "parameter": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer {{$credentials.helpdeskToken}}"
+                }
+              ]
+            }
+          }
+        },
+        "id": "pd2",
+        "name": "Fetch Common Issues",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          320,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-4",
+          "temperature": 0.3,
+          "messages": [
+            {
+              "role": "system",
+              "content": "Transform common support issues into doc change recommendations. Return JSON {sections:[{title,changeSummary,docUrl?}] }."
+            },
+            {
+              "role": "user",
+              "content": "Insights: {{$json}}"
+            }
+          ]
+        },
+        "id": "pd3",
+        "name": "AI Generate Doc Changes",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          540,
+          300
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "openai_credential",
+            "name": "OpenAI API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sheetId": "kb-sheet-id",
+          "range": "DocBacklog!A1",
+          "fields": [
+            "={{$now}}",
+            "={{$json.choices[0].message.content}}"
+          ]
+        },
+        "id": "pd4",
+        "name": "Save Backlog (Sheets)",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 1,
+        "position": [
+          760,
+          300
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "google_sheets_cred",
+            "name": "Google Sheets"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Weekly Mon 07:00 UTC": {
+        "main": [
+          [
+            {
+              "node": "Fetch Common Issues",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Common Issues": {
+        "main": [
+          [
+            {
+              "node": "AI Generate Doc Changes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Generate Doc Changes": {
+        "main": [
+          [
+            {
+              "node": "Save Backlog (Sheets)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false
+  }
+}

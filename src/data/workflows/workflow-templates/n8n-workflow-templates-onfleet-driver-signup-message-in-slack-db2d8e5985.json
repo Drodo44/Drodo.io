@@ -1,0 +1,107 @@
+{
+  "id": "n8n-workflow-templates-onfleet-driver-signup-message-in-slack-db2d8e5985",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0176_Slack_Onfleet_Send_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0176_Slack_Onfleet_Send_Triggered.json"
+  },
+  "name": "Onfleet Driver signup message in Slack",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Onfleet Driver signup message in Slack",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "onfleet",
+    "slack",
+    "onfleet Trigger",
+    "driver",
+    "signup",
+    "message",
+    "n8n"
+  ],
+  "task_keywords": [
+    "onfleet driver signup message in slack",
+    "onfleet",
+    "slack",
+    "onfleet trigger",
+    "onfleet driver",
+    "driver signup",
+    "signup message",
+    "message slack",
+    "slack n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "onfleet",
+    "slack"
+  ],
+  "triggers": [
+    "onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 14,
+    "name": "Onfleet Driver signup message in Slack",
+    "nodes": [
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "a005e163-13a2-4ea2-a127-6e00e30a82f4",
+        "parameters": {
+          "triggerOn": "workerCreated",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "2",
+            "name": "Onfleet API Key"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "text": "A new driver has signed up!",
+          "channel": "#new-driver-signup",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "7",
+            "name": "Slack account"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "id": "n8n-workflow-templates-my-workflow-41d5807f4b",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0351_Readbinaryfile_Manual_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0351_Readbinaryfile_Manual_Automate_Triggered.json"
+  },
+  "name": "My workflow",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: My workflow",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "manual",
+    "email Send",
+    "read Binary File",
+    "spreadsheet File",
+    "split In Batches",
+    "Manual Trigger",
+    "workflow",
+    "n8n",
+    "template",
+    "danitilahun"
+  ],
+  "task_keywords": [
+    "my workflow",
+    "manual",
+    "email send",
+    "read binary file",
+    "spreadsheet file",
+    "split in batches",
+    "manual trigger",
+    "workflow n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n"
+  ],
+  "required_services": [
+    "manual",
+    "email Send",
+    "read Binary File",
+    "spreadsheet File",
+    "split In Batches"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": 1,
+    "name": "My workflow",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          320,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          1520,
+          300
+        ],
+        "parameters": {
+          "options": {
+            "allowUnauthorizedCerts": true
+          },
+          "subject": "Certificate For Course",
+          "toEmail": "={{$node[\"SplitInBatches\"].json[\"email\"]}}",
+          "fromEmail": "bhavabhuthi@riseup.net",
+          "attachments": "data"
+        },
+        "credentials": {
+          "smtp": {
+            "id": "1",
+            "name": "SMTP account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          560,
+          300
+        ],
+        "parameters": {
+          "filePath": "/home/shashikanth/Documents/Cert-Gen-Test/data.csv",
+          "dataPropertyName": "csv"
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "name": "Spreadsheet File",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          840,
+          300
+        ],
+        "parameters": {
+          "options": {
+            "headerRow": true
+          },
+          "binaryPropertyName": "csv"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SplitInBatches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          1080,
+          300
+        ],
+        "parameters": {
+          "options": {
+            "reset": false
+          },
+          "batchSize": 5
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File1",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          1300,
+          300
+        ],
+        "parameters": {
+          "filePath": "=/home/shashikanth/Documents/Cert-Gen-Test/generator-output/{{$json[\"name\"]}}.png"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "SplitInBatches": {
+        "main": [
+          [
+            {
+              "node": "Read Binary File1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Spreadsheet File": {
+        "main": [
+          [
+            {
+              "node": "SplitInBatches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Binary File1": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Read Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

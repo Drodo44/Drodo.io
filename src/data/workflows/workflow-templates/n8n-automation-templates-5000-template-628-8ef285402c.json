@@ -1,0 +1,162 @@
+{
+  "id": "n8n-automation-templates-5000-template-628-8ef285402c",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/ai_agents_628_calendar_event_trigger_langchain_to_vector_db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/ai_agents_628_calendar_event_trigger_langchain_to_vector_db.json"
+  },
+  "name": "Template 628",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 628",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "langchain",
+    "vectordb",
+    "openai",
+    "google Calendar Trigger",
+    "template",
+    "628",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 628",
+    "google calendar",
+    "langchain",
+    "vectordb",
+    "openai",
+    "google calendar trigger",
+    "628 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "google Calendar",
+    "langchain",
+    "vectordb",
+    "openai"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 628",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "LangChain",
+        "type": "n8n-nodes-base.langchain",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Vector DB",
+        "type": "n8n-nodes-base.vectordb",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Analyze sentiment and classify as positive, neutral, or negative."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "LangChain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LangChain": {
+        "main": [
+          [
+            {
+              "node": "Vector DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector DB": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 628
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "official-810",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/810",
+    "template_id": 810
+  },
+  "name": "Receive updates when an event occurs in TheHive",
+  "description": "Receive updates when an event occurs in TheHive",
+  "category": "Other",
+  "tags": [
+    "SecOps",
+    "TheHive",
+    "TheHive Trigger",
+    "receive",
+    "updates",
+    "when",
+    "event",
+    "occurs",
+    "thehive"
+  ],
+  "task_keywords": [
+    "receive updates when an event occurs in thehive",
+    "thehive",
+    "update thehive",
+    "thehive trigger",
+    "receive updates",
+    "updates when",
+    "when event",
+    "event occurs",
+    "occurs thehive",
+    "thehive receive"
+  ],
+  "required_services": [
+    "TheHive"
+  ],
+  "triggers": [
+    "TheHive Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "161",
+    "name": "Receive updates when an event occurs in TheHive",
+    "nodes": [
+      {
+        "name": "TheHive Trigger",
+        "type": "n8n-nodes-base.theHiveTrigger",
+        "position": [
+          690,
+          220
+        ],
+        "webhookId": "bef3fea8-2d68-43e8-9061-6c17c1059c86",
+        "parameters": {
+          "events": [
+            "*"
+          ]
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "n8n-automation-templates-5000-template-980-6a06eb5b65",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/event_management_980_webhook_google_calendar_to_gmail.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/event_management_980_webhook_google_calendar_to_gmail.json"
+  },
+  "name": "Template 980",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 980",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "googlecalendar",
+    "gmail",
+    "zendesk",
+    "webhook",
+    "template",
+    "980",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 980",
+    "googlecalendar",
+    "gmail",
+    "zendesk",
+    "webhook",
+    "980 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "googlecalendar",
+    "gmail",
+    "zendesk"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 980",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-980",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Calendar",
+        "type": "n8n-nodes-base.googlecalendar",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Zendesk",
+        "type": "n8n-nodes-base.zendesk",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Calendar": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail": {
+        "main": [
+          [
+            {
+              "node": "Zendesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 980
+  }
+}

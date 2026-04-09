@@ -1,0 +1,137 @@
+{
+  "id": "n8n-workflow-template-toutes-les-fonctions-n8n-2318a3c00a",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Toutes_les_fonctions_n8n.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Toutes_les_fonctions_n8n.json"
+  },
+  "name": "Toutes les fonctions n8n",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Toutes les fonctions n8n",
+  "category": "Other",
+  "tags": [
+    "manual",
+    "Manual Trigger",
+    "toutes",
+    "les",
+    "fonctions",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "toutes les fonctions n8n",
+    "manual",
+    "manual trigger",
+    "toutes les",
+    "les fonctions",
+    "fonctions n8n",
+    "n8n n8n",
+    "n8n workflow",
+    "workflow template",
+    "template stirito",
+    "stirito n8n",
+    "template toutes"
+  ],
+  "required_services": [
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Toutes les fonctions n8n",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "e24bf5fd-62f1-4306-9906-3c23035b7aa7",
+        "name": "When clicking ‘Test workflow’"
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"string\": \"Bonjour\",\n  \"number\": 2.5,\n  \"array\":[\"Hugo\",\"Lucas\",\"Mark\"],\n  \"object\":{\"prenom\":\"Benoit\",\"nom\":\"Ferrere\",\"taille_en_cm\":193},\n  \"boolean\":true\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          220,
+          0
+        ],
+        "id": "10459426-3c41-490b-830a-0f177d7074e1",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "3f8db0d7-2189-4218-a93d-7cea10a5dadb",
+                "name": "output",
+                "value": "=TESTER LES FONCTIONS ICI\n",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          440,
+          0
+        ],
+        "id": "e0c848a8-01ec-4d8b-814e-80de5918179b",
+        "name": "Edit Fields1"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          []
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "fff6ef26-a4f7-4862-ab62-76ab21a9c290",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "ld5quu8jbENMykM8",
+    "tags": []
+  }
+}

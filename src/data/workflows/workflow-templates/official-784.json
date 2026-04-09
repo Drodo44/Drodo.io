@@ -1,0 +1,175 @@
+{
+  "id": "official-784",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/784",
+    "template_id": 784
+  },
+  "name": "Create, update, and get a profile in Humantic AI",
+  "description": "Create, update, and get a profile in Humantic AI",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "AI Summarization",
+    "manual",
+    "Humantic AI",
+    "Manual Trigger",
+    "create",
+    "update",
+    "profile",
+    "humantic"
+  ],
+  "task_keywords": [
+    "create, update, and get a profile in humantic ai",
+    "manual",
+    "create manual",
+    "update manual",
+    "humantic ai",
+    "create humantic ai",
+    "update humantic ai",
+    "manual trigger",
+    "create update",
+    "update profile",
+    "profile humantic",
+    "humantic create"
+  ],
+  "required_services": [
+    "manual",
+    "Humantic AI"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "127",
+    "name": "Create, update, and get a profile in Humantic AI",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          290,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Humantic AI",
+        "type": "n8n-nodes-base.humanticAi",
+        "position": [
+          490,
+          300
+        ],
+        "parameters": {
+          "userId": "https://www.linkedin.com/in/harshil1712/"
+        },
+        "credentials": {
+          "humanticAiApi": "humantic"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          690,
+          300
+        ],
+        "parameters": {
+          "url": "",
+          "options": {},
+          "responseFormat": "file"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Humantic AI1",
+        "type": "n8n-nodes-base.humanticAi",
+        "position": [
+          890,
+          300
+        ],
+        "parameters": {
+          "userId": "={{$node[\"Humantic AI\"].json[\"results\"][\"userid\"]}}",
+          "operation": "update",
+          "sendResume": true
+        },
+        "credentials": {
+          "humanticAiApi": "humantic"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Humantic AI2",
+        "type": "n8n-nodes-base.humanticAi",
+        "position": [
+          1090,
+          300
+        ],
+        "parameters": {
+          "userId": "={{$node[\"Humantic AI\"].json[\"results\"][\"userid\"]}}",
+          "options": {
+            "persona": [
+              "hiring"
+            ]
+          },
+          "operation": "get"
+        },
+        "credentials": {
+          "humanticAiApi": "humantic"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Humantic AI": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Humantic AI1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Humantic AI1": {
+        "main": [
+          [
+            {
+              "node": "Humantic AI2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Humantic AI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "id": "n8n-workflow-templates-new-woocommerce-customer-to-mautic-ad06373d16",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1160_Mautic_Woocommerce_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1160_Mautic_Woocommerce_Create_Triggered.json"
+  },
+  "name": "New WooCommerce Customer to Mautic",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: New WooCommerce Customer to Mautic",
+  "category": "E-commerce",
+  "tags": [
+    "workflows",
+    "mautic",
+    "woo Commerce",
+    "woo Commerce Trigger",
+    "woocommerce",
+    "customer",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "new woocommerce customer to mautic",
+    "mautic",
+    "woo commerce",
+    "woo commerce trigger",
+    "woocommerce customer",
+    "customer mautic",
+    "mautic n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates"
+  ],
+  "required_services": [
+    "mautic",
+    "woo Commerce"
+  ],
+  "triggers": [
+    "woo Commerce Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 83,
+    "name": "New WooCommerce Customer to Mautic",
+    "nodes": [
+      {
+        "name": "Check for Existing",
+        "type": "n8n-nodes-base.mautic",
+        "position": [
+          280,
+          480
+        ],
+        "parameters": {
+          "options": {
+            "search": "={{$json[\"email\"]}}"
+          },
+          "operation": "getAll",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "mauticOAuth2Api": {
+            "id": "54",
+            "name": "Mautic account"
+          }
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "If New",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          460,
+          480
+        ],
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{$json[\"id\"]}}",
+                "operation": "isEmpty"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Create Contact",
+        "type": "n8n-nodes-base.mautic",
+        "position": [
+          680,
+          320
+        ],
+        "parameters": {
+          "email": "={{$node[\"Customer Created\"].json[\"email\"]}}",
+          "company": "={{$node[\"Customer Created\"].json[\"billing\"][\"company\"]}}",
+          "options": {},
+          "lastName": "={{$node[\"Customer Created\"].json[\"last_name\"]}}",
+          "firstName": "={{$node[\"Customer Created\"].json[\"first_name\"]}}",
+          "authentication": "oAuth2",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "mauticOAuth2Api": {
+            "id": "54",
+            "name": "Mautic account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Update Contact",
+        "type": "n8n-nodes-base.mautic",
+        "position": [
+          680,
+          580
+        ],
+        "parameters": {
+          "options": {},
+          "contactId": "={{$json[\"id\"]}}",
+          "operation": "update",
+          "updateFields": {
+            "lastName": "={{$node[\"Customer Created or Updated\"].json[\"last_name\"]}}",
+            "firstName": "={{$node[\"Customer Created or Updated\"].json[\"first_name\"]}}"
+          },
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "mauticOAuth2Api": {
+            "id": "54",
+            "name": "Mautic account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Customer Created or Updated",
+        "type": "n8n-nodes-base.wooCommerceTrigger",
+        "position": [
+          100,
+          480
+        ],
+        "webhookId": "5d89e322-a5e0-4cce-9eab-185e8375175b",
+        "parameters": {
+          "event": "customer.updated"
+        },
+        "credentials": {
+          "wooCommerceApi": {
+            "id": "48",
+            "name": "WooCommerce account"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {
+      "saveManualExecutions": true,
+      "saveExecutionProgress": true,
+      "saveDataSuccessExecution": "all"
+    },
+    "connections": {
+      "If New": {
+        "main": [
+          [
+            {
+              "node": "Create Contact",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update Contact",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check for Existing": {
+        "main": [
+          [
+            {
+              "node": "If New",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Customer Created or Updated": {
+        "main": [
+          [
+            {
+              "node": "Check for Existing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

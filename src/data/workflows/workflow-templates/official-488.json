@@ -1,0 +1,71 @@
+{
+  "id": "official-488",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/488",
+    "template_id": 488
+  },
+  "name": "Receive updates when a new account is added by an admin in ActiveCampaign",
+  "description": "Receive updates when a new account is added by an admin in ActiveCampaign",
+  "category": "AI",
+  "tags": [
+    "CRM",
+    "ActiveCampaign",
+    "ActiveCampaign Trigger",
+    "receive",
+    "updates",
+    "when",
+    "account",
+    "added",
+    "admin"
+  ],
+  "task_keywords": [
+    "receive updates when a new account is added by an admin in activecampaign",
+    "activecampaign",
+    "update activecampaign",
+    "activecampaign trigger",
+    "receive updates",
+    "updates when",
+    "when account",
+    "account added",
+    "added admin",
+    "admin activecampaign",
+    "activecampaign receive"
+  ],
+  "required_services": [
+    "ActiveCampaign"
+  ],
+  "triggers": [
+    "ActiveCampaign Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "112",
+    "name": "Receive updates when a new account is added by an admin in ActiveCampaign",
+    "nodes": [
+      {
+        "name": "ActiveCampaign Trigger",
+        "type": "n8n-nodes-base.activeCampaignTrigger",
+        "position": [
+          700,
+          250
+        ],
+        "parameters": {
+          "events": [
+            "account_add"
+          ],
+          "sources": [
+            "admin"
+          ]
+        },
+        "credentials": {
+          "activeCampaignApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

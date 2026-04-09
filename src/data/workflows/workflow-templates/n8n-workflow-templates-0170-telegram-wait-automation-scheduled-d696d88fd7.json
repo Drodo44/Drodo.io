@@ -1,0 +1,225 @@
+{
+  "id": "n8n-workflow-templates-0170-telegram-wait-automation-scheduled-d696d88fd7",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0170_Telegram_Wait_Automation_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0170_Telegram_Wait_Automation_Scheduled.json"
+  },
+  "name": "0170 Telegram Wait Automation Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0170 Telegram Wait Automation Scheduled",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "cron",
+    "telegram",
+    "cron Trigger",
+    "0170",
+    "wait",
+    "automation",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0170 telegram wait automation scheduled",
+    "cron",
+    "telegram",
+    "cron trigger",
+    "0170 telegram",
+    "telegram wait",
+    "wait automation",
+    "automation scheduled",
+    "scheduled n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "cron",
+    "telegram"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          520,
+          440
+        ],
+        "parameters": {
+          "url": "https://news.ycombinator.com/",
+          "options": {},
+          "responseFormat": "string"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          680,
+          440
+        ],
+        "webhookId": "e5f84b2f-2568-4f5b-a72b-ed54838c768b",
+        "parameters": {
+          "unit": "minutes",
+          "amount": 5
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          880,
+          440
+        ],
+        "parameters": {
+          "url": "https://news.ycombinator.com/",
+          "options": {},
+          "responseFormat": "string"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1100,
+          440
+        ],
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{$node[\"HTTP Request\"].json[\"data\"]}} {{$node[\"HTTP Request\"].json[\"data\"]}}",
+                "value2": "="
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          320,
+          440
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "everyX",
+                "unit": "minutes",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram1",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1320,
+          520
+        ],
+        "parameters": {
+          "text": "Something got changed",
+          "chatId": "1234",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "4",
+            "name": "n8n test bot"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "NoOp",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          1320,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "NoOp",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

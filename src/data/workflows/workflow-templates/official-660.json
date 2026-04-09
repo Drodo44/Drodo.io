@@ -1,0 +1,76 @@
+{
+  "id": "official-660",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/660",
+    "template_id": 660
+  },
+  "name": "Receive updates when an email is bounced or opened",
+  "description": "Receive updates when an email is bounced or opened",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Postmark",
+    "Postmark Trigger",
+    "receive",
+    "updates",
+    "when",
+    "email",
+    "bounced",
+    "opened"
+  ],
+  "task_keywords": [
+    "receive updates when an email is bounced or opened",
+    "postmark",
+    "update postmark",
+    "postmark trigger",
+    "receive updates",
+    "updates when",
+    "when email",
+    "email bounced",
+    "bounced opened",
+    "opened receive"
+  ],
+  "required_services": [
+    "Postmark"
+  ],
+  "triggers": [
+    "Postmark Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "48",
+    "name": "Receive updates when an email is bounced or opened",
+    "nodes": [
+      {
+        "name": "Postmark Trigger",
+        "type": "n8n-nodes-base.postmarkTrigger",
+        "position": [
+          690,
+          260
+        ],
+        "webhookId": "1422ac7a-62ba-4f7c-8e22-4e8ecb4950ce",
+        "parameters": {
+          "events": [
+            "bounce",
+            "open"
+          ],
+          "includeContent": true
+        },
+        "credentials": {
+          "postmarkApi": "postmark"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Postmark Trigger": {
+        "main": [
+          []
+        ]
+      }
+    }
+  }
+}

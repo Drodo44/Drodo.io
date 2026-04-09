@@ -1,0 +1,387 @@
+{
+  "id": "official-5141",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/5141",
+    "template_id": 5141
+  },
+  "name": "Auto icon & cover for new Notion pages",
+  "description": "How it works • Automatically detects when new pages are created in your Notion workspace • Uses AI to generate contextually relevant icons based on page titles for perfect visual representation • Fetches random high quality cover images from Unsplash to add visual appeal to each page • Seamlessly integrates with you...",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "Multimodal AI",
+    "Loop Over Items (Split in Batches)",
+    "OpenRouter Chat Model",
+    "Webhook",
+    "auto",
+    "icon",
+    "cover",
+    "notion",
+    "pages",
+    "works"
+  ],
+  "task_keywords": [
+    "auto icon & cover for new notion pages",
+    "loop over items (split in batches)",
+    "create loop over items (split in batches)",
+    "openrouter chat model",
+    "create openrouter chat model",
+    "webhook",
+    "auto icon",
+    "icon cover",
+    "cover notion",
+    "notion pages",
+    "pages works",
+    "works automatically"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "OpenRouter Chat Model"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "C9jsQn2b1eIDUTBr",
+    "meta": {
+      "instanceId": "02ba8e38c1713a3b3e5dd4af425ff7c1e206bd5536e6c5547c8dba24ec9cff6f",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Auto Icon & Cover for New Notion Pages",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "f8c9c367-b289-439e-afa5-0316ec515dd0",
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          20,
+          480
+        ],
+        "parameters": {
+          "url": "=https://picsum.photos/v2/list?page={{$json.num}}&limit=100",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "5d2c8ad1-568a-4876-addf-b1476f7d88dd",
+        "name": "emoji",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          240,
+          480
+        ],
+        "parameters": {
+          "jsCode": "\n// must use Notion allowed emoji\nconst emojiStr = \"😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🥸🤩🥳😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬😱😨😰😥😓🤗🤔🤭🤫😶😶🌫️😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵😵💫🤯👋🤚🖐✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆👇🖕👍👎✊👊🤛🤜👏🙌👐🤲🤝👂🦻👃👶👧👦👩👨👵👴👲👳🧕👮👷💂🕵️👩⚕️👨⚕️👩🎓👨🎓👩🏫👨🏫👩⚖️👨⚖️👩🌾👨🌾👩🍳👨🍳👩🔧👨🔧👩🏭👨🏭👩💻👨💻👩🎤👨🎤👩🎨👨🎨👩✈️👨✈️👩🚀👨🚀👩🚒👨🚒👸🤴👰🤵👼🎅🤶🦸🦹🧙🧚🧛🧜🧝💆💇🚶🏃💃🕺👯🧖🧗🏇🏂🏌️🏄🚣🏊⛹️🏋️🚴🚵🤸🤼🤽🤾👫👭👬💏💑👪🐵🐒🦍🐶🐕🐩🐺🦊🐱🐈🦁🐯🐅🐆🐴🦄🦓🦌🐮🐷🐗🐭🐁🐹🐰🐇🐦🐧🦅🦆🦉🐸🐊🐢🦎🐍🐲🐉🦕🦖🐳🐋🐬🐟🐠🐡🦈🐙🦑🦞🦀🦐🐌🦋🐛🐜🐝🪲🐞🦗🕷️🕸️🦂💐🌸🌹🥀🌺🌻🌼🌷🌱🌿🍀🍁🍂🍃🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🫗🥤🧋🧃🧉🧊🥢🍽️🍴🥄🔪🏺🌍🌎🌏🌐🗺️🧭🏔️⛰️🌋🏕️🏖️🏜️🏝️🏞️🏟️🏛️🏗️🧱🛖🏘️🏠🏡🏢🏣🏤🏥🏦🏨🏩🏪🏫🏬🏭🏯🏰💒🗼🗽⛪🕌🕍⛩️🕋⛲⛺🌁🌃🏙️🌄🌅🌆🌉♨️🎠🎡🎢💈🎪🚂🚃🚄🚅🚆🚇🚈🚉🚊🚝🚞🚋🚌🚍🚎🚐🚑🚒🚓🚔🚕🚖🚗🚘🚙🛻🚚🚛🚜🏎️🏍️🛵🦽🦼🛺🚲🛴🛹🛼🚏🛣️🛤️⛽🚨🚥🚦🛑🚧⚓⛵🛶🚤🛳️⛴️🛥️🚢✈️🛩️🛫🛬🪂🚁🚟🚠🚡🛰️🚀🛸🛎️🧳⌛⏳⌚⏰⏱️⏲️🕰️🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌡️☀️🌝🌞⭐🌟🌠☁️⛅🌤️🌥️🌦️🌧️🌨️🌩️🌪️🌫️🌬️🌀🌈🌂☂️☔⛱️⚡❄️☃️⛄☄️🔥💧🌊🎃🎄🎆🎇✨🎈🎉🎊🎋🎍🎎🎏🎐🎑🧧🎀🎁🎗️🎟️🎫🏆🏅🥇🥈🥉⚽⚾🥎🏀🏐🏈🏉🎾🥏🎳🏏🏑🏒🥍🏓🏸🥊🥋⛳🎣🤿🎽🎿🛷🥌🎯🪀🪁🎱🔮🪄🎮🕹️🎰🎲🧩🧸🪅🪩🪆♠️♥️♦️♣️🃏🀄🎴🎭🖼️🎨🧵🪡🧶🪢👓🕶️🥽🥼🦺👔👕👖🧣🧤🧥🧦👗👘🥻🩱🩲🩳👙👚👛👜👝🎒🩴👞👟🥾🥿👠👡🩰👢👑👒🎩🎓🧢🪖⛑️📿💄💍💎🔇🔈🔉🔊📢📣📯🔔🔕🎼🎵🎶🎙️🎚️🎛️🎤🎧📻🎷🪗🎸🎹🎺🎻🪕🥁🪘📱📲☎️📞📟📠🔋🪫🔌💻🖥️🖨️⌨️🖱️🖲️💽💾💿📀🧮🎥🎞️📽️🎬📺📷📸📹📼🔍🔎🕯️💡🔦🏮🪔📔📕📖📗📘📙📚📓📒📃📜📄📰🗞️📑🔖🏷️💰💸💳🧾💹✉️📧📨📩📤📥📦📫📪📬📭📮🗳️✏️✒️📝📂🗂️🗓️📇📋📌📍📎🖇️📏📐✂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨🪓⛏️⚒️🛠️🗡️⚔️🔫🪃🏹🛡️🪚🔧🪛🔩⚙️🗜️⚖️🦯🔗⛓️🪝🧰🧲🪜⚗️🧪🧫🧬🔬🔭📡💉🩸💊🩹🩼🩺🩻🚪🛗🪞🪟🛏️🛋️🪑🚽🪠🚿🛁🪤🪒🧴🧷🧹🧺🧻🪣🧼🫧🪥🧽🧯🛒🚬⚰️🪦⚱️🗿🪧🪪⏏️🎦🔅🔆💲⚕️♻️⚜️🔱📛🔰⭕✅☑️✔️❌❎➰➿〽️✳️✴️❇️🅿️🆘🆙🆚🚩\"\n\n\nlet emojiList = emojiStr.split('')\nfor (const element of $('Random Number').all()) {\n  let randomIndex = Math.floor(Math.random() * emojiList.length);\nlet randomEmoji = emojiList[randomIndex];\n  element.json.emoji = randomEmoji\n  \n}\nreturn  $('Random Number').all()"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "64da878c-b7fd-405b-9f3a-4896ddd69039",
+        "name": "picurl",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1340,
+          480
+        ],
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfunction getRandomInt(min, max) {\n  // 确保 min 和 max 是整数。\n  min = Math.ceil(min); // 向上取整，确保 min 是整数\n  max = Math.floor(max); // 向下取整，确保 max 是整数\n\n  // 兼容处理：如果 min 大于 max，则交换它们的值。\n  if (min > max) {\n    [min, max] = [max, min]; // 使用数组解构交换值，更简洁\n  }\n\n  // 生成随机数。\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n// const randomNum1 = getRandomInt(1, 100);\n// $('emoji').item.json.emoji\n// for (const element of $input.all()) {\n//   let randomNum1 = getRandomInt(1, 100);\n//   element.json.picurl = $input.all()[randomNum1]\n// }\nfor (const element of $('Random Number').all()) {\n  let randomNum1 = getRandomInt(1, 100);\n  element.json.picurl = $('HTTP Request').all()[randomNum1].json.download_url\n\n}\n// $input.first().json.emoji = randomEmoji\n// 将结果作为新的 item 输出.  n8n Code 节点通常返回一个数组。\nreturn  $('Random Number').all()\n"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "70a1261a-7d69-4d8c-b1f4-39823f2028df",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          1620,
+          480
+        ],
+        "parameters": {
+          "options": {},
+          "batchSize": "={{ $('emoji').all().length }}"
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "8da7a64e-b43a-40d6-b601-515d300794d1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -420,
+          480
+        ],
+        "webhookId": "0e0c42ac-ad54-4823-b1d2-592b3bc33337",
+        "parameters": {
+          "path": "0e0c42ac-ad54-4823-b1d2-592b3bc33337",
+          "options": {},
+          "httpMethod": "POST"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "c42e64ed-578d-47f7-acb9-219ed12d8536",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          760,
+          720
+        ],
+        "parameters": {
+          "model": "deepseek/deepseek-chat-v3-0324:free",
+          "options": {
+            "responseFormat": "json_object"
+          }
+        },
+        "credentials": {
+          "openRouterApi": {
+            "id": "credential-id",
+            "name": "openRouterApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a77e8be2-e4a7-4bd2-86cd-08657105bfe5",
+        "name": "Basic LLM Chain",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          700,
+          480
+        ],
+        "parameters": {
+          "text": "=Please analyze the given text information and return the most suitable emoji from the emoji list below. Note that you can only return one emoji. Return it in JSON format. Empty responses are not allowed.\n\nEmoji list contents： 😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🥸🤩🥳😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬😱😨😰😥😓🤗🤔🤭🤫😶😶🌫️😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵😵💫🤯\n  👋🤚🖐✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆👇🖕👍👎✊👊🤛🤜👏🙌👐🤲🤝👂🦻👃👶👧👦👩👨👵👴👲👳🧕👮👷💂🕵️👩⚕️👨⚕️👩🎓👨🎓👩🏫👨🏫👩⚖️👨⚖️👩🌾👨🌾👩🍳👨🍳👩🔧👨🔧👩🏭👨🏭👩💻👨💻👩🎤👨🎤👩🎨👨🎨👩✈️👨✈️👩🚀👨🚀👩🚒👨🚒👸🤴👰🤵👼🎅🤶🦸🦹🧙🧚🧛🧜🧝💆💇🚶🏃💃🕺👯🧖🧗🏇🏂🏌️🏄🚣🏊⛹️🏋️🚴🚵🤸🤼🤽🤾👫👭👬💏💑👪\n  🐵🐒🦍🐶🐕🐩🐺🦊🐱🐈🦁🐯🐅🐆🐴🦄🦓🦌🐮🐷🐗🐭🐁🐹🐰🐇🐦🐧🦅🦆🦉🐸🐊🐢🦎🐍🐲🐉🦕🦖🐳🐋🐬🐟🐠🐡🦈🐙🦑🦞🦀🦐🐌🦋🐛🐜🐝🪲🐞🦗🕷️🕸️🦂💐🌸🌹🥀🌺🌻🌼🌷🌱🌿🍀🍁🍂🍃\n  🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🫗🥤🧋🧃🧉🧊🥢🍽️🍴🥄🔪🏺🌍🌎🌏🌐🗺️🧭🏔️⛰️🌋🏕️🏖️🏜️🏝️🏞️🏟️🏛️🏗️🧱🛖🏘️🏠🏡🏢🏣🏤🏥🏦🏨🏩🏪🏫🏬🏭🏯🏰💒🗼🗽⛪🕌🕍⛩️🕋⛲⛺🌁🌃🏙️🌄🌅🌆🌉♨️🎠🎡🎢💈🎪🚂🚃🚄🚅🚆🚇🚈🚉🚊🚝🚞🚋🚌🚍🚎🚐🚑🚒🚓🚔🚕🚖🚗🚘🚙🛻🚚🚛🚜🏎️🏍️🛵🦽🦼🛺🚲🛴🛹🛼🚏🛣️🛤️⛽🚨🚥🚦🛑🚧⚓⛵🛶🚤🛳️⛴️🛥️🚢✈️🛩️🛫🛬🪂🚁🚟🚠🚡🛰️🚀🛸🛎️🧳⌛⏳⌚⏰⏱️⏲️🕰️🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌡️☀️🌝🌞⭐🌟🌠☁️⛅🌤️🌥️🌦️🌧️🌨️🌩️🌪️🌫️🌬️🌀🌈🌂☂️☔⛱️⚡❄️☃️⛄☄️🔥💧🌊🎃🎄🎆🎇✨🎈🎉🎊🎋🎍🎎🎏🎐🎑🧧🎀🎁🎗️🎟️🎫🏆🏅🥇🥈🥉⚽⚾🥎🏀🏐🏈🏉🎾🥏🎳🏏🏑🏒🥍🏓🏸🥊🥋⛳🎣🤿🎽🎿🛷🥌🎯🪀🪁🎱🔮🪄🎮🕹️🎰🎲🧩🧸🪅🪩🪆♠️♥️♦️♣️🃏🀄🎴🎭🖼️🎨🧵🪡🧶🪢👓🕶️🥽🥼🦺👔👕👖🧣🧤🧥🧦👗👘🥻🩱🩲🩳👙👚👛👜👝🎒🩴👞👟🥾🥿👠👡🩰👢👑👒🎩🎓🧢🪖⛑️📿💄💍💎🔇🔈🔉🔊📢📣📯🔔🔕🎼🎵🎶🎙️🎚️🎛️🎤🎧📻🎷🪗🎸🎹🎺🎻🪕🥁🪘📱📲☎️📞📟📠🔋🪫🔌💻🖥️🖨️⌨️🖱️🖲️💽💾💿📀🧮🎥🎞️📽️🎬📺📷📸📹📼🔍🔎🕯️💡🔦🏮🪔📔📕📖📗📘📙📚📓📒📃📜📄📰🗞️📑🔖🏷️💰💸💳🧾💹✉️📧📨📩📤📥📦📫📪📬📭📮🗳️✏️✒️📝📂🗂️🗓️📇📋📌📍📎🖇️📏📐✂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨🪓⛏️⚒️🛠️🗡️⚔️🔫🪃🏹🛡️🪚🔧🪛🔩⚙️🗜️⚖️🦯🔗⛓️🪝🧰🧲🪜⚗️🧪🧫🧬🔬🔭📡💉🩸💊🩹🩼🩺🩻🚪🛗🪞🪟🛏️🛋️🪑🚽🪠🚿🛁🪤🪒🧴🧷🧹🧺🧻🪣🧼🫧🪥🧽🧯🛒🚬⚰️🪦⚱️🗿🪧🪪⏏️🎦🔅🔆💲⚕️♻️⚜️🔱📛🔰⭕✅☑️✔️❌❎➰➿〽️✳️✴️❇️🅿️🆘🆙🆚🚩\nuse output format：\n{\n\t\"emoji\": \"🚀\"\n}\n\n我的内容是：  {{ $json.name }}",
+          "promptType": "define"
+        },
+        "retryOnFail": true,
+        "typeVersion": 1.6,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "3e65d28b-5260-4ede-af69-63358e69f8c8",
+        "name": "Random Number",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -200,
+          480
+        ],
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfunction getRandomInt(min, max) {\n \n  min = Math.ceil(min); \n  max = Math.floor(max);\n\n  if (min > max) {\n    [min, max] = [max, min]; \n  }\n\n  return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\nlet i = 0\n// let randomNum1 = getRandomInt(1, 10);\nfor (const element of $input.all()) {\n  element.json.num = getRandomInt(1, 10)\n   element.json.id = $input.all()[i].json.id\n  i++\n}\n// $input.all(i).json.num = randomNum1\nreturn $input.all();"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "c7421dea-a3f6-4d58-a435-c0fa88795641",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -460,
+          260
+        ],
+        "parameters": {
+          "content": "## Webhook  \nuse webhook so you can send req by Notion Button or Automation"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e1815bda-0f17-408d-81b1-1555d3966d04",
+        "name": "Get Notion Title",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          480,
+          480
+        ],
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  if (item.json.body.data.properties) {\n    item.json.name = item.json.body.data.properties.Name.title[0].plain_text\n    \n  }else{\n     item.json.name = item.json.body.data.Name\n  }\n  \n}\n\n\nreturn $input.all();"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "f713ca6d-b61e-42f8-9d03-f5e905a06994",
+        "name": "Update Notion Page",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1980,
+          480
+        ],
+        "parameters": {
+          "url": "=https://api.notion.com/v1/pages/{{ $('Webhook').item.json.body.data.id }}",
+          "method": "PATCH",
+          "options": {},
+          "jsonBody": "={\n  \"icon\": {\n    \"type\": \"emoji\",\n    \"emoji\": \"{{ $('Choose Default Emoji').item.json.emoji }}\"\n  },\n  \"cover\": {\n    \"type\": \"external\",\n    \"external\": {\n      \"url\": \"{{ $json.picurl }}\"\n    }\n  }\n}",
+          "sendBody": true,
+          "specifyBody": "json",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "notionApi"
+        },
+        "credentials": {
+          "notionApi": {
+            "id": "credential-id",
+            "name": "notionApi Credential"
+          }
+        },
+        "executeOnce": false,
+        "typeVersion": 4.2
+      },
+      {
+        "id": "86a4c412-173a-4bcb-9973-5e836c379c68",
+        "name": "Choose Default Emoji",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1100,
+          480
+        ],
+        "parameters": {
+          "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n\n\nconst emojiStr = \"😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🥸🤩🥳😏😒😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😤😠😡🤬😱😨😰😥😓🤗🤔🤭🤫😶😶🌫️😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵😵💫🤯👋🤚🖐✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆👇🖕👍👎✊👊🤛🤜👏🙌👐🤲🤝👂🦻👃👶👧👦👩👨👵👴👲👳🧕👮👷💂🕵️👩⚕️👨⚕️👩🎓👨🎓👩🏫👨🏫👩⚖️👨⚖️👩🌾👨🌾👩🍳👨🍳👩🔧👨🔧👩🏭👨🏭👩💻👨💻👩🎤👨🎤👩🎨👨🎨👩✈️👨✈️👩🚀👨🚀👩🚒👨🚒👸🤴👰🤵👼🎅🤶🦸🦹🧙🧚🧛🧜🧝💆💇🚶🏃💃🕺👯🧖🧗🏇🏂🏌️🏄🚣🏊⛹️🏋️🚴🚵🤸🤼🤽🤾👫👭👬💏💑👪🐵🐒🦍🐶🐕🐩🐺🦊🐱🐈🦁🐯🐅🐆🐴🦄🦓🦌🐮🐷🐗🐭🐁🐹🐰🐇🐦🐧🦅🦆🦉🐸🐊🐢🦎🐍🐲🐉🦕🦖🐳🐋🐬🐟🐠🐡🦈🐙🦑🦞🦀🦐🐌🦋🐛🐜🐝🪲🐞🦗🕷️🕸️🦂💐🌸🌹🥀🌺🌻🌼🌷🌱🌿🍀🍁🍂🍃🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🫗🥤🧋🧃🧉🧊🥢🍽️🍴🥄🔪🏺🌍🌎🌏🌐🗺️🧭🏔️⛰️🌋🏕️🏖️🏜️🏝️🏞️🏟️🏛️🏗️🧱🛖🏘️🏠🏡🏢🏣🏤🏥🏦🏨🏩🏪🏫🏬🏭🏯🏰💒🗼🗽⛪🕌🕍⛩️🕋⛲⛺🌁🌃🏙️🌄🌅🌆🌉♨️🎠🎡🎢💈🎪🚂🚃🚄🚅🚆🚇🚈🚉🚊🚝🚞🚋🚌🚍🚎🚐🚑🚒🚓🚔🚕🚖🚗🚘🚙🛻🚚🚛🚜🏎️🏍️🛵🦽🦼🛺🚲🛴🛹🛼🚏🛣️🛤️⛽🚨🚥🚦🛑🚧⚓⛵🛶🚤🛳️⛴️🛥️🚢✈️🛩️🛫🛬🪂🚁🚟🚠🚡🛰️🚀🛸🛎️🧳⌛⏳⌚⏰⏱️⏲️🕰️🌑🌒🌓🌔🌕🌖🌗🌘🌙🌚🌛🌜🌡️☀️🌝🌞⭐🌟🌠☁️⛅🌤️🌥️🌦️🌧️🌨️🌩️🌪️🌫️🌬️🌀🌈🌂☂️☔⛱️⚡❄️☃️⛄☄️🔥💧🌊🎃🎄🎆🎇✨🎈🎉🎊🎋🎍🎎🎏🎐🎑🧧🎀🎁🎗️🎟️🎫🏆🏅🥇🥈🥉⚽⚾🥎🏀🏐🏈🏉🎾🥏🎳🏏🏑🏒🥍🏓🏸🥊🥋⛳🎣🤿🎽🎿🛷🥌🎯🪀🪁🎱🔮🪄🎮🕹️🎰🎲🧩🧸🪅🪩🪆♠️♥️♦️♣️🃏🀄🎴🎭🖼️🎨🧵🪡🧶🪢👓🕶️🥽🥼🦺👔👕👖🧣🧤🧥🧦👗👘🥻🩱🩲🩳👙👚👛👜👝🎒🩴👞👟🥾🥿👠👡🩰👢👑👒🎩🎓🧢🪖⛑️📿💄💍💎🔇🔈🔉🔊📢📣📯🔔🔕🎼🎵🎶🎙️🎚️🎛️🎤🎧📻🎷🪗🎸🎹🎺🎻🪕🥁🪘📱📲☎️📞📟📠🔋🪫🔌💻🖥️🖨️⌨️🖱️🖲️💽💾💿📀🧮🎥🎞️📽️🎬📺📷📸📹📼🔍🔎🕯️💡🔦🏮🪔📔📕📖📗📘📙📚📓📒📃📜📄📰🗞️📑🔖🏷️💰💸💳🧾💹✉️📧📨📩📤📥📦📫📪📬📭📮🗳️✏️✒️📝📂🗂️🗓️📇📋📌📍📎🖇️📏📐✂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨🪓⛏️⚒️🛠️🗡️⚔️🔫🪃🏹🛡️🪚🔧🪛🔩⚙️🗜️⚖️🦯🔗⛓️🪝🧰🧲🪜⚗️🧪🧫🧬🔬🔭📡💉🩸💊🩹🩼🩺🩻🚪🛗🪞🪟🛏️🛋️🪑🚽🪠🚿🛁🪤🪒🧴🧷🧹🧺🧻🪣🧼🫧🪥🧽🧯🛒🚬⚰️🪦⚱️🗿🪧🪪⏏️🎦🔅🔆💲⚕️♻️⚜️🔱📛🔰⭕✅☑️✔️❌❎➰➿〽️✳️✴️❇️🅿️🆘🆙🆚🚩\"\n\n\nfor (const item of $input.all()) {\n  item.json.emoji = item.json.emoji;\n    if(item.json.emoji == undefined){\n            const emojiArr = Array.from(emojiStr);\n          let randomIndex = Math.floor(Math.random() * emojiArr.length);\n      console.log(emojiArr[randomIndex])\n    item.json.emoji = emojiArr[randomIndex];\n  }\n\n}\n\n\nreturn $input.all();"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "a045cdb6-4597-46eb-8536-c9458a51a92a",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1040,
+          260
+        ],
+        "parameters": {
+          "content": "## Default Emoji\nif AI choose is fail,it's will use random emoji"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "83f76eb8-0f40-4348-bf56-0b0b960b1516",
+    "connections": {
+      "emoji": {
+        "main": [
+          [
+            {
+              "node": "Get Notion Title",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "picurl": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Random Number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "emoji",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Random Number": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain": {
+        "main": [
+          [
+            {
+              "node": "Choose Default Emoji",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Update Notion Page",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Notion Title": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Notion Page": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Choose Default Emoji": {
+        "main": [
+          [
+            {
+              "node": "picurl",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

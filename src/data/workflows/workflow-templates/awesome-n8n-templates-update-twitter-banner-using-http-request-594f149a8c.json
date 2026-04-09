@@ -1,0 +1,136 @@
+{
+  "id": "awesome-n8n-templates-update-twitter-banner-using-http-request-594f149a8c",
+  "source": {
+    "type": "github",
+    "repository": "enescingoz/awesome-n8n-templates",
+    "repository_stars": 20969,
+    "path": "Instagram_Twitter_Social_Media/Update Twitter banner using HTTP request.json",
+    "url": "https://github.com/enescingoz/awesome-n8n-templates/blob/main/Instagram_Twitter_Social_Media/Update Twitter banner using HTTP request.json"
+  },
+  "name": "Update Twitter banner using HTTP request",
+  "description": "n8n workflow template from enescingoz/awesome-n8n-templates: Update Twitter banner using HTTP request",
+  "category": "Marketing",
+  "tags": [
+    "Instagram Twitter Social Media",
+    "manual",
+    "start",
+    "Manual Trigger",
+    "update",
+    "twitter",
+    "banner",
+    "http",
+    "request",
+    "n8n"
+  ],
+  "task_keywords": [
+    "update twitter banner using http request",
+    "manual",
+    "update manual",
+    "start",
+    "update start",
+    "manual trigger",
+    "update twitter",
+    "twitter banner",
+    "banner http",
+    "http request",
+    "request n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "manual",
+    "start"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Start",
+        "type": "n8n-nodes-base.start",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "url": "https://unsplash.com/photos/lUDMZUWFUXE/download?ixid=MnwxMjA3fDB8MXxhbGx8Mnx8fHx8fDJ8fDE2MzczMjY4Mjc&force=true",
+          "options": {},
+          "responseFormat": "file",
+          "headerParametersUi": {
+            "parameter": []
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "url": "https://api.twitter.com/1.1/account/update_profile_banner.json",
+          "options": {},
+          "requestMethod": "POST",
+          "authentication": "oAuth1",
+          "jsonParameters": true,
+          "sendBinaryData": true,
+          "binaryPropertyName": "banner:data"
+        },
+        "credentials": {
+          "oAuth1Api": {
+            "id": "300",
+            "name": "Unnamed credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

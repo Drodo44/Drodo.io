@@ -1,0 +1,88 @@
+{
+  "id": "official-459",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/459",
+    "template_id": 459
+  },
+  "name": "Create a new issue in Jira",
+  "description": "Create a new issue in Jira",
+  "category": "Other",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Jira Software",
+    "Manual Trigger",
+    "create",
+    "issue",
+    "jira"
+  ],
+  "task_keywords": [
+    "create a new issue in jira",
+    "manual",
+    "create manual",
+    "jira software",
+    "create jira software",
+    "manual trigger",
+    "create issue",
+    "issue jira",
+    "jira create"
+  ],
+  "required_services": [
+    "manual",
+    "Jira Software"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "87",
+    "name": "Create a new issue in Jira",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          350,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Jira",
+        "type": "n8n-nodes-base.jira",
+        "position": [
+          550,
+          300
+        ],
+        "parameters": {
+          "project": "",
+          "summary": "Firewall on fire",
+          "issueType": "10001",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "jiraSoftwareCloudApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Jira",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

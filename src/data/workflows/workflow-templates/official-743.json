@@ -1,0 +1,88 @@
+{
+  "id": "official-743",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/743",
+    "template_id": 743
+  },
+  "name": "Translate text from English to German",
+  "description": "Translate text from English to German",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "manual",
+    "Google Translate",
+    "Manual Trigger",
+    "translate",
+    "text",
+    "english",
+    "german"
+  ],
+  "task_keywords": [
+    "translate text from english to german",
+    "manual",
+    "google translate",
+    "manual trigger",
+    "translate text",
+    "text english",
+    "english german",
+    "german translate"
+  ],
+  "required_services": [
+    "manual",
+    "Google Translate"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "92",
+    "name": "Translate text from English to German",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Translate",
+        "type": "n8n-nodes-base.googleTranslate",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "text": "Hello from n8n!",
+          "translateTo": "de",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleTranslateOAuth2Api": "google-translate"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Translate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

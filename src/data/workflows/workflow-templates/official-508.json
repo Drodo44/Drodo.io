@@ -1,0 +1,64 @@
+{
+  "id": "official-508",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/508",
+    "template_id": 508
+  },
+  "name": "Receive updates for specified tasks in flow",
+  "description": "Receive updates for specified tasks in flow",
+  "category": "Productivity",
+  "tags": [
+    "Project Management",
+    "Flow",
+    "Flow Trigger",
+    "receive",
+    "updates",
+    "specified",
+    "tasks",
+    "flow"
+  ],
+  "task_keywords": [
+    "receive updates for specified tasks in flow",
+    "flow",
+    "update flow",
+    "flow trigger",
+    "receive updates",
+    "updates specified",
+    "specified tasks",
+    "tasks flow",
+    "flow receive"
+  ],
+  "required_services": [
+    "Flow"
+  ],
+  "triggers": [
+    "Flow Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "133",
+    "name": "Receive updates for specified tasks in Flow",
+    "nodes": [
+      {
+        "name": "Flow Trigger",
+        "type": "n8n-nodes-base.flowTrigger",
+        "position": [
+          650,
+          250
+        ],
+        "parameters": {
+          "taskIds": "",
+          "resource": "task"
+        },
+        "credentials": {
+          "flowApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

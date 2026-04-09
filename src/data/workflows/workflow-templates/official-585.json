@@ -1,0 +1,108 @@
+{
+  "id": "official-585",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/585",
+    "template_id": 585
+  },
+  "name": "Extract text from a PDF file",
+  "description": "Companion workflow for Read PDF node docs",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "manual",
+    "Read Binary File",
+    "Read PDF",
+    "Manual Trigger",
+    "extract",
+    "text",
+    "pdf",
+    "file",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "extract text from a pdf file",
+    "manual",
+    "read binary file",
+    "read pdf",
+    "manual trigger",
+    "extract text",
+    "text pdf",
+    "pdf file",
+    "file companion",
+    "companion workflow",
+    "workflow read",
+    "pdf node"
+  ],
+  "required_services": [
+    "manual",
+    "Read Binary File",
+    "Read PDF"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          680,
+          400
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          880,
+          400
+        ],
+        "parameters": {
+          "filePath": "/data/pdf.pdf"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read PDF",
+        "type": "n8n-nodes-base.readPDF",
+        "position": [
+          1090,
+          400
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "Read PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Read Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

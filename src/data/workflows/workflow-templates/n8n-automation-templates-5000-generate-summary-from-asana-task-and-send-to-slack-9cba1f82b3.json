@@ -1,0 +1,175 @@
+{
+  "id": "n8n-automation-templates-5000-generate-summary-from-asana-task-and-send-to-slack-9cba1f82b3",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/generate-summary-asana-task-slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/generate-summary-asana-task-slack.json"
+  },
+  "name": "Generate summary from Asana task and send to Slack",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Generate summary from Asana task and send to Slack",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "generate",
+    "summary",
+    "asana",
+    "task",
+    "send"
+  ],
+  "task_keywords": [
+    "generate summary from asana task and send to slack",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "generate summary",
+    "summary asana",
+    "asana task",
+    "task send",
+    "slack n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Generate summary from Asana task and send to Slack",
+    "nodes": [
+      {
+        "id": "trigger-asana-task",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          150500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "generate-summary-from-asana-task-and-send-to-slack",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-asana-task",
+        "name": "Fetch data from Asana task",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          150500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/asana-task",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-generate-summary",
+        "name": "AI: Generate Summary",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          150500
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: generate summary"
+        }
+      },
+      {
+        "id": "send-slack",
+        "name": "Send to Slack",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          150500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/slack",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-150500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          150500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Asana task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Asana task": {
+        "main": [
+          {
+            "node": "AI: Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Generate Summary": {
+        "main": [
+          [
+            {
+              "node": "AI: Generate Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Slack": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "id": "official-900",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/900",
+    "template_id": 900
+  },
+  "name": "Add a datapoint to Beeminder on Strava activity update",
+  "description": "This workflow allows you to add a datapoint to Beeminder when a new activity is added to Strava.",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "Strava",
+    "Beeminder",
+    "Strava Trigger",
+    "add",
+    "datapoint",
+    "beeminder",
+    "strava",
+    "activity",
+    "update"
+  ],
+  "task_keywords": [
+    "add a datapoint to beeminder on strava activity update",
+    "strava",
+    "update strava",
+    "beeminder",
+    "update beeminder",
+    "strava trigger",
+    "add datapoint",
+    "datapoint beeminder",
+    "beeminder strava",
+    "strava activity",
+    "activity update",
+    "update workflow"
+  ],
+  "required_services": [
+    "Strava",
+    "Beeminder"
+  ],
+  "triggers": [
+    "Strava Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "208",
+    "name": "Add a datapoint to Beeminder when new activity is added to Strava",
+    "nodes": [
+      {
+        "name": "Strava Trigger",
+        "type": "n8n-nodes-base.stravaTrigger",
+        "position": [
+          470,
+          300
+        ],
+        "webhookId": "2b0c6812-ac24-42e5-b15e-8d1fb7606908",
+        "parameters": {
+          "event": "create",
+          "options": {}
+        },
+        "credentials": {
+          "stravaOAuth2Api": "strava"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Beeminder",
+        "type": "n8n-nodes-base.beeminder",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "goalName": "testing",
+          "additionalFields": {
+            "comment": "={{$json[\"object_data\"][\"name\"]}}"
+          }
+        },
+        "credentials": {
+          "beeminderApi": "Beeminder credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Strava Trigger": {
+        "main": [
+          [
+            {
+              "node": "Beeminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

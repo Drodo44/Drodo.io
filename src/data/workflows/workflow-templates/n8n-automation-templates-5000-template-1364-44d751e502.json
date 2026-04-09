@@ -1,0 +1,159 @@
+{
+  "id": "n8n-automation-templates-5000-template-1364-44d751e502",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Slack/rag_agents_1364_webhook_slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Slack/rag_agents_1364_webhook_slack.json"
+  },
+  "name": "Template 1364",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1364",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Slack",
+    "slack",
+    "openai",
+    "notion",
+    "webhook",
+    "template",
+    "1364",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1364",
+    "slack",
+    "openai",
+    "notion",
+    "webhook",
+    "1364 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "slack",
+    "openai",
+    "notion"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1364",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-1364",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Generate a comprehensive summary and create a Notion page."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Notion",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1364
+  }
+}

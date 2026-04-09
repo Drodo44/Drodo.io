@@ -1,0 +1,85 @@
+{
+  "id": "official-998",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/998",
+    "template_id": 998
+  },
+  "name": "Translate cocktail instructions using DeepL",
+  "description": "This workflow allows you to translate cocktail instructions using DeepL.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "DeepL",
+    "translate",
+    "cocktail",
+    "instructions",
+    "deepl",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "translate cocktail instructions using deepl",
+    "deepl",
+    "translate cocktail",
+    "cocktail instructions",
+    "instructions deepl",
+    "deepl workflow",
+    "workflow allows",
+    "allows you",
+    "you translate"
+  ],
+  "required_services": [
+    "DeepL"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          510,
+          320
+        ],
+        "parameters": {
+          "url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "DeepL",
+        "type": "n8n-nodes-base.deepL",
+        "position": [
+          710,
+          320
+        ],
+        "parameters": {
+          "text": "={{$json[\"drinks\"][0][\"strInstructions\"]}}",
+          "translateTo": "FR",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "deepLApi": "DeepL API Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "DeepL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "id": "n8n-automation-templates-5000-template-981-9bc5ef3432",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/event_management_981_email_trigger_zoom.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/event_management_981_email_trigger_zoom.json"
+  },
+  "name": "Template 981",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 981",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "zoom",
+    "vectordb",
+    "gmail Trigger",
+    "template",
+    "981",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 981",
+    "gmail",
+    "zoom",
+    "vectordb",
+    "gmail trigger",
+    "981 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "gmail",
+    "zoom",
+    "vectordb"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 981",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Zoom",
+        "type": "n8n-nodes-base.zoom",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Vector DB",
+        "type": "n8n-nodes-base.vectordb",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Zoom",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Zoom": {
+        "main": [
+          [
+            {
+              "node": "Vector DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 981
+  }
+}

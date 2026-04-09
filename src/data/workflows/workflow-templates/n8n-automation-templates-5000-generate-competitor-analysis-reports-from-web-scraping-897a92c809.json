@@ -1,0 +1,210 @@
+{
+  "id": "n8n-automation-templates-5000-generate-competitor-analysis-reports-from-web-scraping-897a92c809",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n advance/generate-competitor-analysis-reports-from-web-scraping.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n advance/generate-competitor-analysis-reports-from-web-scraping.json"
+  },
+  "name": "generate-competitor-analysis-reports-from-web-scraping",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: generate-competitor-analysis-reports-from-web-scraping",
+  "category": "AI",
+  "tags": [
+    "n8n advance",
+    "function",
+    "openai",
+    "slack",
+    "webhook",
+    "generate",
+    "competitor",
+    "analysis",
+    "reports",
+    "web",
+    "scraping"
+  ],
+  "task_keywords": [
+    "generate-competitor-analysis-reports-from-web-scraping",
+    "function",
+    "openai",
+    "slack",
+    "webhook",
+    "generate competitor",
+    "competitor analysis",
+    "analysis reports",
+    "reports web",
+    "web scraping",
+    "scraping n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "function",
+    "openai",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "generate-competitor-analysis-reports-from-web-scraping",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "competitors"
+        },
+        "id": "cr1",
+        "name": "Competitor URLs Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          100,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "functionCode": "const b=$json.body||$json;const urls=(b.urls||[]).filter(Boolean);return urls.map(u=>({json:{url:u}}));"
+        },
+        "id": "cr2",
+        "name": "Fan-out URLs",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          320,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "url": "={{$json.url}}",
+          "responseFormat": "string"
+        },
+        "id": "cr3",
+        "name": "Fetch HTML",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          540,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "functionCode": "const html=$json; const title=(html.match(/<title>(.*?)<\\/title>/i)||[])[1]||''; const h1=(html.match(/<h1[^>]*>(.*?)<\\/h1>/is)||[])[1]||''; const metas=[...html.matchAll(/<meta[^>]+name=[\\\"\\']description[\\\"\\'][^>]+content=[\\\"\\']([^\\\"\\']*)[\\\"\\'][^>]*>/gi)]; const desc=metas[0]?.[1]||''; return [{json:{url:$prevNode['Fetch HTML'].params.url, title, h1, description:desc, htmlSnippet:html.slice(0,2000)}}];"
+        },
+        "id": "cr4",
+        "name": "Extract Basics",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          760,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-4",
+          "temperature": 0.2,
+          "messages": [
+            {
+              "role": "system",
+              "content": "Analyze competitor web page. List value props, pricing hints, CTAs, SEO keywords, and differentiators. Return JSON {valueProps:[...], pricingSignals:[...], ctas:[...], keywords:[...], strengths:[...], weaknesses:[...]}."
+            },
+            {
+              "role": "user",
+              "content": "URL {{$json.url}} | title {{$json.title}} | h1 {{$json.h1}} | description {{$json.description}} | snippet {{$json.htmlSnippet}}"
+            }
+          ]
+        },
+        "id": "cr5",
+        "name": "AI Analysis (GPT-4)",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          980,
+          300
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "openai_credential",
+            "name": "OpenAI API"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "channel": "#competitive-intel",
+          "text": "Analyzed {{$prevNode['Extract Basics'].json.url}} — top keywords: {{($json.keywords||[]).slice(0,5).join(', ')}}"
+        },
+        "id": "cr7",
+        "name": "Slack Notify",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          300
+        ]
+      }
+    ],
+    "connections": {
+      "Competitor URLs Webhook": {
+        "main": [
+          [
+            {
+              "node": "Fan-out URLs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fan-out URLs": {
+        "main": [
+          [
+            {
+              "node": "Fetch HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch HTML": {
+        "main": [
+          [
+            {
+              "node": "Extract Basics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Basics": {
+        "main": [
+          [
+            {
+              "node": "AI Analysis (GPT-4)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Analysis (GPT-4)": {
+        "main": [
+          [
+            {
+              "node": "Slack Notify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false
+  }
+}

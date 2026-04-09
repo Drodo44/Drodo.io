@@ -1,0 +1,132 @@
+{
+  "id": "n8n-workflow-templates-0306-http-respondtowebhook-import-webhook-fe9ef2f3c1",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0306_HTTP_Respondtowebhook_Import_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0306_HTTP_Respondtowebhook_Import_Webhook.json"
+  },
+  "name": "0306 HTTP Respondtowebhook Import Webhook",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0306 HTTP Respondtowebhook Import Webhook",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "respond To Webhook",
+    "webhook",
+    "0306",
+    "http",
+    "respondtowebhook",
+    "import",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0306 http respondtowebhook import webhook",
+    "respond to webhook",
+    "webhook",
+    "0306 http",
+    "http respondtowebhook",
+    "respondtowebhook import",
+    "import webhook",
+    "webhook n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n"
+  ],
+  "required_services": [
+    "respond To Webhook"
+  ],
+  "triggers": [
+    "webhook",
+    "respond To Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "id": "0357b17f-9fcf-4725-8311-28bd9c76c37c",
+        "name": "On GET request",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          820,
+          400
+        ],
+        "webhookId": "454eb4ea-e460-4196-b31c-284abf234fc3",
+        "parameters": {
+          "path": "download-pdf",
+          "options": {},
+          "responseMode": "responseNode"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "21d8c543-33c2-45eb-b392-2cb7139344c6",
+        "name": "Fetch binary file",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1040,
+          400
+        ],
+        "parameters": {
+          "url": "https://www.deutschebahn.com/resource/blob/8813300/bdf106f07186f66e4448f95aca02bd4a/Faktenblatt-ICE-L_Mai23-data.pdf",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file"
+              }
+            }
+          }
+        },
+        "typeVersion": 4.1
+      },
+      {
+        "id": "3ced3067-d82c-4bb4-b5fe-53a8d79c2177",
+        "name": "Respond with attachment",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1260,
+          400
+        ],
+        "parameters": {
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "content-disposition",
+                  "value": "=attachment; filename=\"my_document_{{ $now.toFormat('yyyy-MM-dd') }}.pdf\""
+                }
+              ]
+            }
+          },
+          "respondWith": "binary"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On GET request": {
+        "main": [
+          [
+            {
+              "node": "Fetch binary file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch binary file": {
+        "main": [
+          [
+            {
+              "node": "Respond with attachment",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

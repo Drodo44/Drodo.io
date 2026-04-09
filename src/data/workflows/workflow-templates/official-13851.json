@@ -1,0 +1,366 @@
+{
+  "id": "official-13851",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/13851",
+    "template_id": 13851
+  },
+  "name": "Production AI Playbook: Deterministic Steps & AI Steps (2 of 5) ",
+  "description": "Validate AI generated outputs before your workflow acts on them.",
+  "category": "AI",
+  "tags": [
+    "Ticket Management",
+    "AI Summarization",
+    "AI Agent",
+    "Respond to Webhook",
+    "OpenRouter Chat Model",
+    "Structured Output Parser",
+    "Webhook",
+    "production",
+    "playbook",
+    "deterministic",
+    "steps",
+    "validate"
+  ],
+  "task_keywords": [
+    "production ai playbook: deterministic steps & ai steps (2 of 5)",
+    "ai agent",
+    "respond to webhook",
+    "openrouter chat model",
+    "structured output parser",
+    "webhook",
+    "production playbook",
+    "playbook deterministic",
+    "deterministic steps",
+    "steps steps",
+    "steps validate",
+    "validate generated"
+  ],
+  "required_services": [
+    "AI Agent",
+    "Respond to Webhook",
+    "OpenRouter Chat Model",
+    "Structured Output Parser"
+  ],
+  "triggers": [
+    "Webhook",
+    "Respond to Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "da13b80f35ed9d16adbf337111fadd798f3c80e989940f27089cab3947e57699",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "7d7a6746-f791-496b-bdab-459812bfd96a",
+        "name": "Webhook - Receive Support Ticket",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          240,
+          288
+        ],
+        "webhookId": "a4115bce-6d52-423e-a89d-8b78373d25ca",
+        "parameters": {
+          "path": "classify-ticket",
+          "options": {},
+          "httpMethod": "POST",
+          "responseMode": "responseNode"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "8abe42fe-476d-4786-af1f-629037a5d995",
+        "name": "Clean Ticket Data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          464,
+          288
+        ],
+        "parameters": {
+          "jsCode": "// Pre-process: clean the ticket text\nconst raw = $input.first().json.body;\nreturn {\n  json: {\n    ticketId: raw.ticketId || raw.id || 'UNKNOWN',\n    subject: (raw.subject || '').trim(),\n    body: (raw.body || raw.message || raw.text || '').trim().substring(0, 2000),\n    customerEmail: (raw.email || '').toLowerCase().trim(),\n    receivedAt: new Date().toISOString()\n  }\n};"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "9c0b5bb3-454b-4aff-b77c-9e14b3893399",
+        "name": "AI - Classify Ticket",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          672,
+          288
+        ],
+        "parameters": {
+          "text": "=Classify the following support ticket.\n\nTicket ID: {{ $json.ticketId }}\nSubject: {{ $json.subject }}\nBody: {{ $json.body }}\n\nClassify into exactly one category: billing, technical, sales, or general.\nRate urgency as: low, normal, or urgent.\nProvide a confidence score between 0 and 1.\nWrite a brief summary (max 100 words).",
+          "options": {},
+          "promptType": "define",
+          "hasOutputParser": true
+        },
+        "typeVersion": 1.7
+      },
+      {
+        "id": "92bc20de-3dd6-45a2-8ae5-3bb6de645cf3",
+        "name": "Validate AI Output",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1008,
+          288
+        ],
+        "parameters": {
+          "jsCode": "// Semantic validation (structure enforced by Structured Output Parser)\n// AI Agent with Structured Output Parser nests parsed fields under .output\nconst raw = $input.first().json;\nconst parsed = raw.output || raw;\nconst errors = [];\n\nif (typeof parsed.confidence !== \"number\" || parsed.confidence < 0 || parsed.confidence > 1) {\n  errors.push(\"Confidence must be between 0 and 1, got: \" + parsed.confidence);\n}\nif (!parsed.summary || parsed.summary.length > 500) {\n  errors.push(\"Summary missing or exceeds 500 characters\");\n}\n\nreturn {\n  json: {\n    category: parsed.category,\n    urgency: parsed.urgency,\n    confidence: parsed.confidence,\n    summary: parsed.summary,\n    isValid: errors.length === 0,\n    validationErrors: errors\n  }\n};"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "5633f342-11d1-4de2-938a-baec25ffd599",
+        "name": "Is Output Valid?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1216,
+          288
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "valid-check",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                },
+                "leftValue": "={{ $json.isValid }}",
+                "rightValue": true
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "3e0528fe-cdb1-493c-800b-97cdcecb8a12",
+        "name": "Respond - Classification Result",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1472,
+          192
+        ],
+        "parameters": {
+          "options": {},
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ category: $json.category, urgency: $json.urgency, confidence: $json.confidence, summary: $json.summary }) }}"
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "62c7be56-d1d7-4bff-88c3-8173f8563ef6",
+        "name": "Respond - Needs Review",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1472,
+          416
+        ],
+        "parameters": {
+          "options": {
+            "responseCode": 422
+          },
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify({ status: 'validation_failed', errors: $json.validationErrors, needsHumanReview: true }) }}"
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "0d2e0779-daf3-441e-925d-498b04338c52",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          656,
+          496
+        ],
+        "parameters": {
+          "model": "google/gemini-3-flash-preview",
+          "options": {}
+        },
+        "credentials": {
+          "openRouterApi": {
+            "id": "m9IRh1pT1eHIdKoX",
+            "name": "OpenRouter account 2"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d9d387a9-70bd-4605-8f86-740d7305e975",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -400,
+          80
+        ],
+        "parameters": {
+          "width": 576,
+          "height": 736,
+          "content": "## Structured Output Parsing + Validation\n\n### How it works\n1. **Webhook** receives a support ticket via POST request.\n2. **Clean Ticket Data** (Code node) strips HTML, trims whitespace, and standardizes fields before AI processing.\n3. **AI - Classify Ticket** (AI Agent + OpenRouter) classifies the ticket by category, urgency, and confidence score, returning structured JSON.\n4. **Validate AI Output** (Code node) checks that the category is from a known list, urgency is valid, and confidence is between 0 and 1. Structural correctness alone is not enough; this checks semantic correctness.\n5. **Is Output Valid?** (IF node) routes valid classifications to the success response and invalid ones to a \"needs review\" path.\n\n### Setup\n- Connect your **LLM credentials** (e.g., OpenRouter, OpenAI) to the Chat Model node\n- Copy the Webhook test URL and send a POST with a JSON body containing a support ticket (fields: subject, body, customerEmail)\n- Review the valid categories and urgency levels in the **Validate AI Output** code node and adjust for your system\n\n### Customization\n- Add retry logic by looping invalid outputs back to the AI with the validation error message\n- Swap the Respond nodes for actual downstream actions (create Jira ticket, send Slack alert)\n\n\nThis template is a learning companion to the Production AI Playbook, a series that explores strategies, shares best practices, and provides practical examples for building reliable AI systems in n8n.  \n\nhttps://go.n8n.io/PAP-D&A-Blog"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "81fad750-4b67-4cd7-b6a6-52c2d11936df",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          208,
+          176
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 400,
+          "height": 496,
+          "content": "## Receive & Clean\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bb0017a6-ad26-4ebc-bc81-e8b7b31a7013",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          624,
+          176
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 304,
+          "height": 496,
+          "content": "## AI Classification\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "825d373a-2c5b-471a-a7ae-da4f750c4619",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          944,
+          176
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 736,
+          "height": 496,
+          "content": "## Validate & Route\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bd61fc72-0250-460b-9947-b19b358f041f",
+        "name": "Structured Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          816,
+          496
+        ],
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"billing\",\n        \"technical\",\n        \"sales\",\n        \"general\"\n      ],\n      \"description\": \"The support ticket category\"\n    },\n    \"urgency\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"low\",\n        \"normal\",\n        \"urgent\"\n      ],\n      \"description\": \"How urgent the ticket is\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"description\": \"Confidence score between 0 and 1\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"Brief summary of the ticket, max 100 words\"\n    }\n  },\n  \"required\": [\n    \"category\",\n    \"urgency\",\n    \"confidence\",\n    \"summary\"\n  ]\n}"
+        },
+        "typeVersion": 1.3
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Is Output Valid?": {
+        "main": [
+          [
+            {
+              "node": "Respond - Classification Result",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond - Needs Review",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean Ticket Data": {
+        "main": [
+          [
+            {
+              "node": "AI - Classify Ticket",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Validate AI Output": {
+        "main": [
+          [
+            {
+              "node": "Is Output Valid?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI - Classify Ticket": {
+        "main": [
+          [
+            {
+              "node": "Validate AI Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI - Classify Ticket",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI - Classify Ticket",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook - Receive Support Ticket": {
+        "main": [
+          [
+            {
+              "node": "Clean Ticket Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

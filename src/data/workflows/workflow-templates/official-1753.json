@@ -1,0 +1,134 @@
+{
+  "id": "official-1753",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1753",
+    "template_id": 1753
+  },
+  "name": "Import data from MySQL into Google Sheets",
+  "description": "This workflow queries a table in MySQL and inserts the data into Google Sheets.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "Cron",
+    "MySQL",
+    "Google Sheets",
+    "Cron Trigger",
+    "import",
+    "data",
+    "mysql",
+    "google",
+    "sheets",
+    "workflow"
+  ],
+  "task_keywords": [
+    "import data from mysql into google sheets",
+    "cron",
+    "mysql",
+    "google sheets",
+    "cron trigger",
+    "import data",
+    "data mysql",
+    "mysql google",
+    "sheets workflow",
+    "workflow queries",
+    "queries table",
+    "table mysql"
+  ],
+  "required_services": [
+    "Cron",
+    "MySQL",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          100,
+          420
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 5,
+                "mode": "everyWeek"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "MySQL - select",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          300,
+          420
+        ],
+        "parameters": {
+          "query": "SELECT * FROM books;",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "mySql": {
+            "id": "credential-id",
+            "name": "mySql Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets - write",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          500,
+          420
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "qwertz",
+          "operation": "append",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleSheetsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "MySQL - select",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "MySQL - select": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets - write",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

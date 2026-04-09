@@ -1,0 +1,66 @@
+{
+  "id": "official-703",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/703",
+    "template_id": 703
+  },
+  "name": "Receive updates when a form is submitted in Wufoo",
+  "description": "Receive updates when a form is submitted in Wufoo",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "Wufoo",
+    "Wufoo Trigger",
+    "receive",
+    "updates",
+    "when",
+    "form",
+    "submitted",
+    "wufoo"
+  ],
+  "task_keywords": [
+    "receive updates when a form is submitted in wufoo",
+    "wufoo",
+    "update wufoo",
+    "wufoo trigger",
+    "receive updates",
+    "updates when",
+    "when form",
+    "form submitted",
+    "submitted wufoo",
+    "wufoo receive"
+  ],
+  "required_services": [
+    "Wufoo"
+  ],
+  "triggers": [
+    "Wufoo Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "78",
+    "name": "Receive updates when a form is submitted in Wufoo",
+    "nodes": [
+      {
+        "name": "Wufoo Trigger",
+        "type": "n8n-nodes-base.wufooTrigger",
+        "position": [
+          1290,
+          140
+        ],
+        "webhookId": "106376c5-b49c-412f-8463-4db23a23c057",
+        "parameters": {
+          "form": "n8n"
+        },
+        "credentials": {
+          "wufooApi": "wufoo"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

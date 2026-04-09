@@ -1,0 +1,99 @@
+{
+  "id": "official-870",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/870",
+    "template_id": 870
+  },
+  "name": "Send an SMS to a number whenever you go out",
+  "description": "This workflow allows you to send an SMS to a number whenever you go out.",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "Pushcut",
+    "Twilio",
+    "Pushcut Trigger",
+    "send",
+    "sms",
+    "number",
+    "whenever",
+    "you",
+    "out"
+  ],
+  "task_keywords": [
+    "send an sms to a number whenever you go out",
+    "pushcut",
+    "send pushcut",
+    "twilio",
+    "send twilio",
+    "pushcut trigger",
+    "send sms",
+    "sms number",
+    "number whenever",
+    "whenever you",
+    "you out",
+    "out workflow"
+  ],
+  "required_services": [
+    "Pushcut",
+    "Twilio"
+  ],
+  "triggers": [
+    "Pushcut Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "92",
+    "name": "Send an SMS to a number whenever you go out",
+    "nodes": [
+      {
+        "name": "Pushcut Trigger",
+        "type": "n8n-nodes-base.pushcutTrigger",
+        "position": [
+          470,
+          300
+        ],
+        "webhookId": "",
+        "parameters": {
+          "actionName": "Leaving Home"
+        },
+        "credentials": {
+          "pushcutApi": "Pushcut Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "to": "123",
+          "from": "123",
+          "message": "=I'm {{$node[\"Pushcut Trigger\"].json[\"input\"]}}"
+        },
+        "credentials": {
+          "twilioApi": "twilio"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Pushcut Trigger": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "official-645",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/645",
+    "template_id": 645
+  },
+  "name": "Receive updates when a subscriber unsubscribes in Customer.io",
+  "description": "Receive updates when a subscriber unsubscribes in Customer.io",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "Customer.io",
+    "Customer.io Trigger",
+    "receive",
+    "updates",
+    "when",
+    "subscriber",
+    "unsubscribes",
+    "customer"
+  ],
+  "task_keywords": [
+    "receive updates when a subscriber unsubscribes in customer.io",
+    "customer.io",
+    "update customer.io",
+    "customer.io trigger",
+    "receive updates",
+    "updates when",
+    "when subscriber",
+    "subscriber unsubscribes",
+    "unsubscribes customer",
+    "customer receive"
+  ],
+  "required_services": [
+    "Customer.io"
+  ],
+  "triggers": [
+    "Customer.io Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "29",
+    "name": "Receive updates when a subscriber unsubscribes in Customer.io",
+    "nodes": [
+      {
+        "name": "Customer.io Trigger",
+        "type": "n8n-nodes-base.customerIoTrigger",
+        "position": [
+          650,
+          260
+        ],
+        "webhookId": "88092579-1b8d-4d44-98d5-f24b3579cbc2",
+        "parameters": {
+          "events": [
+            "customer.unsubscribed"
+          ]
+        },
+        "credentials": {
+          "customerIoApi": "customerIO"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

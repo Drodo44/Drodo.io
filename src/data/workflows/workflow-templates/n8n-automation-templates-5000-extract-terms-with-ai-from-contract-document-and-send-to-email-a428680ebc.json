@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-extract-terms-with-ai-from-contract-document-and-send-to-email-a428680ebc",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/extract-terms-with-ai-contract-document-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/extract-terms-with-ai-contract-document-email.json"
+  },
+  "name": "Extract terms with ai from Contract document and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Extract terms with ai from Contract document and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "extract",
+    "terms",
+    "contract",
+    "document",
+    "send",
+    "email"
+  ],
+  "task_keywords": [
+    "extract terms with ai from contract document and send to email",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "extract terms",
+    "terms contract",
+    "contract document",
+    "document send",
+    "send email",
+    "email n8n"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Extract terms with ai from Contract document and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-contract-document",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          160100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "extract-terms-with-ai-from-contract-document-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-contract-document",
+        "name": "Fetch data from Contract document",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          160100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/contract-document",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-extract-terms-with-ai",
+        "name": "AI: Extract Terms With Ai",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          160100
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: extract terms with AI"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          160100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-160100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          160100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Contract document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Contract document": {
+        "main": [
+          {
+            "node": "AI: Extract Terms With Ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Extract Terms With Ai": {
+        "main": [
+          [
+            {
+              "node": "AI: Extract Terms With Ai",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

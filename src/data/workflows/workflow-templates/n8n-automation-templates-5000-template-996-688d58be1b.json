@@ -1,0 +1,130 @@
+{
+  "id": "n8n-automation-templates-5000-template-996-688d58be1b",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Eventbrite/event_management_996_api_polling_eventbrite.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Eventbrite/event_management_996_api_polling_eventbrite.json"
+  },
+  "name": "Template 996",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 996",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Eventbrite",
+    "eventbrite",
+    "googledocs",
+    "template",
+    "996",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 996",
+    "eventbrite",
+    "googledocs",
+    "996 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000"
+  ],
+  "required_services": [
+    "eventbrite",
+    "googledocs"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 996",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://api.example.com/data",
+          "method": "GET"
+        },
+        "name": "API Polling",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Eventbrite",
+        "type": "n8n-nodes-base.eventbrite",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Docs",
+        "type": "n8n-nodes-base.googledocs",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "API Polling": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Eventbrite",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Eventbrite": {
+        "main": [
+          [
+            {
+              "node": "Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 996
+  }
+}

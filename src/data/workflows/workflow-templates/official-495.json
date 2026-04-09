@@ -1,0 +1,84 @@
+{
+  "id": "official-495",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/495",
+    "template_id": 495
+  },
+  "name": "Track an event in Segment",
+  "description": "Track an event in Segment",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Segment",
+    "Manual Trigger",
+    "track",
+    "event",
+    "segment"
+  ],
+  "task_keywords": [
+    "track an event in segment",
+    "manual",
+    "segment",
+    "manual trigger",
+    "track event",
+    "event segment",
+    "segment track"
+  ],
+  "required_services": [
+    "manual",
+    "Segment"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "122",
+    "name": "Track an event in Segment",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Segment",
+        "type": "n8n-nodes-base.segment",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "event": "",
+          "resource": "track"
+        },
+        "credentials": {
+          "segmentApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Segment",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

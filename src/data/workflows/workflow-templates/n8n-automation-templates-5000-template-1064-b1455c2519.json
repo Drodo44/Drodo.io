@@ -1,0 +1,133 @@
+{
+  "id": "n8n-automation-templates-5000-template-1064-b1455c2519",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Slack/hr_1064_webhook_slack_to_bamboohr.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Slack/hr_1064_webhook_slack_to_bamboohr.json"
+  },
+  "name": "Template 1064",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1064",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Slack",
+    "slack",
+    "bamboohr",
+    "webhook",
+    "template",
+    "1064",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1064",
+    "slack",
+    "bamboohr",
+    "webhook",
+    "1064 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "slack",
+    "bamboohr"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1064",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-1064",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "BambooHR",
+        "type": "n8n-nodes-base.bamboohr",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack": {
+        "main": [
+          [
+            {
+              "node": "BambooHR",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1064
+  }
+}

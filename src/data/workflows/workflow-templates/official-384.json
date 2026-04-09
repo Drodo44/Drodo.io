@@ -1,0 +1,98 @@
+{
+  "id": "official-384",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/384",
+    "template_id": 384
+  },
+  "name": "Save Typeform survey results to Airtable",
+  "description": "With this workflow, you can collect the data from Typeform with the Typeform Trigger node every time someone submits a response and save it to Airtable with the Airtable node.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "Typeform",
+    "Airtable",
+    "Typeform Trigger",
+    "save",
+    "typeform",
+    "survey",
+    "results",
+    "airtable",
+    "workflow"
+  ],
+  "task_keywords": [
+    "save typeform survey results to airtable",
+    "typeform",
+    "airtable",
+    "typeform trigger",
+    "save typeform",
+    "typeform survey",
+    "survey results",
+    "results airtable",
+    "airtable workflow",
+    "workflow you",
+    "you can",
+    "can collect"
+  ],
+  "required_services": [
+    "Typeform",
+    "Airtable"
+  ],
+  "triggers": [
+    "Typeform Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "54",
+    "name": "CFP Selection 1",
+    "nodes": [
+      {
+        "name": "Typeform Trigger",
+        "type": "n8n-nodes-base.typeformTrigger",
+        "position": [
+          450,
+          250
+        ],
+        "parameters": {
+          "formId": ""
+        },
+        "credentials": {
+          "typeformApi": "Typeform"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          660,
+          250
+        ],
+        "parameters": {
+          "table": "",
+          "operation": "append",
+          "application": ""
+        },
+        "credentials": {
+          "airtableApi": "Airtable"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Typeform Trigger": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "id": "official-2371",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/2371",
+    "template_id": 2371
+  },
+  "name": "Request and receive Zigbee backup from zigbee2mqtt and save it via SFTP",
+  "description": "A single workflow with 2 flows/paths that combine to handle the backup sequence for Zigbee device configuration from HomeAssistant / zigbee2mqtt.",
+  "category": "Other",
+  "tags": [
+    "File Management",
+    "FTP",
+    "MQTT",
+    "Schedule Trigger",
+    "MQTT Trigger",
+    "request",
+    "receive",
+    "zigbee",
+    "backup",
+    "zigbee2mqtt",
+    "save"
+  ],
+  "task_keywords": [
+    "request and receive zigbee backup from zigbee2mqtt and save it via sftp",
+    "mqtt",
+    "schedule trigger",
+    "mqtt trigger",
+    "request receive",
+    "receive zigbee",
+    "zigbee backup",
+    "backup zigbee2mqtt",
+    "zigbee2mqtt save",
+    "save via",
+    "via sftp",
+    "sftp single"
+  ],
+  "required_services": [
+    "FTP",
+    "MQTT"
+  ],
+  "triggers": [
+    "Schedule Trigger",
+    "MQTT Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "SFTP zip file content",
+        "type": "n8n-nodes-base.ftp",
+        "position": [
+          1520,
+          680
+        ],
+        "parameters": {
+          "path": "=zigbee_backups/zigbee_backup_{{ new Date().toISOString().replaceAll(':','_') }}.zip",
+          "protocol": "sftp",
+          "operation": "upload"
+        },
+        "credentials": {
+          "sftp": {
+            "id": "credential-id",
+            "name": "sftp Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "CRON Monday 2:45 am",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          860,
+          440
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "45 2 * * 1"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "name": "Send Zigbee2MQTT backup request",
+        "type": "n8n-nodes-base.mqtt",
+        "position": [
+          1040,
+          440
+        ],
+        "parameters": {
+          "topic": "zigbee2mqtt/bridge/request/backup",
+          "message": "getbackup",
+          "options": {},
+          "sendInputData": false
+        },
+        "credentials": {
+          "mqtt": {
+            "id": "credential-id",
+            "name": "mqtt Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "MQTT Trigger - Backup Response",
+        "type": "n8n-nodes-base.mqttTrigger",
+        "position": [
+          860,
+          680
+        ],
+        "parameters": {
+          "topics": "zigbee2mqtt/bridge/response/backup",
+          "options": {}
+        },
+        "credentials": {
+          "mqtt": {
+            "id": "credential-id",
+            "name": "mqtt Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Parse JSON Object from Message Text",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1080,
+          680
+        ],
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "\nlet containerObject = JSON.parse($json.message);\nlet messageObject = containerObject.data;\nreturn messageObject;"
+        },
+        "typeVersion": 2
+      },
+      {
+        "name": "Convert to File - base64 to binary",
+        "type": "n8n-nodes-base.convertToFile",
+        "position": [
+          1300,
+          680
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "toBinary",
+          "sourceProperty": "zip"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "CRON Monday 2:45 am": {
+        "main": [
+          [
+            {
+              "node": "Send Zigbee2MQTT backup request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "MQTT Trigger - Backup Response": {
+        "main": [
+          [
+            {
+              "node": "Parse JSON Object from Message Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert to File - base64 to binary": {
+        "main": [
+          [
+            {
+              "node": "SFTP zip file content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse JSON Object from Message Text": {
+        "main": [
+          [
+            {
+              "node": "Convert to File - base64 to binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

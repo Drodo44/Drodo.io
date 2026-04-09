@@ -1,0 +1,430 @@
+{
+  "id": "official-9002",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/9002",
+    "template_id": 9002
+  },
+  "name": "Send WooCommerce new category alert via WhatsApp using Rapiwa API",
+  "description": "Send WooCommerce New Category Alert via WhatsApp Using Rapiwa API This n8n automation listens for the creation of a new WooCommerce product category, fetches all WooCommerce customers, cleans and formats their phone numbers, verifies them using the Rapiwa WhatsApp validation API, sends a WhatsApp message to verified...",
+  "category": "Communication",
+  "tags": [
+    "Lead Nurturing",
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets",
+    "WooCommerce",
+    "Webhook",
+    "send",
+    "woocommerce",
+    "category",
+    "alert",
+    "via",
+    "whatsapp"
+  ],
+  "task_keywords": [
+    "send woocommerce new category alert via whatsapp using rapiwa api",
+    "loop over items (split in batches)",
+    "send loop over items (split in batches)",
+    "google sheets",
+    "send google sheets",
+    "woocommerce",
+    "send woocommerce",
+    "webhook",
+    "woocommerce category",
+    "category alert",
+    "alert via",
+    "via whatsapp"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets",
+    "WooCommerce"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "SKKy045wmeQJJw0r",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6"
+    },
+    "name": "Send WooCommerce New Category Alert via WhatsApp Using Rapiwa API",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "a541b71e-e2c2-4996-ac24-254cac3b1520",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          784,
+          0
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "b8aa1d94-1cde-49cd-bcfa-dd2888491155",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -128,
+          0
+        ],
+        "webhookId": "1c217a0f-503f-49a4-b0c5-1aa431616177",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "08e7182d-9173-44a1-8619-e1132003bfdb",
+        "name": "If",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1360,
+          64
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "2c2889d2-31a2-43a0-9ddd-bc0245fb65cb",
+        "name": "unverified append row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          192
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "c13d178c-44d1-43b9-abb4-b2ef2fd4339c",
+        "name": "verified append row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1824,
+          -112
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "57be7f7a-83a3-4d90-8482-dde77c36af9c",
+        "name": "Limit",
+        "type": "n8n-nodes-base.limit",
+        "position": [
+          592,
+          0
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "ef0dd016-434e-4ebf-8702-3873296e9d15",
+        "name": "Get many customers",
+        "type": "n8n-nodes-base.wooCommerce",
+        "position": [
+          368,
+          0
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "06ea3912-3b01-45c3-907b-68d40574f6c3",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1888,
+          -624
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f4e1ca03-818e-46a9-8638-ea516a43ee62",
+        "name": "Format Webhook Response Data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          80,
+          0
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "b4337fa3-2263-431c-bf80-13af7754dd24",
+        "name": "Check valid whatsapp number Using Rapiwa",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1184,
+          64
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "558447c8-a3e5-43b2-8e5a-dbb82041f7a1",
+        "name": "Send Message Using Rapiwa",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1600,
+          -112
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "1d88ede8-16a5-463a-87c6-b9004a4249ed",
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1824,
+          192
+        ],
+        "webhookId": "6c474e54-eb3c-4fcd-b455-948322cd0121",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "2e148087-cfa0-48a5-a290-7ea909e4c84e",
+        "name": "Clean Number",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1008,
+          64
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "836df614-c61d-4ca8-8b9f-f5029fbbf33f",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -240,
+          -336
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a083b897-58f2-447c-81c2-3e7d4b24e9ca",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          304,
+          -336
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5f9330bf-928d-4b65-bb80-2a0d679c3356",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          560,
+          -336
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5f6e6d5f-60ee-4bbd-91f9-46a6ce25c2ff",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          960,
+          -624
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e7d53496-d99d-448f-9470-50788743d86e",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1520,
+          -624
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0c112f0e-e944-43d9-87cb-8e1419c77d64",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -240,
+          -624
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "3d8b9b9f-6741-459d-af2b-e6160d2f6eab",
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Send Message Using Rapiwa",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "unverified append row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limit": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Format Webhook Response Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean Number": {
+        "main": [
+          [
+            {
+              "node": "Check valid whatsapp number Using Rapiwa",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Clean Number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many customers": {
+        "main": [
+          [
+            {
+              "node": "Limit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Message Using Rapiwa": {
+        "main": [
+          [
+            {
+              "node": "verified append row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Webhook Response Data": {
+        "main": [
+          [
+            {
+              "node": "Get many customers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "verified append row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "unverified append row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check valid whatsapp number Using Rapiwa": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

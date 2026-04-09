@@ -1,0 +1,345 @@
+{
+  "id": "official-2905",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/2905",
+    "template_id": 2905
+  },
+  "name": "Slack slash commands AI chat bot",
+  "description": "This is a response chatbot in public channels through slash commands.",
+  "category": "AI",
+  "tags": [
+    "Internal Wiki",
+    "AI Chatbot",
+    "OpenAI Chat Model",
+    "Slack",
+    "Webhook",
+    "slack",
+    "slash",
+    "commands",
+    "chat",
+    "bot",
+    "response"
+  ],
+  "task_keywords": [
+    "slack slash commands ai chat bot",
+    "openai chat model",
+    "slack",
+    "webhook",
+    "slack slash",
+    "slash commands",
+    "commands chat",
+    "chat bot",
+    "bot response",
+    "response chatbot",
+    "chatbot public",
+    "public channels"
+  ],
+  "required_services": [
+    "OpenAI Chat Model",
+    "Slack"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "PGLFPj5y01s26rE1",
+    "meta": {
+      "instanceId": "b68f2515130d1ee83f4af1a6f2ca359fc9bb8cdbe875ca10b6f944f99aa931b5",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "My workflow 6",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "82670f40-2e3b-4e02-ae52-f2c918c3aa1c",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -80,
+          -600
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 280,
+          "height": 380,
+          "content": "## Command Trigger\n\nCopy the webhook URL, paste it into the Request URL of the Slack slash command, and complete the creation.\n\n\n웹훅 URL을 복사하여 슬랙 슬래시 커맨드의 Request URL에 붙이고 생성을 완료하세요."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "28f56691-0ad5-47b1-974b-1ece4890933b",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          260,
+          -600
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 380,
+          "content": "## Command Switch\n\nSwitch each slash command.\n\n각 슬래시 커맨드를 분기하세요."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9dc9ca95-e29d-44d9-9e09-b2a72d9ad23a",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          600,
+          -600
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 360,
+          "height": 380,
+          "content": "## Create AI Messages"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "025c5a59-06b6-4b6d-b3e0-aa782a133c97",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1060,
+          -600
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 340,
+          "content": "## Send a Slack Message"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "cb60e9b0-a9a8-4dd6-9aa3-9d22c7f5f537",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -20,
+          -380
+        ],
+        "webhookId": "1bd05fcf-8286-491f-ae13-f0e6bff4aca6",
+        "parameters": {
+          "path": "1bd05fcf-8286-491f-ae13-f0e6bff4aca6",
+          "options": {
+            "responseCode": {
+              "values": {
+                "responseCode": 204
+              }
+            }
+          },
+          "httpMethod": "POST"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "d60cfb45-df3d-4ab1-8e7e-1b2e81bc5b34",
+        "name": "Switch",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          320,
+          -380
+        ],
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "outputKey": "ask",
+                "conditions": {
+                  "options": {
+                    "version": 2,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $json.body.command }}",
+                      "rightValue": "/ask"
+                    }
+                  ]
+                },
+                "renameOutput": true
+              },
+              {
+                "outputKey": "another",
+                "conditions": {
+                  "options": {
+                    "version": 2,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "a0924665-de21-4d9b-a1d1-c9f41f74ee09",
+                      "operator": {
+                        "name": "filter.operator.equals",
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $json.body.command }}",
+                      "rightValue": "/another"
+                    }
+                  ]
+                },
+                "renameOutput": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 3.2
+      },
+      {
+        "id": "810ac4dd-8241-4486-b183-74cbde3d58e7",
+        "name": "Basic LLM Chain",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          640,
+          -500
+        ],
+        "parameters": {
+          "text": "={{ $json.body.text }}",
+          "promptType": "define"
+        },
+        "typeVersion": 1.5
+      },
+      {
+        "id": "f173fe2d-45e7-460c-aa33-d5509b6d59b9",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          720,
+          -340
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "4752da4c-b013-4469-a3bc-386d3ab3d15d",
+        "name": "Send a Message",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          1120,
+          -460
+        ],
+        "webhookId": "a37abc2a-6e8c-4c00-8543-3f313b300df6",
+        "parameters": {
+          "text": "={{ $json.text }}",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Webhook').item.json.body.channel_id }}"
+          },
+          "otherOptions": {
+            "includeLinkToWorkflow": false
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "c2f5dbcc-8283-47ab-b19a-810ad526d519",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -80,
+          -1060
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 340,
+          "height": 400,
+          "content": "## 슬랙 Slash Command와 채널 메시지로 챗봇 만들기 🤖\n\n이 튜토리얼에서는 n8n을 활용해 슬랙에서 동작하는 AI 챗봇을 만드는 방법을 알려드립니다. 슬래시 커맨드를 통한 개인 메시지부터 공개 채널에서의 자동 응답까지, 실용적인 챗봇 구현 방법을 단계별로 설명합니다. 슬랙 앱 설정부터 n8n 노드 구성, 웹훅 트리거 설정, AI 봇 연동까지 하나하나 자세히 다룹니다.\n\n유튜브 링크:\nhttps://www.youtube.com/watch?v=UpudYFCWaIM\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "4ecdfdfa-8886-47c6-b9df-ac45321b0cea",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          300,
+          -1060
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 340,
+          "height": 400,
+          "content": "## Create an AI chatbot with Slack slash commands! 🤖\n\nIn this tutorial, we'll show you how to create an AI chatbot that works in Slack using n8n. We'll explain step by step how to implement a practical chatbot, from personal messages through slash commands to automatic responses in public channels. We'll cover everything in detail, from Slack app configuration to n8n node setup, webhook trigger configuration, and AI bot integration.\n\nThe YouTube video is provided in Korean.\n\nYoutube Link:\nhttps://www.youtube.com/watch?v=UpudYFCWaIM\n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "de554ae6-98d5-4841-9ed6-cb68d2c1bc7f",
+    "connections": {
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain": {
+        "main": [
+          [
+            {
+              "node": "Send a Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

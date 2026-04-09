@@ -1,0 +1,318 @@
+{
+  "id": "official-7381",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7381",
+    "template_id": 7381
+  },
+  "name": "RAG chat assistant with Claude, Supabase vector store, and Postgres memory",
+  "description": "📺 Full walkthrough video: https://youtu.be/Z l T22px3U Who it's for This workflow is for developers and AI builders who want to deploy a context aware chat assistant powered by a private knowledge base.",
+  "category": "AI",
+  "tags": [
+    "Support Chatbot",
+    "Multimodal AI",
+    "AI Agent",
+    "Postgres Chat Memory",
+    "Supabase Vector Store",
+    "Embeddings OpenAI",
+    "Anthropic Chat Model",
+    "Chat Trigger",
+    "rag",
+    "chat",
+    "assistant",
+    "claude",
+    "supabase",
+    "vector"
+  ],
+  "task_keywords": [
+    "rag chat assistant with claude, supabase vector store, and postgres memory",
+    "ai agent",
+    "postgres chat memory",
+    "supabase vector store",
+    "embeddings openai",
+    "anthropic chat model",
+    "chat trigger",
+    "rag chat",
+    "chat assistant",
+    "assistant claude",
+    "claude supabase",
+    "supabase vector"
+  ],
+  "required_services": [
+    "AI Agent",
+    "Postgres Chat Memory",
+    "Supabase Vector Store",
+    "Embeddings OpenAI",
+    "Anthropic Chat Model"
+  ],
+  "triggers": [
+    "Chat Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "2df4ecf6-a027-4a7e-8368-f712023168ee",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -160,
+          -32
+        ],
+        "parameters": {
+          "width": 480,
+          "height": 832,
+          "content": "## Chatbot w/ RAG\n\n### How it works\n\n1. A chat trigger receives incoming user messages and passes them to the AI Agent.\n2. The AI Agent uses Anthropic's Claude model to generate responses, retrieves relevant context from a Supabase Vector Store (using OpenAI embeddings), and maintains conversation history via Postgres Chat Memory.\n\n### Setup steps\n\n- - [ ] Configure the **Chat Trigger** node with your desired authentication settings.\n- - [ ] Add your **Anthropic API key** credential to the Anthropic Chat Model sub-node.\n- - [ ] Add your **OpenAI API key** credential to the Embeddings OpenAI node for vector search.\n- - [ ] Set up a **Supabase** project and configure the Supabase Vector Store with your project URL and API key.\n- - [ ] Configure the **Postgres Chat Memory** node with credentials pointing to your PostgreSQL database for session memory storage.\n\n### Customization\n\nYou can swap the Anthropic Chat Model for a different LLM (e.g., OpenAI GPT-4), replace Supabase Vector Store with another vector store (e.g., Pinecone), or adjust the Postgres memory session key to support multi-user conversations."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "44d4cd6d-eb12-4f00-a714-c4ddec06ba1d",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          400,
+          96
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 384,
+          "content": "## Chat trigger entry point\n\nListens for incoming chat messages and forwards them to the AI Agent to begin processing."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3c7a4bfb-2f1a-477a-bdc0-07086182834e",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          672,
+          96
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 672,
+          "height": 688,
+          "content": "## AI agent with memory and retrieval\n\nCore AI processing cluster: the AI Agent orchestrates responses using Anthropic Claude as the LLM, Postgres Chat Memory for conversation history, and a Supabase Vector Store for knowledge retrieval. The OpenAI Embeddings node is spatially attached to this cluster and provides the embedding model for the vector store lookups."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5e145545-374c-4829-87f0-2b9edf80d0ff",
+        "name": "Chat Assistant Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          896,
+          304
+        ],
+        "parameters": {
+          "options": {
+            "systemMessage": "You are a helpful assistant"
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "a1d0c158-4fef-45a7-8536-0575b4a567c6",
+        "name": "Store Chat History in Postgres",
+        "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+        "position": [
+          976,
+          496
+        ],
+        "parameters": {},
+        "credentials": {
+          "postgres": {
+            "id": "Bs4YHHIz76Yg6LAA",
+            "name": "Postgres account - Sigma"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "84166510-806b-464c-a647-99cc2564b37b",
+        "name": "Retrieve from Supabase Vectors",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+        "position": [
+          1072,
+          480
+        ],
+        "parameters": {
+          "mode": "retrieve-as-tool",
+          "options": {},
+          "tableName": {
+            "__rl": true,
+            "mode": "id",
+            "value": "=Your_database"
+          },
+          "toolDescription": "Data base"
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "H0kInY9i7zSLf3eu",
+            "name": "IDR"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "45508c40-cfe6-4993-8a2f-3316ddbe69ed",
+        "name": "Generate OpenAI Embeddings",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          1120,
+          640
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "Wk5dyBYFy6HDwml2",
+            "name": "OpenAi account"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1f9c83fa-7345-4ad8-a8ee-733725ddf8cd",
+        "name": "When Chat Message Received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          448,
+          304
+        ],
+        "webhookId": "9ce2709c-faa0-4977-a3ce-5e9adb6d62f1",
+        "parameters": {
+          "public": true,
+          "options": {
+            "title": "Chatbot Growth AI 🤖",
+            "subtitle": "Toujours là pour vous aider",
+            "customCss": ":root {\n  /* ─── Growth AI Brand Colors ─── */\n  --chat--color-primary: #00C48C;\n  --chat--color-primary-shade-50: #00B07D;\n  --chat--color-primary-shade-100: #009B6E;\n  --chat--color-secondary: #0A0F1E;\n  --chat--color-secondary-shade-50: #111827;\n  --chat--color-white: #ffffff;\n  --chat--color-light: #F0F4F8;\n  --chat--color-light-shade-50: #DDE3EC;\n  --chat--color-light-shade-100: #B8C3D4;\n  --chat--color-medium: #8896AB;\n  --chat--color-dark: #0A0F1E;\n  --chat--color-disabled: #C8D2DF;\n  --chat--color-typing: #404040;\n\n  /* ─── Base Layout ─── */\n  --chat--spacing: 1rem;\n  --chat--border-radius: 0.25rem;\n  --chat--transition-duration: 0.15s;\n\n  /* ─── Police système native (d'origine) ─── */\n  --chat--font-family: (\n    -apple-system,\n    BlinkMacSystemFont,\n    'Segoe UI',\n    Roboto,\n    Oxygen-Sans,\n    Ubuntu,\n    Cantarell,\n    'Helvetica Neue',\n    sans-serif\n  );\n\n  /* ─── Window Dimensions ─── */\n  --chat--window--width: 400px;\n  --chat--window--height: 600px;\n  --chat--window--bottom: var(--chat--spacing);\n  --chat--window--right: var(--chat--spacing);\n  --chat--window--z-index: 9999;\n  --chat--window--border: 1px solid rgba(0, 196, 140, 0.2);\n  --chat--window--border-radius: var(--chat--border-radius);\n  --chat--window--margin-bottom: var(--chat--spacing);\n\n  /* ─── Header ─── */\n  --chat--header-height: auto;\n  --chat--header--padding: var(--chat--spacing);\n  --chat--header--background: #0A0F1E;\n  --chat--header--color: var(--chat--color-light);\n  --chat--header--border-top: none;\n  --chat--header--border-bottom: 1px solid rgba(0, 196, 140, 0.25);\n  --chat--header--border-left: none;\n  --chat--header--border-right: none;\n  --chat--heading--font-size: 2em;\n  --chat--subtitle--font-size: inherit;\n  --chat--subtitle--line-height: 1.8;\n\n  /* ─── Messages ─── */\n  --chat--message--font-size: 1rem;\n  --chat--message--padding: var(--chat--spacing);\n  --chat--message--border-radius: var(--chat--border-radius);\n  --chat--message-line-height: 1.5;\n  --chat--message--margin-bottom: calc(var(--chat--spacing) * 1);\n\n  --chat--message--bot--background: var(--chat--color-white);\n  --chat--message--bot--color: var(--chat--color-dark);\n  --chat--message--bot--border: none;\n\n  --chat--message--user--background: #00C48C;\n  --chat--message--user--color: var(--chat--color-white);\n  --chat--message--user--border: none;\n\n  --chat--message--pre--background: rgba(0, 0, 0, 0.05);\n  --chat--messages-list--padding: var(--chat--spacing);\n\n  /* ─── Toggle Button ─── */\n  --chat--toggle--size: 64px;\n  --chat--toggle--width: var(--chat--toggle--size);\n  --chat--toggle--height: var(--chat--toggle--size);\n  --chat--toggle--border-radius: 50%;\n  --chat--toggle--background: #00C48C;\n  --chat--toggle--hover--background: #00B07D;\n  --chat--toggle--active--background: #009B6E;\n  --chat--toggle--color: var(--chat--color-white);\n\n  /* ─── Input Area ─── */\n  --chat--textarea--height: 50px;\n  --chat--textarea--max-height: 30rem;\n  --chat--input--font-size: inherit;\n  --chat--input--border: 0;\n  --chat--input--border-radius: 0;\n  --chat--input--padding: 0.8rem;\n  --chat--input--background: var(--chat--color-white);\n  --chat--input--text-color: initial;\n  --chat--input--line-height: 1.5;\n  --chat--input--placeholder--font-size: var(--chat--input--font-size);\n  --chat--input--border-active: 0;\n  --chat--input--left--panel--width: 2rem;\n\n  /* ─── Buttons ─── */\n  --chat--button--color: var(--chat--color-light);\n  --chat--button--background: #00C48C;\n  --chat--button--padding: calc(var(--chat--spacing) * 1 / 2) var(--chat--spacing);\n  --chat--button--border-radius: var(--chat--border-radius);\n  --chat--button--hover--color: var(--chat--color-light);\n  --chat--button--hover--background: #00B07D;\n  --chat--close--button--color-hover: #00C48C;\n\n  /* ─── Send & File Buttons ─── */\n  --chat--input--send--button--background: var(--chat--color-white);\n  --chat--input--send--button--color: #00C48C;\n  --chat--input--send--button--background-hover: #00B07D;\n  --chat--input--send--button--color-hover: #009B6E;\n  --chat--input--file--button--background: var(--chat--color-white);\n  --chat--input--file--button--color: #00C48C;\n  --chat--input--file--button--background-hover: var(--chat--input--file--button--background);\n  --chat--input--file--button--color-hover: #009B6E;\n  --chat--files-spacing: 0.25rem;\n\n  /* ─── Body & Footer ─── */\n  --chat--body--background: var(--chat--color-light);\n  --chat--footer--background: var(--chat--color-light);\n  --chat--footer--color: var(--chat--color-dark);\n}\n\n\n/* ══════════════════════════════════════════\n   OVERRIDES — Personnalisation Growth AI\n══════════════════════════════════════════ */\n\n/* ── Largeur des bulles (identique à l'original) ── */\n.chat-message {\n  max-width: 50%;\n}\n\n/* ── Fenêtre : ombre élégante ── */\n.chat-window {\n  box-shadow:\n    0 20px 60px rgba(10, 15, 30, 0.2),\n    0 0 0 1px rgba(0, 196, 140, 0.12) !important;\n  overflow: hidden;\n}\n\n/* ── Header : dégradé noir → doré Growth AI ── */\n.chat-header {\n  background: linear-gradient(135deg, #0A0F1E 0%, #1A1408 40%, #B8860B 80%, #D4A017 100%) !important;\n  border-bottom: 1px solid rgba(212, 160, 23, 0.4) !important;\n  position: relative;\n}\n\n/* Trait doré en bas du header */\n.chat-header::after {\n  content: '';\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 56px;\n  height: 2px;\n  background: linear-gradient(90deg, #D4A017, #F5C842);\n  border-radius: 0 2px 2px 0;\n}\n\n/* ── Sous-titre header plus discret ── */\n.chat-header p,\n.chat-header .chat-subtitle {\n  color: rgba(255, 255, 255, 0.5) !important;\n}\n\n/* ── Zone messages ── */\n.chat-messages-list {\n  background: linear-gradient(180deg, #F0F4F8 0%, #EDF1F7 100%) !important;\n}\n\n/* ── Bulle bot : bordure verte subtile ── */\n.chat-message.chat-message-from-bot .chat-message-bubble {\n  border: 1px solid rgba(0, 196, 140, 0.18) !important;\n  box-shadow: 0 1px 6px rgba(10, 15, 30, 0.07);\n}\n\n/* ── Bulle user : dégradé vert ── */\n.chat-message.chat-message-from-user .chat-message-bubble {\n  background: linear-gradient(135deg, #00C48C 0%, #00A87A 100%) !important;\n  box-shadow: 0 2px 12px rgba(0, 196, 140, 0.35);\n}\n\n/* ── Zone de saisie ── */\n.chat-input-area,\n.chat-inputs-container {\n  border-top: 1.5px solid var(--chat--color-light-shade-50) !important;\n  background: #ffffff !important;\n}\n\n/* ── Placeholder discret ── */\n.chat-input::placeholder {\n  color: var(--chat--color-light-shade-100) !important;\n}\n\n/* ── Bouton send : micro-animation au hover ── */\n.chat-input-send-button {\n  transition: transform 0.15s ease, color 0.15s ease !important;\n}\n\n.chat-input-send-button:hover {\n  transform: scale(1.15) rotate(-8deg) !important;\n}\n\n/* ── Bouton toggle flottant : halo vert ── */\n.chat-window-toggle {\n  box-shadow:\n    0 4px 20px rgba(0, 196, 140, 0.5),\n    0 0 0 3px rgba(0, 196, 140, 0.1) !important;\n  transition: box-shadow 0.2s ease, transform 0.2s ease !important;\n}\n\n.chat-window-toggle:hover {\n  box-shadow:\n    0 8px 32px rgba(0, 196, 140, 0.65),\n    0 0 0 5px rgba(0, 196, 140, 0.15) !important;\n  transform: scale(1.07) !important;\n}\n\n/* ── Footer ── */\n.chat-footer {\n  border-top: 1px solid var(--chat--color-light-shade-50) !important;\n}\n\n/* ── Scrollbar custom (Webkit) ── */\n.chat-messages-list::-webkit-scrollbar {\n  width: 4px;\n}\n\n.chat-messages-list::-webkit-scrollbar-track {\n  background: transparent;\n}\n\n.chat-messages-list::-webkit-scrollbar-thumb {\n  background: rgba(0, 196, 140, 0.3);\n  border-radius: 4px;\n}\n\n.chat-messages-list::-webkit-scrollbar-thumb:hover {\n  background: rgba(0, 196, 140, 0.55);\n}",
+            "responseMode": "responseNodes",
+            "inputPlaceholder": "Votre message..."
+          },
+          "initialMessages": "Bienvenue sur le chatbot Growth AI"
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "60ef6545-be26-481d-b351-8fd2d4e9dd52",
+        "name": "Claude Sonnet 4.6 Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          816,
+          496
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "claude-sonnet-4-6",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {}
+        },
+        "credentials": {
+          "anthropicApi": {
+            "id": "WXQf5QsxCs3AyxlW",
+            "name": "Anthropic account"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "63b4a198-8048-4c28-8811-86cef9f1d43b",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1408,
+          400
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "## Need more advanced automation solutions? Contact us for custom enterprise workflows!\n\n# Growth-AI.fr\n\n## https://www.linkedin.com/in/allanvaccarizi/\n## https://www.linkedin.com/in/hugo-marinier-%F0%9F%A7%B2-6537b633/"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5c081302-f173-4939-b00e-99d90ea73f67",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1408,
+          -16
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "![Logo Growth AI](https://cdn.prod.website-files.com/6825df5b20329ba581df4914/68d413c43f8729fa336568a6_Logo_horizontal.png)"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Claude Sonnet 4.6 Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Chat Assistant Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate OpenAI Embeddings": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Retrieve from Supabase Vectors",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Chat Message Received": {
+        "main": [
+          [
+            {
+              "node": "Chat Assistant Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Retrieve from Supabase Vectors": {
+        "ai_tool": [
+          [
+            {
+              "node": "Chat Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Store Chat History in Postgres": {
+        "ai_memory": [
+          [
+            {
+              "node": "Chat Assistant Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

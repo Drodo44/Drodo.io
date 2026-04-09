@@ -1,0 +1,177 @@
+{
+  "id": "n8n-automation-templates-5000-template-1648-76840ea20e",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/research_&_analysis_1648_calendar_event_trigger_openai_to_arxiv_api.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/research_&_analysis_1648_calendar_event_trigger_openai_to_arxiv_api.json"
+  },
+  "name": "Template 1648",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1648",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "openai",
+    "arxivapi",
+    "slack",
+    "google Calendar Trigger",
+    "template",
+    "1648",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1648",
+    "google calendar",
+    "openai",
+    "arxivapi",
+    "slack",
+    "google calendar trigger",
+    "1648 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "google Calendar",
+    "openai",
+    "arxivapi",
+    "slack"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Template 1648",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Arxiv API",
+        "type": "n8n-nodes-base.arxivapi",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Summarize the content and send the summary to a Slack channel."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Arxiv API",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Arxiv API": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1648
+  }
+}

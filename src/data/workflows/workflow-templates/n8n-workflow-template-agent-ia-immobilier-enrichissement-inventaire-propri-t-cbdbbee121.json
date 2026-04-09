@@ -1,0 +1,1393 @@
+{
+  "id": "n8n-workflow-template-agent-ia-immobilier-enrichissement-inventaire-propri-t-cbdbbee121",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_IA_Immobilier___Enrichissement_Inventaire_Propri_t_.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_IA_Immobilier___Enrichissement_Inventaire_Propri_t_.json"
+  },
+  "name": "Agent IA Immobilier - Enrichissement Inventaire Propriété",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent IA Immobilier - Enrichissement Inventaire Propriété",
+  "category": "AI",
+  "tags": [
+    "manual",
+    "Open AI",
+    "tool Workflow",
+    "output Parser Structured",
+    "airtable",
+    "open AI",
+    "agent",
+    "tool Code",
+    "chain Llm",
+    "Manual Trigger",
+    "execute Workflow Trigger",
+    "immobilier",
+    "enrichissement",
+    "inventaire"
+  ],
+  "task_keywords": [
+    "agent ia immobilier - enrichissement inventaire propriété",
+    "manual",
+    "open ai",
+    "tool workflow",
+    "output parser structured",
+    "airtable",
+    "agent",
+    "tool code",
+    "chain llm",
+    "manual trigger",
+    "execute workflow trigger",
+    "agent immobilier"
+  ],
+  "required_services": [
+    "manual",
+    "Open AI",
+    "tool Workflow",
+    "output Parser Structured",
+    "airtable",
+    "open AI",
+    "agent",
+    "tool Code",
+    "chain Llm"
+  ],
+  "triggers": [
+    "Manual Trigger",
+    "execute Workflow Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent IA Immobilier - Enrichissement Inventaire Propriété",
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "192d3e4f-6bb0-4b87-a1fa-e32c9efb49cc",
+        "name": "When clicking \"Test workflow\"",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          600,
+          540
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {
+            "temperature": 0
+          }
+        },
+        "id": "32a7a772-76a6-4614-a6ab-d2b152a5811f",
+        "name": "OpenAI Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          1440,
+          760
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "f90578fa-b886-4653-8ff7-0c91884dc517",
+        "name": "Execute Workflow Trigger",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          820,
+          1180
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7263764b-8409-4cea-8db3-3278dd7ef9d8",
+                "name": "=route",
+                "type": "string",
+                "value": "={{ $json.route }}"
+              },
+              {
+                "id": "55c3b207-2e98-4137-8413-f72cbff17986",
+                "name": "query",
+                "type": "string",
+                "value": "={{ $json.query }}"
+              },
+              {
+                "id": "6eb873de-3c3a-4135-9dc0-1d441c63647c",
+                "name": "",
+                "type": "string",
+                "value": ""
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "8f5959eb-45bd-4185-a959-10268827e41d",
+        "name": "Edit Fields",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1120,
+          1180
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"response\": {\n    \"ok\": false,\n    \"error\": \"L'outil demandé n'a pas était trouvé ou le service peut être indisponible. Ne ressaye pas.\"\n  }\n}\n",
+          "options": {}
+        },
+        "id": "2c7f7274-12e9-4dd3-8ee4-679b408d5430",
+        "name": "Fallback Response",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1780,
+          2080
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "url": "https://serpapi.com/search.json",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "serpApi",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "engine",
+                "value": "google_reverse_image"
+              },
+              {
+                "name": "image_url",
+                "value": "={{ $json.query }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "09f36f4d-eb88-4d93-a8b3-e9ba66b46b54",
+        "name": "SERP Google Reverse Image API",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1780,
+          1060
+        ],
+        "typeVersion": 4.2,
+        "credentials": {
+          "serpApi": {
+            "id": "gbA6ZBM9v0jvct4u",
+            "name": "SerpAPI account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "de99a504-713f-4c78-8679-08139b2def31",
+                "name": "response",
+                "type": "string",
+                "value": "={{ JSON.stringify($json.image_results.map(x => ({ position: x.position, title: x.title, link: x.link, description: x.snippet }))) }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "8e3a0f38-8663-4f5c-837f-4b9aa21f14fb",
+        "name": "Reverse Image Search Response",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2120,
+          1060
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "name": "reverse_image_search",
+          "description": "=Appelez cet outil pour effectuer une recherche d'image inversée. Les recherches d'images inversées renvoient des URL où des produits similaires sont disponibles. Récupérez les URL renvoyées pour obtenir plus d'informations. Cet outil nécessite le corps de la requête objet suivant :\n\n```\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"image_url\": { \"type\": \"string\" }\n  }\n}\n```\n\nL'attribut image_url doit contenir une URL absolue vers l'image.",
+          "workflowId": "={{ $workflow.id }}",
+          "fields": {
+            "values": [
+              {
+                "name": "route",
+                "stringValue": "serp.google_reverse_image"
+              }
+            ]
+          }
+        },
+        "id": "0cd2269a-5b1f-4f10-b180-7f9cff9b1102",
+        "name": "Reverse Image Search Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "position": [
+          1620,
+          760
+        ],
+        "typeVersion": 1.1
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.firecrawl.dev/v0/scrape",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "url",
+                "value": "={{ $json.query }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "9825651e-b382-4e0a-97ef-37764cb5be9e",
+        "name": "Firecrawl Scrape API",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1780,
+          1720
+        ],
+        "typeVersion": 4.2,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "ZUufsmsd7CctPFCd",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7db5c81f-de90-40e1-8086-3f13d40451c7",
+                "name": "response",
+                "type": "string",
+                "value": "={{ $json.data.markdown.substring(0, 3000) }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "29c65ef4-6350-490a-b8e3-a5c869e656b2",
+        "name": "Firecrawl Scrape Success Response",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2120,
+          1720
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e691d86a-d366-44a2-baa6-3dba42527f6e",
+                "name": "response",
+                "type": "string",
+                "value": "{ error: \"Impossible de scraper le site web a cause d'erreur inconnu. Ne pas réessayer.\" }"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "229b4008-d8a8-4609-854a-fc244a4ed630",
+        "name": "Firecrawl scrape Error Response",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2120,
+          2080
+        ],
+        "typeVersion": 3.3
+      },
+      {
+        "parameters": {
+          "name": "webpage_url_scraper_tool",
+          "description": "=Appeles cet outil quand tu récuperes le contenu de la page de l'url\n```\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"url\": { \"type\": \"string\" },\n   }\n}\n```\nurl doit être un URL absolue.",
+          "workflowId": "={{ $workflow.id }}",
+          "fields": {
+            "values": [
+              {
+                "name": "route",
+                "stringValue": "firecrawl.scrape"
+              }
+            ]
+          }
+        },
+        "id": "f080069b-e849-45e0-88cf-03707d22c704",
+        "name": "Firecrawl Web Scaper Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "position": [
+          1740,
+          760
+        ],
+        "typeVersion": 1.1
+      },
+      {
+        "parameters": {
+          "jsonSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": { \"type\": \"string\" },\n    \"description\": { \"type\": \"string\" },\n    \"model\": { \"type\": \"string\" },\n    \"material\": { \"type\": \"string\" },\n    \"color\": { \"type\": \"string\" },\n    \"condition\": { \"type\": \"string\" }\n  }\n}"
+        },
+        "id": "4eff88bb-bd5e-4d6a-b5e1-8521632c461f",
+        "name": "Structured Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          1920,
+          760
+        ],
+        "typeVersion": 1.1
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "appLkCCluBXRGsvkQ",
+            "mode": "list",
+            "cachedResultName": "Exemple Gestion d'inventaire Immo",
+            "cachedResultUrl": "https://airtable.com/appLkCCluBXRGsvkQ"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblYY6p0rRkkgKzxr",
+            "mode": "list",
+            "cachedResultName": "Table 1",
+            "cachedResultUrl": "https://airtable.com/appLkCCluBXRGsvkQ/tblYY6p0rRkkgKzxr"
+          },
+          "filterByFormula": "AND({Image}!=\"\",{Status IA}=FALSE())",
+          "returnAll": false,
+          "options": {}
+        },
+        "id": "8c444314-ed7d-4ca0-b0fa-b6d1e964c698",
+        "name": "Recuperation des Lignes",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          860,
+          540
+        ],
+        "typeVersion": 2,
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "operation": "analyze",
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "text": "=Concentrez-vous sur le {{ $json.Titre }} dans l'image - nous le désignerons comme \"l'objet\". Identifiez les attributs suivants de l'objet. Si vous ne pouvez pas les déterminer avec certitude, laissez-les vides et passez à l'attribut suivant :\n\nDescription de l'objet.\nLe modèle/la marque de l'objet.\nLes matériaux utilisés pour la fabrication de l'objet.\nLa/les couleur(s) de l'objet.\nL'état de l'objet. Utilisez l'une des options suivantes : mauvais, bon, excellent.",
+          "imageUrls": "={{ $json.Image[0].thumbnails.large.url }}",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          1200,
+          540
+        ],
+        "id": "f4ce87cd-941e-4263-95c2-0993f7dd67be",
+        "name": "Analyse de l'image",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "agent": "openAiFunctionsAgent",
+          "promptType": "define",
+          "text": "=système : Votre rôle est d'aider un expert en bâtiment à effectuer une classification d'objets et une collecte de données. L'expert prendra des photos de divers objets, et votre mission est d'identifier avec précision certains attributs des produits comme détaillé ci-dessous.\n\nL'expert vous a fourni les éléments suivants :\n\nURL de la photo : {{ $('Recuperation des Lignes').item.json.Image[0].thumbnails.large.url }}.\nDescription de la photo : {{ $json.content }}.\nPour chaque attribut de produit que l'expert n'est pas en mesure de déterminer, vous pouvez :\n\n1) utiliser l'outil de recherche inversée d'images pour rechercher le produit sur Internet via l'URL de l'image fournie.\n2) utiliser l'outil de scraping web pour lire des pages Internet pouvant être pertinentes pour le produit.\n3) Si, après avoir utilisé ces outils, vous n'êtes toujours pas en mesure de déterminer les attributs requis du produit, laissez les données vides.\nUtilisez toutes les informations fournies et collectées pour extraire les attributs suivants du produit : titre, description, modèle, matériau, couleur et état.",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "id": "e6c99f71-ccc9-426e-b916-cc38864e3224",
+        "name": "Agent Analyse Objet",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          1560,
+          540
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $json.route }}",
+                      "rightValue": "serp.google_reverse_image"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "serp.google_reverse_image"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "id": "0a1f54ae-39f1-468d-ba6e-1376d13e4ee8",
+                      "operator": {
+                        "name": "filter.operator.equals",
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $json.route }}",
+                      "rightValue": "firecrawl.scrape"
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "firecrawl.scrape"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 1
+                  },
+                  "conditions": [
+                    {
+                      "id": "b5897437-f58c-4083-8040-892fb5d4cac8",
+                      "leftValue": "={{$json.route}}",
+                      "rightValue": "serp.google_shopping",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "serp.google_shopping"
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "id": "661b14bd-6511-4f20-981c-2e68a7c34ec5",
+        "name": "Router",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          1420,
+          1160
+        ],
+        "typeVersion": 3
+      },
+      {
+        "parameters": {
+          "url": "https://serpapi.com/search.json",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "serpApi",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "engine",
+                "value": "google_shopping"
+              },
+              {
+                "name": "q",
+                "value": "={{ $json.query }}"
+              },
+              {
+                "name": "google_domain",
+                "value": "google.fr"
+              },
+              {
+                "name": "gl",
+                "value": "fr"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1780,
+          1380
+        ],
+        "id": "1b3de047-ec2b-421d-bbdd-53613c18bd7d",
+        "name": "SERP Google Shopping API",
+        "credentials": {
+          "serpApi": {
+            "id": "gbA6ZBM9v0jvct4u",
+            "name": "SerpAPI account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          2080,
+          760
+        ],
+        "id": "1d0cdbf3-572e-4e24-b5a8-85d777b01d20",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"titre\": { \"type\": \"string\" },\n    \"description\": { \"type\": \"string\" },\n    \"modele\": { \"type\": \"string\" },\n    \"materiel\": { \"type\": \"string\" },\n    \"couleur\": { \"type\": \"string\" },\n    \"condition\": { \"type\": \"string\" },\n    \"estimation_prix\": {\"type\":\"number\"}\n  }\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2520,
+          760
+        ],
+        "id": "27db4b8f-b078-4c4b-b173-82ccbdf12742",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "name": "scrape_google_shopping",
+          "description": "=Cet outil te permet de récuperer les objets avec la meme description sur Google Shopping. L'outil renvoit des objets avec leurs prix en texte avec des produits qui sont similaires. Récupérez les prix renvoyées pour obtenir plus d'informations. Cet outil nécessite le corps de la requête objet suivant :\n\n```\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"phrase_google_shopping\": { \"type\": \"string\" }\n  }\n}\n```\n\nl'attribut phrase_google_shopping doit être la phrase créer pour google Shopping en fonction des elements fournis par l'expert.",
+          "workflowId": {
+            "__rl": true,
+            "value": "ksodPKKi8keIwnEV",
+            "mode": "list",
+            "cachedResultName": "Agent Enrichissement Inventaire Propriété"
+          },
+          "fields": {
+            "values": [
+              {
+                "name": "route",
+                "stringValue": "serp.google_shopping"
+              }
+            ]
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          2240,
+          760
+        ],
+        "id": "29b1a065-7de1-4084-8885-8bd4c4d6417d",
+        "name": "Google Shopping Tool"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=système : Votre rôle est d'aider un expert en bâtiment à effectuer une classification d'objets et une collecte de données. L'expert donnera une description des photos de divers objets, et votre mission est d'identifier avec précision et de donner une estimation du prix des objets. Tu vas devoir effectuer une recherche sur Google Shopping\n\nL'expert t'a fournis les elements suivants : \n\nTitre : {{ $json.output.output.title }}\nDescription : {{ $json.output.output.description }}\nModele : {{ $json.output.output.model }}\nMateriel : {{ $json.output.output.material }}\nCouleur : {{ $json.output.output.color }}\nCondition : {{ $json.output.output.condition }}\n\n**ETAPES**\n\n1) Récuperer les informations fournies par l'expert\n2) Créer une phrase de recherche pour l'objet sur Google Shopping courte\nExemple : \"chaise métal fer forgé coussin décoratif noire bonne état\"\n3) utiliser l'outil scrape_google_shopping pour effectuer une recherche sur Google Shopping de l'objet et récupérer les prix des objets similaires.\n4) Utiliser l'outil Estimation_Prix pour calculer la moyenne tronquée avec les prix des objets récupérée sur Google Shopping\n\n*CONTRAINTES**\n\nLe prix doit être en euros",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          2180,
+          540
+        ],
+        "id": "a744ff39-ae4b-4f4e-b405-27fbc2afd104",
+        "name": "Agent IA Estimation Prix"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "a15a164f-d0c5-478f-8b27-f3d51746c214",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.success }}",
+                "rightValue": ""
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "7f61d60b-b052-4b7c-abfd-9eb8e05a45a2",
+        "name": "Success ?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1940,
+          1720
+        ],
+        "typeVersion": 2
+      },
+      {
+        "parameters": {
+          "content": "### ⚠️ Alerte : Adaptation Requise\n\n\n\n\n\n\n\n\n\n\n\n\n\n**Cette étape doit être modifiée !**  \nAdaptez-la à la structure de **votre base de données** avant de continuer.  \n",
+          "height": 360,
+          "width": 220,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          800,
+          480
+        ],
+        "id": "1461772c-ad0d-4c49-a1f1-f4e910b4fa9b",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "### ⚠️ Alerte : Adaptation Requise\n\n\n\n\n\n\n\n\n\n\n\n\n\n**Cette étape doit être modifiée !**  \nAdaptez-la à la structure de **votre base de données** avant de continuer.  \n",
+          "height": 360,
+          "width": 220,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2820,
+          460
+        ],
+        "id": "eb1611a3-7ab0-418b-b809-989a9e470f1e",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "base": {
+            "__rl": true,
+            "value": "appLkCCluBXRGsvkQ",
+            "mode": "list",
+            "cachedResultName": "Exemple Gestion d'inventaire Immo",
+            "cachedResultUrl": "https://airtable.com/appLkCCluBXRGsvkQ"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblYY6p0rRkkgKzxr",
+            "mode": "list",
+            "cachedResultName": "Table 1",
+            "cachedResultUrl": "https://airtable.com/appLkCCluBXRGsvkQ/tblYY6p0rRkkgKzxr"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "id": "={{ $('Recuperation des Lignes').item.json.id }}",
+              "Condition": "={{ $json.output.condition }}",
+              "Description": "={{ $json.output.description }}",
+              "Titre": "={{ $json.output.titre }}",
+              "Modèle": "={{ $json.output.modele }}",
+              "Materiel": "={{ $json.output.materiel }}",
+              "Couleur": "={{ $json.output.couleur }}",
+              "Estimation Prix": "={{ $json.output.estimation_prix }}",
+              "Status IA": true
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": true,
+                "removed": false
+              },
+              {
+                "id": "Titre",
+                "displayName": "Titre",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Image",
+                "displayName": "Image",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "array",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Description",
+                "displayName": "Description",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Estimation Prix",
+                "displayName": "Estimation Prix",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Modèle",
+                "displayName": "Modèle",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Materiel",
+                "displayName": "Materiel",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Couleur",
+                "displayName": "Couleur",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Condition",
+                "displayName": "Condition",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Status IA",
+                "displayName": "Status IA",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "boolean",
+                "readOnly": false,
+                "removed": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "bf2459cf-a931-4232-9504-b36b15721194",
+        "name": "Enrichissement BDD",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          2880,
+          540
+        ],
+        "typeVersion": 2,
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# Agent Estimation Prix 💰\n\n**Fonctionnalités principales :**\n- **Analyse des informations de l'image** : Utilisation des données extraites pour formuler une recherche ciblée.\n- **Génération automatique** : Création d'une requête sur **Google Shopping (FR)**.\n- **Estimation de prix** : Recherche d'objets similaires pour fournir une estimation précise.\n\n",
+          "height": 620,
+          "width": 620,
+          "color": 7
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          2040,
+          320
+        ],
+        "id": "6754211b-e0fc-49b8-8dbe-597fff16aa6b",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "content": "# 🌐 Agent Analyse Objet\n\n**Fonctionnalités principales :**\n- **Analyse de l'image et de ses métadonnées** : Extraction des informations pertinentes fournies.\n- **Recherche inversée** : Identification des données associées à l'image.\n- **Scraping avancé** : Exploration des pages trouvées pour enrichir les informations sur l'objet.\n",
+          "height": 620,
+          "width": 620,
+          "color": 7
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1420,
+          320
+        ],
+        "id": "90053e9d-8a02-45d3-9449-69424fdb19af",
+        "name": "Sticky Note4"
+      },
+      {
+        "parameters": {
+          "content": "## Analyse d'Image d'Objet\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n**Avec le modèle OpenAI il fournit :**\n- **Titre**\n- **Description**\n- **Matière** \n- **Modèle** \n- **Couleur** \n- **Condition** \n",
+          "height": 460,
+          "width": 300,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1100,
+          400
+        ],
+        "id": "ba667d39-ddee-4147-939a-b9e8883c7457",
+        "name": "Sticky Note3"
+      },
+      {
+        "parameters": {
+          "content": "### Permet de récuperer la donnée route et query",
+          "height": 280,
+          "width": 220
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1060,
+          1080
+        ],
+        "id": "74add31d-8caa-4bfc-a775-80063a47decc",
+        "name": "Sticky Note5"
+      },
+      {
+        "parameters": {
+          "content": "### 🛒 Estimation de Prix\nRecherche sur **Google Shopping (FR)** pour récupérer les prix d'objets similaires et estimer leur valeur.",
+          "height": 320,
+          "width": 880,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1720,
+          1300
+        ],
+        "id": "369fe387-59ec-42fd-9082-f2167e716f5e",
+        "name": "Sticky Note6"
+      },
+      {
+        "parameters": {
+          "content": "### 🔄 Recherche Inversée\nEffectue une recherche d'URLs à partir de l'image fournie dans l'inventaire.",
+          "height": 280,
+          "width": 600,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1720,
+          980
+        ],
+        "id": "3c688346-092e-4fba-9179-b4cbcff57e31",
+        "name": "Sticky Note7"
+      },
+      {
+        "parameters": {
+          "content": "### ⚠️ Gestion des Erreurs\nGère les erreurs pour assurer le bon fonctionnement du workflow.",
+          "height": 300,
+          "width": 600,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1720,
+          1980
+        ],
+        "id": "5111017c-c562-45df-92e8-0b58839815ad",
+        "name": "Sticky Note8"
+      },
+      {
+        "parameters": {
+          "content": "### 🕸️ Scraping des URLs\nExplore les URLs pertinentes trouvées via la recherche inversée pour extraire des informations utiles.\n",
+          "height": 300,
+          "width": 600,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1720,
+          1620
+        ],
+        "id": "da05eca1-f9aa-46d9-b035-fd91957480bc",
+        "name": "Sticky Note9"
+      },
+      {
+        "parameters": {
+          "name": "Calculator",
+          "description": "=Cet outil te permet d'estimer le prix de l'objet en fonction des prix récuperées sur Google Shopping. Il renvoie la moyenne tronqué pour estimer le prix le plus précis. Cet outil nécessite le corps de la requête objet suivant :\n\n```\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"liste_prix\": {\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"number\"\n  }\n}\n  }\n}\n```\n\nl'attribut liste_prix doit être une liste contenant tous le prix des objets récuperer de Google Shopping.\n",
+          "jsCode": "function process(query) {\n  const prices = query.listes_prix;\n  \n  if (!prices || prices.length === 0) {\n    return null;\n  }\n  \n  // Trier les prix\n  prices.sort((a, b) => a - b);\n  \n  // Fonction pour calculer la médiane d'un tableau trié\n  function median(sortedArr) {\n    const mid = Math.floor(sortedArr.length / 2);\n    if (sortedArr.length % 2 === 0) {\n      return (sortedArr[mid - 1] + sortedArr[mid]) / 2;\n    } else {\n      return sortedArr[mid];\n    }\n  }\n  \n  // Calculer la médiane pour tout le tableau\n  const overallMedian = median(prices);\n  \n  // Séparer le tableau en deux moitiés pour calculer Q1 et Q3\n  const midIndex = Math.floor(prices.length / 2);\n  const lowerHalf = prices.slice(0, midIndex);\n  const upperHalf = (prices.length % 2 === 0) \n                    ? prices.slice(midIndex) \n                    : prices.slice(midIndex + 1);\n  \n  const Q1 = median(lowerHalf);\n  const Q3 = median(upperHalf);\n  const IQR = Q3 - Q1;\n  \n  // Définir les bornes pour les outliers\n  const lowerBound = Q1 - 1.1 * IQR;\n  const upperBound = Q3 + 1.1 * IQR;\n  \n  // Filtrer les prix hors bornes (outliers)\n  const filteredPrices = prices.filter(price => price >= lowerBound && price <= upperBound);\n  \n  // Si aucun prix après filtrage, retourner la médiane générale\n  if (filteredPrices.length === 0) {\n    return overallMedian;\n  }\n  \n  // Calculer la moyenne des prix filtrés\n  const sum = filteredPrices.reduce((acc, price) => acc + price, 0);\n  const average = sum / filteredPrices.length;\n  \n  return average;\n}\n\nreturn process(query); // Affiche la moyenne après exclusion des outliers\n",
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"listes_prix\": [199.22,102,47.1]\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolCode",
+        "typeVersion": 1.1,
+        "position": [
+          2380,
+          760
+        ],
+        "id": "557d3104-2b1d-4235-a9ca-6c79104b6959",
+        "name": "Estimation_Prix"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Je veux que tu gardes ce json au meme format mais en enlevant tous les lots d'objets ou toute les données aberrantes.\n\n{{  JSON.stringify($json.shopping_results.map(x => ({title: x.title, price: x.price})))}}",
+          "hasOutputParser": true
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.5,
+        "position": [
+          1980,
+          1380
+        ],
+        "id": "bba3b3f9-c3d5-42ff-b212-fb1c2a5771f2",
+        "name": "Basic LLM Chain"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1960,
+          1520
+        ],
+        "id": "9a287081-5c70-45c4-b61e-d3c6ea345e05",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "d9af1b81-0804-464f-a6e3-ef33572f3a9b",
+                "name": "reponse",
+                "value": "={{ JSON.stringify($json.output.google_shopping_list_cleared) }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2360,
+          1380
+        ],
+        "id": "6e3096ff-78aa-4ed3-81c6-dfcb2be24ea6",
+        "name": "Google Shopping Reponse1"
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"google_shopping_list_cleared\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n\t\t\t\t\"type\": \"object\"\n\t\t\t}\n\t\t}\n\t}\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2220,
+          1520
+        ],
+        "id": "186f2c1b-5419-4d77-b920-e82d115eefa0",
+        "name": "Structured Output Parser2"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Router",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Analyse Objet",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Firecrawl Scrape API": {
+        "main": [
+          [
+            {
+              "node": "Success ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Workflow Trigger": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent Analyse Objet",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Firecrawl Web Scaper Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Analyse Objet",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reverse Image Search Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Analyse Objet",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SERP Google Reverse Image API": {
+        "main": [
+          [
+            {
+              "node": "Reverse Image Search Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking \"Test workflow\"": {
+        "main": [
+          [
+            {
+              "node": "Recuperation des Lignes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperation des Lignes": {
+        "main": [
+          [
+            {
+              "node": "Analyse de l'image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Analyse de l'image": {
+        "main": [
+          [
+            {
+              "node": "Agent Analyse Objet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Analyse Objet": {
+        "main": [
+          [
+            {
+              "node": "Agent IA Estimation Prix",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Router": {
+        "main": [
+          [
+            {
+              "node": "SERP Google Reverse Image API",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Firecrawl Scrape API",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "SERP Google Shopping API",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Fallback Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent IA Estimation Prix",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent IA Estimation Prix",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SERP Google Shopping API": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Shopping Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA Estimation Prix",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent IA Estimation Prix": {
+        "main": [
+          [
+            {
+              "node": "Enrichissement BDD",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Success ?": {
+        "main": [
+          [
+            {
+              "node": "Firecrawl Scrape Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Firecrawl scrape Error Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Estimation_Prix": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA Estimation Prix",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain": {
+        "main": [
+          [
+            {
+              "node": "Google Shopping Reponse1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser2": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "versionId": "35ba2acb-91c1-40b7-a439-f848ce072241",
+    "meta": {
+      "templateId": "2330",
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "ksodPKKi8keIwnEV",
+    "tags": []
+  }
+}

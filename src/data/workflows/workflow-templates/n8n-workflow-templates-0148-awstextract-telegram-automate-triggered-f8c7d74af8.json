@@ -1,0 +1,167 @@
+{
+  "id": "n8n-workflow-templates-0148-awstextract-telegram-automate-triggered-f8c7d74af8",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0148_Awstextract_Telegram_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0148_Awstextract_Telegram_Automate_Triggered.json"
+  },
+  "name": "0148 Awstextract Telegram Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0148 Awstextract Telegram Automate Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "aws Textract",
+    "telegram",
+    "airtable",
+    "aws S3",
+    "telegram Trigger",
+    "0148",
+    "awstextract",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0148 awstextract telegram automate triggered",
+    "aws textract",
+    "telegram",
+    "airtable",
+    "aws s3",
+    "telegram trigger",
+    "0148 awstextract",
+    "awstextract telegram",
+    "telegram automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "aws Textract",
+    "telegram",
+    "airtable",
+    "aws S3"
+  ],
+  "triggers": [
+    "telegram Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "AWS Textract",
+        "type": "n8n-nodes-base.awsTextract",
+        "position": [
+          700,
+          340
+        ],
+        "parameters": {},
+        "credentials": {
+          "aws": {
+            "id": "9",
+            "name": "aws"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          520,
+          220
+        ],
+        "webhookId": "12345",
+        "parameters": {
+          "updates": [
+            "*"
+          ],
+          "additionalFields": {
+            "download": true,
+            "imageSize": "medium"
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "49",
+            "name": "Telegram mybot"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          880,
+          340
+        ],
+        "parameters": {
+          "table": "receipts",
+          "options": {},
+          "operation": "append",
+          "application": "qwertz",
+          "addAllFields": false
+        },
+        "credentials": {
+          "airtableApi": {
+            "id": "6",
+            "name": "airtable_nodeqa"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          700,
+          100
+        ],
+        "parameters": {
+          "fileName": "={{$binary.data.fileName}}",
+          "operation": "upload",
+          "bucketName": "textract-demodata",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "aws": {
+            "id": "9",
+            "name": "aws"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "AWS Textract": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "AWS S3",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "AWS Textract",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

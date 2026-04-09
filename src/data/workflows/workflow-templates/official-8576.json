@@ -1,0 +1,374 @@
+{
+  "id": "official-8576",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8576",
+    "template_id": 8576
+  },
+  "name": "WhatsApp number verify & confirmation system with Rapiwa API and Google Sheets",
+  "description": "WhatsApp Number Verify & Confirmation System with Rapiwa API and Google Sheets Who is this for?",
+  "category": "Communication",
+  "tags": [
+    "Lead Generation",
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets",
+    "Webhook",
+    "whatsapp",
+    "number",
+    "verify",
+    "confirmation",
+    "system",
+    "rapiwa"
+  ],
+  "task_keywords": [
+    "whatsapp number verify & confirmation system with rapiwa api and google sheets",
+    "loop over items (split in batches)",
+    "google sheets",
+    "webhook",
+    "whatsapp number",
+    "number verify",
+    "verify confirmation",
+    "confirmation system",
+    "system rapiwa",
+    "rapiwa google",
+    "sheets whatsapp",
+    "sheets who"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "kAOSKqqPXlCnisof",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "WhatsApp Number Verify & Confirmation System with Rapiwa API and Google Sheets",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "6cc792e7-eb4a-4e9e-8989-338986085fb8",
+        "name": "Cleane Number",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -624,
+          144
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "5707dc19-9692-40db-96f4-8e2061d0e0b2",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -992,
+          128
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "78732045-d7d2-464d-85b5-e4069a76f6d5",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -1552,
+          128
+        ],
+        "webhookId": "a9b6a936-e5f2-4d4c-9cf9-182de0a970d5",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "05f4d013-f55c-43ad-90a3-e93db13a6482",
+        "name": "If",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          16,
+          144
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "04cff67c-51e0-4516-9279-13349b9badfb",
+        "name": "unverified append row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          496,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "50964759-12c0-42e3-a38a-6a317293bfac",
+        "name": "verified append row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          752,
+          -32
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "deaa6822-f6d6-42c4-a2cd-64698c77611b",
+        "name": "Wait1",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          768,
+          320
+        ],
+        "webhookId": "6c474e54-eb3c-4fcd-b455-948322cd0121",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "0c2f6847-5472-4f5a-9fa1-e63fca06e2c1",
+        "name": "Format Webhook Response Data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1296,
+          128
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "0f832810-51fd-408a-9b41-68c12d0aaf9d",
+        "name": "Send Message Using Rapiwa",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          528,
+          -32
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "6a2c5979-109d-4e30-9c40-109aeef24632",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2656,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bf94c923-f333-4ea5-8cd1-82433fd9e92f",
+        "name": "Check valid whatsapp number Using Rapiwa",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -416,
+          144
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "7b625fbd-b299-4183-bb65-85c8bfa020a1",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1664,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "c0e6db0e-ba2f-448e-a948-c6adb0d6301a",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1088,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "cacbf378-6483-42ac-a76a-ad221b657d37",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -736,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "1e2ba823-daa4-4760-872e-f2565e8148d7",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -144,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "7a599350-0eb0-4566-bd19-a3204d06e815",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          320,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a31d310f-f7b6-48f9-9c5f-6fdfd30fae5d",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          320,
+          240
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "b8c04f80-9b16-4781-80fc-3cbf119954c6",
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Send Message Using Rapiwa",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "unverified append row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Format Webhook Response Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cleane Number": {
+        "main": [
+          [
+            {
+              "node": "Check valid whatsapp number Using Rapiwa",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Cleane Number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Message Using Rapiwa": {
+        "main": [
+          [
+            {
+              "node": "verified append row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Webhook Response Data": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "verified append row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "unverified append row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check valid whatsapp number Using Rapiwa": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

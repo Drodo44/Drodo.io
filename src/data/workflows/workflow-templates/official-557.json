@@ -1,0 +1,87 @@
+{
+  "id": "official-557",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/557",
+    "template_id": 557
+  },
+  "name": "Get the value of a key from Redis",
+  "description": "Companion workflow for Redis node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Redis",
+    "Manual Trigger",
+    "value",
+    "key",
+    "redis",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get the value of a key from redis",
+    "manual",
+    "redis",
+    "manual trigger",
+    "value key",
+    "key redis",
+    "redis companion",
+    "companion workflow",
+    "workflow redis",
+    "redis node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Redis"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Redis",
+        "type": "n8n-nodes-base.redis",
+        "position": [
+          470,
+          320
+        ],
+        "parameters": {
+          "key": "hello",
+          "options": {},
+          "operation": "get"
+        },
+        "credentials": {
+          "redis": "redis-docker_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Redis",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "n8n-automation-templates-5000-template-968-86bf84ddf3",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/event_management_968_webhook_gmail_to_google_calendar.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/event_management_968_webhook_gmail_to_google_calendar.json"
+  },
+  "name": "Template 968",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 968",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "googlecalendar",
+    "xero",
+    "webhook",
+    "template",
+    "968",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 968",
+    "gmail",
+    "googlecalendar",
+    "xero",
+    "webhook",
+    "968 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "gmail",
+    "googlecalendar",
+    "xero"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 968",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-968",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Calendar",
+        "type": "n8n-nodes-base.googlecalendar",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Xero",
+        "type": "n8n-nodes-base.xero",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Calendar": {
+        "main": [
+          [
+            {
+              "node": "Xero",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 968
+  }
+}

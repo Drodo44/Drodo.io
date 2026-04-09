@@ -1,0 +1,151 @@
+{
+  "id": "n8n-automation-templates-5000-template-1418-3a5a539dd8",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Home Assistant/rag_agents_1418_webhook_openai.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Home Assistant/rag_agents_1418_webhook_openai.json"
+  },
+  "name": "Template 1418",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1418",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Home Assistant",
+    "openai",
+    "homeassistant",
+    "webhook",
+    "template",
+    "1418",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1418",
+    "openai",
+    "homeassistant",
+    "webhook",
+    "1418 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "openai",
+    "homeassistant"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1418",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-1418",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "If urgent, trigger a Home Assistant automation (e.g., turn on a siren)."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Home Assistant",
+        "type": "n8n-nodes-base.homeassistant",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Home Assistant",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1418
+  }
+}

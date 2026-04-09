@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-send-marketing-email-from-campaign-brief-and-send-to-facebook-7c5e3b5307",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/send-marketing-email-campaign-brief-facebook.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/send-marketing-email-campaign-brief-facebook.json"
+  },
+  "name": "Send marketing email from Campaign brief and send to Facebook",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Send marketing email from Campaign brief and send to Facebook",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "send",
+    "marketing",
+    "email",
+    "campaign",
+    "brief"
+  ],
+  "task_keywords": [
+    "send marketing email from campaign brief and send to facebook",
+    "slack",
+    "send slack",
+    "webhook",
+    "send marketing",
+    "marketing email",
+    "email campaign",
+    "campaign brief",
+    "brief send",
+    "send facebook",
+    "facebook n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Send marketing email from Campaign brief and send to Facebook",
+    "nodes": [
+      {
+        "id": "trigger-campaign-brief",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          72700
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "send-marketing-email-from-campaign-brief-and-send-to-facebook",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-campaign-brief",
+        "name": "Fetch data from Campaign brief",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          72700
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/campaign-brief",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-facebook",
+        "name": "Send to Facebook",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          72700
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/facebook",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-72700",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          72700
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Campaign brief",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Campaign brief": {
+        "main": [
+          {
+            "node": "Send to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Facebook": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

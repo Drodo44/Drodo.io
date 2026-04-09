@@ -1,0 +1,816 @@
+{
+  "id": "official-12959",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/12959",
+    "template_id": 12959
+  },
+  "name": "Generate proposals with GPT-4o, Google Docs, Gmail and Slack",
+  "description": "Who’s it for Consultants, agencies, freelancers, and professional service firms who need to create customized proposals and contracts quickly and efficiently.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "Google Sheets",
+    "Edit Fields (Set)",
+    "OpenAI",
+    "Google Docs",
+    "Gmail",
+    "Slack",
+    "Error",
+    "Google Sheets Trigger",
+    "Error Trigger",
+    "generate",
+    "proposals",
+    "gpt"
+  ],
+  "task_keywords": [
+    "generate proposals with gpt-4o, google docs, gmail and slack",
+    "google sheets",
+    "create google sheets",
+    "edit fields (set)",
+    "create edit fields (set)",
+    "openai",
+    "create openai",
+    "google docs",
+    "create google docs",
+    "gmail",
+    "create gmail",
+    "slack"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Edit Fields (Set)",
+    "OpenAI",
+    "Google Docs",
+    "Gmail",
+    "Slack",
+    "Error"
+  ],
+  "triggers": [
+    "Google Sheets Trigger",
+    "Error Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "o0IELmWjFMKhdPS7",
+    "meta": {
+      "instanceId": "f6e8ad6763839b50a3ab3bea5512dc60976f81a6273178925f946fc7a00549a8"
+    },
+    "name": "Proposal & Contract Generation Automation for Consulting Firms",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "40edce11-6045-47d8-aee7-c81f50999bd3",
+        "name": "New Client Entry Trigger",
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "position": [
+          352,
+          -64
+        ],
+        "parameters": {
+          "event": "rowAdded",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "id",
+            "value": "<__PLACEHOLDER_VALUE__Sheet Name (e.g., Clients)__>"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "<__PLACEHOLDER_VALUE__Google Sheets Document ID__>"
+          }
+        },
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "RlXHe81WAdI1GPDy",
+            "name": "Google Sheets Trigger account 2"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ff9b2c32-016f-46b9-8c21-c08395ad2069",
+        "name": "Workflow Configuration",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          576,
+          -64
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "proposalTemplateIntro",
+                "type": "string",
+                "value": "We are pleased to present this proposal for consulting services tailored to your business needs."
+              },
+              {
+                "id": "id-2",
+                "name": "pricingTier1",
+                "type": "number",
+                "value": 5000
+              },
+              {
+                "id": "id-3",
+                "name": "pricingTier2",
+                "type": "number",
+                "value": 10000
+              },
+              {
+                "id": "id-4",
+                "name": "pricingTier3",
+                "type": "number",
+                "value": 25000
+              },
+              {
+                "id": "id-5",
+                "name": "highValueThreshold",
+                "type": "number",
+                "value": 10000
+              },
+              {
+                "id": "id-6",
+                "name": "adminEmail",
+                "type": "string",
+                "value": "<__PLACEHOLDER_VALUE__Admin Email Address__>"
+              },
+              {
+                "id": "id-7",
+                "name": "slackChannel",
+                "type": "string",
+                "value": "<__PLACEHOLDER_VALUE__Slack Channel ID__>"
+              }
+            ]
+          },
+          "includeOtherFields": true
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "cf48607a-2a5c-424e-a646-ca1c35099647",
+        "name": "Normalize Client Data",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          800,
+          -64
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "clientName",
+                "type": "string",
+                "value": "={{ $json.clientName || $json['Client Name'] || '' }}"
+              },
+              {
+                "id": "id-2",
+                "name": "clientEmail",
+                "type": "string",
+                "value": "={{ $json.clientEmail || $json['Client Email'] || '' }}"
+              },
+              {
+                "id": "id-3",
+                "name": "projectScope",
+                "type": "string",
+                "value": "={{ $json.projectScope || $json['Project Scope'] || '' }}"
+              },
+              {
+                "id": "id-4",
+                "name": "estimatedValue",
+                "type": "number",
+                "value": "={{ $json.estimatedValue || $json['Estimated Value'] || 0 }}"
+              },
+              {
+                "id": "id-5",
+                "name": "industry",
+                "type": "string",
+                "value": "={{ $json.industry || $json['Industry'] || '' }}"
+              },
+              {
+                "id": "id-6",
+                "name": "proposalDate",
+                "type": "string",
+                "value": "={{ $now.format('MMMM DD, YYYY') }}"
+              }
+            ]
+          },
+          "includeOtherFields": true
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "699d28bb-ba4e-4d2d-9a25-67ab6c7eebf0",
+        "name": "Generate Proposal Content",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          1024,
+          -64
+        ],
+        "parameters": {
+          "modelId": {
+            "mode": "id",
+            "value": "gpt-4o"
+          },
+          "options": {
+            "temperature": 0.7
+          },
+          "responses": {
+            "values": [
+              {
+                "content": "={{ $json.projectScope }}\n\nClient: {{ $json.clientName }}\nIndustry: {{ $json.industry }}\nEstimated Value: ${{ $json.estimatedValue }}\n\nGenerate a comprehensive consulting proposal including: executive summary, project objectives, methodology, deliverables, timeline, and pricing structure. Use professional tone and format."
+              }
+            ]
+          },
+          "builtInTools": {}
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "HTy8dVDHzRHtxXLm",
+            "name": "n8n free OpenAI API credits"
+          }
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "964e76c5-bcd0-489d-aeef-7cdf584b541a",
+        "name": "Create Google Doc Proposal",
+        "type": "n8n-nodes-base.googleDocs",
+        "position": [
+          1376,
+          -64
+        ],
+        "parameters": {
+          "title": "=Proposal for {{ $json.clientName }} - {{ $json.proposalDate }}"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "3703213e-4138-4a29-bb97-b315bc69a71b",
+        "name": "Convert Doc to PDF",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1600,
+          -64
+        ],
+        "parameters": {
+          "url": "=https://docs.google.com/document/d/{{ $('Create Google Doc Proposal').item.json.documentId }}/export?format=pdf",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file",
+                "outputPropertyName": "proposalPDF"
+              }
+            }
+          },
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleOAuth2Api"
+        },
+        "typeVersion": 4.3
+      },
+      {
+        "id": "9b6d4a2d-7acf-47e5-a263-14db0dbff7dd",
+        "name": "Send Proposal via Email",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          1824,
+          -64
+        ],
+        "webhookId": "b3248c9f-2d9c-4c4b-a9c5-f48e9b7cbcac",
+        "parameters": {
+          "sendTo": "={{ $json.clientEmail }}",
+          "message": "=Dear {{ $json.clientName }},\n\nThank you for considering our consulting services. Please find attached our detailed proposal for your review.\n\nWe look forward to the opportunity to work with you.\n\nBest regards,\nYour Consulting Team",
+          "options": {
+            "attachmentsUi": {
+              "attachmentsBinary": [
+                {
+                  "property": "proposalPDF"
+                }
+              ]
+            }
+          },
+          "subject": "=Proposal for {{ $json.clientName }} - {{ $json.proposalDate }}"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "zN3hT9HwhLw12Sdn",
+            "name": "Gmail account 4"
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "95806102-bc18-4172-89f9-5a9b28de3c3f",
+        "name": "Send to DocuSign for Signature",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2048,
+          -64
+        ],
+        "parameters": {
+          "url": "<__PLACEHOLDER_VALUE__DocuSign API Endpoint (e.g., https://demo.docusign.net/restapi/v2.1/accounts/{accountId}/envelopes)__>",
+          "method": "POST",
+          "options": {},
+          "jsonBody": "={{ {\n  \"emailSubject\": \"Please sign this document\",\n  \"documents\": [{\n    \"documentBase64\": $binary.data.toString('base64'),\n    \"name\": \"Proposal.pdf\",\n    \"fileExtension\": \"pdf\",\n    \"documentId\": \"1\"\n  }],\n  \"recipients\": {\n    \"signers\": [{\n      \"email\": $('Normalize Client Data').item.json.clientEmail,\n      \"name\": $('Normalize Client Data').item.json.clientName,\n      \"recipientId\": \"1\",\n      \"routingOrder\": \"1\"\n    }]\n  },\n  \"status\": \"sent\"\n} }}",
+          "sendBody": true,
+          "sendHeaders": true,
+          "specifyBody": "json",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "oAuth2Api",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.3
+      },
+      {
+        "id": "f1b764c0-9752-4062-bf36-a6f4a5ab771e",
+        "name": "Log Proposal Creation",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          2272,
+          -64
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "Email": "={{ $json.clientEmail }}",
+              "Status": "Sent",
+              "Client Name": "={{ $json.clientName }}",
+              "Document ID": "={{ $('Create Google Doc Proposal').item.json.documentId }}",
+              "Project Scope": "={{ $json.projectScope }}",
+              "Proposal Date": "={{ $json.proposalDate }}",
+              "Estimated Value": "={{ $json.estimatedValue }}"
+            },
+            "schema": [
+              {
+                "id": "Client Name",
+                "required": false,
+                "displayName": "Client Name",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email",
+                "required": false,
+                "displayName": "Email",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Project Scope",
+                "required": false,
+                "displayName": "Project Scope",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Estimated Value",
+                "required": false,
+                "displayName": "Estimated Value",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Proposal Date",
+                "required": false,
+                "displayName": "Proposal Date",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Document ID",
+                "required": false,
+                "displayName": "Document ID",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Status",
+                "required": false,
+                "displayName": "Status",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "Client Name"
+            ]
+          },
+          "options": {},
+          "operation": "appendOrUpdate",
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "<__PLACEHOLDER_VALUE__Tracking Sheet Name (e.g., Proposals)__>"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "<__PLACEHOLDER_VALUE__Tracking Sheet Document ID__>"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "5b6oIAuqcO9HRb2A",
+            "name": "Google Sheets account 3"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "42bbbf32-03cd-4598-be76-5d21482dddf0",
+        "name": "Notify Team - Standard",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          2496,
+          -64
+        ],
+        "webhookId": "a8ef68dc-4838-44e4-bedf-f3cf8c13e223",
+        "parameters": {
+          "text": "=📄 New Proposal Created!\n\n*Client:* {{ $json.clientName }}\n*Value:* ${{ $json.estimatedValue }}\n*Industry:* {{ $json.industry }}\n*Date:* {{ $json.proposalDate }}\n\n<https://docs.google.com/document/d/{{ $('Create Google Doc Proposal').item.json.documentId }}|View Proposal>",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Workflow Configuration').item.json.slackChannel }}"
+          },
+          "otherOptions": {}
+        },
+        "typeVersion": 2.4
+      },
+      {
+        "id": "e2f19cae-de23-422b-8d2c-e0913edbc732",
+        "name": "Check if High-Value Client",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          2720,
+          -64
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "loose"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "id-1",
+                "operator": {
+                  "type": "number",
+                  "operation": "gte"
+                },
+                "leftValue": "={{ $json.estimatedValue }}",
+                "rightValue": "={{ $('Workflow Configuration').item.json.highValueThreshold }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "8ff23e56-5adf-4f00-a547-7124a05d4b92",
+        "name": "Priority Slack Notification",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          2944,
+          -64
+        ],
+        "webhookId": "01890b35-ce36-486e-bad0-2587052ff87e",
+        "parameters": {
+          "text": "=🚨 HIGH-VALUE CLIENT ALERT! 🚨\n\n*Client:* {{ $json.clientName }}\n*Value:* ${{ $json.estimatedValue }}\n*Industry:* {{ $json.industry }}\n\nThis is a priority opportunity requiring immediate attention!\n\n<https://docs.google.com/document/d/{{ $('Create Google Doc Proposal').item.json.documentId }}|View Proposal>",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Workflow Configuration').item.json.slackChannel }}"
+          },
+          "otherOptions": {}
+        },
+        "typeVersion": 2.4
+      },
+      {
+        "id": "019c55bc-bfac-4781-8214-03f786dd26a4",
+        "name": "Schedule Follow-up Reminder",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          3168,
+          -64
+        ],
+        "webhookId": "1da01613-58e1-40a0-b84f-ec2d6d213840",
+        "parameters": {
+          "sendTo": "={{ $('Workflow Configuration').item.json.adminEmail }}",
+          "message": "=High-value client proposal has been sent.\n\nClient: {{ $json.clientName }}\nValue: ${{ $json.estimatedValue }}\nIndustry: {{ $json.industry }}\n\nPlease schedule a follow-up call within 48 hours.\n\nProposal Link: https://docs.google.com/document/d/{{ $('Create Google Doc Proposal').item.json.documentId }}",
+          "options": {},
+          "subject": "=PRIORITY: Follow-up Required - {{ $json.clientName }}"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "zN3hT9HwhLw12Sdn",
+            "name": "Gmail account 4"
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "ff4fdeb4-4728-4637-a937-7f511f458984",
+        "name": "On Workflow Error",
+        "type": "n8n-nodes-base.errorTrigger",
+        "position": [
+          336,
+          208
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "4c96943c-5351-448a-8bf3-7c7d841a94fc",
+        "name": "Error Alert to Admin",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          592,
+          208
+        ],
+        "webhookId": "2e5374e8-6cd8-422f-bd59-f426c5eb0bf1",
+        "parameters": {
+          "text": "=⚠️ WORKFLOW ERROR ALERT\n\n*Workflow:* Proposal Generation\n*Error Node:* {{ $json.node?.name || \"Unknown\" }}\n*Error Message:* {{ $json.error?.message || \"Proposal creation failed\" }}\n*Time:* {{ $now.format(\"YYYY-MM-DD HH:mm:ss\") }}\n\nPlease investigate immediately.",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "<__PLACEHOLDER_VALUE__Slack Channel ID__>"
+          },
+          "otherOptions": {}
+        },
+        "typeVersion": 2.4
+      },
+      {
+        "id": "28f9c9db-e3cf-4655-a05f-2f792404865f",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -176,
+          -160
+        ],
+        "parameters": {
+          "width": 432,
+          "height": 528,
+          "content": "## Main\nThis workflow automates proposal and contract generation for consulting firms, agencies, or freelancers. It takes client information from Google Sheets or a CRM, uses AI to generate a customized proposal, creates a PDF, sends it to the client via email, optionally integrates with DocuSign/PandaDoc for signatures, logs the activity in Sheets, and notifies your team via Slack. High-value clients trigger additional follow-ups.\n\n## Setup\n1. Connect Google Sheets for client data input.\n2. Set up Gmail or Outlook credentials for sending emails.\n3. Configure Slack channel for notifications.\n4. Connect OpenAI for proposal generation.\n5. Optional: Configure DocuSign/PandaDoc API for e-signature automation.\n6. Adjust decision logic in IF nodes for high-value client handling.\n7. Test workflow with a sample client entry to ensure all routes work.\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2c059a5e-4a2d-4a19-93f8-a7dd759a426d",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          304,
+          -240
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 656,
+          "height": 352,
+          "content": "## Trigger & Setup"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "62ab8e13-b225-40f5-b6a9-60ee4024e939",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          976,
+          -240
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 784,
+          "height": 352,
+          "content": "## AI Logic"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6960acf8-20a3-4b0d-a7b2-70543557aa5a",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1776,
+          -240
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 640,
+          "height": 352,
+          "content": "## Send Proposal"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "80150b05-8ee7-4913-98f4-42f235aade2d",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2432,
+          -240
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 928,
+          "height": 352,
+          "content": "## Notify Team"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ce0143cf-e02d-40f4-90f0-1b659d15263e",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          288,
+          128
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 672,
+          "height": 352,
+          "content": "## Error"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "05bbc552-a4b1-4114-a673-6f418b9a1944",
+    "connections": {
+      "On Workflow Error": {
+        "main": [
+          [
+            {
+              "node": "Error Alert to Admin",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert Doc to PDF": {
+        "main": [
+          [
+            {
+              "node": "Send Proposal via Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Proposal Creation": {
+        "main": [
+          [
+            {
+              "node": "Notify Team - Standard",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Client Data": {
+        "main": [
+          [
+            {
+              "node": "Generate Proposal Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notify Team - Standard": {
+        "main": [
+          [
+            {
+              "node": "Check if High-Value Client",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workflow Configuration": {
+        "main": [
+          [
+            {
+              "node": "Normalize Client Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Proposal via Email": {
+        "main": [
+          [
+            {
+              "node": "Send to DocuSign for Signature",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "New Client Entry Trigger": {
+        "main": [
+          [
+            {
+              "node": "Workflow Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Proposal Content": {
+        "main": [
+          [
+            {
+              "node": "Create Google Doc Proposal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check if High-Value Client": {
+        "main": [
+          [
+            {
+              "node": "Priority Slack Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Google Doc Proposal": {
+        "main": [
+          [
+            {
+              "node": "Convert Doc to PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Priority Slack Notification": {
+        "main": [
+          [
+            {
+              "node": "Schedule Follow-up Reminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to DocuSign for Signature": {
+        "main": [
+          [
+            {
+              "node": "Log Proposal Creation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

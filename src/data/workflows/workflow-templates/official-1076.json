@@ -1,0 +1,92 @@
+{
+  "id": "official-1076",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1076",
+    "template_id": 1076
+  },
+  "name": "Transfer data from website to Google Sheets",
+  "description": "Take data from website form via webhook and save data into Google Sheets document!",
+  "category": "Data",
+  "tags": [
+    "Lead Generation",
+    "Google Sheets",
+    "Webhook",
+    "transfer",
+    "data",
+    "website",
+    "google",
+    "sheets",
+    "take"
+  ],
+  "task_keywords": [
+    "transfer data from website to google sheets",
+    "google sheets",
+    "webhook",
+    "transfer data",
+    "data website",
+    "website google",
+    "sheets take",
+    "take data",
+    "website form",
+    "form via",
+    "via webhook",
+    "webhook save"
+  ],
+  "required_services": [
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          700,
+          300
+        ],
+        "parameters": {
+          "range": "Problems!A:D",
+          "options": {},
+          "sheetId": "17fzSFl1BZ1njldTfp5lvh8HtS0-pNXH66b7qGZIiGRU"
+        },
+        "credentials": {
+          "googleApi": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          500,
+          300
+        ],
+        "parameters": {
+          "path": "webhook",
+          "options": {},
+          "responseData": "allEntries",
+          "responseMode": "lastNode"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "official-2696",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/2696",
+    "template_id": 2696
+  },
+  "name": "Complete guide to setting up and generating TOTP codes in n8n 🔐",
+  "description": "Setting Up and Generating TOTP Step 1: Receive QR Code and Extract the Link 1.",
+  "category": "Other",
+  "tags": [
+    "SecOps",
+    "TOTP",
+    "Manual Trigger",
+    "complete",
+    "guide",
+    "setting",
+    "generating",
+    "totp",
+    "codes"
+  ],
+  "task_keywords": [
+    "complete guide to setting up and generating totp codes in n8n 🔐",
+    "totp",
+    "manual trigger",
+    "complete guide",
+    "guide setting",
+    "setting generating",
+    "generating totp",
+    "totp codes",
+    "codes n8n",
+    "n8n setting",
+    "totp step",
+    "step receive"
+  ],
+  "required_services": [
+    "TOTP"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "0wfomsVO0TQtQkwU",
+    "meta": {
+      "instanceId": "2e75c9fb3cdcf631da470c0180f0739986baa0ee860de53281e9edc3491b82a3"
+    },
+    "name": "Complete Guide to Setting Up and Generating TOTP Codes in n8n 🔐",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "0fe95b9a-be2b-4022-829e-8b6c801e5baf",
+        "name": "When clicking ‘Test workflow’",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          -280,
+          -340
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "02fee6b5-7770-4889-b9bb-89bface8872d",
+        "name": "TOTP",
+        "type": "n8n-nodes-base.totp",
+        "position": [
+          -40,
+          -340
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "credentials": {
+          "totpApi": {
+            "id": "credential-id",
+            "name": "totpApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "timezone": "Asia/Tehran",
+      "callerPolicy": "workflowsFromSameOwner",
+      "executionOrder": "v1"
+    },
+    "versionId": "d7a5fff3-3fcd-45cd-ba06-564097567ff5",
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "TOTP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

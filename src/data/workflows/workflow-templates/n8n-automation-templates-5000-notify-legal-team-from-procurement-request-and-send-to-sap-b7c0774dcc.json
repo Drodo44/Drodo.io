@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-notify-legal-team-from-procurement-request-and-send-to-sap-b7c0774dcc",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/notify-legal-team-procurement-request-sap.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/notify-legal-team-procurement-request-sap.json"
+  },
+  "name": "Notify legal team from Procurement request and send to SAP",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Notify legal team from Procurement request and send to SAP",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "notify",
+    "legal",
+    "team",
+    "procurement",
+    "request",
+    "send"
+  ],
+  "task_keywords": [
+    "notify legal team from procurement request and send to sap",
+    "slack",
+    "send slack",
+    "notify slack",
+    "webhook",
+    "notify legal",
+    "legal team",
+    "team procurement",
+    "procurement request",
+    "request send",
+    "send sap",
+    "sap n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Notify legal team from Procurement request and send to SAP",
+    "nodes": [
+      {
+        "id": "trigger-procurement-request",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          165800
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "notify-legal-team-from-procurement-request-and-send-to-sap",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-procurement-request",
+        "name": "Fetch data from Procurement request",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          165800
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/procurement-request",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-sap",
+        "name": "Send to SAP",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          165800
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/sap",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-165800",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          165800
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Procurement request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Procurement request": {
+        "main": [
+          {
+            "node": "Send to SAP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to SAP": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

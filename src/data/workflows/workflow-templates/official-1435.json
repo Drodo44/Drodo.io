@@ -1,0 +1,152 @@
+{
+  "id": "official-1435",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1435",
+    "template_id": 1435
+  },
+  "name": "Convert JSON to an Excel file",
+  "description": "Send a simple JSON array via HTTP POST and get an Excel file.",
+  "category": "Data",
+  "tags": [
+    "File Management",
+    "Item Lists",
+    "Spreadsheet File",
+    "Respond to Webhook",
+    "Webhook",
+    "convert",
+    "json",
+    "excel",
+    "file",
+    "send",
+    "simple"
+  ],
+  "task_keywords": [
+    "convert json to an excel file",
+    "item lists",
+    "send item lists",
+    "spreadsheet file",
+    "send spreadsheet file",
+    "respond to webhook",
+    "send respond to webhook",
+    "webhook",
+    "convert json",
+    "json excel",
+    "excel file",
+    "file send"
+  ],
+  "required_services": [
+    "Item Lists",
+    "Spreadsheet File",
+    "Respond to Webhook"
+  ],
+  "triggers": [
+    "Webhook",
+    "Respond to Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          340,
+          0
+        ],
+        "webhookId": "c1616754-4dec-4b00-a8b5-d1cb5f75bf11",
+        "parameters": {
+          "path": "c1616754-4dec-4b00-a8b5-d1cb5f75bf11",
+          "options": {},
+          "httpMethod": "POST",
+          "responseMode": "responseNode"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Item Lists",
+        "type": "n8n-nodes-base.itemLists",
+        "position": [
+          560,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "fieldToSplitOut": "=body"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Spreadsheet File",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          780,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "toFile",
+          "fileFormat": "xlsx"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1020,
+          0
+        ],
+        "parameters": {
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "content-disposition",
+                  "value": "=attachment; filename=\"{{$node[\"Webhook\"].json[\"query\"][\"filename\"]? $node[\"Webhook\"].json[\"query\"][\"filename\"] : \"Export\"}}.xlsx\""
+                }
+              ]
+            }
+          },
+          "respondWith": "binary"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Item Lists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Item Lists": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Spreadsheet File": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

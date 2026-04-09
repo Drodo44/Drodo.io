@@ -1,0 +1,153 @@
+{
+  "id": "n8n-automation-templates-5000-template-1878-ed2aa0e5c5",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/CRM/government_&_non-profit_1878_api_polling_crm_to_google_sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/CRM/government_&_non-profit_1878_api_polling_crm_to_google_sheets.json"
+  },
+  "name": "Template 1878",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1878",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "CRM",
+    "crm",
+    "googlesheets",
+    "hubspot",
+    "template",
+    "1878",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1878",
+    "googlesheets",
+    "hubspot",
+    "1878 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000"
+  ],
+  "required_services": [
+    "crm",
+    "googlesheets",
+    "hubspot"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1878",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://api.example.com/data",
+          "method": "GET"
+        },
+        "name": "API Polling",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CRM",
+        "type": "n8n-nodes-base.crm",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "HubSpot",
+        "type": "n8n-nodes-base.hubspot",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "API Polling": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CRM": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "HubSpot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1878
+  }
+}

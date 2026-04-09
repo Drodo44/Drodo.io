@@ -1,0 +1,61 @@
+{
+  "id": "official-490",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/490",
+    "template_id": 490
+  },
+  "name": "Receive updates for all changes in Pipedrive",
+  "description": "Receive updates for all changes in Pipedrive",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Pipedrive",
+    "Pipedrive Trigger",
+    "receive",
+    "updates",
+    "all",
+    "changes",
+    "pipedrive"
+  ],
+  "task_keywords": [
+    "receive updates for all changes in pipedrive",
+    "pipedrive",
+    "update pipedrive",
+    "pipedrive trigger",
+    "receive updates",
+    "updates all",
+    "all changes",
+    "changes pipedrive",
+    "pipedrive receive"
+  ],
+  "required_services": [
+    "Pipedrive"
+  ],
+  "triggers": [
+    "Pipedrive Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "115",
+    "name": "Receive updates for all changes in Pipedrive",
+    "nodes": [
+      {
+        "name": "Pipedrive Trigger",
+        "type": "n8n-nodes-base.pipedriveTrigger",
+        "position": [
+          750,
+          250
+        ],
+        "parameters": {},
+        "credentials": {
+          "pipedriveApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

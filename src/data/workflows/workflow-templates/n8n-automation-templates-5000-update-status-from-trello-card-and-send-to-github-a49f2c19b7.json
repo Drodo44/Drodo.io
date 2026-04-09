@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-update-status-from-trello-card-and-send-to-github-a49f2c19b7",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/update-status-trello-card-github.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/update-status-trello-card-github.json"
+  },
+  "name": "Update status from Trello card and send to GitHub",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Update status from Trello card and send to GitHub",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "update",
+    "status",
+    "trello",
+    "card",
+    "send",
+    "github"
+  ],
+  "task_keywords": [
+    "update status from trello card and send to github",
+    "slack",
+    "send slack",
+    "update slack",
+    "webhook",
+    "update status",
+    "status trello",
+    "trello card",
+    "card send",
+    "send github",
+    "github n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Update status from Trello card and send to GitHub",
+    "nodes": [
+      {
+        "id": "trigger-trello-card",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          153700
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "update-status-from-trello-card-and-send-to-github",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-trello-card",
+        "name": "Fetch data from Trello card",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          153700
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/trello-card",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-github",
+        "name": "Send to GitHub",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          153700
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/github",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-153700",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          153700
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Trello card",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Trello card": {
+        "main": [
+          {
+            "node": "Send to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to GitHub": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

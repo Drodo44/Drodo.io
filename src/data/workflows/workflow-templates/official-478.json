@@ -1,0 +1,87 @@
+{
+  "id": "official-478",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/478",
+    "template_id": 478
+  },
+  "name": "Create a new task in Asana",
+  "description": "Create a new task in Asana",
+  "category": "Productivity",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Asana",
+    "Manual Trigger",
+    "create",
+    "task",
+    "asana"
+  ],
+  "task_keywords": [
+    "create a new task in asana",
+    "manual",
+    "create manual",
+    "asana",
+    "create asana",
+    "manual trigger",
+    "create task",
+    "task asana",
+    "asana create"
+  ],
+  "required_services": [
+    "manual",
+    "Asana"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "98",
+    "name": "Create a new task in Asana",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Asana",
+        "type": "n8n-nodes-base.asana",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "name": "",
+          "workspace": "",
+          "otherProperties": {}
+        },
+        "credentials": {
+          "asanaApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Asana",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

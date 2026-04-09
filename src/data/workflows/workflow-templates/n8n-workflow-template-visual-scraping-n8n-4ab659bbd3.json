@@ -1,0 +1,686 @@
+{
+  "id": "n8n-workflow-template-visual-scraping-n8n-4ab659bbd3",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Visual_Scraping_N8N.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Visual_Scraping_N8N.json"
+  },
+  "name": "Visual Scraping N8N",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Visual Scraping N8N",
+  "category": "AI",
+  "tags": [
+    "manual",
+    "airtable",
+    "tool Workflow",
+    "Google Gemini",
+    "agent",
+    "output Parser Autofixing",
+    "output Parser Structured",
+    "Manual Trigger",
+    "execute Workflow Trigger",
+    "visual",
+    "scraping",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "visual scraping n8n",
+    "manual",
+    "airtable",
+    "tool workflow",
+    "google gemini",
+    "agent",
+    "output parser autofixing",
+    "output parser structured",
+    "manual trigger",
+    "execute workflow trigger",
+    "visual scraping",
+    "scraping n8n"
+  ],
+  "required_services": [
+    "manual",
+    "airtable",
+    "tool Workflow",
+    "Google Gemini",
+    "agent",
+    "output Parser Autofixing",
+    "output Parser Structured"
+  ],
+  "triggers": [
+    "Manual Trigger",
+    "execute Workflow Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Visual Scraping N8N",
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "d78cf805-e0ea-41b7-af56-fc57ce00a49b",
+        "name": "When clicking ‘Test workflow’",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          0,
+          0
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "url": "https://app.scrapingbee.com/api/v1",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "api_key",
+                "value": "TA CLE API"
+              },
+              {
+                "name": "url",
+                "value": "={{$json.url}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "29b1e7f0-32c4-4882-8f7c-2017b76a85a6",
+        "name": "ScrapingBee- Get page HTML",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2000,
+          640
+        ],
+        "typeVersion": 4.2
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c53c5ed2-9c7b-4365-9953-790264c722ab",
+                "name": "url",
+                "type": "string",
+                "value": "={{ $json.url }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "f44576e6-52f8-4625-a165-bfbc0d62dd3a",
+        "name": "Set fields",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1280,
+          0
+        ],
+        "typeVersion": 3.4
+      },
+      {
+        "parameters": {
+          "url": "https://app.scrapingbee.com/api/v1",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "api_key",
+                "value": "TA CLE API"
+              },
+              {
+                "name": "url",
+                "value": "={{ $json.url }}"
+              },
+              {
+                "name": "screenshot_full_page",
+                "value": "true"
+              }
+            ]
+          },
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "User-Agent",
+                "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "e751205d-4ad8-4d0a-bb70-906f363b1fb4",
+        "name": "ScrapingBee - Get page screenshot",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1700,
+          0
+        ],
+        "typeVersion": 4.2
+      },
+      {
+        "parameters": {},
+        "id": "7e06da71-bcf6-4879-bc74-74014fdd06fc",
+        "name": "HTML-Scraping Tool",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          1200,
+          640
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c53c5ed2-9c7b-4365-9953-790264c722ab",
+                "name": "url",
+                "type": "string",
+                "value": "={{ $json.query }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "b7736159-bf73-4bac-ae08-445a5d3d2a45",
+        "name": "Set fields - from AI agent query",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1600,
+          640
+        ],
+        "typeVersion": 3.4
+      },
+      {
+        "parameters": {
+          "html": "={{ $json.data }}",
+          "options": {}
+        },
+        "id": "598395f7-f95b-4403-adf2-02ab246e6f6a",
+        "name": "HTML to Markdown",
+        "type": "n8n-nodes-base.markdown",
+        "position": [
+          2460,
+          640
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "appRmm9kkMqVyn8Qi",
+            "mode": "list",
+            "cachedResultName": "Base Démonstration N8N",
+            "cachedResultUrl": "https://airtable.com/appRmm9kkMqVyn8Qi"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblWpSOaWGis3C0Zy",
+            "mode": "list",
+            "cachedResultName": "Site à scraper",
+            "cachedResultUrl": "https://airtable.com/appRmm9kkMqVyn8Qi/tblWpSOaWGis3C0Zy"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtable",
+        "typeVersion": 2.1,
+        "position": [
+          500,
+          0
+        ],
+        "id": "a43cc96d-d7a5-4408-855b-4f966c2fa510",
+        "name": "Airtable",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "output",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          2460,
+          0
+        ],
+        "id": "e6ba5e9f-7784-42a6-bfc7-c9814f4fe38a",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "base": {
+            "__rl": true,
+            "value": "appRmm9kkMqVyn8Qi",
+            "mode": "list",
+            "cachedResultName": "Base Démonstration N8N",
+            "cachedResultUrl": "https://airtable.com/appRmm9kkMqVyn8Qi"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblynwBQ4HwBPSFHf",
+            "mode": "list",
+            "cachedResultName": "Livre",
+            "cachedResultUrl": "https://airtable.com/appRmm9kkMqVyn8Qi/tblynwBQ4HwBPSFHf"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Nom du livre": "={{ $json.Nom_du_livre }}",
+              "Auteur": "={{ $json.Auteur_1 }}",
+              "Type de livre": "={{ $json.Type_livre }}",
+              "Prix": "={{ $json.Prix }}",
+              "Nombre d'avis": "={{ $json.Nb_avis }}",
+              "Note": "={{ $json.Note.round() }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Nom du livre",
+                "displayName": "Nom du livre",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Auteur",
+                "displayName": "Auteur",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "2eme Auteur",
+                "displayName": "2eme Auteur",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Type de livre",
+                "displayName": "Type de livre",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "options",
+                "options": [
+                  {
+                    "name": "Broché",
+                    "value": "Broché"
+                  },
+                  {
+                    "name": "Poche",
+                    "value": "Poche"
+                  },
+                  {
+                    "name": "Relié",
+                    "value": "Relié"
+                  }
+                ],
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Prix",
+                "displayName": "Prix",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Note",
+                "displayName": "Note",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Nombre d'avis",
+                "displayName": "Nombre d'avis",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtable",
+        "typeVersion": 2.1,
+        "position": [
+          2700,
+          0
+        ],
+        "id": "be2290f2-65f3-45f8-aa25-2c1164cb33ca",
+        "name": "Airtable1",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "Scrape_HTML_Page",
+          "description": "=Appeler cet outil pour récuperer le lien/URL vers chaque livre ",
+          "workflowId": {
+            "__rl": true,
+            "value": "sQAxK6IhSrq3SQyg",
+            "mode": "list",
+            "cachedResultName": "Scraping Stor Systemes"
+          },
+          "responsePropertyName": "data"
+        },
+        "id": "bccaad09-cf8b-405b-932a-9ca825a6c9b0",
+        "name": "Scrape_HTML_Page",
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "position": [
+          2020,
+          280
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "content": "Outil n°1 - Scraper Page HTML",
+          "height": 280,
+          "width": 1760
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1040,
+          560
+        ],
+        "id": "512f2f16-bcf0-45bc-8598-3b6c53579772",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-1.5-pro-latest",
+          "options": {}
+        },
+        "id": "faeb2cf9-6aa6-47c4-b9c6-811a283be981",
+        "name": "Google Gemini Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "position": [
+          1800,
+          260
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "googlePalmApi": {
+            "id": "3u2474wBZevNF2MI",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Voici le screenshot de la page comportant les livres dont tu dois analysés les informations :\n\n{{ $json.url }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=Extraire les informations suivantes sur la page: \n\n- Nom du Livre\n- Auteur du Livre\n- 2eme Auteur du Livre\n- Prix du Livre\n- Note sur 5 étoiles\n- Nombre d'avis\n- Type de livre\n\nÉtape 1 : Extraction basée sur l’image\n\n- Analyser la capture d’écran fournie pour identifier et extraire les informations données. (Exemple récuperer les informartions de l'auteur, note 5 étoiles)\n- Assurez-vous que l’extraction soit complète et validez l'information sur chacun des livres.\n\n- Mettez en évidence toute limitation (par exemple, texte flou, partiellement rogné ou manquant) rencontrée lors du processus d’extraction.\n\nÉtape 2 : Utiliser l'outil : Scrape_HTML_Page pour obtenir le lien vers les livres amazon\n\n- Appelez l'outil : Scrape_HTML_Page avec l’URL d’entrée pour accéder au contenu de la page.\n- Extrayez les informations demandées à partir du HTML pour compléter ou remplacer le résultat basés sur l’image.\n- Combinez les données issues des deux sources (si applicable) pour garantir un résultat final exhaustif et précis.\n\nExemples de réponse d'extraction du nombre de pages\n\n\" Nom du livre : Les Misérables \nde Victor Hugo et Benoit Ferrere\n4,5 étoiles 9,9k \nPoche\n10,70€\"\n\n\nNote additionnels\n\nUtiliser l'outil Scrape_HTML_Page pour obtenir le lien vers le livre\n\nExemple de sortie\n\nPour chaque livre obtenu, le json doit être dans ce format exactement: \n\n[\n\n{\n  \"Nom_du_livre\":\"Les Misérables\",\n  \"Auteur_1\":\"Victor Hugo\",\n  \"Auteur_2\":\"Benoit Ferrere\",\n  \"Note\":5,\n  \"Type_livre\":\"Broché\",\n  \"Nb_avis\":9000,\n  \"Prix\":10,70\n}\n\n]",
+            "passthroughBinaryImages": true
+          }
+        },
+        "id": "acd0740c-4fec-4adc-a5ac-01a37ba9140c",
+        "name": "Agent Analyseur d'images",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          1980,
+          0
+        ],
+        "typeVersion": 1.7
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+        "typeVersion": 1,
+        "position": [
+          2220,
+          200
+        ],
+        "id": "5e9ef4ce-e1b2-48ab-84b2-a8dd57e2ec48",
+        "name": "Auto-fixing Output Parser"
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "[\n\n{\n  \"Nom_du_livre\":\"Les Misérables\",\n  \"Auteur_1\":\"Victor Hugo\",\n  \"url_livre:\":\"https://www.amazon.fr/mis%C3%A9rables-Fantine-int%C3%A9gral-%C3%89dition-illustr%C3%A9e/dp/B085QDM14S/ref=sr_1_1_sspa?crid=15XPQBVY467BL&dib=eyJ2IjoiMSJ9.a-et2m9aSHTBUI67jkTfzX0GxGR2HMwG5D9iBlTC9Q3ytBgmjJL4YjGpJnASKPh9FPIECTWm32XfTKQDmJWLBjTvZXJBA8ITVap9kdVHH9yIL_HpKMs1w4ErFan6IgxwKGmiKoib0YJYO7S8q6iaE_gA4TuTuxnROwRBD9XDSSk_7tP-9fl7wRAdb0jRKyVc3HNRWNJLFAsl8io6h7eyjoANAtSlb2d742fSeSE9XI9WRv1jFzlJhhUGPWx7SubtRCC88qjTgCrW3CPToAmRhi6HffcgmAhW--blkspvjCc.5ciNhoEZySSJZXTgK_zNRa_hj8LDyKrG0xN1-UMvLT8&dib_tag=se&keywords=les+miserables+victor+hugo&qid=1734019684&sprefix=les+miserab%2Caps%2C131&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1\",\n  \"Auteur_2\":\"Benoit Ferrere\",\n  \"Note\":4,\n  \"Type_livre\":\"Broché\",\n  \"Nb_avis\":9000,\n  \"Prix\":10.7\n}\n\n]"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2460,
+          360
+        ],
+        "id": "3c80ba9b-4d3b-4334-aea6-6596dab9908c",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-1.5-pro-latest",
+          "options": {}
+        },
+        "id": "df394dc9-4d20-40a8-b5e9-2183f5337e2d",
+        "name": "Google Gemini Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "position": [
+          2220,
+          380
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "googlePalmApi": {
+            "id": "3u2474wBZevNF2MI",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ScrapingBee- Get page HTML": {
+        "main": [
+          [
+            {
+              "node": "HTML to Markdown",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set fields": {
+        "main": [
+          [
+            {
+              "node": "ScrapingBee - Get page screenshot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ScrapingBee - Get page screenshot": {
+        "main": [
+          [
+            {
+              "node": "Agent Analyseur d'images",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTML-Scraping Tool": {
+        "main": [
+          [
+            {
+              "node": "Set fields - from AI agent query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set fields - from AI agent query": {
+        "main": [
+          [
+            {
+              "node": "ScrapingBee- Get page HTML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Airtable": {
+        "main": [
+          [
+            {
+              "node": "Set fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Airtable1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape_HTML_Page": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Analyseur d'images",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Analyseur d'images",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Analyseur d'images": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto-fixing Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent Analyseur d'images",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Auto-fixing Output Parser",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Auto-fixing Output Parser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "70edc791-544a-417c-bfc7-db7103bf5adc",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "99Vigtu32QjPNRjk",
+    "tags": []
+  }
+}

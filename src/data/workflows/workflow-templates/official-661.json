@@ -1,0 +1,110 @@
+{
+  "id": "official-661",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/661",
+    "template_id": 661
+  },
+  "name": "Convert the JSON data received from the CocktailDB API in XML",
+  "description": "Convert the JSON data received from the CocktailDB API in XML",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "manual",
+    "XML",
+    "Manual Trigger",
+    "convert",
+    "json",
+    "data",
+    "received",
+    "cocktaildb",
+    "xml"
+  ],
+  "task_keywords": [
+    "convert the json data received from the cocktaildb api in xml",
+    "manual",
+    "manual trigger",
+    "convert json",
+    "json data",
+    "data received",
+    "received cocktaildb",
+    "cocktaildb xml",
+    "xml convert"
+  ],
+  "required_services": [
+    "manual",
+    "XML"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "55",
+    "name": "Convert the JSON data received from the CocktailDB API in XML",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          440,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          650,
+          260
+        ],
+        "parameters": {
+          "url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "XML",
+        "type": "n8n-nodes-base.xml",
+        "position": [
+          850,
+          260
+        ],
+        "parameters": {
+          "mode": "jsonToxml",
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "XML",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

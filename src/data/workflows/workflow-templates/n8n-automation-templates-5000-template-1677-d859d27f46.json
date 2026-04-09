@@ -1,0 +1,184 @@
+{
+  "id": "n8n-automation-templates-5000-template-1677-d859d27f46",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/research_&_analysis_1677_email_trigger_google_scholar_to_notion.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/research_&_analysis_1677_email_trigger_google_scholar_to_notion.json"
+  },
+  "name": "Template 1677",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1677",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "googlescholar",
+    "notion",
+    "openai",
+    "transcriptionapi",
+    "gmail Trigger",
+    "template",
+    "1677",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1677",
+    "gmail",
+    "googlescholar",
+    "notion",
+    "openai",
+    "transcriptionapi",
+    "gmail trigger",
+    "1677 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog"
+  ],
+  "required_services": [
+    "gmail",
+    "googlescholar",
+    "notion",
+    "openai",
+    "transcriptionapi"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Template 1677",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Scholar",
+        "type": "n8n-nodes-base.googlescholar",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Notion",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Transcribe the attached audio and generate a transcript."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Transcription API",
+        "type": "n8n-nodes-base.transcriptionapi",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Scholar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Scholar": {
+        "main": [
+          [
+            {
+              "node": "Notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Transcription API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1677
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "id": "official-1111",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1111",
+    "template_id": 1111
+  },
+  "name": "Create transcription jobs using AWS Transcribe",
+  "description": "This workflow allows you to create transcription jobs for all your audio and video files stored in AWS S3.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "manual",
+    "AWS Transcribe",
+    "AWS S3",
+    "Manual Trigger",
+    "create",
+    "transcription",
+    "jobs",
+    "aws",
+    "transcribe",
+    "workflow"
+  ],
+  "task_keywords": [
+    "create transcription jobs using aws transcribe",
+    "manual",
+    "create manual",
+    "aws transcribe",
+    "create aws transcribe",
+    "aws s3",
+    "create aws s3",
+    "manual trigger",
+    "create transcription",
+    "transcription jobs",
+    "jobs aws",
+    "transcribe workflow"
+  ],
+  "required_services": [
+    "manual",
+    "AWS Transcribe",
+    "AWS S3"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          190,
+          160
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS Transcribe",
+        "type": "n8n-nodes-base.awsTranscribe",
+        "position": [
+          590,
+          160
+        ],
+        "parameters": {
+          "options": {},
+          "mediaFileUri": "=s3://{{$node[\"AWS S3\"].parameter[\"bucketName\"]}}/{{$json[\"Key\"]}}",
+          "detectLanguage": true,
+          "transcriptionJobName": "={{$json[\"Key\"].replace(/\\s/g,'-')}}"
+        },
+        "credentials": {
+          "aws": "AWS Transcribe Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          390,
+          160
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll",
+          "returnAll": true,
+          "bucketName": "n8n-docs"
+        },
+        "credentials": {
+          "aws": "AWS S3 Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "AWS S3": {
+        "main": [
+          [
+            {
+              "node": "AWS Transcribe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS S3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

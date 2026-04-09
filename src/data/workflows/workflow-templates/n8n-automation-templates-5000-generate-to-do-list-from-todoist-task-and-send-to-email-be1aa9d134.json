@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-generate-to-do-list-from-todoist-task-and-send-to-email-be1aa9d134",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/generate-to-do-list-todoist-task-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/generate-to-do-list-todoist-task-email.json"
+  },
+  "name": "Generate to-do list from Todoist task and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Generate to-do list from Todoist task and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "generate",
+    "list",
+    "todoist",
+    "task",
+    "send",
+    "email"
+  ],
+  "task_keywords": [
+    "generate to-do list from todoist task and send to email",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "generate list",
+    "list todoist",
+    "todoist task",
+    "task send",
+    "send email",
+    "email n8n"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Generate to-do list from Todoist task and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-todoist-task",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          182100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "generate-to-do-list-from-todoist-task-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-todoist-task",
+        "name": "Fetch data from Todoist task",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          182100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/todoist-task",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-generate-to-do-list",
+        "name": "AI: Generate To-Do List",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          182100
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: generate to-do list"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          182100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-182100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          182100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Todoist task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Todoist task": {
+        "main": [
+          {
+            "node": "AI: Generate To-Do List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Generate To-Do List": {
+        "main": [
+          [
+            {
+              "node": "AI: Generate To-Do List",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

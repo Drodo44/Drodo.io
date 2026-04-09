@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-update-crm-from-property-listing-and-send-to-hospital-system-ac5e62ef90",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/update-crm-property-listing-hospital-system.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/update-crm-property-listing-hospital-system.json"
+  },
+  "name": "Update crm from Property listing and send to Hospital system",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Update crm from Property listing and send to Hospital system",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "update",
+    "crm",
+    "property",
+    "listing",
+    "send",
+    "hospital"
+  ],
+  "task_keywords": [
+    "update crm from property listing and send to hospital system",
+    "slack",
+    "send slack",
+    "update slack",
+    "webhook",
+    "update crm",
+    "crm property",
+    "property listing",
+    "listing send",
+    "send hospital",
+    "hospital system",
+    "system n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Update crm from Property listing and send to Hospital system",
+    "nodes": [
+      {
+        "id": "trigger-property-listing",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          186100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "update-crm-from-property-listing-and-send-to-hospital-system",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-property-listing",
+        "name": "Fetch data from Property listing",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          186100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/property-listing",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-hospital-system",
+        "name": "Send to Hospital system",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          186100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/hospital-system",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-186100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          186100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Property listing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Property listing": {
+        "main": [
+          {
+            "node": "Send to Hospital system",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Hospital system": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

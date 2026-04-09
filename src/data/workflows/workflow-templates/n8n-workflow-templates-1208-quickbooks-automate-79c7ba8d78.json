@@ -1,0 +1,131 @@
+{
+  "id": "n8n-workflow-templates-1208-quickbooks-automate-79c7ba8d78",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1208_Quickbooks_Automate.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1208_Quickbooks_Automate.json"
+  },
+  "name": "1208 Quickbooks Automate",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1208 Quickbooks Automate",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "quickbooks",
+    "1208",
+    "automate",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "1208 quickbooks automate",
+    "quickbooks",
+    "1208 quickbooks",
+    "quickbooks automate",
+    "automate n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates",
+    "templates 1208"
+  ],
+  "required_services": [
+    "quickbooks"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "QuickBooks2",
+        "type": "n8n-nodes-base.quickbooks",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "email": "",
+          "resource": "invoice",
+          "invoiceId": "={{$json[\"Id\"]}}",
+          "operation": "send"
+        },
+        "credentials": {
+          "quickBooksOAuth2Api": "QuickBooks OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "QuickBooks1",
+        "type": "n8n-nodes-base.quickbooks",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "Line": [
+            {
+              "Amount": 100,
+              "itemId": "1",
+              "DetailType": "SalesItemLineDetail",
+              "Description": "Consulting service"
+            }
+          ],
+          "resource": "invoice",
+          "operation": "create",
+          "CustomerRef": "={{$json[\"Id\"]}}",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "quickBooksOAuth2Api": "QuickBooks OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "QuickBooks",
+        "type": "n8n-nodes-base.quickbooks",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "operation": "create",
+          "displayName": "Jack Ryan",
+          "additionalFields": {
+            "PrimaryEmailAddr": "jack@ryan.com"
+          }
+        },
+        "credentials": {
+          "quickBooksOAuth2Api": "QuickBooks OAuth Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "QuickBooks": {
+        "main": [
+          [
+            {
+              "node": "QuickBooks1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "QuickBooks1": {
+        "main": [
+          [
+            {
+              "node": "QuickBooks2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

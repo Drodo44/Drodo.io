@@ -1,0 +1,419 @@
+{
+  "id": "official-9031",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/9031",
+    "template_id": 9031
+  },
+  "name": "Automate Shopify abandoned cart WhatsApp reminders with product links via Rapiwa",
+  "description": "Automate Shopify Abandoned Cart WhatsApp Reminders with Product Links via Rapiwa Who’s it for This n8n workflow automatically identifies customers who have abandoned their carts on your Shopify store, cleans and verifies their WhatsApp numbers, and sends them personalized reminders via the Rapiwa API.",
+  "category": "Communication",
+  "tags": [
+    "Lead Nurturing",
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)",
+    "Schedule Trigger",
+    "automate",
+    "shopify",
+    "abandoned",
+    "cart",
+    "whatsapp",
+    "reminders"
+  ],
+  "task_keywords": [
+    "automate shopify abandoned cart whatsapp reminders with product links via rapiwa",
+    "google sheets",
+    "send google sheets",
+    "loop over items (split in batches)",
+    "send loop over items (split in batches)",
+    "schedule trigger",
+    "automate shopify",
+    "shopify abandoned",
+    "abandoned cart",
+    "cart whatsapp",
+    "whatsapp reminders",
+    "reminders product"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "H1rJA5MTCuWx5IFF",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Automate Shopify Abandoned Cart WhatsApp Reminders with Product Links via Rapiwa",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "4159f1ee-7b87-4320-8716-2d601b41bcd9",
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -2064,
+          32
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "53535899-1bed-495b-a12c-38f7d4b38e21",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -2400,
+          32
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "69fbf648-32c5-42cf-8c8c-f504e3faec97",
+        "name": "Rapiwa Sender",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -144,
+          112
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "c925eed9-596d-4f47-a3bb-b1e7d366a14c",
+        "name": "Clean WhatsApp Number",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1264,
+          48
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "90aa8a3d-47eb-473f-afb4-906360350cd9",
+        "name": "Check valid whatsapp number Using Rapiwa1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -976,
+          48
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "a35dc547-b9c5-4a4c-9d7e-7fecd812bf71",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1328,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "45349501-247a-443c-b58e-1cea7f8f7e35",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -736,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "4cffcb7b-6473-4c5d-a52c-23f33c28edfd",
+        "name": "Sticky Note12",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -288,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d789b7a8-84ab-4143-98fc-d9b270302118",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -288,
+          352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6da3b3f7-8e68-41fb-b889-c62a0ca8f88b",
+        "name": "If",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -576,
+          288
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "9ff80aa5-754b-4e07-b21d-c55ea9772a06",
+        "name": "Change State of Rows in Verified & Sent",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          112,
+          112
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "44f406aa-e919-4c6a-a3fb-3eef71d5cb23",
+        "name": "Change State of Rows in Unverified & Not Sent",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -144,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "f385eb14-50dd-4cac-82cd-30d9374adf70",
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          112,
+          416
+        ],
+        "webhookId": "6c474e54-eb3c-4fcd-b455-948322cd0121",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "965c02e8-8d9f-4edb-88b5-5cb8a509f633",
+        "name": "Format HTTP Response Data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1840,
+          32
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "01a37d2b-5e5b-4c00-ac3d-49f0fd7ce840",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -1584,
+          32
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "a2e4b5cb-996a-4d6e-a120-4a3c1955bec8",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4048,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3524bc1e-7f0d-4cc2-8a45-339d60817664",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2496,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "cbacf837-95cc-4509-aa67-75b57b045e06",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2224,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "35958d98-85da-45fb-ab7f-04057fd18f63",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1680,
+          -352
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "e21de6c3-502d-4100-b905-da2afd677ada",
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Rapiwa Sender",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Change State of Rows in Unverified & Not Sent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Format HTTP Response Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Rapiwa Sender": {
+        "main": [
+          [
+            {
+              "node": "Change State of Rows in Verified & Sent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Clean WhatsApp Number",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean WhatsApp Number": {
+        "main": [
+          [
+            {
+              "node": "Check valid whatsapp number Using Rapiwa1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format HTTP Response Data": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Change State of Rows in Verified & Sent": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check valid whatsapp number Using Rapiwa1": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Change State of Rows in Unverified & Not Sent": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-275-e27fffb6bc",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Slack/personal_productivity_275_schedule_trigger_slack_to_todoist.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Slack/personal_productivity_275_schedule_trigger_slack_to_todoist.json"
+  },
+  "name": "Template 275",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 275",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Slack",
+    "schedule",
+    "slack",
+    "todoist",
+    "schedule Trigger",
+    "template",
+    "275",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 275",
+    "schedule",
+    "slack",
+    "todoist",
+    "schedule trigger",
+    "275 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "schedule",
+    "slack",
+    "todoist"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 275",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 360
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Todoist",
+        "type": "n8n-nodes-base.todoist",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack": {
+        "main": [
+          [
+            {
+              "node": "Todoist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 275
+  }
+}

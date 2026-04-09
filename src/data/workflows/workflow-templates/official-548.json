@@ -1,0 +1,86 @@
+{
+  "id": "official-548",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/548",
+    "template_id": 548
+  },
+  "name": "Get all orders in Shopify",
+  "description": "Companion workflow for Shopify node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Shopify",
+    "Manual Trigger",
+    "all",
+    "orders",
+    "shopify",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all orders in shopify",
+    "manual",
+    "shopify",
+    "manual trigger",
+    "all orders",
+    "orders shopify",
+    "shopify companion",
+    "companion workflow",
+    "workflow shopify",
+    "shopify node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Shopify"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          230,
+          310
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Shopify",
+        "type": "n8n-nodes-base.shopify",
+        "position": [
+          430,
+          310
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll"
+        },
+        "credentials": {
+          "shopifyApi": "shopify_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Shopify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

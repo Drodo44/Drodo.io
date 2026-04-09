@@ -1,0 +1,86 @@
+{
+  "id": "official-497",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/497",
+    "template_id": 497
+  },
+  "name": "Create a contact in Drift",
+  "description": "Create a contact in Drift",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Drift",
+    "Manual Trigger",
+    "create",
+    "contact",
+    "drift"
+  ],
+  "task_keywords": [
+    "create a contact in drift",
+    "manual",
+    "create manual",
+    "drift",
+    "create drift",
+    "manual trigger",
+    "create contact",
+    "contact drift",
+    "drift create"
+  ],
+  "required_services": [
+    "manual",
+    "Drift"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "125",
+    "name": "Create a contact in Drift",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Drift ",
+        "type": "n8n-nodes-base.drift",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "email": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "driftApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Drift ",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

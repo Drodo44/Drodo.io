@@ -1,0 +1,617 @@
+{
+  "id": "n8n-ai-automations-the-recap-ai-facebook-ad-thief-ff1d36b31f",
+  "source": {
+    "type": "github",
+    "repository": "lucaswalter/n8n-ai-automations",
+    "repository_stars": 1434,
+    "path": "nano_banana_facebook_ad_thief.json",
+    "url": "https://github.com/lucaswalter/n8n-ai-automations/blob/main/nano_banana_facebook_ad_thief.json"
+  },
+  "name": "The Recap AI - Facebook Ad Thief",
+  "description": "n8n workflow template from lucaswalter/n8n-ai-automations: The Recap AI - Facebook Ad Thief",
+  "category": "AI",
+  "tags": [
+    "form",
+    "split In Batches",
+    "google Drive",
+    "apify",
+    "form Trigger",
+    "recap",
+    "facebook",
+    "thief",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "the recap ai - facebook ad thief",
+    "form",
+    "split in batches",
+    "google drive",
+    "apify",
+    "form trigger",
+    "recap facebook",
+    "facebook thief",
+    "thief n8n",
+    "n8n workflow",
+    "workflow template",
+    "template lucaswalter"
+  ],
+  "required_services": [
+    "form",
+    "split In Batches",
+    "google Drive",
+    "apify"
+  ],
+  "triggers": [
+    "form Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "The Recap AI - Facebook Ad Thief",
+    "nodes": [
+      {
+        "parameters": {
+          "formTitle": "Facebook Ad Thief Form",
+          "formDescription": "Upload your product image and submit a facebook ad library url for the ads you want to clone/spin for your produc.t",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Facebook Ad Library Url",
+                "placeholder": "https://www.facebook.com/",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Your Product Image",
+                "fieldType": "file",
+                "multipleFiles": false,
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.2,
+        "position": [
+          304,
+          224
+        ],
+        "id": "02aa1570-98cc-4e51-8984-7078b67f8e69",
+        "name": "form_trigger",
+        "webhookId": "739f6e4b-c69f-4baf-b6fe-f671f8ba6279"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          304,
+          448
+        ],
+        "id": "3b44e844-211b-435e-b559-b86f50c969bc",
+        "name": "iterate_ads"
+      },
+      {
+        "parameters": {
+          "url": "={{ $node['iterate_ads'].json.snapshot.cards.first().original_image_url }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          944,
+          464
+        ],
+        "id": "a647a369-8233-4bf1-9fb4-12d40376672c",
+        "name": "download_image"
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          1232,
+          464
+        ],
+        "id": "01df58ea-a0b6-4282-ae66-681bc2dd3ace",
+        "name": "convert_ad_image_to_base64"
+      },
+      {
+        "parameters": {
+          "name": "={{ $node['iterate_ads'].json.snapshot.cards.first().title }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1HoXBHX3gvz5TxhczPwI0d5gWI3mxJT7h",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1232,
+          288
+        ],
+        "id": "508fdd2d-1d9e-437b-83ea-a234eb755195",
+        "name": "upload_ad_reference",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1504,
+          448
+        ],
+        "id": "6145dd1e-1b1e-4acf-b41c-acdcbcc938d6",
+        "name": "merge"
+      },
+      {
+        "parameters": {
+          "fieldsToAggregate": {
+            "fieldToAggregate": [
+              {}
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          304,
+          704
+        ],
+        "id": "a01db21f-c4b1-481b-a55b-31ede9b7814d",
+        "name": "aggregate"
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "image_result",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          1504,
+          720
+        ],
+        "id": "3b1c6a2e-eca8-494d-837a-3d09cc482c3d",
+        "name": "get_image"
+      },
+      {
+        "parameters": {
+          "name": "=Cloned Ad #{{ $runIndex + 1 }}",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list",
+            "cachedResultName": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1X4SkqnUptmbLuAbdEzyZeSnb_nt_2qTe",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1792,
+          784
+        ],
+        "id": "2805dfd1-dce7-4d5d-86c9-dc3b925e9249",
+        "name": "upload_image",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "524da01b-f8b9-4c2c-9e28-319455903e4d",
+                "name": "=image_result",
+                "value": "={{ $json.candidates[0].content.parts.filter(item => item.inlineData).first().inlineData.data }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1232,
+          720
+        ],
+        "id": "2e6a04de-1329-41bb-967a-73aade05fef8",
+        "name": "set_result"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "f46e65cf-d695-4e2e-a64c-be500cd788dd",
+                "leftValue": "={{ $json.candidates.first().finishReason }}",
+                "rightValue": "PROHIBITED_CONTENT",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          944,
+          704
+        ],
+        "id": "23c1e641-04d7-4540-8336-77b24c29007d",
+        "name": "check_if_prohibited"
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "Your_Product_Image",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          608,
+          224
+        ],
+        "id": "d09e9817-e30f-4239-b105-e394e0b60d40",
+        "name": "convert_product_image_to_base64"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": {{ JSON.stringify($json.prompt) }} },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['convert_product_image_to_base64'].json.data }}\"\n        }\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/jpeg\",\n          \"data\": \"{{ $node['convert_ad_image_to_base64'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          608,
+          704
+        ],
+        "id": "f9af4c0e-e2d9-479a-a360-703407c0eba3",
+        "name": "generate_ad_image_prompt",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": {{ JSON.stringify($json.candidates.first().content.parts.first().text) }} },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['convert_product_image_to_base64'].json.data }}\"\n        }\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/jpeg\",\n          \"data\": \"{{ $node['convert_ad_image_to_base64'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          784,
+          704
+        ],
+        "id": "43ae4270-b8d8-4d1d-9e30-024f5b0c1a17",
+        "name": "generate_ad_image",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "2fcf84d7-4a17-4899-9bea-a7d3b6027acd",
+                "name": "prompt",
+                "value": "You are an expert in image I need your help to write a perfect prompt that is going to help me generate/edit an image for my company's product called Thrive Mix. Attached to this request are two images: 1. Product picture of Thrive Mix (our product) 2. Reference image of the competitor's ad we're trying to replicate In your analysis of these images, I want you to come up with a plan and write a very detailed prompt on how we can clone and spin the ad from image number two (our competitor AG1) to make an identical ad that features our product with our packaging (ThriveMix) and image number one. We need to replicate the same style used on the AG1 competitor ad, but it should always be our packaging that's included. Some tricky edge cases you need to handle are: Partial branding items of the AG1 text (there can be text that says AG1, labels on products that say AG1, multiple products, multiple packages that are different from ours). Please check for all placements in the AG1 ad that need to be replaced. You need to figure out how to write a specific prompt that is going to detail this image generator how to replace it and create the ad for our product. The end result we're going for is a new ad that promotes our product ThriveMix. Make sure your prompt includes changes that need to be changed on the text of the image like labels and calls to action. It's possible that the source ad image for our competitor AG1 will have partial text on the product or packaging like \"A\", \"AG\", \"G, \"G\" (standalone), \"G1\", or some other partial text that needs to be checked for and analyzed in your plan. Keep the ad copy the same EXCEPT for switching \"AG1\" to \"ThriveMix\" to Think deeply about the prompt you are going to write.",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          448,
+          704
+        ],
+        "id": "47fa9f9a-6699-4944-9ad0-531ad34b4ead",
+        "name": "build_prompt"
+      },
+      {
+        "parameters": {
+          "operation": "Run actor and get dataset",
+          "actorSource": "store",
+          "actorId": {
+            "__rl": true,
+            "value": "XtaWFhbtfxyzqrFmd",
+            "mode": "list",
+            "cachedResultName": "Facebook Ad Library Scraper (curious_coder/facebook-ads-library-scraper)",
+            "cachedResultUrl": "https://console.apify.com/actors/XtaWFhbtfxyzqrFmd/input"
+          },
+          "customBody": "={\n    \"limitPerSource\": 20,\n    \"scrapeAdDetails\": false,\n    \"scrapePageAds.activeStatus\": \"all\",\n    \"scrapePageAds.countryCode\": \"ALL\",\n    \"urls\": [\n        {\n            \"url\": \"{{ $('form_trigger').item.json['Facebook Ad Library Url'] }}\",\n            \"method\": \"GET\"\n        }\n    ]\n}",
+          "memory": 512,
+          "authentication": "apifyOAuth2Api"
+        },
+        "type": "@apify/n8n-nodes-apify.apify",
+        "typeVersion": 1,
+        "position": [
+          944,
+          224
+        ],
+        "id": "1086bf1c-2495-45a2-93cf-2cefd2e51735",
+        "name": "scrape_ads",
+        "credentials": {
+          "apifyOAuth2Api": {
+            "id": "H654WxAlFsyNy0MJ",
+            "name": "Apify"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "form_trigger": {
+        "main": [
+          [
+            {
+              "node": "convert_product_image_to_base64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "iterate_ads": {
+        "main": [
+          [],
+          [
+            {
+              "node": "download_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "download_image": {
+        "main": [
+          [
+            {
+              "node": "upload_ad_reference",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "convert_ad_image_to_base64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "upload_ad_reference": {
+        "main": [
+          [
+            {
+              "node": "merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_ad_image_to_base64": {
+        "main": [
+          [
+            {
+              "node": "merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "merge": {
+        "main": [
+          [
+            {
+              "node": "aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "aggregate": {
+        "main": [
+          [
+            {
+              "node": "build_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_image": {
+        "main": [
+          [
+            {
+              "node": "upload_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_result": {
+        "main": [
+          [
+            {
+              "node": "get_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "upload_image": {
+        "main": [
+          [
+            {
+              "node": "iterate_ads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "check_if_prohibited": {
+        "main": [
+          [
+            {
+              "node": "iterate_ads",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "set_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_product_image_to_base64": {
+        "main": [
+          [
+            {
+              "node": "scrape_ads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_ad_image_prompt": {
+        "main": [
+          [
+            {
+              "node": "generate_ad_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_ad_image": {
+        "main": [
+          [
+            {
+              "node": "check_if_prohibited",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_prompt": {
+        "main": [
+          [
+            {
+              "node": "generate_ad_image_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "scrape_ads": {
+        "main": [
+          [
+            {
+              "node": "iterate_ads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "db043963-5e7e-4343-b986-7a870df2ab23",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+    },
+    "id": "qvBUGGr9hb1LlVuX",
+    "tags": []
+  }
+}

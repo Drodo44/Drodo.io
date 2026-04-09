@@ -1,0 +1,88 @@
+{
+  "id": "official-466",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/466",
+    "template_id": 466
+  },
+  "name": "Get all contacts of HubSpot account",
+  "description": "Get all contacts of HubSpot account",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "HubSpot",
+    "Manual Trigger",
+    "all",
+    "contacts",
+    "hubspot",
+    "account"
+  ],
+  "task_keywords": [
+    "get all contacts of hubspot account",
+    "manual",
+    "hubspot",
+    "manual trigger",
+    "all contacts",
+    "contacts hubspot",
+    "hubspot account",
+    "account all"
+  ],
+  "required_services": [
+    "manual",
+    "HubSpot"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "7",
+    "name": "6",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          440,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Hubspot",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          750,
+          320
+        ],
+        "parameters": {
+          "resource": "contact",
+          "operation": "getAll",
+          "returnAll": true,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "hubspotApi": "scsc"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Hubspot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "id": "official-1377",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1377",
+    "template_id": 1377
+  },
+  "name": "Extract URL from an email address",
+  "description": "This Workflow will extract the domain for the email address.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "Function",
+    "Edit Fields (Set)",
+    "Manual Trigger",
+    "extract",
+    "url",
+    "email",
+    "address",
+    "workflow",
+    "will"
+  ],
+  "task_keywords": [
+    "extract url from an email address",
+    "function",
+    "edit fields (set)",
+    "manual trigger",
+    "extract url",
+    "url email",
+    "email address",
+    "address workflow",
+    "workflow will",
+    "will extract",
+    "extract domain",
+    "domain email"
+  ],
+  "required_services": [
+    "Function",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          240,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Extract domain name",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          700,
+          300
+        ],
+        "parameters": {
+          "functionCode": "// Take email and extract the domain name \nvar email = ($json[\"email\"]);\nvar name   = email.substring(0, email.lastIndexOf(\"@\"));\nvar domain = email.substring(email.lastIndexOf(\"@\") +1);\n\n//To display the final domain name. (result)\n\nreturn [{\n  json: { domain }\n}]"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Sample email",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          460,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "email",
+                "value": "user@example.com"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Sample email": {
+        "main": [
+          [
+            {
+              "node": "Extract domain name",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Sample email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

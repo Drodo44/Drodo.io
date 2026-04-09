@@ -1,0 +1,86 @@
+{
+  "id": "official-518",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/518",
+    "template_id": 518
+  },
+  "name": "Get entries from a Cockpit collection",
+  "description": "Companion workflow for Cockpit node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Cockpit",
+    "Manual Trigger",
+    "entries",
+    "cockpit",
+    "collection",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get entries from a cockpit collection",
+    "manual",
+    "cockpit",
+    "manual trigger",
+    "entries cockpit",
+    "cockpit collection",
+    "collection companion",
+    "companion workflow",
+    "workflow cockpit",
+    "cockpit node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Cockpit"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          750,
+          360
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Cockpit",
+        "type": "n8n-nodes-base.cockpit",
+        "position": [
+          950,
+          360
+        ],
+        "parameters": {
+          "options": {},
+          "collection": "samplecollection"
+        },
+        "credentials": {
+          "cockpitApi": "cockpit api"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Cockpit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

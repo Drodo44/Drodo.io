@@ -1,0 +1,125 @@
+{
+  "id": "official-782",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/782",
+    "template_id": 782
+  },
+  "name": "Receive updates from Telegram and send an image",
+  "description": "Receive updates from Telegram and send an image",
+  "category": "Support",
+  "tags": [
+    "Support Chatbot",
+    "Telegram",
+    "Telegram Trigger",
+    "receive",
+    "updates",
+    "telegram",
+    "send",
+    "image"
+  ],
+  "task_keywords": [
+    "receive updates from telegram and send an image",
+    "telegram",
+    "send telegram",
+    "update telegram",
+    "telegram trigger",
+    "receive updates",
+    "updates telegram",
+    "telegram send",
+    "send image",
+    "image receive"
+  ],
+  "required_services": [
+    "Telegram"
+  ],
+  "triggers": [
+    "Telegram Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "58",
+    "name": "Receive updates from Telegram and send an image of a cocktail",
+    "nodes": [
+      {
+        "name": "Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          570,
+          260
+        ],
+        "webhookId": "806cc2c6-c687-4022-a82e-658e4a684e73",
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": "telegram-bot"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          770,
+          260
+        ],
+        "parameters": {
+          "url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          970,
+          260
+        ],
+        "parameters": {
+          "file": "={{$node[\"HTTP Request\"].json[\"drinks\"][0][\"strDrinkThumb\"]}}",
+          "chatId": "={{$node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"]}}",
+          "operation": "sendPhoto",
+          "additionalFields": {
+            "caption": "={{$node[\"HTTP Request\"].json[\"drinks\"][0][\"strDrink\"]}}",
+            "reply_to_message_id": "={{$node[\"Telegram Trigger\"].json[\"message\"][\"message_id\"]}}"
+          }
+        },
+        "credentials": {
+          "telegramApi": "telegram-bot"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

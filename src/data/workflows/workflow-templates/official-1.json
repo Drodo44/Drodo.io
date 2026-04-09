@@ -1,0 +1,103 @@
+{
+  "id": "official-1",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1",
+    "template_id": 1
+  },
+  "name": "Insert Excel data to Postgres",
+  "description": "1.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "Read Binary File",
+    "Spreadsheet File",
+    "Postgres",
+    "insert",
+    "excel",
+    "data",
+    "postgres"
+  ],
+  "task_keywords": [
+    "insert excel data to postgres",
+    "read binary file",
+    "spreadsheet file",
+    "postgres",
+    "insert excel",
+    "excel data",
+    "data postgres"
+  ],
+  "required_services": [
+    "Read Binary File",
+    "Spreadsheet File",
+    "Postgres"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          450,
+          650
+        ],
+        "parameters": {
+          "filePath": "spreadsheet.xls"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Spreadsheet File1",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          600,
+          650
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Insert Rows1",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          750,
+          650
+        ],
+        "parameters": {
+          "table": "product",
+          "columns": "name,ean"
+        },
+        "credentials": {
+          "postgres": "postgres"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Spreadsheet File1": {
+        "main": [
+          [
+            {
+              "node": "Insert Rows1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-create-deal-from-google-ads-and-send-to-copper-ec94a95909",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/create-deal-google-ads-copper.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/create-deal-google-ads-copper.json"
+  },
+  "name": "Create deal from Google Ads and send to Copper",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Create deal from Google Ads and send to Copper",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "create",
+    "deal",
+    "google",
+    "ads",
+    "send",
+    "copper"
+  ],
+  "task_keywords": [
+    "create deal from google ads and send to copper",
+    "slack",
+    "send slack",
+    "create slack",
+    "webhook",
+    "create deal",
+    "deal google",
+    "google ads",
+    "ads send",
+    "send copper",
+    "copper n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Create deal from Google Ads and send to Copper",
+    "nodes": [
+      {
+        "id": "trigger-google-ads",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          39500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "create-deal-from-google-ads-and-send-to-copper",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-google-ads",
+        "name": "Fetch data from Google Ads",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          39500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/google-ads",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-copper",
+        "name": "Send to Copper",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          39500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/copper",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-39500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          39500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Google Ads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Google Ads": {
+        "main": [
+          {
+            "node": "Send to Copper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Copper": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

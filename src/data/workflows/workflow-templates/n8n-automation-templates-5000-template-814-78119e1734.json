@@ -1,0 +1,136 @@
+{
+  "id": "n8n-automation-templates-5000-template-814-78119e1734",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/health_814_calendar_event_trigger_google_fit_to_fitbit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/health_814_calendar_event_trigger_google_fit_to_fitbit.json"
+  },
+  "name": "Template 814",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 814",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "googlefit",
+    "fitbit",
+    "google Calendar Trigger",
+    "template",
+    "814",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 814",
+    "google calendar",
+    "googlefit",
+    "fitbit",
+    "google calendar trigger",
+    "814 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "google Calendar",
+    "googlefit",
+    "fitbit"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 814",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Fit",
+        "type": "n8n-nodes-base.googlefit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Fitbit",
+        "type": "n8n-nodes-base.fitbit",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Fit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Fit": {
+        "main": [
+          [
+            {
+              "node": "Fitbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 814
+  }
+}

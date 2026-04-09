@@ -1,0 +1,90 @@
+{
+  "id": "official-594",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/594",
+    "template_id": 594
+  },
+  "name": "Publish a post to a publication on Medium",
+  "description": "Publish a post to a publication on Medium",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Medium",
+    "Manual Trigger",
+    "publish",
+    "post",
+    "publication",
+    "medium"
+  ],
+  "task_keywords": [
+    "publish a post to a publication on medium",
+    "manual",
+    "medium",
+    "manual trigger",
+    "publish post",
+    "post publication",
+    "publication medium",
+    "medium publish"
+  ],
+  "required_services": [
+    "manual",
+    "Medium"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "7",
+    "name": "Publish post to a publication",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          600,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Medium",
+        "type": "n8n-nodes-base.medium",
+        "position": [
+          800,
+          300
+        ],
+        "parameters": {
+          "title": "",
+          "content": "",
+          "publication": true,
+          "contentFormat": "",
+          "publicationId": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "mediumApi": "medium"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Medium",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

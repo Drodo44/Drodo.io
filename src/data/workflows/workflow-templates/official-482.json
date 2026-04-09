@@ -1,0 +1,131 @@
+{
+  "id": "official-482",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/482",
+    "template_id": 482
+  },
+  "name": "Insert data into a new row for a table in Coda",
+  "description": "Insert data into a new row for a table in Coda",
+  "category": "Data",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Coda",
+    "Edit Fields (Set)",
+    "Manual Trigger",
+    "insert",
+    "data",
+    "row",
+    "table",
+    "coda"
+  ],
+  "task_keywords": [
+    "insert data into a new row for a table in coda",
+    "manual",
+    "coda",
+    "edit fields (set)",
+    "manual trigger",
+    "insert data",
+    "data row",
+    "row table",
+    "table coda",
+    "coda insert"
+  ],
+  "required_services": [
+    "manual",
+    "Coda",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "102",
+    "name": "Insert data into a new row for a table in Coda",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Coda",
+        "type": "n8n-nodes-base.coda",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "docId": "",
+          "options": {},
+          "tableId": ""
+        },
+        "credentials": {
+          "codaApi": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "Column 1",
+                "value": "This is column 1 data"
+              },
+              {
+                "name": "Column 2",
+                "value": "This is column 2 data"
+              },
+              {
+                "name": "Column 3",
+                "value": "This is column 3 data"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Coda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

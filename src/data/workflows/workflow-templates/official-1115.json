@@ -1,0 +1,161 @@
+{
+  "id": "official-1115",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1115",
+    "template_id": 1115
+  },
+  "name": "Manage changes using the Git node",
+  "description": "This workflow allows you to add, commit, and push changes to a git repository.",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "manual",
+    "Git",
+    "Manual Trigger",
+    "manage",
+    "changes",
+    "git",
+    "node",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "manage changes using the git node",
+    "manual",
+    "manual trigger",
+    "manage changes",
+    "changes git",
+    "git node",
+    "node workflow",
+    "workflow allows",
+    "allows you",
+    "you add",
+    "add commit",
+    "commit push"
+  ],
+  "required_services": [
+    "manual",
+    "Git"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          230,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Git",
+        "type": "n8n-nodes-base.git",
+        "position": [
+          430,
+          320
+        ],
+        "parameters": {
+          "operation": "add",
+          "pathsToAdd": "README.md"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Git1",
+        "type": "n8n-nodes-base.git",
+        "position": [
+          630,
+          320
+        ],
+        "parameters": {
+          "message": "✨ First commit from n8n",
+          "options": {},
+          "operation": "commit",
+          "repositoryPath": "={{$node[\"Git\"].parameter[\"repositoryPath\"]}}"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Git2",
+        "type": "n8n-nodes-base.git",
+        "position": [
+          830,
+          320
+        ],
+        "parameters": {
+          "options": {},
+          "repositoryPath": "={{$node[\"Git\"].parameter[\"repositoryPath\"]}}"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Git3",
+        "type": "n8n-nodes-base.git",
+        "position": [
+          1030,
+          320
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "push",
+          "repositoryPath": "={{$node[\"Git\"].parameter[\"repositoryPath\"]}}"
+        },
+        "executeOnce": false,
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Git": {
+        "main": [
+          [
+            {
+              "node": "Git1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Git1": {
+        "main": [
+          [
+            {
+              "node": "Git2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Git2": {
+        "main": [
+          [
+            {
+              "node": "Git3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Git",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

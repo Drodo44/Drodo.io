@@ -1,0 +1,70 @@
+{
+  "id": "official-538",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/538",
+    "template_id": 538
+  },
+  "name": "Receive updates for Eventbrite events",
+  "description": "Companion workflow for Eventbrite Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "Miscellaneous",
+    "Eventbrite",
+    "Eventbrite Trigger",
+    "receive",
+    "updates",
+    "eventbrite",
+    "events",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for eventbrite events",
+    "eventbrite",
+    "update eventbrite",
+    "eventbrite trigger",
+    "receive updates",
+    "updates eventbrite",
+    "eventbrite events",
+    "events companion",
+    "companion workflow",
+    "workflow eventbrite",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "Eventbrite"
+  ],
+  "triggers": [
+    "Eventbrite Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Eventbrite Trigger",
+        "type": "n8n-nodes-base.eventbriteTrigger",
+        "position": [
+          880,
+          400
+        ],
+        "webhookId": "90ebf00a-536b-4553-b879-2e2c3e35bd60",
+        "parameters": {
+          "event": "114095913950",
+          "actions": [
+            "order.placed",
+            "order.updated",
+            "order.refunded"
+          ],
+          "organization": "461207981776"
+        },
+        "credentials": {
+          "eventbriteApi": "eventbrite api"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

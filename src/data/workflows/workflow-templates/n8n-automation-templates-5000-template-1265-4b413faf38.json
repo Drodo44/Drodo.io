@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-1265-4b413faf38",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/data_sync_1265_schedule_trigger_csv.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/data_sync_1265_schedule_trigger_csv.json"
+  },
+  "name": "Template 1265",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1265",
+  "category": "Data",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "schedule",
+    "csv",
+    "googledocs",
+    "schedule Trigger",
+    "template",
+    "1265",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1265",
+    "schedule",
+    "googledocs",
+    "schedule trigger",
+    "1265 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "schedule",
+    "csv",
+    "googledocs"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1265",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 360
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CSV",
+        "type": "n8n-nodes-base.csv",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Docs",
+        "type": "n8n-nodes-base.googledocs",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "CSV",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CSV": {
+        "main": [
+          [
+            {
+              "node": "Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1265
+  }
+}

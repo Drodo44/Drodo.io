@@ -1,0 +1,175 @@
+{
+  "id": "official-1296",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1296",
+    "template_id": 1296
+  },
+  "name": "Enrich contact information with HubSpot and ClearBit",
+  "description": "This workflow enriches the information of a new contact that gets added to HubSpot.",
+  "category": "Sales",
+  "tags": [
+    "Lead Generation",
+    "Clearbit",
+    "HubSpot",
+    "HubSpot Trigger",
+    "enrich",
+    "contact",
+    "information",
+    "hubspot",
+    "clearbit",
+    "workflow"
+  ],
+  "task_keywords": [
+    "enrich contact information with hubspot and clearbit",
+    "clearbit",
+    "hubspot",
+    "hubspot trigger",
+    "enrich contact",
+    "contact information",
+    "information hubspot",
+    "hubspot clearbit",
+    "clearbit workflow",
+    "workflow enriches",
+    "enriches information",
+    "information contact"
+  ],
+  "required_services": [
+    "Clearbit",
+    "HubSpot"
+  ],
+  "triggers": [
+    "HubSpot Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Clearbit",
+        "type": "n8n-nodes-base.clearbit",
+        "position": [
+          850,
+          300
+        ],
+        "parameters": {
+          "email": "={{$json[\"properties\"][\"email\"][\"value\"]}}",
+          "resource": "person",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "clearbitApi": {
+            "id": "credential-id",
+            "name": "clearbitApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Hubspot Trigger",
+        "type": "n8n-nodes-base.hubspotTrigger",
+        "position": [
+          450,
+          300
+        ],
+        "webhookId": "b9c442e0-6f98-4d6f-8170-7135c4dbd850",
+        "parameters": {
+          "eventsUi": {
+            "eventValues": [
+              {}
+            ]
+          },
+          "additionalFields": {}
+        },
+        "credentials": {
+          "hubspotDeveloperApi": {
+            "id": "credential-id",
+            "name": "hubspotDeveloperApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Get Contact",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "resource": "contact",
+          "contactId": "={{$json[\"contactId\"]}}",
+          "operation": "get",
+          "authentication": "oAuth2",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "hubspotOAuth2Api": {
+            "id": "credential-id",
+            "name": "hubspotOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Update Contact",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          1050,
+          300
+        ],
+        "parameters": {
+          "email": "={{$json[\"email\"]}}",
+          "resource": "contact",
+          "authentication": "oAuth2",
+          "additionalFields": {
+            "city": "={{$json[\"geo\"][\"city\"]}}",
+            "jobTitle": "={{$json[\"employment\"][\"title\"]}}",
+            "companyName": "={{$json[\"employment\"][\"name\"]}}"
+          }
+        },
+        "credentials": {
+          "hubspotOAuth2Api": {
+            "id": "credential-id",
+            "name": "hubspotOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Clearbit": {
+        "main": [
+          [
+            {
+              "node": "Update Contact",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Contact": {
+        "main": [
+          [
+            {
+              "node": "Clearbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Hubspot Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get Contact",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

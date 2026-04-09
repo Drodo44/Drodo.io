@@ -1,0 +1,85 @@
+{
+  "id": "official-428",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/428",
+    "template_id": 428
+  },
+  "name": "Add a task to Google Tasks",
+  "description": "Add a task to Google Tasks",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Google Tasks",
+    "Manual Trigger",
+    "add",
+    "task",
+    "google",
+    "tasks"
+  ],
+  "task_keywords": [
+    "add a task to google tasks",
+    "manual",
+    "google tasks",
+    "manual trigger",
+    "add task",
+    "task google",
+    "tasks add"
+  ],
+  "required_services": [
+    "manual",
+    "Google Tasks"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "2",
+    "name": "Add task to tasklist",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          500,
+          310
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Tasks",
+        "type": "n8n-nodes-base.googleTasks",
+        "position": [
+          920,
+          310
+        ],
+        "parameters": {
+          "task": "MDY3OTAyNjUyMDk5NDY5ODIzMzM6MDow",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "googleTasksOAuth2Api": "shraddha"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Tasks",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

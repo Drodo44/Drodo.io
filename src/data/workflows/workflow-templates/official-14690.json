@@ -1,0 +1,1091 @@
+{
+  "id": "official-14690",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/14690",
+    "template_id": 14690
+  },
+  "name": "Publish WordPress SEO blog drafts from trending news with Brave Search and OpenAI",
+  "description": "Turn News into Articles — Automatically.",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "AI Agent",
+    "OpenAI Chat Model",
+    "brave Search",
+    "Edit Fields (Set)",
+    "OpenAI",
+    "Loop Over Items (Split in Batches)",
+    "Wordpress",
+    "Telegram",
+    "Schedule Trigger",
+    "publish",
+    "wordpress",
+    "seo"
+  ],
+  "task_keywords": [
+    "publish wordpress seo blog drafts from trending news with brave search and openai",
+    "ai agent",
+    "openai chat model",
+    "brave search",
+    "edit fields (set)",
+    "openai",
+    "loop over items (split in batches)",
+    "wordpress",
+    "telegram",
+    "schedule trigger",
+    "publish wordpress",
+    "wordpress seo"
+  ],
+  "required_services": [
+    "AI Agent",
+    "OpenAI Chat Model",
+    "brave Search",
+    "Edit Fields (Set)",
+    "OpenAI",
+    "Loop Over Items (Split in Batches)",
+    "Wordpress",
+    "Telegram"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "c66762406062d6f96baac676fbcb1ad043cf6c0875d0fc4a63da087ec2d9f92e",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "af185ffc-6f7b-40a5-947f-26f433adb82b",
+        "name": "Aggregate for Planner",
+        "type": "n8n-nodes-base.aggregate",
+        "notes": "Aggregates both merged streams into a single item so Article Planner receives a unified data object containing both the plan and the images array.",
+        "position": [
+          112,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "b121dacc-9357-422b-a4c9-94083ef304de",
+        "name": "Article Planner",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "notes": "Divides the master_plan into sequential Part briefs for the AI Writer. Each Part contains a title, objectives, content outline, assigned image URL, and word count target. The Article Planner also embeds the source URL where relevant and enforces the brand voice from Set Config.",
+        "position": [
+          320,
+          2992
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 2.2
+      },
+      {
+        "id": "baf1fd92-807d-4cb4-a61f-1bb004b7d7e4",
+        "name": "OpenAI — Article Planner",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "notes": "LLM for Article Planner. gpt-4.1-mini is sufficient for plan division and brief generation.",
+        "position": [
+          304,
+          3216
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "c0935e6a-b8e5-4cc2-a7df-b8bbfffc2cde",
+        "name": "Brave Search1",
+        "type": "@brave/n8n-nodes-brave-search.braveSearch",
+        "notes": "Fetches latest news from Brave Search. Returns up to 20 results; the next node filters to top N defined in Set Config.",
+        "position": [
+          -1328,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "9ffe2515-8907-467f-a486-5e8835568469",
+        "name": "Format Search Results1",
+        "type": "n8n-nodes-base.code",
+        "notes": "Filters to top N results and formats them as a structured string for AI agents. Retains raw array for reference.",
+        "position": [
+          -1056,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "cede7451-f443-45b7-a5c8-df4e17b93c53",
+        "name": "Idea and Plan Agent1",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "notes": "Selects the most compelling news story and generates the complete article blueprint: master_plan, image_prompts array (one per body image), and header_image_prompt. Output quality here drives everything downstream.",
+        "position": [
+          496,
+          2192
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 3.1
+      },
+      {
+        "id": "a4814273-015c-4d7a-94cc-20f5c08a3183",
+        "name": "OpenAI — Plan Agent1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "notes": "LLM for Idea and Plan Agent. gpt-4.1-mini for cost efficiency. Swap to gpt-4.1 for higher quality planning.",
+        "position": [
+          416,
+          2464
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "36f61dba-668d-4cfa-867b-ee9f7daae86d",
+        "name": "Create JSON1",
+        "type": "n8n-nodes-base.code",
+        "notes": "Parses the raw JSON string output from Idea and Plan Agent into a structured object. Applies multiple fix strategies for common LLM formatting issues (smart quotes, code fences, trailing commas). Throws a descriptive error if parsing fails completely.",
+        "onError": "continueRegularOutput",
+        "position": [
+          848,
+          2192
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "3df4ce72-8b71-4042-acf1-31a34721f654",
+        "name": "Split Out1",
+        "type": "n8n-nodes-base.splitOut",
+        "position": [
+          1072,
+          2368
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "0ef29c88-d3f8-4cfa-bacd-63ae56bc6137",
+        "name": "Set Output Image1",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1088,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "0af61170-1611-4be5-b7e5-ece8460b9025",
+        "name": "Aggregate1",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          1264,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "2ea6b47d-1862-49d3-87be-faf92018d7b3",
+        "name": "Generate an image3",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          1248,
+          2368
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1.8
+      },
+      {
+        "id": "b04dab10-0497-4e56-93c6-e32444fd5ce9",
+        "name": "set images",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1456,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "7ff2ab89-f7d0-4b65-b889-66cc8fe7b1a5",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -880,
+          2416
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "7485dd89-4b10-43ba-9896-2c70801528aa",
+        "name": "Make sumarry",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -848,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 1.9
+      },
+      {
+        "id": "4f870f15-8e07-4b3f-830c-301ea3d118f0",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -224,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "8e0bd400-974c-48da-be66-f1194136af8f",
+        "name": "clean html1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1904,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "3d11ca84-ca2f-41e0-afb7-5e58f986e983",
+        "name": "Aggregate2",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          1520,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "f58b0b88-b4d9-4d88-8408-47ad1a4d388d",
+        "name": "Code in JavaScript1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1728,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "299dca32-573d-4c71-a3c1-56bfbdcff90d",
+        "name": "OpenAI Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          1088,
+          3200
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "08e8ee6c-8693-41a9-b545-e092b08d0d64",
+        "name": "Wordpress",
+        "type": "n8n-nodes-base.wordpress",
+        "position": [
+          144,
+          3744
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "6f63ed95-0c60-4fb6-bcba-d8a512a6b7d4",
+        "name": "WordPress excerpt add",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          416,
+          3744
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "4bf2dc74-d9f6-4a8c-bde8-f11e2d35d5fc",
+        "name": "OpenAI",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          608,
+          3744
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1.8
+      },
+      {
+        "id": "c8f2cc54-fcb4-4214-9be6-629ad6e0f686",
+        "name": "Upload Image to Wordpress2",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          832,
+          3744
+        ],
+        "parameters": {},
+        "retryOnFail": false,
+        "typeVersion": 4.2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "aa29ae54-f191-4ac3-bbc2-7001c1fe7c42",
+        "name": "Set Image on Wordpress Post2",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          1040,
+          3744
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "ed76f734-60b5-4713-a0b6-c4706d38422c",
+        "name": "Code in JavaScript",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          640,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "5168c57d-8b97-490a-bb99-539019ea2c92",
+        "name": "Split Out2",
+        "type": "n8n-nodes-base.splitOut",
+        "position": [
+          832,
+          2992
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "7c9cfd0c-b050-494b-8d03-5ea40f7d32b7",
+        "name": "Set Data in Loop",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          208,
+          2192
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "97bccc0b-a7e6-4a54-bebe-2b52e5503a37",
+        "name": "OpenAI Chat Model2",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          608,
+          1680
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "055181a6-8eb0-46a5-8933-6faadd34a948",
+        "name": "Set Config",
+        "type": "n8n-nodes-base.set",
+        "notes": "Central configuration node. Edit all placeholders here before running.\n\nsearch_query: Brave Search query for news.\nsearch_country: Country code (US, GB, PL, etc.).\nsearch_language: Language of results (en, pl, etc.).\ntop_results_count: How many articles to pass to the AI (5-10 recommended).\nbrand_brief: Website description, audience, writing style — used by all AI agents.\ntarget_word_count: Target article length.\nkeywords: Optional SEO keywords, comma-separated. Leave empty for AI to decide.\nadditional_instructions: Extra constraints for the AI Writer.\nuse_header_image: true to include a featured image.\nheader_image_source: pexels, ai, or auto.\nimage_count: Number of body images.\nimage_source: pexels, ai, or auto — controls image generation path.\ncloudinary_cloud_name: Your Cloudinary cloud name.\ncloudinary_upload_preset: Your Cloudinary unsigned upload preset.\nwp_post_status: draft or publish.\nwp_author_id: WordPress author user ID.\nwp_category_id: WordPress category ID.",
+        "position": [
+          -1552,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "0f4c86b1-1aa3-4bf9-a1e1-678257622211",
+        "name": "Create Notification",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          672,
+          1472
+        ],
+        "parameters": {},
+        "typeVersion": 1.9
+      },
+      {
+        "id": "a541a20d-d327-4243-8e0d-04bf7a57b3ec",
+        "name": "Code in JavaScript2",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -496,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "c56f24fa-0cc6-4f4a-8647-0ebae8adedf6",
+        "name": "Upload Image to Wordpress",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          1440,
+          2368
+        ],
+        "parameters": {},
+        "retryOnFail": false,
+        "typeVersion": 4.2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "bc498f72-56e3-4c53-a93d-c7c7e607dcaf",
+        "name": "Article wrtiter",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          1120,
+          2992
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1.7
+      },
+      {
+        "id": "def43e16-0151-4e46-9333-91b8879597af",
+        "name": "Set results data",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1264,
+          3744
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "44614b30-cfc8-4d77-9531-9d8d3daaddc6",
+        "name": "Aggregate",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          416,
+          1472
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "24a52890-a404-419f-8782-35c50819c139",
+        "name": "Send a text message",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1024,
+          1472
+        ],
+        "webhookId": "8930fefd-62bc-4889-87ce-a8abb541f29f",
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "23da137f-4911-406c-9eb7-b088c3344c12",
+        "name": "Merge",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          1776,
+          2208
+        ],
+        "parameters": {},
+        "typeVersion": 3.2
+      },
+      {
+        "id": "09aee5e2-2aaa-4f6e-8110-5b0717771d81",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1936,
+          1952
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ce9bf0d5-3153-4380-ae12-02928010dace",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -1840,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "b3def73a-7570-4cf4-be50-8eb33336329f",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1360,
+          1952
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "789b4f7a-564c-447f-b697-f91168a01711",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -544,
+          1952
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8763c3eb-5c35-4a64-b719-8d9cbd6e0770",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          64,
+          1200
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "34e22dfd-7c22-47b3-be00-d4fb800807fe",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          64,
+          1952
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "64bf6097-5b5d-45ac-a1d7-ba84acc476af",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          784,
+          1952
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d161aa5b-b022-4727-8b7d-0ef0d9b4f64e",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          64,
+          2768
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "c8f78580-1457-4b0d-8da3-92d27fccdfd3",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1040,
+          2768
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2cddbb05-5780-42bd-b1e5-79e0d6283d7a",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          64,
+          3504
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "dd180059-e0b1-433f-ba07-a8f98352d5c7",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3168,
+          1680
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "934f5c6c-3594-4cc3-85a9-faa5075d3dd4",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1632,
+          2112
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Aggregate for Planner",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Upload Image to Wordpress2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          [
+            {
+              "node": "Create Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wordpress": {
+        "main": [
+          [
+            {
+              "node": "WordPress excerpt add",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate1": {
+        "main": [
+          [
+            {
+              "node": "set images",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate2": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Config": {
+        "main": [
+          [
+            {
+              "node": "Brave Search1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out1": {
+        "main": [
+          [
+            {
+              "node": "Generate an image3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out2": {
+        "main": [
+          [
+            {
+              "node": "Article wrtiter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set images": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "clean html1": {
+        "main": [
+          [
+            {
+              "node": "Wordpress",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create JSON1": {
+        "main": [
+          [
+            {
+              "node": "Split Out1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Make sumarry": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Brave Search1": {
+        "main": [
+          [
+            {
+              "node": "Format Search Results1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article Planner": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article wrtiter": {
+        "main": [
+          [
+            {
+              "node": "Aggregate2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set Data in Loop",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Data in Loop": {
+        "main": [
+          [
+            {
+              "node": "Idea and Plan Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set results data": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Make sumarry",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Output Image1": {
+        "main": [
+          [
+            {
+              "node": "Aggregate1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Split Out2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate an image3": {
+        "main": [
+          [
+            {
+              "node": "Upload Image to Wordpress",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Article wrtiter",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Create Notification",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript1": {
+        "main": [
+          [
+            {
+              "node": "clean html1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript2": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Notification": {
+        "main": [
+          [
+            {
+              "node": "Send a text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Idea and Plan Agent1": {
+        "main": [
+          [
+            {
+              "node": "Create JSON1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate for Planner": {
+        "main": [
+          [
+            {
+              "node": "Article Planner",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "WordPress excerpt add": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Search Results1": {
+        "main": [
+          [
+            {
+              "node": "Make sumarry",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI — Plan Agent1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Idea and Plan Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Image to Wordpress": {
+        "main": [
+          [
+            {
+              "node": "Set Output Image1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI — Article Planner": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Article Planner",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Image to Wordpress2": {
+        "main": [
+          [
+            {
+              "node": "Set Image on Wordpress Post2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Image on Wordpress Post2": {
+        "main": [
+          [
+            {
+              "node": "Set results data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

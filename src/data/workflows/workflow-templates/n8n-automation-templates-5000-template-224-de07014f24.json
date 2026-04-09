@@ -1,0 +1,133 @@
+{
+  "id": "n8n-automation-templates-5000-template-224-de07014f24",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Jira/it_operations_224_webhook_jira.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Jira/it_operations_224_webhook_jira.json"
+  },
+  "name": "Template 224",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 224",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Jira",
+    "jira",
+    "freshdesk",
+    "webhook",
+    "template",
+    "224",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 224",
+    "jira",
+    "freshdesk",
+    "webhook",
+    "224 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "jira",
+    "freshdesk"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 224",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-224",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Jira",
+        "type": "n8n-nodes-base.jira",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Freshdesk",
+        "type": "n8n-nodes-base.freshdesk",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Jira",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Jira": {
+        "main": [
+          [
+            {
+              "node": "Freshdesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 224
+  }
+}

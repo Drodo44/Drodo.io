@@ -1,0 +1,160 @@
+{
+  "id": "n8n-automation-templates-5000-template-1421-ab05839653",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Medium/rag_agents_1421_schedule_trigger_vector_db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Medium/rag_agents_1421_schedule_trigger_vector_db.json"
+  },
+  "name": "Template 1421",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1421",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Medium",
+    "schedule",
+    "vectordb",
+    "openai",
+    "medium",
+    "schedule Trigger",
+    "template",
+    "1421",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1421",
+    "schedule",
+    "vectordb",
+    "openai",
+    "medium",
+    "schedule trigger",
+    "1421 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "schedule",
+    "vectordb",
+    "openai",
+    "medium"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1421",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 720
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Vector DB",
+        "type": "n8n-nodes-base.vectordb",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Draft a thought leadership article for Medium based on the content."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Medium",
+        "type": "n8n-nodes-base.medium",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Vector DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector DB": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Medium",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1421
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "id": "n8n-automation-templates-5000-template-267-4b3c64d166",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/personal_productivity_267_email_trigger_notion.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/personal_productivity_267_email_trigger_notion.json"
+  },
+  "name": "Template 267",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 267",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "notion",
+    "gmail Trigger",
+    "template",
+    "267",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 267",
+    "gmail",
+    "notion",
+    "gmail trigger",
+    "267 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "gmail",
+    "notion"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 267",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Notion",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 267
+  }
+}

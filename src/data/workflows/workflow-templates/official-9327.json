@@ -1,0 +1,360 @@
+{
+  "id": "official-9327",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/9327",
+    "template_id": 9327
+  },
+  "name": "Extract attendance from Google Drive images to sheets with VLM run AI & Gmail alerts",
+  "description": "🧾 Attendance Extraction & Notification Pipeline (Google Drive + VLM Run + Google Sheets + Gmail) ⚙️ What This Workflow Does This workflow automates daily attendance tracking by analyzing uploaded attendance images, extracting participant names via VLM Run’s Execute Agent , appending the structured data into Google...",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "vlm Run",
+    "Google Drive",
+    "Gmail",
+    "Webhook",
+    "Google Drive Trigger",
+    "extract",
+    "attendance",
+    "google",
+    "drive",
+    "images",
+    "sheets"
+  ],
+  "task_keywords": [
+    "extract attendance from google drive images to sheets with vlm run ai & gmail alerts",
+    "vlm run",
+    "google drive",
+    "gmail",
+    "webhook",
+    "google drive trigger",
+    "extract attendance",
+    "attendance google",
+    "drive images",
+    "images sheets",
+    "sheets vlm",
+    "run gmail"
+  ],
+  "required_services": [
+    "vlm Run",
+    "Google Drive",
+    "Gmail"
+  ],
+  "triggers": [
+    "Webhook",
+    "Google Drive Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "instanceId": "96d35e452e0d9a182973416b7532cfc5643239aaaa764a5bf74d52ca84f4a35c",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "0968592f-243a-4fb9-809c-2434e9375da3",
+        "name": "VLM Run for Extraction",
+        "type": "@vlm-run/n8n-nodes-vlmrun.vlmRun",
+        "position": [
+          496,
+          -96
+        ],
+        "parameters": {
+          "operation": "executeAgent",
+          "agentPrompt": "=Analyze the image of user list names and show them in the following json format, make sure to follow this exact structure, where val1 will be current date, val2 will be total user count and rest of the values will be the user names:\n{ \\\"majorDimension\\\": \\\"ROWS\\\",   \\\"values\\\": [     [\\\"val1\\\", \\\"val2\\\"]   ] }",
+          "agentCallbackUrl": "https://playground.attensys.ai/webhook/check-attendance"
+        },
+        "credentials": {
+          "vlmRunApi": {
+            "id": "credential-id",
+            "name": "vlmRunApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "32cf5900-f3f2-4a05-b3d0-97848189f513",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          864,
+          -480
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 464,
+          "height": 576,
+          "content": "## 🟣 Append to Sheets + Send Email\n\n* ➕ **HTTP Request** calls Google Sheets `values:append` with `valueInputOption=RAW`, `insertDataOption=INSERT_ROWS`, `includeValuesInResponse=true`, then ✉️ **Gmail** sends the formatted attendance to the chosen recipient\n\n* 📥 Appends the received row into **Sheet1!A:Z** and formats the message where the first item is the date, the last item is the total, and the rest are numbered names\n\n🧪 Example input:\n{\"majorDimension\":\"ROWS\",\"values\":[[\"2025-10-03\",\"6\",\"Camila Torres Rivera\",...,\"Anisah Anif\"]]}\n\n\n📊 Result: a new row with date in column A, total count in column B, then each attendee name across subsequent columns, and an email sent with subject `Attendance List`\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e37ad5b4-1df1-4d4c-b07a-358ea7c2f8ef",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          432,
+          -480
+        ],
+        "parameters": {
+          "width": 416,
+          "height": 576,
+          "content": "## 🟡 VLM Run: Extraction Logic\n\n\n- 🤖 **Execute Agent** processes the downloaded image.  \n- 📝 **Prompt**: Return JSON in format `{ \"majorDimension\": \"ROWS\", \"values\": [[\"YYYY-MM-DD\", \"user_count\", \"name1\", \"name2\", ...]] }`.  \n- 🌐 Result posted to n8n webhook **`check-attendance`** (test endpoint).  \n- 📩 Webhook receives ready-to-append Sheets payload.  \n- 🧠 *Example output*:  \n  `{\"majorDimension\":\"ROWS\",\"values\":[[\"2025-10-03\",\"6\",\"Camila Torres Rivera\",\"Mellissa\"]]}`\n\n\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "c4b6f7e3-31ff-49ff-9640-c90950141a33",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          -480
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 416,
+          "height": 576,
+          "content": "## 🟢 Google Drive: Monitor & Download\n\n* ⏱️ Google Drive Trigger checks the target folder every minute for **fileCreated** events\n\n* 🗂️ Trigger scope: the attendance images folder you selected\n\n* 🔗 Passes the new file **id** to the next node\n\n* ⬇️ Google Drive node downloads the file as binary under **data**\n\n* 📦 Output: the binary file is ready for the attendance extraction step\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "fbb0adca-34a1-41c0-847b-5fb7304f2c4a",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          -864
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 848,
+          "height": 368,
+          "content": "## 🧾 Attendance Extraction Pipeline\n\n**Overview:**\n\nUploads land in Google Drive → VLM Run’s Execute Agent reads names from the image or scan → Agent posts a clean JSON to the n8n Webhook → The workflow appends the row into Google Sheets.\n\n\nPerfect for:\nWhiteboard standups, workshop sign-ins, classroom roll calls.\n\n\n**Requirements:**\n\n* VLM Run API credentials with access to Execute Agent\n* Google Drive OAuth2 for trigger and download\n* Google Sheets OAuth2 for `values:append`\n* n8n Webhook reachable at `check-attendance` on the test endpoint\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3d69f4a9-20f0-487e-9402-cd7f2ec1bd73",
+        "name": "Receives the list",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          704,
+          -96
+        ],
+        "webhookId": "706a3754-0987-4153-9193-29c27827d442",
+        "parameters": {
+          "path": "check-attendance",
+          "options": {},
+          "httpMethod": "POST"
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "0e9e1a63-80b6-4366-bbf9-dd18bfab4efb",
+        "name": "Monitor List Uploads",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "notes": "Monitors Google Drive folder for new receipt uploads and triggers processing automatically.",
+        "position": [
+          64,
+          -96
+        ],
+        "parameters": {
+          "event": "fileCreated",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1S6baavqJn98MjUlbB6KtmARCWuWEekIZ",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1S6baavqJn98MjUlbB6KtmARCWuWEekIZ",
+            "cachedResultName": "test_data"
+          }
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDriveOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bcdf4ec9-602c-402b-a929-54a0b73f2d70",
+        "name": "Download List",
+        "type": "n8n-nodes-base.googleDrive",
+        "notes": "Downloads receipt files from Google Drive for AI processing.",
+        "position": [
+          240,
+          -96
+        ],
+        "parameters": {
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.id }}"
+          },
+          "options": {
+            "binaryPropertyName": "data"
+          },
+          "operation": "download"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDriveOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "93549d62-06ba-491d-bb82-c9c79beeca71",
+        "name": "Append New Attendance to Sheet",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          944,
+          -80
+        ],
+        "parameters": {
+          "url": "https://sheets.googleapis.com/v4/spreadsheets/1lg0aJKvd7E2pbhumHNjcgxUfEQKvlBs9h1zZbhSeqas/values/Sheet1!A:Z:append",
+          "method": "POST",
+          "options": {},
+          "jsonBody": "={{ $json.body.response }}",
+          "sendBody": true,
+          "sendQuery": true,
+          "sendHeaders": true,
+          "specifyBody": "json",
+          "authentication": "predefinedCredentialType",
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "valueInputOption",
+                "value": "RAW"
+              },
+              {
+                "name": "insertDataOption",
+                "value": "INSERT_ROWS"
+              },
+              {
+                "name": "includeValuesInResponse",
+                "value": "true"
+              }
+            ]
+          },
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "nodeCredentialType": "googleSheetsOAuth2Api"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleSheetsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "bc39bbf9-24a1-422a-99d8-d318bb15c59c",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          1168,
+          -80
+        ],
+        "webhookId": "dc974b24-8060-48c3-a143-c4441b191061",
+        "parameters": {
+          "sendTo": "user@example.com",
+          "message": "={{\n(() => {\n  const raw = $json.updates?.updatedData?.values;\n\n  // Normalize to a flat array of strings\n  const parts = Array.isArray(raw)\n    ? (Array.isArray(raw[0]) ? raw[0] : raw).map(String)\n    : String(raw || \"\").split(\",\").map(s => s.trim());\n\n  if (!parts.length) return \"No data received\";\n\n  const date = parts[0];\n  const total = parts[1];\n  const names = parts.slice(2).filter(Boolean);\n\n  // Optional pretty date without relying on timezone parsing\n  const prettyDate = /^(\\d{4})-(\\d{2})-(\\d{2})$/.test(date)\n    ? date.replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/, \"$3-$2-$1\")\n    : date;\n\n  const list = names.map((n, i) => `${i + 1}. ${n}`).join(\"<br>\");\n\n  return `Today's Attendance List (${prettyDate})<br>Total: ${total}<br>${list}`;\n})()\n}}\n",
+          "options": {},
+          "subject": "Attendance List"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "credential-id",
+            "name": "gmailOAuth2 Credential"
+          }
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "4c50399f-3901-4067-859c-241834696ea5",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          864,
+          -640
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 464,
+          "height": 144,
+          "content": "## 📝 Webhook: Set Public Callback URL\n\nPaste your n8n webhook’s Production URL into VLM Run’s Callback URL field—no localhost URLs (they’re unreachable)."
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Download List": {
+        "main": [
+          [
+            {
+              "node": "VLM Run for Extraction",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Receives the list": {
+        "main": [
+          [
+            {
+              "node": "Append New Attendance to Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Monitor List Uploads": {
+        "main": [
+          [
+            {
+              "node": "Download List",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append New Attendance to Sheet": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "id": "official-8201",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8201",
+    "template_id": 8201
+  },
+  "name": "Automate user creation & access group assignment in Curseduca",
+  "description": "📘 Curseduca – User Creation & Access Group Assignment How it works This workflow automates the process of creating a new user in Curseduca and granting them access to a specific access group.",
+  "category": "Operations",
+  "tags": [
+    "HR",
+    "Webhook",
+    "automate",
+    "user",
+    "creation",
+    "access",
+    "group",
+    "assignment"
+  ],
+  "task_keywords": [
+    "automate user creation & access group assignment in curseduca",
+    "webhook",
+    "automate user",
+    "user creation",
+    "creation access",
+    "access group",
+    "group assignment",
+    "assignment curseduca",
+    "curseduca curseduca",
+    "curseduca user",
+    "assignment works",
+    "works workflow"
+  ],
+  "required_services": [],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Webhook - Capture User Data",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "path": "creators-create-user-with-group",
+          "options": {},
+          "httpMethod": "POST"
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "name": "Curseduca - Create User & Assign Group",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          260,
+          0
+        ],
+        "parameters": {
+          "url": "https://prof.curseduca.pro/members",
+          "method": "POST",
+          "options": {},
+          "jsonBody": "={\n  \"name\": \"{{ $json.body.name }}\",\n  \"email\": \"{{ $json.body.email }}\",\n  \"group\": { \"id\": {{$json.body.groupId}} },\n  \"notifications\": [ { \"type\": \"EMAIL\" } ],\n  \"sendMemberRegisteredEmail\": true\n}",
+          "sendBody": true,
+          "sendHeaders": true,
+          "specifyBody": "json",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "api_key",
+                "value": "<API_KEY>"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer <BEARER_TOKEN>"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "name": "⚠️ Setup Instructions",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          260,
+          -200
+        ],
+        "parameters": {
+          "content": "⚠️ Setup Instructions:\n- Replace <API_KEY> and <BEARER_TOKEN> in headers\n- Send `groupId` along with `name` and `email` in the webhook body"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "📩 Example Payload",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -260,
+          0
+        ],
+        "parameters": {
+          "content": "📩 Example Webhook Body:\n{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"groupId\": 123\n}"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Webhook - Capture User Data": {
+        "main": [
+          [
+            {
+              "node": "Curseduca - Create User & Assign Group",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

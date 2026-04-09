@@ -1,0 +1,148 @@
+{
+  "id": "official-1130",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1130",
+    "template_id": 1130
+  },
+  "name": "Add a check condition for a loop in n8n",
+  "description": "This workflow demonstrates the use of $runIndex expression.",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "No Operation, do nothing",
+    "X (Formerly Twitter)",
+    "Manual Trigger",
+    "add",
+    "check",
+    "condition",
+    "loop",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "add a check condition for a loop in n8n",
+    "manual",
+    "no operation, do nothing",
+    "x (formerly twitter)",
+    "manual trigger",
+    "add check",
+    "check condition",
+    "condition loop",
+    "loop n8n",
+    "n8n workflow",
+    "workflow demonstrates",
+    "demonstrates runindex"
+  ],
+  "required_services": [
+    "manual",
+    "No Operation, do nothing",
+    "X (Formerly Twitter)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          600,
+          150
+        ],
+        "parameters": {
+          "conditions": {
+            "number": [
+              {
+                "value1": "={{$runIndex}}",
+                "value2": 4
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "NoOp",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          750,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Twitter",
+        "type": "n8n-nodes-base.twitter",
+        "position": [
+          440,
+          300
+        ],
+        "parameters": {
+          "text": "Hello from n8n!",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "twitterOAuth1Api": "Dummy Account"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "Twitter",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "NoOp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Twitter": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Twitter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

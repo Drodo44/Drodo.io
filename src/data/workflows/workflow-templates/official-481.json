@@ -1,0 +1,86 @@
+{
+  "id": "official-481",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/481",
+    "template_id": 481
+  },
+  "name": "Create a new task in Todoist",
+  "description": "Create a new task in Todoist",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Todoist",
+    "Manual Trigger",
+    "create",
+    "task",
+    "todoist"
+  ],
+  "task_keywords": [
+    "create a new task in todoist",
+    "manual",
+    "create manual",
+    "todoist",
+    "create todoist",
+    "manual trigger",
+    "create task",
+    "task todoist",
+    "todoist create"
+  ],
+  "required_services": [
+    "manual",
+    "Todoist"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "100",
+    "name": "Create a new task in Todoist",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          550,
+          250
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Todoist",
+        "type": "n8n-nodes-base.todoist",
+        "position": [
+          750,
+          250
+        ],
+        "parameters": {
+          "content": "",
+          "options": {}
+        },
+        "credentials": {
+          "todoistApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Todoist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

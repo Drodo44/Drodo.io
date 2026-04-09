@@ -1,0 +1,158 @@
+{
+  "id": "n8n-automation-templates-5000-template-717-0a0d16103e",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/security_717_email_trigger_aws_cloudwatch_to_pagerduty.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/security_717_email_trigger_aws_cloudwatch_to_pagerduty.json"
+  },
+  "name": "Template 717",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 717",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "awscloudwatch",
+    "pagerduty",
+    "woocommerce",
+    "gmail Trigger",
+    "template",
+    "717",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 717",
+    "gmail",
+    "awscloudwatch",
+    "pagerduty",
+    "woocommerce",
+    "gmail trigger",
+    "717 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "gmail",
+    "awscloudwatch",
+    "pagerduty",
+    "woocommerce"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 717",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS CloudWatch",
+        "type": "n8n-nodes-base.awscloudwatch",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "WooCommerce",
+        "type": "n8n-nodes-base.woocommerce",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "AWS CloudWatch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS CloudWatch": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "WooCommerce",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 717
+  }
+}

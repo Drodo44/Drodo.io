@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-approve-expense-from-quickbooks-transaction-and-send-to-quickbooks-13c21aaf68",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/approve-expense-quickbooks-transaction-quickbooks.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/approve-expense-quickbooks-transaction-quickbooks.json"
+  },
+  "name": "Approve expense from QuickBooks transaction and send to QuickBooks",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Approve expense from QuickBooks transaction and send to QuickBooks",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "approve",
+    "expense",
+    "quickbooks",
+    "transaction",
+    "send"
+  ],
+  "task_keywords": [
+    "approve expense from quickbooks transaction and send to quickbooks",
+    "slack",
+    "send slack",
+    "webhook",
+    "approve expense",
+    "expense quickbooks",
+    "quickbooks transaction",
+    "transaction send",
+    "send quickbooks",
+    "quickbooks n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Approve expense from QuickBooks transaction and send to QuickBooks",
+    "nodes": [
+      {
+        "id": "trigger-quickbooks-transaction",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          133500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "approve-expense-from-quickbooks-transaction-and-send-to-quickbooks",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-quickbooks-transaction",
+        "name": "Fetch data from QuickBooks transaction",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          133500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/quickbooks-transaction",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-quickbooks",
+        "name": "Send to QuickBooks",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          133500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/quickbooks",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-133500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          133500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from QuickBooks transaction",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from QuickBooks transaction": {
+        "main": [
+          {
+            "node": "Send to QuickBooks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to QuickBooks": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

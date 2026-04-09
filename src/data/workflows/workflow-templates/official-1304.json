@@ -1,0 +1,176 @@
+{
+  "id": "official-1304",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1304",
+    "template_id": 1304
+  },
+  "name": "Enrich Google Sheet contacts with Dropcontact",
+  "description": "This workflow allows you to find and verify emails and enrich your contact from a Google Sheet with Dropacontact and add them to Lemlist.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "manual",
+    "Dropcontact",
+    "Google Sheets",
+    "Lemlist",
+    "Manual Trigger",
+    "enrich",
+    "google",
+    "sheet",
+    "contacts",
+    "dropcontact",
+    "workflow"
+  ],
+  "task_keywords": [
+    "enrich google sheet contacts with dropcontact",
+    "manual",
+    "dropcontact",
+    "google sheets",
+    "lemlist",
+    "manual trigger",
+    "enrich google",
+    "google sheet",
+    "sheet contacts",
+    "contacts dropcontact",
+    "dropcontact workflow",
+    "workflow allows"
+  ],
+  "required_services": [
+    "manual",
+    "Dropcontact",
+    "Google Sheets",
+    "Lemlist"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Dropcontact",
+        "type": "n8n-nodes-base.dropcontact",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "email": "={{$json[\"email\"]}}",
+          "options": {
+            "siren": true,
+            "language": "fr"
+          },
+          "additionalFields": {
+            "company": "={{$json[\"companyName\"]}}",
+            "website": "={{$json[\"website\"]}}",
+            "linkedin": "={{$json[\"LinkedIn\"]}}",
+            "full_name": "={{$json[\"fullName\"]}}",
+            "last_name": "={{$json[\"lastName\"]}}",
+            "first_name": "={{$json[\"firstName\"]}}"
+          }
+        },
+        "credentials": {
+          "dropcontactApi": {
+            "id": "credential-id",
+            "name": "dropcontactApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "range": "A:K",
+          "options": {
+            "continue": false
+          },
+          "sheetId": "",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleSheetsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Lemlist",
+        "type": "n8n-nodes-base.lemlist",
+        "position": [
+          850,
+          300
+        ],
+        "parameters": {
+          "email": "={{$node[\"Dropcontact\"].json[\"email\"][0][\"email\"]}}",
+          "resource": "lead",
+          "campaignId": "",
+          "additionalFields": {
+            "lastName": "={{$node[\"Dropcontact\"].json[\"last_name\"]}}",
+            "firstName": "={{$node[\"Dropcontact\"].json[\"first_name\"]}}",
+            "companyName": "={{$node[\"Dropcontact\"].json[\"company\"]}}"
+          }
+        },
+        "credentials": {
+          "lemlistApi": {
+            "id": "credential-id",
+            "name": "lemlistApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Dropcontact": {
+        "main": [
+          [
+            {
+              "node": "Lemlist",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Dropcontact",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

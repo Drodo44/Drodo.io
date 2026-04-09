@@ -1,0 +1,94 @@
+{
+  "id": "n8n-workflow-templates-1047-manual-emailsend-send-triggered-b8922d6409",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1047_Manual_Emailsend_Send_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1047_Manual_Emailsend_Send_Triggered.json"
+  },
+  "name": "1047 Manual Emailsend Send Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1047 Manual Emailsend Send Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "manual",
+    "email Send",
+    "Manual Trigger",
+    "1047",
+    "emailsend",
+    "send",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "1047 manual emailsend send triggered",
+    "manual",
+    "send manual",
+    "email send",
+    "send email send",
+    "manual trigger",
+    "1047 manual",
+    "manual emailsend",
+    "emailsend send",
+    "send triggered",
+    "triggered n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "manual",
+    "email Send"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "text": "This is a message to demonstrate the n8n Send Email workflow!",
+          "options": {
+            "allowUnauthorizedCerts": false
+          },
+          "subject": "n8n rocks!",
+          "toEmail": "user@example.com",
+          "fromEmail": "user@from.email"
+        },
+        "credentials": {
+          "smtp": "your@smtp_creds.here"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

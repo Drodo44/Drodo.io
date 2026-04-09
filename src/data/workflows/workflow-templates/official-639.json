@@ -1,0 +1,61 @@
+{
+  "id": "official-639",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/639",
+    "template_id": 639
+  },
+  "name": "Receive server-sent events",
+  "description": "Companion workflow for SSE Trigger node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "SSE",
+    "SSE Trigger",
+    "receive",
+    "server",
+    "sent",
+    "events",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive server-sent events",
+    "sse trigger",
+    "receive server",
+    "server sent",
+    "sent events",
+    "events companion",
+    "companion workflow",
+    "workflow sse",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "SSE"
+  ],
+  "triggers": [
+    "SSE Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "",
+    "nodes": [
+      {
+        "name": "SSE Trigger",
+        "type": "n8n-nodes-base.sseTrigger",
+        "position": [
+          850,
+          420
+        ],
+        "parameters": {
+          "url": "https://n8n.io"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

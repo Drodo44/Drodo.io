@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-generate-shipping-label-from-inventory-sheet-and-send-to-google-sheets-f25b4dd440",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/generate-shipping-label-inventory-sheet-google-sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/generate-shipping-label-inventory-sheet-google-sheets.json"
+  },
+  "name": "Generate shipping label from Inventory sheet and send to Google Sheets",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Generate shipping label from Inventory sheet and send to Google Sheets",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "generate",
+    "shipping",
+    "label",
+    "inventory",
+    "sheet",
+    "send"
+  ],
+  "task_keywords": [
+    "generate shipping label from inventory sheet and send to google sheets",
+    "slack",
+    "send slack",
+    "webhook",
+    "generate shipping",
+    "shipping label",
+    "label inventory",
+    "inventory sheet",
+    "sheet send",
+    "send google",
+    "google sheets",
+    "sheets n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Generate shipping label from Inventory sheet and send to Google Sheets",
+    "nodes": [
+      {
+        "id": "trigger-inventory-sheet",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          176200
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "generate-shipping-label-from-inventory-sheet-and-send-to-google-sheets",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-inventory-sheet",
+        "name": "Fetch data from Inventory sheet",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          176200
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/inventory-sheet",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-google-sheets",
+        "name": "Send to Google Sheets",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          176200
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/google-sheets",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-176200",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          176200
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Inventory sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Inventory sheet": {
+        "main": [
+          {
+            "node": "Send to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

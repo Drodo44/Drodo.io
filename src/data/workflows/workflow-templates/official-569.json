@@ -1,0 +1,67 @@
+{
+  "id": "official-569",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/569",
+    "template_id": 569
+  },
+  "name": "Receive updates for events in Jira",
+  "description": "Companion workflow for Jira Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "Project Management",
+    "Jira",
+    "Jira Trigger",
+    "receive",
+    "updates",
+    "events",
+    "jira",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for events in jira",
+    "jira",
+    "update jira",
+    "jira trigger",
+    "receive updates",
+    "updates events",
+    "events jira",
+    "jira companion",
+    "companion workflow",
+    "workflow jira",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "Jira"
+  ],
+  "triggers": [
+    "Jira Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Jira Trigger",
+        "type": "n8n-nodes-base.jiraTrigger",
+        "position": [
+          880,
+          400
+        ],
+        "webhookId": "a3ddaf66-7f75-4494-b435-ef88ef1f1917",
+        "parameters": {
+          "events": [
+            "*"
+          ],
+          "additionalFields": {}
+        },
+        "credentials": {
+          "jiraSoftwareCloudApi": "n8n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

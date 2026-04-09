@@ -1,0 +1,64 @@
+{
+  "id": "official-533",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/533",
+    "template_id": 533
+  },
+  "name": "Receive updates on appointments via Acuity Scheduling",
+  "description": "Companion workflow for Acuity Scheduling Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "Acuity Scheduling",
+    "Acuity Scheduling Trigger",
+    "receive",
+    "updates",
+    "appointments",
+    "via",
+    "acuity",
+    "scheduling"
+  ],
+  "task_keywords": [
+    "receive updates on appointments via acuity scheduling",
+    "acuity scheduling",
+    "update acuity scheduling",
+    "acuity scheduling trigger",
+    "receive updates",
+    "updates appointments",
+    "appointments via",
+    "via acuity",
+    "scheduling companion",
+    "companion workflow",
+    "workflow acuity",
+    "scheduling trigger"
+  ],
+  "required_services": [
+    "Acuity Scheduling"
+  ],
+  "triggers": [
+    "Acuity Scheduling Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Acuity Scheduling Trigger",
+        "type": "n8n-nodes-base.acuitySchedulingTrigger",
+        "position": [
+          880,
+          400
+        ],
+        "webhookId": "b326732d-9473-469f-a421-dd823d26b945",
+        "parameters": {
+          "event": "appointment.scheduled"
+        },
+        "credentials": {
+          "acuitySchedulingApi": "acuity_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

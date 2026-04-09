@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-update-campaign-analytics-from-new-blog-post-and-send-to-instagram-73867644b5",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/update-campaign-analytics-new-blog-post-instagram.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/update-campaign-analytics-new-blog-post-instagram.json"
+  },
+  "name": "Update campaign analytics from New blog post and send to Instagram",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Update campaign analytics from New blog post and send to Instagram",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "update",
+    "campaign",
+    "analytics",
+    "blog",
+    "post",
+    "send"
+  ],
+  "task_keywords": [
+    "update campaign analytics from new blog post and send to instagram",
+    "slack",
+    "send slack",
+    "update slack",
+    "webhook",
+    "update campaign",
+    "campaign analytics",
+    "analytics blog",
+    "blog post",
+    "post send",
+    "send instagram",
+    "instagram n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Update campaign analytics from New blog post and send to Instagram",
+    "nodes": [
+      {
+        "id": "trigger-new-blog-post",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          62500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "update-campaign-analytics-from-new-blog-post-and-send-to-instagram",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-new-blog-post",
+        "name": "Fetch data from New blog post",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          62500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/new-blog-post",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-instagram",
+        "name": "Send to Instagram",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          62500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/instagram",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-62500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          62500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from New blog post",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from New blog post": {
+        "main": [
+          {
+            "node": "Send to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Instagram": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

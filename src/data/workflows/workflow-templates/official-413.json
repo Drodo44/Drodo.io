@@ -1,0 +1,96 @@
+{
+  "id": "official-413",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/413",
+    "template_id": 413
+  },
+  "name": "Create a new member on Mailchimp",
+  "description": "Create a new member on Mailchimp",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Mailchimp",
+    "Manual Trigger",
+    "create",
+    "member",
+    "mailchimp"
+  ],
+  "task_keywords": [
+    "create a new member on mailchimp",
+    "manual",
+    "create manual",
+    "mailchimp",
+    "create mailchimp",
+    "manual trigger",
+    "create member",
+    "member mailchimp",
+    "mailchimp create"
+  ],
+  "required_services": [
+    "manual",
+    "Mailchimp"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "3",
+    "name": "Mailchimp",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          480,
+          310
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mailchimp",
+        "type": "n8n-nodes-base.mailchimp",
+        "position": [
+          780,
+          310
+        ],
+        "parameters": {
+          "list": "97542c5cf8",
+          "email": "xxxx@email.com",
+          "status": "subscribed",
+          "options": {},
+          "mergeFieldsUi": {
+            "mergeFieldsValues": [
+              {
+                "name": "FNAME",
+                "value": "Joe"
+              }
+            ]
+          }
+        },
+        "credentials": {
+          "mailchimpApi": "mailchimpAPI"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mailchimp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

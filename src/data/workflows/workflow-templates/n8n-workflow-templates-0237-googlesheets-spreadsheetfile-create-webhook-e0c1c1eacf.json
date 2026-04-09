@@ -1,0 +1,123 @@
+{
+  "id": "n8n-workflow-templates-0237-googlesheets-spreadsheetfile-create-webhook-e0c1c1eacf",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0237_GoogleSheets_Spreadsheetfile_Create_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0237_GoogleSheets_Spreadsheetfile_Create_Webhook.json"
+  },
+  "name": "0237 GoogleSheets Spreadsheetfile Create Webhook",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0237 GoogleSheets Spreadsheetfile Create Webhook",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "google Sheets",
+    "spreadsheet File",
+    "webhook",
+    "0237",
+    "googlesheets",
+    "spreadsheetfile",
+    "create",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0237 googlesheets spreadsheetfile create webhook",
+    "google sheets",
+    "create google sheets",
+    "spreadsheet file",
+    "create spreadsheet file",
+    "webhook",
+    "0237 googlesheets",
+    "googlesheets spreadsheetfile",
+    "spreadsheetfile create",
+    "create webhook",
+    "webhook n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "google Sheets",
+    "spreadsheet File"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Read from Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          460,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "1uFISwZJ1rzkOnOSNocX-_n-ASSAznWGdpcPK3_KCvVo"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "19",
+            "name": "Tom's Google Sheets account"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "name": "Create HTML file",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "toFile",
+          "fileFormat": "html"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          240,
+          300
+        ],
+        "webhookId": "08569699-fea2-4856-80aa-fe878ab9dd4f",
+        "parameters": {
+          "path": "08569699-fea2-4856-80aa-fe878ab9dd4f",
+          "options": {},
+          "responseData": "firstEntryBinary",
+          "responseMode": "lastNode"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Read from Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read from Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Create HTML file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "n8n-automation-templates-5000-template-824-8d61a486ff",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Fitbit/health_824_webhook_fitbit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Fitbit/health_824_webhook_fitbit.json"
+  },
+  "name": "Template 824",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 824",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Fitbit",
+    "fitbit",
+    "pdfparser",
+    "webhook",
+    "template",
+    "824",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 824",
+    "fitbit",
+    "pdfparser",
+    "webhook",
+    "824 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "fitbit",
+    "pdfparser"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 824",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-824",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Fitbit",
+        "type": "n8n-nodes-base.fitbit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PDF Parser",
+        "type": "n8n-nodes-base.pdfparser",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Fitbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fitbit": {
+        "main": [
+          [
+            {
+              "node": "PDF Parser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 824
+  }
+}

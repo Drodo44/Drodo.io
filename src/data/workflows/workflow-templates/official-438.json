@@ -1,0 +1,86 @@
+{
+  "id": "official-438",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/438",
+    "template_id": 438
+  },
+  "name": "Create a PayPal batch payout",
+  "description": "Create a PayPal batch payout",
+  "category": "E-commerce",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "PayPal",
+    "Manual Trigger",
+    "create",
+    "paypal",
+    "batch",
+    "payout"
+  ],
+  "task_keywords": [
+    "create a paypal batch payout",
+    "manual",
+    "create manual",
+    "paypal",
+    "create paypal",
+    "manual trigger",
+    "paypal batch",
+    "batch payout",
+    "payout create"
+  ],
+  "required_services": [
+    "manual",
+    "PayPal"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          540,
+          240
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "PayPal",
+        "type": "n8n-nodes-base.payPal",
+        "position": [
+          730,
+          240
+        ],
+        "parameters": {
+          "senderBatchId": "123",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "payPalApi": "paypal-credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "PayPal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

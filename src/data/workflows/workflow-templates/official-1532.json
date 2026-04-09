@@ -1,0 +1,107 @@
+{
+  "id": "official-1532",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1532",
+    "template_id": 1532
+  },
+  "name": "Send Onfleet driver signup messages in Slack",
+  "description": "Summary Onfleet is a last mile delivery software that provides end to end route planning, dispatch, communication, and analytics to handle the heavy lifting while you can focus on your customers.",
+  "category": "Communication",
+  "tags": [
+    "Miscellaneous",
+    "Onfleet",
+    "Slack",
+    "Onfleet Trigger",
+    "send",
+    "onfleet",
+    "driver",
+    "signup",
+    "messages",
+    "slack"
+  ],
+  "task_keywords": [
+    "send onfleet driver signup messages in slack",
+    "onfleet",
+    "send onfleet",
+    "slack",
+    "send slack",
+    "onfleet trigger",
+    "onfleet driver",
+    "driver signup",
+    "signup messages",
+    "messages slack",
+    "slack summary",
+    "summary onfleet"
+  ],
+  "required_services": [
+    "Onfleet",
+    "Slack"
+  ],
+  "triggers": [
+    "Onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 14,
+    "name": "Onfleet Driver signup message in Slack",
+    "nodes": [
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "a005e163-13a2-4ea2-a127-6e00e30a82f4",
+        "parameters": {
+          "triggerOn": "workerCreated",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "credential-id",
+            "name": "onfleetApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "text": "A new driver has signed up!",
+          "channel": "#new-driver-signup",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "credential-id",
+            "name": "slackApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

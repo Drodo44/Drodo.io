@@ -1,0 +1,219 @@
+{
+  "id": "n8n-workflow-templates-0150-awsrekognition-googlesheets-automation-webhook-8e5fcd7ed4",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0150_Awsrekognition_GoogleSheets_Automation_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0150_Awsrekognition_GoogleSheets_Automation_Webhook.json"
+  },
+  "name": "0150 Awsrekognition GoogleSheets Automation Webhook",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0150 Awsrekognition GoogleSheets Automation Webhook",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "aws Rekognition",
+    "function",
+    "google Sheets",
+    "0150",
+    "awsrekognition",
+    "googlesheets",
+    "automation",
+    "webhook",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0150 awsrekognition googlesheets automation webhook",
+    "aws rekognition",
+    "function",
+    "google sheets",
+    "0150 awsrekognition",
+    "awsrekognition googlesheets",
+    "googlesheets automation",
+    "automation webhook",
+    "webhook n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "aws Rekognition",
+    "function",
+    "google Sheets"
+  ],
+  "triggers": [],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "AWS Rekognition",
+        "type": "n8n-nodes-base.awsRekognition",
+        "position": [
+          680,
+          700
+        ],
+        "parameters": {
+          "type": "detectText",
+          "binaryData": true,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "aws": {
+            "id": "9",
+            "name": "aws"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          500,
+          700
+        ],
+        "parameters": {
+          "url": "https://www.nicepng.com/png/detail/54-542069_motivational-quotes-png.png",
+          "options": {},
+          "responseFormat": "file",
+          "queryParametersUi": {
+            "parameter": []
+          },
+          "headerParametersUi": {
+            "parameter": []
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request1",
+        "type": "n8n-nodes-base.httpRequest",
+        "disabled": true,
+        "position": [
+          500,
+          860
+        ],
+        "parameters": {
+          "url": "https://www.googleapis.com/customsearch/v1?key=[YOUR_KEY]&cx=[YOUR_CX]&q=office&searchType=image",
+          "options": {},
+          "queryParametersUi": {
+            "parameter": []
+          },
+          "headerParametersUi": {
+            "parameter": []
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set1",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          860,
+          700
+        ],
+        "parameters": {
+          "values": {
+            "number": [],
+            "string": [
+              {
+                "name": "img_name",
+                "value": "={{$node[\"HTTP Request\"].binary.data.fileName}}"
+              },
+              {
+                "name": "img_link",
+                "value": "={{$node[\"HTTP Request\"].parameter[\"url\"]}}"
+              },
+              {
+                "name": "img_txt",
+                "value": "={{$json[\"TextDetections\"][1][\"DetectedText\"]}} {{$json[\"TextDetections\"][2][\"DetectedText\"]}}{{$json[\"TextDetections\"][3][\"DetectedText\"]}} {{$json[\"TextDetections\"][4][\"DetectedText\"]}} {{$json[\"TextDetections\"][5][\"DetectedText\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Function1",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          1040,
+          700
+        ],
+        "parameters": {
+          "functionCode": "for (item of items) {\n  item.json.lowerText = $node[\"Set1\"].json[\"img_txt\"].toLowerCase();\n}\nconsole.log('Done!');\n\nreturn items;"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1220,
+          700
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "qwertz",
+          "operation": "append",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "2",
+            "name": "google_sheets_oauth"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set1": {
+        "main": [
+          [
+            {
+              "node": "Function1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Function1": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "AWS Rekognition",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS Rekognition": {
+        "main": [
+          [
+            {
+              "node": "Set1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

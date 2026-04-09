@@ -1,0 +1,440 @@
+{
+  "id": "official-6521",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/6521",
+    "template_id": 6521
+  },
+  "name": "Automated email validation for Google Sheets using Rapid Email Verifier",
+  "description": "Automated Email Verification for Google Sheets This n8n template demonstrates how to automatically validate email addresses from your Google Sheets using a reliable email verification API.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets Trigger",
+    "automated",
+    "email",
+    "validation",
+    "google",
+    "sheets",
+    "rapid"
+  ],
+  "task_keywords": [
+    "automated email validation for google sheets using rapid email verifier",
+    "google sheets",
+    "loop over items (split in batches)",
+    "google sheets trigger",
+    "automated email",
+    "email validation",
+    "validation google",
+    "sheets rapid",
+    "rapid email",
+    "email verifier",
+    "verifier automated",
+    "email verification"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)"
+  ],
+  "triggers": [
+    "Google Sheets Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "O9e1SfXnhax8YZal",
+    "meta": {
+      "instanceId": "f080fafc9937b6b383f471ad8cc35ad1727032832bd16212f900e0577db46644"
+    },
+    "name": "My workflow 2",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "13f98fdb-07fc-49a9-9362-1eb1bab2e1ee",
+        "name": "Monitor New Email Entries",
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "position": [
+          112,
+          544
+        ],
+        "parameters": {
+          "event": "rowAdded",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyHour"
+              }
+            ]
+          },
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "",
+            "cachedResultUrl": "",
+            "cachedResultName": "Your Email Verification Spreadsheet"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "28e1409f-e4ef-46aa-b035-a8227d5d6646",
+        "name": "Update Verification Results",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1584,
+          544
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "SrNo": "={{ $('Filter Unverified Emails').item.json.SrNo }}",
+              "Email Verified": "={{ $json.status }}"
+            },
+            "schema": [
+              {
+                "id": "SrNo",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "SrNo",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Name",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "Name",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "Email",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email Verified",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Email Verified",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "SrNo"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "appendOrUpdate",
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "",
+            "cachedResultUrl": "",
+            "cachedResultName": "Your Email Verification Spreadsheet"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleSheetsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 4.6,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "2ee35cec-c0a0-476e-b91e-ee18e586f989",
+        "name": "Workflow Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "color": 6,
+          "width": 416,
+          "height": 192,
+          "content": "📧 AUTOMATED EMAIL VERIFICATION SYSTEM\n════════════════════════════════════════════════════════════\n✨ Automatically validates email addresses from Google Sheets\n⚡ Real-time verification using rapid-email-verifier API\n📊 Updates spreadsheet with verification status\n🔄 Continuous monitoring with hourly checks\n\n🎯 USE CASES: Lead qualification | Contact list cleaning | Email marketing prep\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "601194a5-7ddf-48e4-814d-7f8be5a4cb99",
+        "name": "Setup Instructions",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          496,
+          0
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 416,
+          "height": 208,
+          "content": "⚙️ QUICK SETUP GUIDE\n═══════════════════════════════════════\n1️⃣ Create Google Sheet with columns:\n   • SrNo | Name | Email | Email Verified\n\n2️⃣ Connect your Google Sheets account\n   \n3️⃣ Update Sheet ID in trigger and update nodes\n\n4️⃣ Test with sample data\n\n💡 TIP: Test with a sample email first!\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "99d920b4-a489-4215-8757-0f123f6351e8",
+        "name": "Trigger Explanation",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -64,
+          272
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 352,
+          "height": 192,
+          "content": "🚀 MONITORING TRIGGER\n───────────────────────\n• Checks every hour for new rows\n• Only processes newly added entries\n• Automatically handles multiple entries\n• Uses efficient polling to avoid rate limits\n• Connects to your Google Sheets document\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0f7b061a-3410-48a6-bc71-39d93595ff6d",
+        "name": "Filter Unverified Emails",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          528,
+          544
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "80aa56a4-b365-448f-9214-71f0ba758947",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{ $json['Email Verified'] }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "0af226e1-ded6-4fb4-b5af-296b02be9c63",
+        "name": "Process Emails in Batches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          832,
+          544
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "92f176f5-6cef-4b7f-abd7-0a8bd6b9eda2",
+        "name": "Verify Email Address",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1216,
+          544
+        ],
+        "parameters": {
+          "url": "https://rapid-email-verifier.fly.dev/api/validate",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "email",
+                "value": "={{ $json.Email }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "7513234f-b1a3-4fe8-b167-410bb8a6921e",
+        "name": "Filter Logic",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          352,
+          256
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 352,
+          "height": 192,
+          "content": "🔍 SMART FILTERING\n─────────────────────\nOnly processes emails that haven't been verified yet\n• Checks if \"Email Verified\" column is empty\n• Prevents duplicate API calls\n• Saves processing time and API credits\n• Ensures efficient workflow execution\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d45072c3-7be3-423a-8afc-f787fc484772",
+        "name": "Batch Processing",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          752,
+          256
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 256,
+          "height": 224,
+          "content": "⚙️ BATCH PROCESSING\n─────────────────────\nProcesses emails one by one to:\n• Respect API rate limits\n• Handle errors gracefully  \n• Ensure reliable verification\n• Track progress per item\n• Maintain data consistency\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e8d919ee-92d1-41b8-8862-6c12e8bff6d5",
+        "name": "API Details",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1072,
+          256
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 352,
+          "height": 224,
+          "content": "🌐 EMAIL VALIDATION API\n────────────────────────\nrapid-email-verifier.fly.dev\n• Real-time email verification\n• Returns: valid/invalid/unknown\n• Fast response times (<500ms)\n• No authentication required\n• Free tier: 1000 verifications/month\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "dc571bb2-e2f0-4a5d-870b-62f388c7609f",
+        "name": "Results Update",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1472,
+          256
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 352,
+          "height": 224,
+          "content": "✅ RESULTS UPDATE\n──────────────────\nUpdates the original sheet with:\n• Verification status (valid/invalid)\n• Matches by Serial Number\n• Preserves original data\n• Creates audit trail\n• Enables easy filtering\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8e1eeaaf-823b-468b-90c4-6bd03c068a34",
+        "name": "Performance Metrics",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          992,
+          0
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 416,
+          "height": 224,
+          "content": "📈 WORKFLOW PERFORMANCE  \n────────────────────────────\n• Processes: ~60 emails/hour\n• API Response: <500ms average\n• Accuracy: 95%+ verification rate\n• Cost: Free tier supports 1000/month\n• Memory efficient batch processing\n\n💡 PRO TIP: Use webhook trigger for real-time verification\n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "a5ff6180-438a-4e77-98ea-372bf7177dc8",
+    "connections": {
+      "Verify Email Address": {
+        "main": [
+          [
+            {
+              "node": "Update Verification Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Unverified Emails": {
+        "main": [
+          [
+            {
+              "node": "Process Emails in Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Monitor New Email Entries": {
+        "main": [
+          [
+            {
+              "node": "Filter Unverified Emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Emails in Batches": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Verify Email Address",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Verification Results": {
+        "main": [
+          [
+            {
+              "node": "Process Emails in Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

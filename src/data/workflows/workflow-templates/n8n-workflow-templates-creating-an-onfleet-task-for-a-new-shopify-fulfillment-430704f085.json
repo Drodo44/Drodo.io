@@ -1,0 +1,104 @@
+{
+  "id": "n8n-workflow-templates-creating-an-onfleet-task-for-a-new-shopify-fulfillment-430704f085",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0152_Shopify_Onfleet_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0152_Shopify_Onfleet_Create_Triggered.json"
+  },
+  "name": "Creating an Onfleet Task for a new Shopify Fulfillment",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Creating an Onfleet Task for a new Shopify Fulfillment",
+  "category": "E-commerce",
+  "tags": [
+    "workflows",
+    "shopify",
+    "onfleet",
+    "shopify Trigger",
+    "creating",
+    "task",
+    "fulfillment",
+    "n8n"
+  ],
+  "task_keywords": [
+    "creating an onfleet task for a new shopify fulfillment",
+    "shopify",
+    "onfleet",
+    "shopify trigger",
+    "creating onfleet",
+    "onfleet task",
+    "task shopify",
+    "shopify fulfillment",
+    "fulfillment n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "shopify",
+    "onfleet"
+  ],
+  "triggers": [
+    "shopify Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 13,
+    "name": "Creating an Onfleet Task for a new Shopify Fulfillment",
+    "nodes": [
+      {
+        "name": "Shopify Trigger",
+        "type": "n8n-nodes-base.shopifyTrigger",
+        "position": [
+          240,
+          440
+        ],
+        "webhookId": "576e8785-bbb4-426b-a922-da671efced68",
+        "parameters": {
+          "topic": "fulfillments/create"
+        },
+        "credentials": {
+          "shopifyApi": {
+            "id": "6",
+            "name": "Shopify account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Onfleet",
+        "type": "n8n-nodes-base.onfleet",
+        "position": [
+          460,
+          440
+        ],
+        "parameters": {
+          "operation": "create",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "2",
+            "name": "Onfleet API Key"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Shopify Trigger": {
+        "main": [
+          [
+            {
+              "node": "Onfleet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

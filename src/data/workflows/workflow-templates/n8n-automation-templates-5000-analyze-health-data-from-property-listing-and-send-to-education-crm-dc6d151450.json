@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-analyze-health-data-from-property-listing-and-send-to-education-crm-dc6d151450",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/analyze-health-data-property-listing-education-crm.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/analyze-health-data-property-listing-education-crm.json"
+  },
+  "name": "Analyze health data from Property listing and send to Education CRM",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Analyze health data from Property listing and send to Education CRM",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "analyze",
+    "health",
+    "data",
+    "property",
+    "listing",
+    "send"
+  ],
+  "task_keywords": [
+    "analyze health data from property listing and send to education crm",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "analyze health",
+    "health data",
+    "data property",
+    "property listing",
+    "listing send",
+    "send education"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Analyze health data from Property listing and send to Education CRM",
+    "nodes": [
+      {
+        "id": "trigger-property-listing",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          189100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "analyze-health-data-from-property-listing-and-send-to-education-crm",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-property-listing",
+        "name": "Fetch data from Property listing",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          189100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/property-listing",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-analyze-health-data",
+        "name": "AI: Analyze Health Data",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          189100
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: analyze health data"
+        }
+      },
+      {
+        "id": "send-education-crm",
+        "name": "Send to Education CRM",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          189100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/education-crm",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-189100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          189100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Property listing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Property listing": {
+        "main": [
+          {
+            "node": "AI: Analyze Health Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Analyze Health Data": {
+        "main": [
+          [
+            {
+              "node": "AI: Analyze Health Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Education CRM": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "id": "official-517",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/517",
+    "template_id": 517
+  },
+  "name": "Get new time entries from Toggl",
+  "description": "Get new time entries from Toggl",
+  "category": "Other",
+  "tags": [
+    "Project Management",
+    "Toggl",
+    "Toggl Trigger",
+    "time",
+    "entries",
+    "toggl"
+  ],
+  "task_keywords": [
+    "get new time entries from toggl",
+    "toggl",
+    "toggl trigger",
+    "time entries",
+    "entries toggl",
+    "toggl time"
+  ],
+  "required_services": [
+    "Toggl"
+  ],
+  "triggers": [
+    "Toggl Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "138",
+    "name": "Get new time entries from Toggl",
+    "nodes": [
+      {
+        "name": "Toggl",
+        "type": "n8n-nodes-base.togglTrigger",
+        "position": [
+          650,
+          250
+        ],
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {}
+            ]
+          }
+        },
+        "credentials": {
+          "togglApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "n8n-automation-templates-5000-template-662-2ea27b0b49",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/AWS/security_662_webhook_aws_cloudwatch_to_security_api.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/AWS/security_662_webhook_aws_cloudwatch_to_security_api.json"
+  },
+  "name": "Template 662",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 662",
+  "category": "DevOps",
+  "tags": [
+    "Templates based on paltforms",
+    "AWS",
+    "awscloudwatch",
+    "securityapi",
+    "webhook",
+    "template",
+    "662",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 662",
+    "awscloudwatch",
+    "securityapi",
+    "webhook",
+    "662 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "awscloudwatch",
+    "securityapi"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 662",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-662",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS CloudWatch",
+        "type": "n8n-nodes-base.awscloudwatch",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Security API",
+        "type": "n8n-nodes-base.securityapi",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "AWS CloudWatch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS CloudWatch": {
+        "main": [
+          [
+            {
+              "node": "Security API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 662
+  }
+}

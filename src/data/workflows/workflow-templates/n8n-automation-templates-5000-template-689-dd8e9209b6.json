@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-689-dd8e9209b6",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Slack/security_689_schedule_trigger_slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Slack/security_689_schedule_trigger_slack.json"
+  },
+  "name": "Template 689",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 689",
+  "category": "Communication",
+  "tags": [
+    "Templates based on paltforms",
+    "Slack",
+    "schedule",
+    "slack",
+    "medium",
+    "schedule Trigger",
+    "template",
+    "689",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 689",
+    "schedule",
+    "slack",
+    "medium",
+    "schedule trigger",
+    "689 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "schedule",
+    "slack",
+    "medium"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 689",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 1800
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Medium",
+        "type": "n8n-nodes-base.medium",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack": {
+        "main": [
+          [
+            {
+              "node": "Medium",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 689
+  }
+}

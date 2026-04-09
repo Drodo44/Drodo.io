@@ -1,0 +1,110 @@
+{
+  "id": "official-797",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/797",
+    "template_id": 797
+  },
+  "name": "Translate instructions using LingvaNex",
+  "description": "Translate instructions using LingvaNex",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "manual",
+    "LingvaNex",
+    "Manual Trigger",
+    "translate",
+    "instructions",
+    "lingvanex"
+  ],
+  "task_keywords": [
+    "translate instructions using lingvanex",
+    "manual",
+    "lingvanex",
+    "manual trigger",
+    "translate instructions",
+    "instructions lingvanex",
+    "lingvanex translate"
+  ],
+  "required_services": [
+    "manual",
+    "LingvaNex"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "145",
+    "name": "Translate cocktail instructions using LingvaNex",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "LingvaNex",
+        "type": "n8n-nodes-base.lingvaNex",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "text": "={{$node[\"HTTP Request\"].json[\"drinks\"][0][\"strInstructions\"]}}",
+          "options": {},
+          "translateTo": "it_IT"
+        },
+        "credentials": {
+          "lingvaNexApi": "LingvaNex"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "LingvaNex",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

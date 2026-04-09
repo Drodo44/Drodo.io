@@ -1,0 +1,193 @@
+{
+  "id": "n8n-workflow-templates-0197-youtube-telegram-send-scheduled-35ff725ba6",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0197_Youtube_Telegram_Send_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0197_Youtube_Telegram_Send_Scheduled.json"
+  },
+  "name": "0197 Youtube Telegram Send Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0197 Youtube Telegram Send Scheduled",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "function",
+    "interval",
+    "you Tube",
+    "telegram",
+    "0197",
+    "youtube",
+    "send",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0197 youtube telegram send scheduled",
+    "function",
+    "send function",
+    "interval",
+    "send interval",
+    "you tube",
+    "send you tube",
+    "telegram",
+    "send telegram",
+    "0197 youtube",
+    "youtube telegram",
+    "telegram send"
+  ],
+  "required_services": [
+    "function",
+    "interval",
+    "you Tube",
+    "telegram"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          500,
+          510
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "id",
+                "value": "={{$node[\"GetVideosYT\"].json[\"id\"][\"videoId\"]}}"
+              },
+              {
+                "name": "url",
+                "value": "=https://youtu.be/{{$node[\"GetVideosYT\"].json[\"id\"][\"videoId\"]}}"
+              },
+              {
+                "name": "title",
+                "value": "={{$node[\"GetVideosYT\"].json[\"snippet\"][\"title\"]}}"
+              }
+            ],
+            "boolean": []
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Function",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          640,
+          510
+        ],
+        "parameters": {
+          "functionCode": "const new_items = [];\nconst data = this.getWorkflowStaticData('node');\n\ndata.ids = data.ids || [];\n\nfor (var i=0; i<items.length; i++) {\n  if (data.ids.includes(items[i].json.id)) {\n    break;\n  } else {\n    new_items.push({json: {id: items[i].json.id, url: items[i].json.url, title: items[i].json.title}});\n  }\n}\n\ndata.ids = items.map(item => item.json.id)\nreturn new_items;\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "CheckTime",
+        "type": "n8n-nodes-base.interval",
+        "position": [
+          210,
+          510
+        ],
+        "parameters": {
+          "unit": "minutes",
+          "interval": 30
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "GetVideosYT",
+        "type": "n8n-nodes-base.youTube",
+        "position": [
+          370,
+          510
+        ],
+        "parameters": {
+          "limit": 4,
+          "filters": {
+            "channelId": "UCTe5YtigJdZZ3i-za6IkbGQ"
+          },
+          "options": {
+            "order": "date"
+          },
+          "resource": "video"
+        },
+        "credentials": {
+          "youTubeOAuth2Api": "tubo"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SendVideo",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          790,
+          510
+        ],
+        "parameters": {
+          "text": "=Nuovo video di almi su YouTube!\n<b>{{$node[\"Function\"].json[\"title\"]}}</b>\n\n{{$node[\"Function\"].json[\"url\"]}}",
+          "chatId": "-1001178002763",
+          "additionalFields": {
+            "parse_mode": "HTML"
+          }
+        },
+        "credentials": {
+          "telegramApi": "bot raspino"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Function",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Function": {
+        "main": [
+          [
+            {
+              "node": "SendVideo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CheckTime": {
+        "main": [
+          [
+            {
+              "node": "GetVideosYT",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GetVideosYT": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

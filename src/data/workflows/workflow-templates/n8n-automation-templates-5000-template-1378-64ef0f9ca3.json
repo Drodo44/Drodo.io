@@ -1,0 +1,162 @@
+{
+  "id": "n8n-automation-templates-5000-template-1378-64ef0f9ca3",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/rag_agents_1378_calendar_event_trigger_pdf_parser.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/rag_agents_1378_calendar_event_trigger_pdf_parser.json"
+  },
+  "name": "Template 1378",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1378",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "pdfparser",
+    "openai",
+    "mailchimp",
+    "google Calendar Trigger",
+    "template",
+    "1378",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1378",
+    "google calendar",
+    "pdfparser",
+    "openai",
+    "mailchimp",
+    "google calendar trigger",
+    "1378 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "google Calendar",
+    "pdfparser",
+    "openai",
+    "mailchimp"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1378",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PDF Parser",
+        "type": "n8n-nodes-base.pdfparser",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Capture email details and add a subscriber to Mailchimp."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Mailchimp",
+        "type": "n8n-nodes-base.mailchimp",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PDF Parser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PDF Parser": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Mailchimp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1378
+  }
+}

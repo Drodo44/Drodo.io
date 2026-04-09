@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-trigger-restock-from-inventory-sheet-and-send-to-inventory-db-b403c8c79d",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/trigger-restock-inventory-sheet-inventory-db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/trigger-restock-inventory-sheet-inventory-db.json"
+  },
+  "name": "Trigger restock from Inventory sheet and send to Inventory DB",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Trigger restock from Inventory sheet and send to Inventory DB",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "trigger",
+    "restock",
+    "inventory",
+    "sheet",
+    "send"
+  ],
+  "task_keywords": [
+    "trigger restock from inventory sheet and send to inventory db",
+    "slack",
+    "send slack",
+    "webhook",
+    "trigger restock",
+    "restock inventory",
+    "inventory sheet",
+    "sheet send",
+    "send inventory",
+    "inventory n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Trigger restock from Inventory sheet and send to Inventory DB",
+    "nodes": [
+      {
+        "id": "trigger-inventory-sheet",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          175900
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "trigger-restock-from-inventory-sheet-and-send-to-inventory-db",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-inventory-sheet",
+        "name": "Fetch data from Inventory sheet",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          175900
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/inventory-sheet",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-inventory-db",
+        "name": "Send to Inventory DB",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          175900
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/inventory-db",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-175900",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          175900
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Inventory sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Inventory sheet": {
+        "main": [
+          {
+            "node": "Send to Inventory DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Inventory DB": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "n8n-workflow-templates-0191-manual-slack-automation-webhook-1649ac19ae",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0191_Manual_Slack_Automation_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0191_Manual_Slack_Automation_Webhook.json"
+  },
+  "name": "0191 Manual Slack Automation Webhook",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0191 Manual Slack Automation Webhook",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "manual",
+    "slack",
+    "Manual Trigger",
+    "0191",
+    "automation",
+    "webhook",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0191 manual slack automation webhook",
+    "manual",
+    "slack",
+    "manual trigger",
+    "0191 manual",
+    "manual slack",
+    "slack automation",
+    "automation webhook",
+    "webhook n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "manual",
+    "slack"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          160,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Download the file",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          420,
+          300
+        ],
+        "parameters": {
+          "url": "https://n8n.io/_nuxt/img/sync-data-between-apps.a4be8c7.png",
+          "options": {},
+          "responseFormat": "file"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Post to Slack",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          640,
+          300
+        ],
+        "parameters": {
+          "options": {
+            "channelIds": [
+              "C02GP22NHJ6"
+            ],
+            "initialComment": "This is the file"
+          },
+          "resource": "file",
+          "binaryData": true,
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "slackOAuth2Api": {
+            "id": "124",
+            "name": "cloud_demo"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Download the file": {
+        "main": [
+          [
+            {
+              "node": "Post to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Download the file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

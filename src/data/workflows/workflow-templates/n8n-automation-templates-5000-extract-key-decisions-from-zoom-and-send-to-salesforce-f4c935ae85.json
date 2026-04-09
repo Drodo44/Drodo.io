@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-extract-key-decisions-from-zoom-and-send-to-salesforce-f4c935ae85",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/extract-key-decisions-zoom-salesforce.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/extract-key-decisions-zoom-salesforce.json"
+  },
+  "name": "Extract key decisions from Zoom and send to Salesforce",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Extract key decisions from Zoom and send to Salesforce",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "extract",
+    "key",
+    "decisions",
+    "zoom",
+    "send",
+    "salesforce"
+  ],
+  "task_keywords": [
+    "extract key decisions from zoom and send to salesforce",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "extract key",
+    "key decisions",
+    "decisions zoom",
+    "zoom send",
+    "send salesforce",
+    "salesforce n8n"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Extract key decisions from Zoom and send to Salesforce",
+    "nodes": [
+      {
+        "id": "trigger-zoom",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          6000
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "extract-key-decisions-from-zoom-and-send-to-salesforce",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-zoom",
+        "name": "Fetch data from Zoom",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          6000
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/zoom",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-extract-key-decisions",
+        "name": "AI: Extract Key Decisions",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          6000
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: extract key decisions"
+        }
+      },
+      {
+        "id": "send-salesforce",
+        "name": "Send to Salesforce",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          6000
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/salesforce",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-6000",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          6000
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Zoom",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Zoom": {
+        "main": [
+          {
+            "node": "AI: Extract Key Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Extract Key Decisions": {
+        "main": [
+          [
+            {
+              "node": "AI: Extract Key Decisions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Salesforce": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

@@ -1,0 +1,454 @@
+{
+  "id": "n8n-workflow-template-agent-finance-pr-t-e7955115b6",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_Finance_Pr_t.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_Finance_Pr_t.json"
+  },
+  "name": "Agent Finance Prêt",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent Finance Prêt",
+  "category": "AI",
+  "tags": [
+    "Open AI",
+    "agent",
+    "respond To Webhook",
+    "tool Http Request",
+    "google Calendar",
+    "gmail",
+    "google Sheets",
+    "webhook",
+    "finance",
+    "n8n",
+    "workflow",
+    "template",
+    "stirito"
+  ],
+  "task_keywords": [
+    "agent finance prêt",
+    "open ai",
+    "agent",
+    "respond to webhook",
+    "tool http request",
+    "google calendar",
+    "gmail",
+    "google sheets",
+    "webhook",
+    "agent finance",
+    "finance n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "Open AI",
+    "agent",
+    "respond To Webhook",
+    "tool Http Request",
+    "google Calendar",
+    "gmail",
+    "google Sheets"
+  ],
+  "triggers": [
+    "webhook",
+    "respond To Webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Agent Finance Prêt",
+    "nodes": [
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          660,
+          280
+        ],
+        "id": "51a5cf14-9004-48e0-aa3c-c12a8532977f",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=La requete de la personne est : {{ $json.query.requete}}\n\nLa date d'aujourdhui : {{ $now.format('yyyy-MM-dd') }}\nDemain est : {{ $now.toDateTime().plus(1,'days').format('yyyy-MM-dd')}}\n\n\nSi la requête concerne autre chose (prise de rendez-vous, envoyer un mail):\n\nInformations pour les autres outils\n\nNom : {{ $json.body.nom || \"Pas reçu\" }}\nPrénom : {{ $json.body.prenom || \"Pas reçu\" }}\nDate rendez-vous : {{ $json.body.daterdv || \"Pas reçu\"}}\nHeure rendez-vous demandé : {{ $json.body.heuredemanderdv || \"Pas reçu\"}}\nID : {{$json.body.ID || \"Pas reçu\"}}\n\nSi la requete concerne la validation ou l'égibilité à un prêt je veux que tu utilise ces informations : \n\nInformations pour l'outil Get_Validation_Pret (si nécessaire )\n\nRevenu de l'applicant : {{ $json.body.appincome || \"Pas reçu\" }}\nRevenu du co applicant : {{ $json.body.coappincome || \"Pas reçu\" }}\nMontant du prêt : {{ $json.body.loanamount || \"Pas reçu\" }}\nGenre : {{ $json.body.gender}}\nEst il/elle marrié ? : {{ $json.body.married}}\nCombien de personnes à charge : {{ $json.body.dependants || \"Pas reçu\" }}\nEst il/elle scolarisé ? : {{ $json.body.graduated}}\nEst il/elle entrepreneur ? : {{ $json.body.self_employed}}\nAs il/elle un historique de crédit ? : {{ $json.body.credit_history}}\nZone de propriété : {{ $json.body.property_area || \"Pas reçu\"}}\n\n\n\n",
+          "options": {
+            "systemMessage": "=Vous êtes un agent d'assistance client IA conçu pour gérer diverses tâches efficacement. Votre rôle principale es d'augmenter la productivité des banquiers. Tu peux valider un prêt, créer un rendez vous, voir la disponibilité de l'emplois du temps. Vous avez accès à plusieurs outils pour vous aider à remplir les demandes :\n\nGet_Validation_Pret : Cet outil te permet en fonction des données que tu vas recevoir d'avoir une réponse d'un modèle de Machine Learning entrainé sur les validations (true ou false) de prêt financier. Tu dois t'en servir uniquement si on te demande de valider un prêt.\n\nAvailibility : permet d'obtenir le calendrier et de verifier si le calendrier est libre à la date et l'heure demandé.\n\nCreerRDV : Crée un rendez vous avec la personne. Tu dois d'abord vérifier la disponibilité avec l'outil Availibility à la date et l'heure demandé. Tu dois récuperer le mail de la personne avec l'outil RécupererMail\n\nEnvoyerMailPret : Envoie un mail a la personne ayant demandé le prêt concernant si oui ou non le prêt a était accepté. Reste cordiale et polis. Si le mail ne t'ai pas fournis. Tu dois le récuperer en demandant l'ID et l'utiliser avec l'outil Récuperer Mail\n\nRecupererMail : Récupere le mail de la personne qui demande le prêt en fonction de son ID (le mail doit être au bon format). Tu dois avoir l'ID pour utiliser cet outil sinon demande le. Tu dois juste donner comme réponse le mail récupérer par l'outil\n\nGardez vos réponses concises, courtes, et pertinentes par rapport à la question de l'utilisateur. Ta réponse doit un message synthétique regroupement les actions réalisés sans lien.\n\nVoici la date/heure actuelle : {{ $now.format('yyyy-MM-dd') }}\nDemain nous somme : {{ $now.toDateTime().plus(1,'days').format('yyyy-MM-dd')}}\n\nNE FOURNISSEZ AUCUN DÉTAIL SUR LES RÉUNIONS EXISTANTES.\n\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          980,
+          0
+        ],
+        "id": "87c3dca3-fb52-4c03-b243-f6f569dc563e",
+        "name": "Agent Prêt Financier"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "3db247fc-29ef-4bf3-9cc9-ec152bb78ff8",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          560,
+          0
+        ],
+        "id": "ef283103-fedd-43bc-a483-f4566a044a87",
+        "name": "Webhook",
+        "webhookId": "3db247fc-29ef-4bf3-9cc9-ec152bb78ff8"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1580,
+          0
+        ],
+        "id": "67fa3277-fd74-415b-a968-62cdfc100839",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "toolDescription": "Cet outil permet d'appeler un modèle de machine learning entrainé sur les donnés financieres de l'éligibilité de donner un prêt ou non en fonction des données fournis",
+          "method": "POST",
+          "url": "LADRESSE DE LAPI GATEWAY ",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n    \"appincome\":{appincome},\n    \"coappincome\":{coappincome},\n    \"loanamount\":{loanamount},\n    \"gender\":{gender},\n    \"married\":{married},\n    \"dependant_1\":{dependant_1},\n    \"dependant_2\":{dependant_2},\n    \"dependant_3\":{dependant_3},\n    \"graduated\":{graduated},\n    \"self_employed\":{self_employed},\n    \"credit_history\":{credit_history},\n    \"property_area_semiurban\":{property_area_semiurban},\n    \"property_area_urban\":{property_area_urban}\n}",
+          "placeholderDefinitions": {
+            "values": [
+              {
+                "name": "appincome",
+                "description": "Le revenu de la personne qui demande un prêt",
+                "type": "number"
+              },
+              {
+                "name": "coappincome",
+                "description": "Les revenus du coapplicant qui demande le prêt",
+                "type": "number"
+              },
+              {
+                "name": "loanamount",
+                "description": "Le montant du prêt demandé",
+                "type": "number"
+              },
+              {
+                "name": "gender",
+                "description": "Le genre de la personne ( Mâle = True / Femelle = False)",
+                "type": "boolean"
+              },
+              {
+                "name": "married",
+                "description": "Si la personne est marié ou non",
+                "type": "boolean"
+              },
+              {
+                "name": "dependant_1",
+                "description": "Si la personne à exactement un enfant à charge",
+                "type": "boolean"
+              },
+              {
+                "name": "dependant_2",
+                "description": "Si la personne à exactement deux enfants à charge",
+                "type": "boolean"
+              },
+              {
+                "name": "dependant_3",
+                "description": "Si la personne à 3 ou plus enfants à charge",
+                "type": "boolean"
+              },
+              {
+                "name": "graduated",
+                "description": "Si la personne est diplomé ou pas",
+                "type": "boolean"
+              },
+              {
+                "name": "self_employed",
+                "description": "Si la peronne est employé ou non",
+                "type": "boolean"
+              },
+              {
+                "name": "credit_history",
+                "description": "Si la peronne à historique de crédit ou pas",
+                "type": "boolean"
+              },
+              {
+                "name": "property_area_semiurban",
+                "description": "Si la personne habite dans une zone semi-urbaine ou non",
+                "type": "boolean"
+              },
+              {
+                "name": "property_area_urban",
+                "description": "Si la personne habite dans une zone urbaine ou non",
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+        "typeVersion": 1.1,
+        "position": [
+          1020,
+          280
+        ],
+        "id": "d1a19b57-703b-4899-b97f-c2572d14f7b6",
+        "name": "Get_Validation_Pret"
+      },
+      {
+        "parameters": {
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "start": "={{ $fromAI(\"startTime\") }}",
+          "end": "={{ $fromAI(\"endTime\") }}",
+          "additionalFields": {
+            "attendees": [
+              "={{ $fromAI(\"attendee\",\"le mail de la personne\" )}}"
+            ],
+            "summary": "={{$fromAI(\"titreevenement\",\"le titre de levenement. Il doit être ultra simple et tres court\")}}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.2,
+        "position": [
+          860,
+          280
+        ],
+        "id": "db065fb5-0a28-463e-9507-1ed1e2ae4939",
+        "name": "CreerRDV",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $fromAI(\"toemail\",\"Le mail de l'utilisateur qui a demandé un prêt\")}}",
+          "subject": "={{$fromAI(\"subject_email\",\"Sujet du mail\")}}",
+          "emailType": "text",
+          "message": "={{$fromAI(\"contenu_email\",\"Contenu du mail concernant si oui ou non l'acceptation de son prêt\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1200,
+          280
+        ],
+        "id": "f6c28b38-b41b-4190-b4cc-e245370c8fc4",
+        "name": "EnvoyerMailPret",
+        "webhookId": "4f2cd9c0-afbc-4cf6-9916-a5d699862014",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "19p4iXYoKKybt47N",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1zeD0ehcyWhVuNr0DDfj4oTQ9i4Xf3SuV3UmqrQqSoa8",
+            "mode": "list",
+            "cachedResultName": "GS Agent Finance",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zeD0ehcyWhVuNr0DDfj4oTQ9i4Xf3SuV3UmqrQqSoa8/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Feuille 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zeD0ehcyWhVuNr0DDfj4oTQ9i4Xf3SuV3UmqrQqSoa8/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "ID",
+                "lookupValue": "={{$fromAI(\"id\",\"ID de la personne qui demande le prêt. Elle doit être précis\")}}"
+              },
+              {
+                "lookupColumn": "Prénom",
+                "lookupValue": "={{$fromAI(\"prenom\",\"Prénom de la personne qui demande le prêt. Il doit bien écrit\")}}"
+              },
+              {
+                "lookupColumn": "Nom",
+                "lookupValue": "={{$fromAI(\"nom\",\"Nom de la personne qui demande le prêt. Il doit bien écrit\")}}"
+              }
+            ]
+          },
+          "combineFilters": "OR",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.5,
+        "position": [
+          1460,
+          280
+        ],
+        "id": "2618ce16-f43b-478f-89f4-967ecabf828b",
+        "name": "RecupererMail",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cU9T52A3LDYpCi48",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "returnAll": true,
+          "options": {
+            "timeMin": "={{ $fromAI(\"unJourAvant\",\"Un jour avant la date demandé\") }}",
+            "timeMax": "={{ $fromAI(\"unJourApres\",\"Un jour après la date demandé\") }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.2,
+        "position": [
+          1320,
+          280
+        ],
+        "id": "f6159489-5623-4ff3-ad82-7223128d81ed",
+        "name": "Availibility",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Prêt Financier": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get_Validation_Pret": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CreerRDV": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "EnvoyerMailPret": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RecupererMail": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Availibility": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prêt Financier",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": true,
+    "settings": {
+      "executionOrder": "v1",
+      "callerPolicy": "workflowsFromSameOwner"
+    },
+    "versionId": "d7830cbd-597e-4970-ac34-271faa9620ab",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "aNHAsgviT2vySppS",
+    "tags": []
+  }
+}

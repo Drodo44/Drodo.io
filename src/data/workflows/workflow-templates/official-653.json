@@ -1,0 +1,69 @@
+{
+  "id": "official-653",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/653",
+    "template_id": 653
+  },
+  "name": "Receive updates when a billing plan is activated in PayPal",
+  "description": "Receive updates when a billing plan is activated in PayPal",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "PayPal",
+    "PayPal Trigger",
+    "receive",
+    "updates",
+    "when",
+    "billing",
+    "plan",
+    "activated"
+  ],
+  "task_keywords": [
+    "receive updates when a billing plan is activated in paypal",
+    "paypal",
+    "update paypal",
+    "paypal trigger",
+    "receive updates",
+    "updates when",
+    "when billing",
+    "billing plan",
+    "plan activated",
+    "activated paypal",
+    "paypal receive"
+  ],
+  "required_services": [
+    "PayPal"
+  ],
+  "triggers": [
+    "PayPal Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "46",
+    "name": "Receive updates when a billing plan is activated in PayPal",
+    "nodes": [
+      {
+        "name": "PayPal Trigger",
+        "type": "n8n-nodes-base.payPalTrigger",
+        "position": [
+          1130,
+          620
+        ],
+        "webhookId": "242a300e-b5a0-45a2-87bc-40def6fe56ef",
+        "parameters": {
+          "events": [
+            "BILLING.PLAN.ACTIVATED"
+          ]
+        },
+        "credentials": {
+          "payPalApi": "paypal"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

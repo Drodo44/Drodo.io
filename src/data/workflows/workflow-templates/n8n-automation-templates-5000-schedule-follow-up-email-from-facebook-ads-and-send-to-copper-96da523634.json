@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-schedule-follow-up-email-from-facebook-ads-and-send-to-copper-96da523634",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/schedule-follow-up-email-facebook-ads-copper.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/schedule-follow-up-email-facebook-ads-copper.json"
+  },
+  "name": "Schedule follow-up email from Facebook Ads and send to Copper",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Schedule follow-up email from Facebook Ads and send to Copper",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "schedule",
+    "follow",
+    "email",
+    "facebook",
+    "ads",
+    "send"
+  ],
+  "task_keywords": [
+    "schedule follow-up email from facebook ads and send to copper",
+    "slack",
+    "send slack",
+    "webhook",
+    "schedule follow",
+    "follow email",
+    "email facebook",
+    "facebook ads",
+    "ads send",
+    "send copper",
+    "copper n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Schedule follow-up email from Facebook Ads and send to Copper",
+    "nodes": [
+      {
+        "id": "trigger-facebook-ads",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          33200
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "schedule-follow-up-email-from-facebook-ads-and-send-to-copper",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-facebook-ads",
+        "name": "Fetch data from Facebook Ads",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          33200
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/facebook-ads",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-copper",
+        "name": "Send to Copper",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          33200
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/copper",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-33200",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          33200
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Facebook Ads",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Facebook Ads": {
+        "main": [
+          {
+            "node": "Send to Copper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Copper": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "id": "n8n-automation-templates-5000-template-1683-76005171ed",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/travel_&_booking_1683_email_trigger_email_to_slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/travel_&_booking_1683_email_trigger_email_to_slack.json"
+  },
+  "name": "Template 1683",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1683",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "email",
+    "slack",
+    "hubspot",
+    "gmail Trigger",
+    "template",
+    "1683",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1683",
+    "gmail",
+    "email",
+    "slack",
+    "hubspot",
+    "gmail trigger",
+    "1683 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "gmail",
+    "email",
+    "slack",
+    "hubspot"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1683",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Email",
+        "type": "n8n-nodes-base.email",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "HubSpot",
+        "type": "n8n-nodes-base.hubspot",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack": {
+        "main": [
+          [
+            {
+              "node": "HubSpot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1683
+  }
+}

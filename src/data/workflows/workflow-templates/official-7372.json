@@ -1,0 +1,949 @@
+{
+  "id": "official-7372",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7372",
+    "template_id": 7372
+  },
+  "name": "Automated content strategy with Google Trends, News, Firecrawl & Claude AI",
+  "description": "📺 Full walkthrough video: https://youtu.be/dXz5OTbm4c8 Automated trend monitoring for content strategy Who's it for Content creators, marketers, and social media managers who want to stay ahead of emerging trends and generate relevant content ideas based on data driven insights.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "Multimodal AI",
+    "Google Sheets",
+    "Structured Output Parser",
+    "Loop Over Items (Split in Batches)",
+    "Anthropic Chat Model",
+    "serp API",
+    "firecrawl",
+    "Schedule Trigger",
+    "automated",
+    "content",
+    "strategy",
+    "google",
+    "trends"
+  ],
+  "task_keywords": [
+    "automated content strategy with google trends, news, firecrawl & claude ai",
+    "google sheets",
+    "monitor google sheets",
+    "structured output parser",
+    "monitor structured output parser",
+    "loop over items (split in batches)",
+    "monitor loop over items (split in batches)",
+    "anthropic chat model",
+    "monitor anthropic chat model",
+    "serp api",
+    "monitor serp api",
+    "firecrawl"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Structured Output Parser",
+    "Loop Over Items (Split in Batches)",
+    "Anthropic Chat Model",
+    "serp API",
+    "firecrawl"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263"
+    },
+    "nodes": [
+      {
+        "id": "33e255b5-f53d-4abd-8c26-422aa80b15ee",
+        "name": "Get Query",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -2800,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "6fc7735a-c387-4eb1-8fa9-3b72638616c6",
+        "name": "Add datas",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -704,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "e4780fe5-46ae-4e5b-9580-ff69a2aa2118",
+        "name": "Structured Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          -1424,
+          2304
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "22e998bb-8786-47c8-92fa-240d4802025a",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -2576,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "1c104fbd-2abf-48fd-b175-66278eedf3ba",
+        "name": "Anthropic Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          -1568,
+          2304
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "a7ec9151-75e7-433d-8c00-50c9f68bd660",
+        "name": "Search trend",
+        "type": "n8n-nodes-serpapi.serpApi",
+        "onError": "continueRegularOutput",
+        "maxTries": 5,
+        "position": [
+          -2304,
+          2128
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1
+      },
+      {
+        "id": "d86685bb-22c8-4cb8-aea9-736f7b44582a",
+        "name": "Classing query",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1872,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "95d803cf-01c0-47a7-ac53-416ea1531e5f",
+        "name": "Sorting queries",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -1568,
+          2128
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1.7
+      },
+      {
+        "id": "22acba62-5ac7-4b81-ab22-c08aefa1f84a",
+        "name": "Sorting output > table",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1024,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "b770ab6f-f954-4f9f-980e-2946ed32d93b",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -3008,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "e7b14044-d0fb-4390-9792-d108fd5eff04",
+        "name": "Trends OK ?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -2096,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "f224008f-f8cd-45cf-803e-78cc6ea57a7e",
+        "name": "Create sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -704,
+          2000
+        ],
+        "parameters": {},
+        "executeOnce": true,
+        "typeVersion": 4.6
+      },
+      {
+        "id": "7464748a-0450-41c7-9f80-3e2cd662b18f",
+        "name": "Sort related query",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -464,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "619e65e9-a51e-4019-8de3-93fe8d9e0aa5",
+        "name": "Search GNews query 1",
+        "type": "n8n-nodes-serpapi.serpApi",
+        "position": [
+          48,
+          1696
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "549c24ff-247a-489d-bede-ac47fcf732c1",
+        "name": "Search GNews query 2",
+        "type": "n8n-nodes-serpapi.serpApi",
+        "position": [
+          16,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "859738c2-3655-4d8e-bafd-3c4b27081d72",
+        "name": "Search GNews query 3",
+        "type": "n8n-nodes-serpapi.serpApi",
+        "position": [
+          32,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "e0195ecb-91b4-49aa-9654-dd0e44eb7296",
+        "name": "Return URL only query 1",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueErrorOutput",
+        "position": [
+          240,
+          1696
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "ed299f19-94bf-4f55-9a12-0d0173c98564",
+        "name": "Article analysis query 1",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          1280,
+          1696
+        ],
+        "parameters": {},
+        "executeOnce": true,
+        "typeVersion": 1.7
+      },
+      {
+        "id": "9c86a0e5-42fa-45b9-ab10-fda6e56cc53e",
+        "name": "Article analysis query 2",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          1280,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 1.7
+      },
+      {
+        "id": "196a1f55-bd5f-4f4d-af82-d97280c156ba",
+        "name": "Article analysis query 3",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          1280,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 1.7
+      },
+      {
+        "id": "0c45f73c-8f74-4323-b713-30d96560f4a3",
+        "name": "Add article datas query 1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          1696
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "a4e2b222-b673-492d-8ec1-b0e8436ec90d",
+        "name": "Merge queries",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          1808,
+          2112
+        ],
+        "parameters": {},
+        "executeOnce": true,
+        "typeVersion": 3.2
+      },
+      {
+        "id": "6c99244e-2e1b-4705-843d-f3c2c0946e23",
+        "name": "Switch",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          -272,
+          2112
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "6af6fd2e-5891-4231-94e0-282b252f5c82",
+        "name": "Scrape query 1",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "onError": "continueRegularOutput",
+        "position": [
+          800,
+          1696
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "7ec7db4d-f335-4a0c-8d10-b5877f80baf7",
+        "name": "Return URL only query 2",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueErrorOutput",
+        "position": [
+          240,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "0b8d4d78-45e1-4cce-8343-f60d7e89a101",
+        "name": "Return URL only query 3",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueErrorOutput",
+        "position": [
+          240,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "bb3ca971-4bcb-457c-81c5-83bbdc651150",
+        "name": "Scrape query 3",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "onError": "continueRegularOutput",
+        "position": [
+          784,
+          2576
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "3aa9ee0d-fee9-40ba-a886-ffee265009ec",
+        "name": "Scrape query 2",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "onError": "continueRegularOutput",
+        "position": [
+          784,
+          2128
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "f2d10106-315a-4a73-836a-77306395a8ee",
+        "name": "Clean markdown for AI Query 1",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          992,
+          1696
+        ],
+        "parameters": {},
+        "typeVersion": 2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "cdc8859b-adf2-4d7e-b116-79a961100ce7",
+        "name": "Clean markdown for AI Query 2",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          992,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "0c5542c4-decb-4e00-bbb9-e369585c515e",
+        "name": "Clean markdown for AI Query 3",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          992,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "f13905ac-cc19-4288-a290-43779e06dd2f",
+        "name": "Sonnet 4.6",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          1280,
+          2752
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "4200f362-23c5-4c68-9324-4f09c480a28b",
+        "name": "Add article datas query 2",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          2128
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "27fbb5d7-d520-4b76-8326-4d322cbe920c",
+        "name": "Add article datas query 3",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          2576
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "77ba6909-e8d1-4ba8-bf49-ecd3596e21cd",
+        "name": "Article error google sheets query 1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          1840
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "a3fc5e75-1744-4556-88d1-caba689ca544",
+        "name": "Article error google sheets query 2",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          2288
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "2062bb1f-d880-49e7-a22a-6191910c7467",
+        "name": "Article error google sheets query 3",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1600,
+          2720
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Search GNews query 1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Search GNews query 2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Search GNews query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add datas": {
+        "main": [
+          [
+            {
+              "node": "Sort related query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Query": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sonnet 4.6": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Article analysis query 3",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Article analysis query 2",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Article analysis query 1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Trends OK ?": {
+        "main": [
+          [
+            {
+              "node": "Classing query",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search trend": {
+        "main": [
+          [
+            {
+              "node": "Trends OK ?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge queries": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classing query": {
+        "main": [
+          [
+            {
+              "node": "Sorting queries",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape query 1": {
+        "main": [
+          [
+            {
+              "node": "Clean markdown for AI Query 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape query 2": {
+        "main": [
+          [
+            {
+              "node": "Clean markdown for AI Query 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape query 3": {
+        "main": [
+          [
+            {
+              "node": "Clean markdown for AI Query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Search trend",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sorting queries": {
+        "main": [
+          [
+            {
+              "node": "Sorting output > table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sort related query": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anthropic Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Sorting queries",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search GNews query 1": {
+        "main": [
+          [
+            {
+              "node": "Return URL only query 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search GNews query 2": {
+        "main": [
+          [
+            {
+              "node": "Return URL only query 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search GNews query 3": {
+        "main": [
+          [
+            {
+              "node": "Return URL only query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sorting output > table": {
+        "main": [
+          [
+            {
+              "node": "Create sheets",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Add datas",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Return URL only query 1": {
+        "main": [
+          [
+            {
+              "node": "Scrape query 1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Article error google sheets query 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Return URL only query 2": {
+        "main": [
+          [
+            {
+              "node": "Scrape query 2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Article error google sheets query 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Return URL only query 3": {
+        "main": [
+          [
+            {
+              "node": "Scrape query 3",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Article error google sheets query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article analysis query 1": {
+        "main": [
+          [
+            {
+              "node": "Add article datas query 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article analysis query 2": {
+        "main": [
+          [
+            {
+              "node": "Add article datas query 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article analysis query 3": {
+        "main": [
+          [
+            {
+              "node": "Add article datas query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Sorting queries",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add article datas query 1": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add article datas query 2": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Add article datas query 3": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Clean markdown for AI Query 1": {
+        "main": [
+          [
+            {
+              "node": "Article analysis query 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean markdown for AI Query 2": {
+        "main": [
+          [
+            {
+              "node": "Article analysis query 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean markdown for AI Query 3": {
+        "main": [
+          [
+            {
+              "node": "Article analysis query 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article error google sheets query 1": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Article error google sheets query 2": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Article error google sheets query 3": {
+        "main": [
+          [
+            {
+              "node": "Merge queries",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

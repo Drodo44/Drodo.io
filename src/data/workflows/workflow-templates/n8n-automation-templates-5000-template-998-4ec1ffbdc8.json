@@ -1,0 +1,156 @@
+{
+  "id": "n8n-automation-templates-5000-template-998-4ec1ffbdc8",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Eventbrite/event_management_998_webhook_eventbrite_to_google_calendar.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Eventbrite/event_management_998_webhook_eventbrite_to_google_calendar.json"
+  },
+  "name": "Template 998",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 998",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Eventbrite",
+    "eventbrite",
+    "googlecalendar",
+    "homeassistant",
+    "webhook",
+    "template",
+    "998",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 998",
+    "eventbrite",
+    "googlecalendar",
+    "homeassistant",
+    "webhook",
+    "998 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "eventbrite",
+    "googlecalendar",
+    "homeassistant"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 998",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-998",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Eventbrite",
+        "type": "n8n-nodes-base.eventbrite",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Calendar",
+        "type": "n8n-nodes-base.googlecalendar",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Home Assistant",
+        "type": "n8n-nodes-base.homeassistant",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Eventbrite",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Eventbrite": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Calendar": {
+        "main": [
+          [
+            {
+              "node": "Home Assistant",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 998
+  }
+}

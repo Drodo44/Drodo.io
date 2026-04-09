@@ -1,0 +1,687 @@
+{
+  "id": "official-8452",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8452",
+    "template_id": 8452
+  },
+  "name": "Send automated weekly news digest from Google News to Discord",
+  "description": "📺 Full walkthrough video: https://youtu.be/QHvfykuSbF8 ⚠️ Self hosted only — This template uses a community node (Firecrawl) and cannot run on n8n Cloud.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "AI RAG",
+    "Anthropic Chat Model",
+    "Loop Over Items (Split in Batches)",
+    "serp API",
+    "Discord",
+    "Data table",
+    "firecrawl",
+    "Schedule Trigger",
+    "send",
+    "automated",
+    "weekly",
+    "news",
+    "digest"
+  ],
+  "task_keywords": [
+    "send automated weekly news digest from google news to discord",
+    "anthropic chat model",
+    "send anthropic chat model",
+    "loop over items (split in batches)",
+    "send loop over items (split in batches)",
+    "serp api",
+    "send serp api",
+    "discord",
+    "send discord",
+    "data table",
+    "send data table",
+    "firecrawl"
+  ],
+  "required_services": [
+    "Anthropic Chat Model",
+    "Loop Over Items (Split in Batches)",
+    "serp API",
+    "Discord",
+    "Data table",
+    "firecrawl"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263"
+    },
+    "nodes": [
+      {
+        "id": "2329283c-ce3a-4412-ac45-573850ce65e7",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3600,
+          -736
+        ],
+        "parameters": {
+          "width": 816,
+          "height": 336,
+          "content": "## Need more advanced automation solutions? Contact us for custom enterprise workflows!\n\n# Growth-AI.fr\n\n## https://www.linkedin.com/in/allanvaccarizi/\n## https://www.linkedin.com/in/hugo-marinier-%F0%9F%A7%B2-6537b633/"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "81f896e8-b323-4acd-bdd8-d2e44d104eb8",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2752,
+          -768
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "![Logo Growth AI](https://cdn.prod.website-files.com/6825df5b20329ba581df4914/68d413c43f8729fa336568a6_Logo_horizontal.png)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "581b68b8-ac61-4dd0-ac95-ba591a0f7f85",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4080,
+          -304
+        ],
+        "parameters": {
+          "width": 480,
+          "height": 944,
+          "content": "## Untitled workflow\n\n### How it works\n\n1. A schedule trigger fires and fetches a list of watch topics from a data table, then loops over each topic.\n2. For each topic, the workflow searches Google News via SerpAPI, extracts the article URLs, and scrapes the full article content using Firecrawl.\n3. The scraped markdown is cleaned and passed to an Anthropic Claude LLM chain, which writes a structured news digest entry for that topic.\n4. Once all topics are processed, the compiled digests are aggregated and split into Discord-safe message chunks, while an intro message is sent immediately.\n5. Each digest chunk is sent to Discord in a loop, and a conclusion message is sent at the end to close the broadcast.\n\n### Setup steps\n\n- - [ ] Configure the **Schedule Trigger** with your desired run frequency (e.g., daily, weekly).\n- - [ ] Set up the **Get row(s)** node with credentials for your data table source (e.g., NocoDB, Airtable) and ensure it contains the list of watch topics.\n- - [ ] Add your **SerpAPI** API key to the Search GNews node for Google News searches.\n- - [ ] Add your **Firecrawl** API key to the Scrape article node for web scraping.\n- - [ ] Configure **Anthropic** credentials in the Anthropic Chat Model sub-node for the AI digest writing step.\n- - [ ] Set up the **Discord** nodes (Intro, Veille, Conclusion) with a Discord bot token and the correct channel ID.\n\n### Customization\n\nYou can adjust the AI prompt in 'Rédaction veille' to change the tone or format of the digest. The 'Découpage message discord' code node controls the Discord message chunk size — modify it if you hit Discord's 2000-character limit. You can also change the search query logic in 'Search GNews' to filter by language, region, or date range."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e3280242-6dcd-4f32-862f-2a72af245942",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3520,
+          176
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 608,
+          "height": 304,
+          "content": "## Schedule and fetch topics\n\nTriggers the workflow on a schedule, fetches the list of watch topics from a data table, and feeds them into the processing loop."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9b7da681-f7ca-403a-bee3-cbdffc1f069b",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2768,
+          144
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 400,
+          "height": 320,
+          "content": "## Search news and extract URLs\n\nFor each topic, searches Google News via SerpAPI and extracts only the relevant article URLs with a code node."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0f359031-01f8-425b-9ae1-3f2d68aa1320",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2272,
+          176
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 816,
+          "height": 464,
+          "content": "## Scrape, clean, and summarise\n\nScrapes the full article content via Firecrawl, cleans the raw markdown for AI consumption, then uses an Anthropic LLM chain to write a structured digest entry for the topic."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a714917d-55be-48dd-a7ce-dbd17004b7eb",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2832,
+          -272
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 896,
+          "height": 384,
+          "content": "## Aggregate and prepare Discord messages\n\nAggregates all topic digests into one dataset, sends an intro message to Discord, and splits the full digest into Discord-safe chunks ready for sequential sending."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6961f89e-69fd-436f-bd13-c8a5d1c678c4",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1904,
+          -304
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 624,
+          "height": 448,
+          "content": "## Send digest to Discord\n\nLoops over each message chunk and sends it to Discord, then sends a final conclusion message to close the broadcast."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d9c479e9-0ace-4ca5-a3bc-ff72bd64a290",
+        "name": "Claude Sonnet 4.6",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          -1760,
+          480
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "claude-sonnet-4-6",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {
+            "maxTokensToSample": 20000
+          }
+        },
+        "credentials": {
+          "anthropicApi": {
+            "id": "WXQf5QsxCs3AyxlW",
+            "name": "Anthropic account"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "ff784c86-27fb-488a-b2ec-828a47c1985d",
+        "name": "Every Monday at 9am",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -3472,
+          304
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 9 * * 1"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "389a8687-0fc0-4339-8eed-a114e1e5a3ca",
+        "name": "Loop Over Watch Topics",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -3056,
+          304
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "3328eb5e-be5a-4dae-882b-24b420aa6229",
+        "name": "Search Google News via SerpAPI",
+        "type": "n8n-nodes-serpapi.serpApi",
+        "position": [
+          -2720,
+          304
+        ],
+        "parameters": {
+          "q": "={{ $json.Query }}",
+          "operation": "google_news",
+          "requestOptions": {},
+          "additionalFields": {}
+        },
+        "credentials": {
+          "serpApi": {
+            "id": "w1oDmQzMKE4Wcj2P",
+            "name": "SerpAPI account"
+          }
+        },
+        "retryOnFail": true,
+        "typeVersion": 1
+      },
+      {
+        "id": "eb42701a-7e71-474c-bb9c-fc26244c8802",
+        "name": "Draft Watch Summary with AI",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "maxTries": 5,
+        "position": [
+          -1760,
+          304
+        ],
+        "parameters": {
+          "text": "=Source 1\nURL : {{ $('Clean Markdown for AI').all()[0].json.link }}\nDate : {{ $('Clean Markdown for AI').all()[0].json.date }}\nContenu de l'article : {{ $('Clean Markdown for AI').all()[0].json.markdown_clean }}\n\nSource 2\nURL : {{ $('Clean Markdown for AI').all()[1].json.link }}\nDate : {{ $('Clean Markdown for AI').all()[1].json.date }}\nContenu de l'article : {{ $('Clean Markdown for AI').all()[1].json.markdown_clean }}\n\nSource 3\nURL : {{ $('Clean Markdown for AI').all()[2].json.link }}\nDate : {{ $('Clean Markdown for AI').all()[2].json.date }}\nContenu de l'article : {{ $('Clean Markdown for AI').all()[2].json.markdown_clean }}",
+          "batching": {},
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=Voilà le contenu de 3 article sur le thème \"{{ $('Loop Over Watch Topics').first().json.Query }}\".\n\n\n# Mission\nAnalysez les articles fournis et produisez une synthèse structurée.\n\n# Format de sortie requis\n\nUne fois au début : Veille **{{ $('Loop Over Watch Topics').first().json.Query }}**\n\nPuis pour chaque article, suivez exactement cette structure :\n\n```\n# Article [Titre]\n\n**Média :** [Nom du média]\n**Date :** [Date de publication]  \n**Lien :** [URL]\n**Résumé :** [2-3 phrases sur le contenu principal]\n\n---\n```\n\n## Consignes\n- Respecter l'ordre : Média → Date → Lien → Résumé\n- Numéroter les articles dans l'ordre d'apparition\n- Résumé maximum 3 phrases\n- Si une info manque, indiquer \"Non disponible\"\n\nSi il manque les informations d'un article ignore le et fait un rendu conséquent au nombre d'article que tu a pu traiter).\n\nTraitez maintenant le document fourni et donnez un rendu en français."
+              }
+            ]
+          },
+          "promptType": "define"
+        },
+        "executeOnce": true,
+        "retryOnFail": true,
+        "typeVersion": 1.7
+      },
+      {
+        "id": "40c57253-ce87-49af-94ba-d2f64da31d73",
+        "name": "Aggregate All Summaries",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          -2784,
+          -64
+        ],
+        "parameters": {
+          "include": "specifiedFields",
+          "options": {},
+          "aggregate": "aggregateAllItemData",
+          "fieldsToInclude": "text"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a1e9c64e-6168-4021-b93b-e16b567f27e4",
+        "name": "Split Text for Discord",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -2448,
+          -80
+        ],
+        "parameters": {
+          "jsCode": "// Code pour node n8n - Division de texte pour Discord\n// Limite Discord : 2000 caractères par message\n\nconst DISCORD_CHAR_LIMIT = 2000;\nconst SAFETY_MARGIN = 50; // Marge de sécurité pour éviter les dépassements\nconst EFFECTIVE_LIMIT = DISCORD_CHAR_LIMIT - SAFETY_MARGIN;\n\nfunction splitTextForDiscord(text) {\n  // Si le texte est plus court que la limite, on le retourne tel quel\n  if (text.length <= EFFECTIVE_LIMIT) {\n    return [text];\n  }\n\n  const messages = [];\n  let currentMessage = '';\n  \n  // Diviser le texte en paragraphes d'abord (séparés par \\n\\n ou ----)\n  const sections = text.split(/(?:\\n\\n|----)/);\n  \n  for (let i = 0; i < sections.length; i++) {\n    let section = sections[i].trim();\n    \n    // Si une section complète dépasse la limite, la diviser par phrases\n    if (section.length > EFFECTIVE_LIMIT) {\n      const sentences = section.split(/(?<=[.!?:])\\s+/);\n      \n      for (const sentence of sentences) {\n        // Si une phrase seule dépasse la limite, la couper brutalement\n        if (sentence.length > EFFECTIVE_LIMIT) {\n          const chunks = splitByLength(sentence, EFFECTIVE_LIMIT);\n          for (const chunk of chunks) {\n            if (currentMessage.length + chunk.length + 1 > EFFECTIVE_LIMIT) {\n              if (currentMessage.trim()) {\n                messages.push(currentMessage.trim());\n              }\n              currentMessage = chunk;\n            } else {\n              currentMessage += (currentMessage ? ' ' : '') + chunk;\n            }\n          }\n        } else {\n          // Ajouter la phrase si elle rentre dans le message actuel\n          if (currentMessage.length + sentence.length + 1 <= EFFECTIVE_LIMIT) {\n            currentMessage += (currentMessage ? ' ' : '') + sentence;\n          } else {\n            // Sauvegarder le message actuel et commencer un nouveau\n            if (currentMessage.trim()) {\n              messages.push(currentMessage.trim());\n            }\n            currentMessage = sentence;\n          }\n        }\n      }\n    } else {\n      // La section rentre dans la limite, vérifier si elle rentre dans le message actuel\n      if (currentMessage.length + section.length + 2 <= EFFECTIVE_LIMIT) {\n        currentMessage += (currentMessage ? '\\n\\n' : '') + section;\n      } else {\n        // Sauvegarder le message actuel et commencer un nouveau\n        if (currentMessage.trim()) {\n          messages.push(currentMessage.trim());\n        }\n        currentMessage = section;\n      }\n    }\n  }\n  \n  // Ajouter le dernier message s'il existe\n  if (currentMessage.trim()) {\n    messages.push(currentMessage.trim());\n  }\n  \n  return messages.length > 0 ? messages : [text];\n}\n\nfunction splitByLength(text, maxLength) {\n  const chunks = [];\n  for (let i = 0; i < text.length; i += maxLength) {\n    chunks.push(text.slice(i, i + maxLength));\n  }\n  return chunks;\n}\n\n// Code principal pour n8n\nconst inputData = $input.all();\nconst outputItems = [];\n\nfor (let i = 0; i < inputData.length; i++) {\n  const item = inputData[i];\n  \n  // Extraire le texte à diviser (adaptez selon votre structure de données)\n  // Exemple : si votre texte est dans item.json.content\n  let textToSplit = '';\n  \n  // Si c'est un tableau comme dans votre exemple\n  if (item.json.data && Array.isArray(item.json.data)) {\n    textToSplit = item.json.data.map(dataItem => dataItem.text || '').join('\\n\\n---\\n\\n');\n  } \n  // Si c'est directement du texte\n  else if (item.json.text) {\n    textToSplit = item.json.text;\n  }\n  // Si c'est dans un autre champ\n  else if (item.json.content) {\n    textToSplit = item.json.content;\n  }\n  // Fallback : convertir tout l'objet en texte\n  else {\n    textToSplit = JSON.stringify(item.json, null, 2);\n  }\n  \n  // Diviser le texte\n  const messages = splitTextForDiscord(textToSplit);\n  \n  // Créer un item de sortie pour chaque message\n  messages.forEach((message, index) => {\n    outputItems.push({\n      json: {\n        message: message,\n        messageIndex: index + 1,\n        totalMessages: messages.length,\n        characterCount: message.length,\n        originalItemIndex: i\n      }\n    });\n  });\n}\n\nreturn outputItems;"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "168294e9-07b5-4d23-b3f7-bcc8c92aebee",
+        "name": "Send Intro to Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -2096,
+          -176
+        ],
+        "webhookId": "47593169-e23c-4303-b8e2-7e93386c4c7a",
+        "parameters": {
+          "content": "Hello everyone ! \n\nHere is your weekly dose of news !",
+          "guildId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "919951151888236595",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595",
+            "cachedResultName": "Institut du référencement"
+          },
+          "options": {},
+          "resource": "message",
+          "channelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1334455789284364309",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595/1334455789284364309",
+            "cachedResultName": "📝-veille-📝"
+          }
+        },
+        "credentials": {
+          "discordBotApi": {
+            "id": "wEzWTKJiOc3ZcZew",
+            "name": "ClapTrap IDR"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "96815712-69d1-406b-a8cc-6604aadf47a4",
+        "name": "Send Watch Chunk to Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -1632,
+          -32
+        ],
+        "webhookId": "f3ee61cf-fbfa-447c-9fa8-78b7e5e1c4f7",
+        "parameters": {
+          "content": "={{ $json.message }}",
+          "guildId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "919951151888236595",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595",
+            "cachedResultName": "Institut du référencement"
+          },
+          "options": {
+            "flags": [
+              "SUPPRESS_EMBEDS"
+            ]
+          },
+          "resource": "message",
+          "channelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1334455789284364309",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595/1334455789284364309",
+            "cachedResultName": "📝-veille-📝"
+          }
+        },
+        "credentials": {
+          "discordBotApi": {
+            "id": "wEzWTKJiOc3ZcZew",
+            "name": "ClapTrap IDR"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "1e74b9d2-5c43-4186-91aa-ca3a7a168b8e",
+        "name": "Send Conclusion to Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -1424,
+          -176
+        ],
+        "webhookId": "47593169-e23c-4303-b8e2-7e93386c4c7a",
+        "parameters": {
+          "content": "ET VOILÀ MINIONS ORGANIQUES ! Claptrap a terminé sa mission ÉPIQUE - à la semaine prochaine pour encore plus d'excellence robotique ! Bip boop 🤖✨",
+          "guildId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "919951151888236595",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595",
+            "cachedResultName": "Institut du référencement"
+          },
+          "options": {},
+          "resource": "message",
+          "channelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1334455789284364309",
+            "cachedResultUrl": "https://discord.com/channels/919951151888236595/1334455789284364309",
+            "cachedResultName": "📝-veille-📝"
+          }
+        },
+        "credentials": {
+          "discordBotApi": {
+            "id": "wEzWTKJiOc3ZcZew",
+            "name": "ClapTrap IDR"
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 2
+      },
+      {
+        "id": "ad55964a-3a23-4bf8-ae79-0b4da47ad3b8",
+        "name": "Loop Over Discord Chunks",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -1856,
+          -96
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "a183fb42-04e4-4c82-8a85-5dc61d532d44",
+        "name": "Extract Article URLs",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -2512,
+          304
+        ],
+        "parameters": {
+          "jsCode": "const inputData = $input.all()[0].json;\nconst newsResults = inputData.news_results || [];\n\nconst sortedResults = newsResults.sort((a, b) => a.position - b.position);\nconst top3 = sortedResults.slice(0, 3);\n\nreturn top3.map(item => ({\n  json: {\n    link: item.link || null,\n    date: item.date || null\n  }\n}));"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "0e1f5e35-fb2c-4cc3-9597-ac2ec28d543a",
+        "name": "Load Watch Topics from Table",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          -3264,
+          304
+        ],
+        "parameters": {
+          "operation": "get",
+          "returnAll": true,
+          "dataTableId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "CcsQaNMfQNPMQsOR",
+            "cachedResultUrl": "/projects/oTpNUA7ZOCuhiQA0/datatables/CcsQaNMfQNPMQsOR",
+            "cachedResultName": "Query Veille"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b524120a-91fd-45d8-9b2e-d4b94113b251",
+        "name": "Scrape Article Content",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "onError": "continueRegularOutput",
+        "maxTries": 5,
+        "position": [
+          -2224,
+          304
+        ],
+        "parameters": {
+          "url": "={{ $json.link }}",
+          "operation": "scrape",
+          "requestOptions": {}
+        },
+        "credentials": {
+          "firecrawlApi": {
+            "id": "E34WDB80ik5VHjiI",
+            "name": "Firecrawl account"
+          }
+        },
+        "retryOnFail": true,
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "235ed5ec-be74-4b7a-8ae3-15ff22b6506b",
+        "name": "Clean Markdown for AI",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          -2016,
+          304
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nfunction cleanMarkdown(text) {\n  if (!text) return '';\n  \n  let cleaned = text;\n  \n  cleaned = cleaned.replace(/passer au contenu principal/gi, '');\n  cleaned = cleaned.replace(/aller au contenu/gi, '');\n  cleaned = cleaned.replace(/\\[([^\\]]+)\\]\\([^\\)]+\\)/g, '$1');\n  cleaned = cleaned.replace(/\\[([^\\]]+)\\]/g, '$1');\n  cleaned = cleaned.replace(/https?:\\/\\/[^\\s)]+/g, '');\n  cleaned = cleaned.replace(/www\\.[^\\s)]+/g, '');\n  cleaned = cleaned.replace(/\\([^)]*(?:http|www)[^)]*\\)/g, '');\n  cleaned = cleaned.replace(/  +/g, ' ');\n  cleaned = cleaned.replace(/\\n{3,}/g, '\\n\\n');\n  cleaned = cleaned.split('\\n').map(line => line.trim()).join('\\n');\n  cleaned = cleaned.trim();\n  \n  return cleaned;\n}\n\nconst links = $('Extract Article URLs').all();\n\nreturn items.map((item, index) => ({\n  json: {\n    link: links[index]?.json.link || null,\n    date: links[index]?.json.date || null,\n    markdown_clean: cleanMarkdown(item.json.data.markdown)\n  }\n}));"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": false
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Claude Sonnet 4.6": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Draft Watch Summary with AI",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Every Monday at 9am": {
+        "main": [
+          [
+            {
+              "node": "Load Watch Topics from Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Article URLs": {
+        "main": [
+          [
+            {
+              "node": "Scrape Article Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean Markdown for AI": {
+        "main": [
+          [
+            {
+              "node": "Draft Watch Summary with AI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Watch Topics": {
+        "main": [
+          [
+            {
+              "node": "Aggregate All Summaries",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Search Google News via SerpAPI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape Article Content": {
+        "main": [
+          [
+            {
+              "node": "Clean Markdown for AI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Text for Discord": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Discord Chunks",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate All Summaries": {
+        "main": [
+          [
+            {
+              "node": "Split Text for Discord",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Intro to Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Discord Chunks": {
+        "main": [
+          [
+            {
+              "node": "Send Conclusion to Discord",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send Watch Chunk to Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Draft Watch Summary with AI": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Watch Topics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Watch Chunk to Discord": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Discord Chunks",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Load Watch Topics from Table": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Watch Topics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Google News via SerpAPI": {
+        "main": [
+          [
+            {
+              "node": "Extract Article URLs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

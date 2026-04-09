@@ -1,0 +1,96 @@
+{
+  "id": "official-1528",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1528",
+    "template_id": 1528
+  },
+  "name": "Send a Discord message when a certain Onfleet event happens",
+  "description": "Summary Onfleet is a last mile delivery software that provides end to end route planning, dispatch, communication, and analytics to handle the heavy lifting while you can focus on your customers.",
+  "category": "AI",
+  "tags": [
+    "Miscellaneous",
+    "Discord",
+    "Onfleet",
+    "Onfleet Trigger",
+    "send",
+    "discord",
+    "message",
+    "when",
+    "certain",
+    "onfleet"
+  ],
+  "task_keywords": [
+    "send a discord message when a certain onfleet event happens",
+    "discord",
+    "send discord",
+    "onfleet",
+    "send onfleet",
+    "onfleet trigger",
+    "discord message",
+    "message when",
+    "when certain",
+    "certain onfleet",
+    "onfleet event",
+    "event happens"
+  ],
+  "required_services": [
+    "Discord",
+    "Onfleet"
+  ],
+  "triggers": [
+    "Onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 10,
+    "name": "Onfleet --> Discord",
+    "nodes": [
+      {
+        "name": "Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "58f99515-a1d6-4c56-8ecc-e9d921fa3276",
+        "parameters": {
+          "triggerOn": "taskStarted",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "credential-id",
+            "name": "onfleetApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

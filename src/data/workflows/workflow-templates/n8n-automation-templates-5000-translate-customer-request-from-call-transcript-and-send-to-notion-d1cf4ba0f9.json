@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-translate-customer-request-from-call-transcript-and-send-to-notion-d1cf4ba0f9",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/translate-customer-request-call-transcript-notion.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/translate-customer-request-call-transcript-notion.json"
+  },
+  "name": "Translate customer request from Call transcript and send to Notion",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Translate customer request from Call transcript and send to Notion",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "translate",
+    "customer",
+    "request",
+    "call",
+    "transcript",
+    "send"
+  ],
+  "task_keywords": [
+    "translate customer request from call transcript and send to notion",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "translate customer",
+    "customer request",
+    "request call",
+    "call transcript",
+    "transcript send",
+    "send notion"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Translate customer request from Call transcript and send to Notion",
+    "nodes": [
+      {
+        "id": "trigger-call-transcript",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          97900
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "translate-customer-request-from-call-transcript-and-send-to-notion",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-call-transcript",
+        "name": "Fetch data from Call transcript",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          97900
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/call-transcript",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-translate-customer-request",
+        "name": "AI: Translate Customer Request",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          97900
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: translate customer request"
+        }
+      },
+      {
+        "id": "send-notion",
+        "name": "Send to Notion",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          97900
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/notion",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-97900",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          97900
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Call transcript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Call transcript": {
+        "main": [
+          {
+            "node": "AI: Translate Customer Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Translate Customer Request": {
+        "main": [
+          [
+            {
+              "node": "AI: Translate Customer Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Notion": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

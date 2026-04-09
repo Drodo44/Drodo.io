@@ -1,0 +1,174 @@
+{
+  "id": "official-581",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/581",
+    "template_id": 581
+  },
+  "name": "Execute Set node based on Function output",
+  "description": "Companion workflow for IF node docs",
+  "category": "Productivity",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Function",
+    "Edit Fields (Set)",
+    "Manual Trigger",
+    "execute",
+    "set",
+    "node",
+    "based",
+    "function",
+    "output"
+  ],
+  "task_keywords": [
+    "execute set node based on function output",
+    "manual",
+    "function",
+    "edit fields (set)",
+    "manual trigger",
+    "execute set",
+    "set node",
+    "node based",
+    "based function",
+    "function output",
+    "output companion",
+    "companion workflow"
+  ],
+  "required_services": [
+    "manual",
+    "Function",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Function",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "functionCode": "return [\n  {\n    json: {\n      id: 0,\n    }\n  },\n  {\n    json: {\n      id: 1,\n    }\n  }\n];"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "number": [
+              {
+                "value1": "={{$node[\"Function\"].json[\"id\"]}}",
+                "operation": "equal"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          850,
+          200
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "name",
+                "value": "n8n"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set1",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          850,
+          400
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "name",
+                "value": "nodemation"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Function": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Function",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

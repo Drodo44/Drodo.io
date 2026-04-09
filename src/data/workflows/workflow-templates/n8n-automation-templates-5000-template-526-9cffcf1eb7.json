@@ -1,0 +1,113 @@
+{
+  "id": "n8n-automation-templates-5000-template-526-9cffcf1eb7",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/social_media_526_calendar_event_trigger_twitter.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/social_media_526_calendar_event_trigger_twitter.json"
+  },
+  "name": "Template 526",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 526",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "twitter",
+    "google Calendar Trigger",
+    "template",
+    "526",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 526",
+    "google calendar",
+    "twitter",
+    "google calendar trigger",
+    "526 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "google Calendar",
+    "twitter"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 526",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Twitter",
+        "type": "n8n-nodes-base.twitter",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Twitter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 526
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "id": "official-960",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/960",
+    "template_id": 960
+  },
+  "name": "Create, update, and get a webinar in GoToWebinar",
+  "description": "This workflow allows you to create, update, and get a webinar in GoToWebinar.",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "GoToWebinar",
+    "create",
+    "update",
+    "webinar",
+    "gotowebinar",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "create, update, and get a webinar in gotowebinar",
+    "gotowebinar",
+    "create gotowebinar",
+    "update gotowebinar",
+    "create update",
+    "update webinar",
+    "webinar gotowebinar",
+    "gotowebinar workflow",
+    "workflow allows",
+    "allows you",
+    "you create"
+  ],
+  "required_services": [
+    "GoToWebinar"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "GoToWebinar2",
+        "type": "n8n-nodes-base.goToWebinar",
+        "position": [
+          930,
+          280
+        ],
+        "parameters": {
+          "resource": "webinar",
+          "webinarKey": "={{$node[\"GoToWebinar\"].json[\"webinarKey\"]}}"
+        },
+        "credentials": {
+          "goToWebinarOAuth2Api": "GoToWebinar OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "GoToWebinar1",
+        "type": "n8n-nodes-base.goToWebinar",
+        "position": [
+          730,
+          280
+        ],
+        "parameters": {
+          "resource": "webinar",
+          "operation": "update",
+          "webinarKey": "={{$json[\"webinarKey\"]}}",
+          "updateFields": {
+            "description": "Get started with n8n and create your first automation workflow"
+          }
+        },
+        "credentials": {
+          "goToWebinarOAuth2Api": "GoToWebinar OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "GoToWebinar",
+        "type": "n8n-nodes-base.goToWebinar",
+        "position": [
+          520,
+          280
+        ],
+        "parameters": {
+          "times": {
+            "timesProperties": [
+              {
+                "endTime": "2021-03-02T10:00:00.000Z",
+                "startTime": "2021-03-02T09:00:00.000Z"
+              }
+            ]
+          },
+          "subject": "Getting started with n8n",
+          "resource": "webinar",
+          "operation": "create",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "goToWebinarOAuth2Api": "GoToWebinar OAuth Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "GoToWebinar": {
+        "main": [
+          [
+            {
+              "node": "GoToWebinar1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GoToWebinar1": {
+        "main": [
+          [
+            {
+              "node": "GoToWebinar2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

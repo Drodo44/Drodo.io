@@ -1,0 +1,60 @@
+{
+  "id": "official-657",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/657",
+    "template_id": 657
+  },
+  "name": "Receive messages for a MQTT queue",
+  "description": "Receive messages for a MQTT queue",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "MQTT",
+    "MQTT Trigger",
+    "receive",
+    "messages",
+    "mqtt",
+    "queue"
+  ],
+  "task_keywords": [
+    "receive messages for a mqtt queue",
+    "mqtt",
+    "mqtt trigger",
+    "receive messages",
+    "messages mqtt",
+    "mqtt queue",
+    "queue receive"
+  ],
+  "required_services": [
+    "MQTT"
+  ],
+  "triggers": [
+    "MQTT Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "51",
+    "name": "Receive messages for a MQTT queue",
+    "nodes": [
+      {
+        "name": "MQTT Trigger",
+        "type": "n8n-nodes-base.mqttTrigger",
+        "position": [
+          690,
+          260
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "credentials": {
+          "mqtt": "mqtt"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "id": "n8n-workflow-templates-0116-graphql-discord-automate-scheduled-88d7e05232",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0116_Graphql_Discord_Automate_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0116_Graphql_Discord_Automate_Scheduled.json"
+  },
+  "name": "0116 Graphql Discord Automate Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0116 Graphql Discord Automate Scheduled",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "cron",
+    "graphql",
+    "item Lists",
+    "discord",
+    "cron Trigger",
+    "0116",
+    "automate",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0116 graphql discord automate scheduled",
+    "cron",
+    "graphql",
+    "item lists",
+    "discord",
+    "cron trigger",
+    "0116 graphql",
+    "graphql discord",
+    "discord automate",
+    "automate scheduled",
+    "scheduled n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "cron",
+    "graphql",
+    "item Lists",
+    "discord"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          459,
+          371
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "everyHour"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1109,
+          371
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "Votes",
+                "value": "={{$json[\"posts\"][\"node\"][\"votesCount\"]}}"
+              }
+            ],
+            "string": [
+              {
+                "name": "Name",
+                "value": "={{$json[\"posts\"][\"node\"][\"name\"]}}"
+              },
+              {
+                "name": "Description",
+                "value": "={{$json[\"posts\"][\"node\"][\"description\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "GraphQL",
+        "type": "n8n-nodes-base.graphql",
+        "position": [
+          700,
+          370
+        ],
+        "parameters": {
+          "query": "=query PostRanking{\n  posts(postedAfter:\"{{new Date(new Date(Date.now()).getTime() - (1000*60*60*1*24)).toUTCString()}}\", order:RANKING, first:5, postedBefore:\"{{new Date(Date.now()).toUTCString()}}\"){\n    edges {\n      node {\n        name\n        tagline\n        description\n        votesCount\n        reviewsRating\n      }\n    }\n  }\n}",
+          "endpoint": "https://api.producthunt.com/v2/api/graphql",
+          "requestFormat": "json",
+          "headerParametersUi": {
+            "parameter": [
+              {
+                "name": "Authorization",
+                "value": "Bearer YOUR-TOKEN"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Item Lists",
+        "type": "n8n-nodes-base.itemLists",
+        "position": [
+          900,
+          370
+        ],
+        "parameters": {
+          "options": {
+            "destinationFieldName": "posts"
+          },
+          "fieldToSplitOut": "data.posts.edges"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          1310,
+          370
+        ],
+        "parameters": {
+          "text": "=Here are the top 5 PH projects:\n**Name:** {{$json[\"Name\"]}}\n**Description:** {{$json[\"Description\"]}}\n**Vote:** {{$json[\"Votes\"]}}\n-------",
+          "webhookUri": "DISCORD WEBHOOK URL"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "GraphQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GraphQL": {
+        "main": [
+          [
+            {
+              "node": "Item Lists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Item Lists": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

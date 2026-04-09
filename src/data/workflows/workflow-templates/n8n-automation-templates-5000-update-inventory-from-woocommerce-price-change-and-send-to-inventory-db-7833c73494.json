@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-update-inventory-from-woocommerce-price-change-and-send-to-inventory-db-7833c73494",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/update-inventory-woocommerce-price-change-inventory-db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/update-inventory-woocommerce-price-change-inventory-db.json"
+  },
+  "name": "Update inventory from WooCommerce price change and send to Inventory DB",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Update inventory from WooCommerce price change and send to Inventory DB",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "update",
+    "inventory",
+    "woocommerce",
+    "price",
+    "change",
+    "send"
+  ],
+  "task_keywords": [
+    "update inventory from woocommerce price change and send to inventory db",
+    "slack",
+    "send slack",
+    "update slack",
+    "webhook",
+    "update inventory",
+    "inventory woocommerce",
+    "woocommerce price",
+    "price change",
+    "change send",
+    "send inventory",
+    "inventory n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Update inventory from WooCommerce price change and send to Inventory DB",
+    "nodes": [
+      {
+        "id": "trigger-woocommerce-price-change",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          178300
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "update-inventory-from-woocommerce-price-change-and-send-to-inventory-db",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-woocommerce-price-change",
+        "name": "Fetch data from WooCommerce price change",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          178300
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/woocommerce-price-change",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-inventory-db",
+        "name": "Send to Inventory DB",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          178300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/inventory-db",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-178300",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          178300
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from WooCommerce price change",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from WooCommerce price change": {
+        "main": [
+          {
+            "node": "Send to Inventory DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Inventory DB": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

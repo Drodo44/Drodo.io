@@ -1,0 +1,107 @@
+{
+  "id": "n8n-automation-templates-5000-template-1206-823c9b05c3",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/data_sync_1206_api_polling_google_sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/data_sync_1206_api_polling_google_sheets.json"
+  },
+  "name": "Template 1206",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1206",
+  "category": "Data",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "googlesheets",
+    "template",
+    "1206",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1206",
+    "googlesheets",
+    "1206 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000",
+    "5000 template"
+  ],
+  "required_services": [
+    "googlesheets"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1206",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://api.example.com/data",
+          "method": "GET"
+        },
+        "name": "API Polling",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "API Polling": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1206
+  }
+}

@@ -1,0 +1,431 @@
+{
+  "id": "official-10461",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/10461",
+    "template_id": 10461
+  },
+  "name": "Daily morning haiku generation with OpenRouter AI, Google Docs and Gmail",
+  "description": "How it works This workflow automatically generates a new haiku poem every morning using AI, formats it in 5 7 5 structure, saves it to Google Docs, and sends it to your email inbox.",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "Edit Fields (Set)",
+    "Google Docs",
+    "Gmail",
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "Schedule Trigger",
+    "daily",
+    "morning",
+    "haiku",
+    "generation",
+    "openrouter",
+    "google"
+  ],
+  "task_keywords": [
+    "daily morning haiku generation with openrouter ai, google docs and gmail",
+    "edit fields (set)",
+    "send edit fields (set)",
+    "google docs",
+    "send google docs",
+    "gmail",
+    "send gmail",
+    "ai agent",
+    "send ai agent",
+    "openrouter chat model",
+    "send openrouter chat model",
+    "schedule trigger"
+  ],
+  "required_services": [
+    "Edit Fields (Set)",
+    "Google Docs",
+    "Gmail",
+    "AI Agent",
+    "OpenRouter Chat Model"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "sSq3OBOGly6oGT5M",
+    "meta": {
+      "instanceId": "15d6057a37b8367f33882dd60593ee5f6cc0c59310ff1dc66b626d726083b48d"
+    },
+    "name": "AI-Powered Morning Haiku Generator (Google Docs + Gmail)",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "c2c25ff3-8044-40c1-9a0f-08e469f42250",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          16,
+          144
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 7
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "b86d8fbd-7154-43f0-a722-e22ca8ac170a",
+        "name": "Code in JavaScript",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          592,
+          144
+        ],
+        "parameters": {
+          "jsCode": "// 前のAI Agentノードから出力を受け取ります。\n// データは 'output' フィールドに入っています。\nlet aiResponse = $node[\"AI Agent\"].json.output;\n\n// AIの応答に```json ... ```のような余分な文字が含まれている場合、\n// 中身のJSON部分だけを抽出します。\nif (aiResponse.includes('```')) {\n  aiResponse = aiResponse.substring(aiResponse.indexOf('{'), aiResponse.lastIndexOf('}') + 1);\n}\n\n// JSON文字列をオブジェクトに変換します。\nconst words = JSON.parse(aiResponse);\n\n// AIが生成した単語を使って、5-7-5調の俳句を組み立てます。\nconst line1 = `${words.kigo}の中`;\nconst line2 = `${words.noun}で心が${words.verb1}`;\nconst line3 = `今日もまた${words.verb2}`;\n\nconst haiku = `${line1}\\n${line2}\\n${line3}`;\n\n// タイトルを生成し、haikuと一緒に後続のノードへ渡します。\nconst title = `今日の一句 (${new Date().toLocaleDateString('ja-JP')})`; // ← ここのタイプミスを修正\n\nreturn [{\n  json: {\n    haiku,\n    title\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "8da62bb5-391d-40ad-a9e3-e8a50f3d2983",
+        "name": "Edit Fields",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          816,
+          144
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "774b47ef-875a-4f9f-9530-51ae0720ae44",
+                "name": "documentTitle",
+                "type": "string",
+                "value": "={{ $json.title }}"
+              },
+              {
+                "id": "66d74b89-e9f5-4982-ae66-e5fb18b10993",
+                "name": "documentBody",
+                "type": "string",
+                "value": "={{ \"# \" + $json.title + \"\\n\\n\" + $json.haiku + \"\\n\\n$2014 n8n Haiku Generator\" }}"
+              }
+            ]
+          },
+          "includeOtherFields": true
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "f21266fa-3226-443f-a84d-a958497a5948",
+        "name": "Create a document",
+        "type": "n8n-nodes-base.googleDocs",
+        "position": [
+          1040,
+          144
+        ],
+        "parameters": {
+          "title": "={{ $node[\"Edit Fields\"].json.documentTitle ?? '今日の一句' }}\n",
+          "folderId": "1W45ugKiRbbwp3FIFdLL690DAgkVKCKWB"
+        },
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDocsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "d9b2fbbb-341f-4d20-b493-c48e7c1e56d7",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          1712,
+          144
+        ],
+        "webhookId": "2c597a75-2510-43b9-ba30-a50565f7784f",
+        "parameters": {
+          "sendTo": "user@example.com",
+          "message": "={{ $node[\"Code in JavaScript\"].json.haiku + \"\\n\\n$2014 本日の俳句をお届けします $2600$FE0F\" }}",
+          "options": {},
+          "subject": "={{ $node[\"Edit Fields\"].json.documentTitle }}",
+          "emailType": "text"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "credential-id",
+            "name": "gmailOAuth2 Credential"
+          }
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "745a8e10-7393-42e1-8d01-3808d5c0553a",
+        "name": "Prepare Append",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1264,
+          144
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e4fc8729-a49f-42b4-a626-8e15ed84d7fc",
+                "name": "docId",
+                "type": "string",
+                "value": "={{ $node[\"Create a document\"].json.id }}"
+              },
+              {
+                "id": "469d4459-0ec7-4cbd-8bd7-f32853d7e3a8",
+                "name": "text",
+                "type": "string",
+                "value": "={{ $node[\"Edit Fields\"].json.documentBody }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "5f7c8ef7-bd1a-4987-a976-69924d084c33",
+        "name": "Update a document",
+        "type": "n8n-nodes-base.googleDocs",
+        "position": [
+          1488,
+          144
+        ],
+        "parameters": {
+          "actionsUi": {
+            "actionFields": [
+              {
+                "text": "={{ $node[\"Prepare Append\"].json.text }}",
+                "action": "insert"
+              }
+            ]
+          },
+          "operation": "update",
+          "documentURL": "={{ $node[\"Prepare Append\"].json.docId }}"
+        },
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDocsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "c0b48c24-42be-45ca-959d-ef0d439b38cd",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          240,
+          144
+        ],
+        "parameters": {
+          "text": "あなたは創造的な俳人です。\n俳句を生成するための部品となる単語を4つ、JSON形式で提案してください。\n\n- kigo: 現在の季節に合った美しい季語を1つ\n- noun: 情景が浮かぶような名詞を1つ\n- verb1: 動作や状態を表す動詞を1つ\n- verb2: 1つ目の動詞とは異なる、余韻を残すような動詞をもう1つ\n\n説明や余計なテキストは一切含めず、必ず以下のJSON形式のフォーマットで、キーも英語で出力してください:\n{\n  \"kigo\": \"ここに季語\",\n  \"noun\": \"ここに名詞\",\n  \"verb1\": \"ここに動詞1\",\n  \"verb2\": \"ここに動詞2\"\n}",
+          "options": {},
+          "promptType": "define",
+          "hasOutputParser": true
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "a39e75bc-a06d-4dfd-a521-579a5bd34838",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          312,
+          368
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "credentials": {
+          "openRouterApi": {
+            "id": "credential-id",
+            "name": "openRouterApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b3378d42-0e19-4103-ad86-b0f67399a29d",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -432,
+          -384
+        ],
+        "parameters": {
+          "width": 400,
+          "height": 512,
+          "content": "## Overview: AI-Powered Morning Haiku Generator\n\n## How it works\nThis workflow automatically creates and emails a morning haiku every day at 7:00 AM.\nIt uses OpenRouter AI to generate four creative words $2014 a seasonal word, a noun, and two verbs $2014 then builds a 5-7-5 haiku. The haiku is saved to Google Docs and delivered via Gmail as a daily poem.\n\n## Setup steps\nConnect your OpenRouter, Google Docs, and Gmail credentials.\nAdjust the schedule in the “Schedule Trigger” node (default: 07:00 AM).\nUpdate the email recipient in the “Send a message” node.\nOptionally change the Google Docs folder ID in “Create a document.”"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a50e624c-29f3-4e4e-bed8-ac023a2b5e4b",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 240,
+          "content": "### Section 1 $2014 Scheduling & AI Generation\n\n$D83D$DCC5 Schedule Trigger → AI Agent → OpenRouter Model\n\n\nGenerates haiku components \ndaily at 07:00 AM using OpenRouter AI. ($2248 40 words)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bf77288f-0b71-4552-898d-f21994175afd",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          256,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 240,
+          "content": "### Section 2 $2014 Build and Format Haiku\n\n$D83D$DCBB Code in JavaScript → Edit Fields\n\nCombines AI outputs into a 5-7-5 haiku and sets the title and body text. ($2248 40 words)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f45248f1-6075-4fd4-a782-403a2f55c323",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          512,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 240,
+          "content": "### Section 3 $2014 Google Docs Automation\n\n$D83D$DCC4 Create Document → Prepare Append → Update Document\n\nCreates a Google Doc for today’s haiku and appends the new text daily. ($2248 35 words)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "79cf9fc1-7420-4e28-a6df-9b6ff0de685e",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          768,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 240,
+          "content": "### Section 4 $2014 Email Delivery\n\n$2709$FE0F Send a message (Gmail)\n\nSends the final haiku via email each morning with a warm greeting. ($2248 25 words)"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "c8750437-c566-4ffc-aad7-874169a5d914",
+    "connections": {
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Create a document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Append": {
+        "main": [
+          [
+            {
+              "node": "Update a document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a document": {
+        "main": [
+          [
+            {
+              "node": "Prepare Append",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a document": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

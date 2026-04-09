@@ -1,0 +1,87 @@
+{
+  "id": "official-567",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/567",
+    "template_id": 567
+  },
+  "name": "Get all mailboxes from Help Scout",
+  "description": "Companion workflow for Help Scout node docs",
+  "category": "AI",
+  "tags": [
+    "Ticket Management",
+    "manual",
+    "Help Scout",
+    "Manual Trigger",
+    "all",
+    "mailboxes",
+    "help",
+    "scout",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all mailboxes from help scout",
+    "manual",
+    "help scout",
+    "manual trigger",
+    "all mailboxes",
+    "mailboxes help",
+    "scout companion",
+    "companion workflow",
+    "workflow help",
+    "scout node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Help Scout"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "HelpScout",
+        "type": "n8n-nodes-base.helpScout",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "resource": "mailbox",
+          "operation": "getAll"
+        },
+        "credentials": {
+          "helpScoutOAuth2Api": "helpscout_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HelpScout",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

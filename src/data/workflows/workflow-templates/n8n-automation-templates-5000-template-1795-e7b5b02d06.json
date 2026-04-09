@@ -1,0 +1,157 @@
+{
+  "id": "n8n-automation-templates-5000-template-1795-e7b5b02d06",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/real_estate_1795_cron_google_sheets_to_email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/real_estate_1795_cron_google_sheets_to_email.json"
+  },
+  "name": "Template 1795",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1795",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "cron",
+    "googlesheets",
+    "email",
+    "hubspot",
+    "cron Trigger",
+    "template",
+    "1795",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1795",
+    "cron",
+    "googlesheets",
+    "email",
+    "hubspot",
+    "cron trigger",
+    "1795 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "cron",
+    "googlesheets",
+    "email",
+    "hubspot"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1795",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/30 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Email",
+        "type": "n8n-nodes-base.email",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "HubSpot",
+        "type": "n8n-nodes-base.hubspot",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email": {
+        "main": [
+          [
+            {
+              "node": "HubSpot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1795
+  }
+}

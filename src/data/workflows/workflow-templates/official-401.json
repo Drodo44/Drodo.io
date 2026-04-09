@@ -1,0 +1,86 @@
+{
+  "id": "official-401",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/401",
+    "template_id": 401
+  },
+  "name": "Send an SMS/Whatsapp message with Twilio",
+  "description": "Send an SMS/Whatsapp message with Twilio",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Twilio",
+    "Manual Trigger",
+    "send",
+    "sms",
+    "whatsapp",
+    "message",
+    "twilio"
+  ],
+  "task_keywords": [
+    "send an sms/whatsapp message with twilio",
+    "manual",
+    "send manual",
+    "twilio",
+    "send twilio",
+    "manual trigger",
+    "send sms",
+    "sms whatsapp",
+    "whatsapp message",
+    "message twilio",
+    "twilio send"
+  ],
+  "required_services": [
+    "manual",
+    "Twilio"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "A workflow with the Twilio node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "position": [
+          430,
+          300
+        ],
+        "parameters": {},
+        "credentials": {
+          "twilioApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

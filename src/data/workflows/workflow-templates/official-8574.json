@@ -1,0 +1,257 @@
+{
+  "id": "official-8574",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8574",
+    "template_id": 8574
+  },
+  "name": "Automated web form data collection and storage to Google Sheets",
+  "description": "Automated Web Form Data Collection and Storage to Google Sheets Overview This n8n workflow allows you to collect data from a web form and automatically store it in a Google Sheet.",
+  "category": "Data",
+  "tags": [
+    "Document Extraction",
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets",
+    "Webhook",
+    "automated",
+    "web",
+    "form",
+    "data",
+    "collection",
+    "storage"
+  ],
+  "task_keywords": [
+    "automated web form data collection and storage to google sheets",
+    "loop over items (split in batches)",
+    "google sheets",
+    "webhook",
+    "automated web",
+    "web form",
+    "form data",
+    "data collection",
+    "collection storage",
+    "storage google",
+    "sheets automated",
+    "sheets overview"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "SovVLaYsdGLMJPnS",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Automated Web Form Data Collection and Storage to Google Sheets",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "cf2ed5e3-f96a-48d2-af22-360e3009bc3d",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "onError": "continueRegularOutput",
+        "position": [
+          1216,
+          320
+        ],
+        "parameters": {},
+        "notesInFlow": false,
+        "typeVersion": 3
+      },
+      {
+        "id": "30199601-bb17-4eff-a5ee-00555e0c21ae",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          512,
+          320
+        ],
+        "webhookId": "93a81ced-e52c-4d31-96d2-c91a20bd7453",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "2fd4f703-b974-44b0-9fb5-31de9107ff00",
+        "name": "Store Data in Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1552,
+          240
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "78904589-f8b2-45ec-bdf5-b9dc6771b5c3",
+        "name": "Clean response data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          848,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "87e98656-6854-4d62-b2cf-6b64ef138506",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -768,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3e600129-67b3-4b48-874b-91fb227dc62f",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          304,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "219a09fc-7e16-4630-b5c5-1f8c43d4d999",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          720,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f37db36d-028a-4022-ab44-b4539f0cb22e",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1104,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2f47f2f7-433a-4557-b9e8-ffa86c2127da",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1424,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "1088b3f4-546c-40dc-9443-1ab617aeaa09",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1808,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "eeb0a16e-d621-4a58-8231-d5812c69e9b1",
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1952,
+          320
+        ],
+        "webhookId": "a8a457d5-f88d-451c-ac51-1af17c8435b0",
+        "parameters": {},
+        "typeVersion": 1.1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "da42ef3c-4244-4b49-9da6-80b63b429d59",
+    "connections": {
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Clean response data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Store Data in Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean response data": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Store Data in Sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

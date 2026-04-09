@@ -1,0 +1,136 @@
+{
+  "id": "n8n-automation-templates-5000-template-208-f47913cbff",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/it_operations_208_calendar_event_trigger_pagerduty_to_aws_lambda.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/it_operations_208_calendar_event_trigger_pagerduty_to_aws_lambda.json"
+  },
+  "name": "Template 208",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 208",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "pagerduty",
+    "awslambda",
+    "google Calendar Trigger",
+    "template",
+    "208",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 208",
+    "google calendar",
+    "pagerduty",
+    "awslambda",
+    "google calendar trigger",
+    "208 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "google Calendar",
+    "pagerduty",
+    "awslambda"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 208",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS Lambda",
+        "type": "n8n-nodes-base.awslambda",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "AWS Lambda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 208
+  }
+}

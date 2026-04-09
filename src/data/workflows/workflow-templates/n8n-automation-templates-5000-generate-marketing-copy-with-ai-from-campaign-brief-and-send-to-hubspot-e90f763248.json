@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-generate-marketing-copy-with-ai-from-campaign-brief-and-send-to-hubspot-e90f763248",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/generate-marketing-copy-with-ai-campaign-brief-hubspot.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/generate-marketing-copy-with-ai-campaign-brief-hubspot.json"
+  },
+  "name": "Generate marketing copy with ai from Campaign brief and send to HubSpot",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Generate marketing copy with ai from Campaign brief and send to HubSpot",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "generate",
+    "marketing",
+    "copy",
+    "campaign",
+    "brief",
+    "send"
+  ],
+  "task_keywords": [
+    "generate marketing copy with ai from campaign brief and send to hubspot",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "generate marketing",
+    "marketing copy",
+    "copy campaign",
+    "campaign brief",
+    "brief send",
+    "send hubspot"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Generate marketing copy with ai from Campaign brief and send to HubSpot",
+    "nodes": [
+      {
+        "id": "trigger-campaign-brief",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          70800
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "generate-marketing-copy-with-ai-from-campaign-brief-and-send-to-hubspot",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-campaign-brief",
+        "name": "Fetch data from Campaign brief",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          70800
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/campaign-brief",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-generate-marketing-copy-with-ai",
+        "name": "AI: Generate Marketing Copy With Ai",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          70800
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: generate marketing copy with AI"
+        }
+      },
+      {
+        "id": "send-hubspot",
+        "name": "Send to HubSpot",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          70800
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/hubspot",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-70800",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          70800
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Campaign brief",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Campaign brief": {
+        "main": [
+          {
+            "node": "AI: Generate Marketing Copy With Ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Generate Marketing Copy With Ai": {
+        "main": [
+          [
+            {
+              "node": "AI: Generate Marketing Copy With Ai",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to HubSpot": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

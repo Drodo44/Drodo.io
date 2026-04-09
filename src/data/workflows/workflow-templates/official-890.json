@@ -1,0 +1,109 @@
+{
+  "id": "official-890",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/890",
+    "template_id": 890
+  },
+  "name": "Read in an Excel spreadsheet file",
+  "description": "How to take the path of a local Excel file and read its contents into n8n.",
+  "category": "Data",
+  "tags": [
+    "Document Extraction",
+    "manual",
+    "Spreadsheet File",
+    "Read Binary File",
+    "Manual Trigger",
+    "read",
+    "excel",
+    "spreadsheet",
+    "file",
+    "take",
+    "path"
+  ],
+  "task_keywords": [
+    "read in an excel spreadsheet file",
+    "manual",
+    "spreadsheet file",
+    "read binary file",
+    "manual trigger",
+    "read excel",
+    "excel spreadsheet",
+    "file take",
+    "take path",
+    "path local",
+    "local excel",
+    "excel file"
+  ],
+  "required_services": [
+    "manual",
+    "Spreadsheet File",
+    "Read Binary File"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Spreadsheet File",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          650,
+          320
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          450,
+          320
+        ],
+        "parameters": {
+          "filePath": "/data/sample_spreadsheet.csv"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Read Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

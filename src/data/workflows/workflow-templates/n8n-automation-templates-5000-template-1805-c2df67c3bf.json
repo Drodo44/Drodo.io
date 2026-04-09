@@ -1,0 +1,157 @@
+{
+  "id": "n8n-automation-templates-5000-template-1805-c2df67c3bf",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Zillow/real_estate_1805_schedule_trigger_zillow_api_to_google_sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Zillow/real_estate_1805_schedule_trigger_zillow_api_to_google_sheets.json"
+  },
+  "name": "Template 1805",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1805",
+  "category": "Data",
+  "tags": [
+    "Templates based on paltforms",
+    "Zillow",
+    "schedule",
+    "zillowapi",
+    "googlesheets",
+    "moodle",
+    "schedule Trigger",
+    "template",
+    "1805",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1805",
+    "schedule",
+    "zillowapi",
+    "googlesheets",
+    "moodle",
+    "schedule trigger",
+    "1805 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "schedule",
+    "zillowapi",
+    "googlesheets",
+    "moodle"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1805",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 360
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Zillow API",
+        "type": "n8n-nodes-base.zillowapi",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Moodle",
+        "type": "n8n-nodes-base.moodle",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Zillow API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Zillow API": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Moodle",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1805
+  }
+}

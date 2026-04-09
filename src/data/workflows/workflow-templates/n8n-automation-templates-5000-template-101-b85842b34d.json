@@ -1,0 +1,111 @@
+{
+  "id": "n8n-automation-templates-5000-template-101-b85842b34d",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Salesforce/sales_101_schedule_trigger_salesforce.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Salesforce/sales_101_schedule_trigger_salesforce.json"
+  },
+  "name": "Template 101",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 101",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "Salesforce",
+    "schedule",
+    "salesforce",
+    "schedule Trigger",
+    "template",
+    "101",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 101",
+    "schedule",
+    "salesforce",
+    "schedule trigger",
+    "101 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "schedule",
+    "salesforce"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 101",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 720
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Salesforce",
+        "type": "n8n-nodes-base.salesforce",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Salesforce",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 101
+  }
+}

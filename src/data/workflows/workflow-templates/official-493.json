@@ -1,0 +1,84 @@
+{
+  "id": "official-493",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/493",
+    "template_id": 493
+  },
+  "name": "Get details of a forum in Disqus",
+  "description": "Get details of a forum in Disqus",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Disqus",
+    "Manual Trigger",
+    "details",
+    "forum",
+    "disqus"
+  ],
+  "task_keywords": [
+    "get details of a forum in disqus",
+    "manual",
+    "disqus",
+    "manual trigger",
+    "details forum",
+    "forum disqus",
+    "disqus details"
+  ],
+  "required_services": [
+    "manual",
+    "Disqus"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "119",
+    "name": "Get details of a forum in Disqus",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Disqus",
+        "type": "n8n-nodes-base.disqus",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "id": "hackernoon",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "disqusApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Disqus",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "official-412",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/412",
+    "template_id": 412
+  },
+  "name": "Create a contact in ActiveCampaign",
+  "description": "Create a contact in ActiveCampaign",
+  "category": "AI",
+  "tags": [
+    "CRM",
+    "manual",
+    "ActiveCampaign",
+    "Manual Trigger",
+    "create",
+    "contact",
+    "activecampaign"
+  ],
+  "task_keywords": [
+    "create a contact in activecampaign",
+    "manual",
+    "create manual",
+    "activecampaign",
+    "create activecampaign",
+    "manual trigger",
+    "create contact",
+    "contact activecampaign",
+    "activecampaign create"
+  ],
+  "required_services": [
+    "manual",
+    "ActiveCampaign"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          600,
+          250
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "ActiveCampaign",
+        "type": "n8n-nodes-base.activeCampaign",
+        "position": [
+          800,
+          250
+        ],
+        "parameters": {
+          "email": "",
+          "updateIfExists": true,
+          "additionalFields": {
+            "lastName": "",
+            "firstName": ""
+          }
+        },
+        "credentials": {
+          "activeCampaignApi": "ActiveCampaign"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "ActiveCampaign",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

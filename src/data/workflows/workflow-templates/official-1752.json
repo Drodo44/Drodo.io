@@ -1,0 +1,137 @@
+{
+  "id": "official-1752",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1752",
+    "template_id": 1752
+  },
+  "name": "Import data from Google Sheets into MySQL",
+  "description": "This workflow imports data from Google Sheets into a MySQL database.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "Cron",
+    "MySQL",
+    "Google Sheets",
+    "Cron Trigger",
+    "import",
+    "data",
+    "google",
+    "sheets",
+    "mysql",
+    "workflow"
+  ],
+  "task_keywords": [
+    "import data from google sheets into mysql",
+    "cron",
+    "mysql",
+    "google sheets",
+    "cron trigger",
+    "import data",
+    "data google",
+    "sheets mysql",
+    "mysql workflow",
+    "workflow imports",
+    "imports data",
+    "mysql database"
+  ],
+  "required_services": [
+    "Cron",
+    "MySQL",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          100,
+          160
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 5,
+                "mode": "everyWeek"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "MySQL - insert",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          500,
+          160
+        ],
+        "parameters": {
+          "table": "books",
+          "columns": "title, price",
+          "options": {
+            "ignore": true,
+            "priority": "LOW_PRIORITY"
+          }
+        },
+        "credentials": {
+          "mySql": {
+            "id": "credential-id",
+            "name": "mySql Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets - read",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          300,
+          160
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "qwertz",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleSheetsOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets - read",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets - read": {
+        "main": [
+          [
+            {
+              "node": "MySQL - insert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

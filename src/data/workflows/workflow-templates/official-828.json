@@ -1,0 +1,139 @@
+{
+  "id": "official-828",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/828",
+    "template_id": 828
+  },
+  "name": "Send the astronomy picture of the day daily to a Telegram channel",
+  "description": "This is a workflow that sends daily astronomy picture of the day using the NASA node to a channel on Telegram.",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Cron",
+    "NASA",
+    "Telegram",
+    "Cron Trigger",
+    "send",
+    "astronomy",
+    "picture",
+    "day",
+    "daily",
+    "telegram"
+  ],
+  "task_keywords": [
+    "send the astronomy picture of the day daily to a telegram channel",
+    "cron",
+    "send cron",
+    "nasa",
+    "send nasa",
+    "telegram",
+    "send telegram",
+    "cron trigger",
+    "send astronomy",
+    "astronomy picture",
+    "picture day",
+    "day daily"
+  ],
+  "required_services": [
+    "Cron",
+    "NASA",
+    "Telegram"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "174",
+    "name": "Send the Astronomy Picture of the day daily to a Telegram channel",
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 20
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "NASA",
+        "type": "n8n-nodes-base.nasa",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "download": false,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "nasaApi": {
+            "id": "credential-id",
+            "name": "nasaApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          850,
+          300
+        ],
+        "parameters": {
+          "file": "={{$node[\"NASA\"].json[\"url\"]}}",
+          "chatId": "123456789",
+          "operation": "sendPhoto",
+          "additionalFields": {
+            "caption": "={{$node[\"NASA\"].json[\"title\"]}}"
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "NASA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "NASA": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

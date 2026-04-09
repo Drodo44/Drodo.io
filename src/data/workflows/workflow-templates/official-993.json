@@ -1,0 +1,170 @@
+{
+  "id": "official-993",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/993",
+    "template_id": 993
+  },
+  "name": "Receive transfer updates from Wise and add to Airtable",
+  "description": "This workflow allows you to receive updates from Wise and add information of a transfer to a base in Airtable.",
+  "category": "AI",
+  "tags": [
+    "Miscellaneous",
+    "Wise",
+    "Edit Fields (Set)",
+    "Airtable",
+    "Wise Trigger",
+    "receive",
+    "transfer",
+    "updates",
+    "wise",
+    "add",
+    "airtable"
+  ],
+  "task_keywords": [
+    "receive transfer updates from wise and add to airtable",
+    "wise",
+    "update wise",
+    "edit fields (set)",
+    "update edit fields (set)",
+    "airtable",
+    "update airtable",
+    "wise trigger",
+    "receive transfer",
+    "transfer updates",
+    "updates wise",
+    "wise add"
+  ],
+  "required_services": [
+    "Wise",
+    "Edit Fields (Set)",
+    "Airtable"
+  ],
+  "triggers": [
+    "Wise Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Wise Trigger",
+        "type": "n8n-nodes-base.wiseTrigger",
+        "position": [
+          450,
+          280
+        ],
+        "webhookId": "df8c0c06-7d40-4e57-aaff-60f458e6997c",
+        "parameters": {
+          "event": "tranferStateChange",
+          "profileId": 16138858
+        },
+        "credentials": {
+          "wiseApi": "Wise API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Wise",
+        "type": "n8n-nodes-base.wise",
+        "position": [
+          650,
+          280
+        ],
+        "parameters": {
+          "resource": "transfer",
+          "transferId": "={{$json[\"data\"][\"resource\"][\"id\"]}}"
+        },
+        "credentials": {
+          "wiseApi": "Wise API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          850,
+          280
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "Transfer ID",
+                "value": "={{$json[\"id\"]}}"
+              },
+              {
+                "name": "Date",
+                "value": "={{$json[\"created\"]}}"
+              },
+              {
+                "name": "Reference",
+                "value": "={{$json[\"reference\"]}}"
+              },
+              {
+                "name": "Amount",
+                "value": "={{$json[\"sourceValue\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          1050,
+          280
+        ],
+        "parameters": {
+          "table": "Table 1",
+          "options": {},
+          "operation": "append",
+          "application": ""
+        },
+        "credentials": {
+          "airtableApi": "Airtable Credentials n8n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wise": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wise Trigger": {
+        "main": [
+          [
+            {
+              "node": "Wise",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "n8n-automation-templates-5000-summarize-chat-from-zoom-and-send-to-slack-fe86b92ed0",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/summarize-chat-zoom-slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/summarize-chat-zoom-slack.json"
+  },
+  "name": "Summarize chat from Zoom and send to Slack",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Summarize chat from Zoom and send to Slack",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "summarize",
+    "chat",
+    "zoom",
+    "send",
+    "n8n"
+  ],
+  "task_keywords": [
+    "summarize chat from zoom and send to slack",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "summarize chat",
+    "chat zoom",
+    "zoom send",
+    "slack n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Summarize chat from Zoom and send to Slack",
+    "nodes": [
+      {
+        "id": "trigger-zoom",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          900
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "summarize-chat-from-zoom-and-send-to-slack",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-zoom",
+        "name": "Fetch data from Zoom",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          900
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/zoom",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-summarize-chat",
+        "name": "AI: Summarize Chat",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          900
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: summarize chat"
+        }
+      },
+      {
+        "id": "send-slack",
+        "name": "Send to Slack",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          900
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/slack",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-900",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          900
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Zoom",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Zoom": {
+        "main": [
+          {
+            "node": "AI: Summarize Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Summarize Chat": {
+        "main": [
+          [
+            {
+              "node": "AI: Summarize Chat",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Slack": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

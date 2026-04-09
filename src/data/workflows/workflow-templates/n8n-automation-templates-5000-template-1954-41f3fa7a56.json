@@ -1,0 +1,136 @@
+{
+  "id": "n8n-automation-templates-5000-template-1954-41f3fa7a56",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/sports_&_recreation_1954_calendar_event_trigger_fitbit_to_slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/sports_&_recreation_1954_calendar_event_trigger_fitbit_to_slack.json"
+  },
+  "name": "Template 1954",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1954",
+  "category": "Communication",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "fitbit",
+    "slack",
+    "google Calendar Trigger",
+    "template",
+    "1954",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1954",
+    "google calendar",
+    "fitbit",
+    "slack",
+    "google calendar trigger",
+    "1954 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "google Calendar",
+    "fitbit",
+    "slack"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1954",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Fitbit",
+        "type": "n8n-nodes-base.fitbit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Fitbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fitbit": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1954
+  }
+}

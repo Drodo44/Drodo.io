@@ -1,0 +1,110 @@
+{
+  "id": "n8n-automation-templates-5000-template-1850-abeed55246",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/CRM/government_&_non-profit_1850_webhook_crm.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/CRM/government_&_non-profit_1850_webhook_crm.json"
+  },
+  "name": "Template 1850",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1850",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "CRM",
+    "crm",
+    "webhook",
+    "template",
+    "1850",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1850",
+    "webhook",
+    "1850 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000",
+    "5000 template"
+  ],
+  "required_services": [
+    "crm"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1850",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-1850",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CRM",
+        "type": "n8n-nodes-base.crm",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1850
+  }
+}

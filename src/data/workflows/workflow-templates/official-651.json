@@ -1,0 +1,69 @@
+{
+  "id": "official-651",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/651",
+    "template_id": 651
+  },
+  "name": "Receive updates when a form submission occurs in your Webflow website",
+  "description": "Receive updates when a form submission occurs in your Webflow website",
+  "category": "Sales",
+  "tags": [
+    "Lead Generation",
+    "Webflow",
+    "Webflow Trigger",
+    "receive",
+    "updates",
+    "when",
+    "form",
+    "submission",
+    "occurs"
+  ],
+  "task_keywords": [
+    "receive updates when a form submission occurs in your webflow website",
+    "webflow",
+    "update webflow",
+    "webflow trigger",
+    "receive updates",
+    "updates when",
+    "when form",
+    "form submission",
+    "submission occurs",
+    "occurs webflow",
+    "webflow website",
+    "website receive"
+  ],
+  "required_services": [
+    "Webflow"
+  ],
+  "triggers": [
+    "Webflow Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "42",
+    "name": "Receive updates when a form submission occurs in your Webflow website",
+    "nodes": [
+      {
+        "name": "Webflow Trigger",
+        "type": "n8n-nodes-base.webflowTrigger",
+        "position": [
+          514,
+          217
+        ],
+        "webhookId": "ce934229-1396-4920-8bfe-10579aa6f9dd",
+        "parameters": {
+          "site": "5f4e2d2bbdf69039816428f7",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "webflowOAuth2Api": "webflow"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

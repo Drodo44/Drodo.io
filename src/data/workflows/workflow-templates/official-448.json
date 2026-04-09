@@ -1,0 +1,89 @@
+{
+  "id": "official-448",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/448",
+    "template_id": 448
+  },
+  "name": "Create a new Freshdesk ticket",
+  "description": "Companion workflow for Freshdesk node documentation",
+  "category": "Productivity",
+  "tags": [
+    "Ticket Management",
+    "manual",
+    "Freshdesk",
+    "Manual Trigger",
+    "create",
+    "freshdesk",
+    "ticket",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "create a new freshdesk ticket",
+    "manual",
+    "create manual",
+    "freshdesk",
+    "create freshdesk",
+    "manual trigger",
+    "freshdesk ticket",
+    "ticket companion",
+    "companion workflow",
+    "workflow freshdesk",
+    "freshdesk node",
+    "node documentation"
+  ],
+  "required_services": [
+    "manual",
+    "Freshdesk"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Freshdesk",
+        "type": "n8n-nodes-base.freshdesk",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "status": "open",
+          "options": {},
+          "requester": "email",
+          "requesterIdentificationValue": "user@example.com"
+        },
+        "credentials": {
+          "freshdeskApi": "freshdesk-YOUR_OPENAI_KEY_HERE_OPENAI_KEY_HERE_OPENAI_KEY_HERE_OPENAI_KEY_HERE"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Freshdesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

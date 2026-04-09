@@ -1,0 +1,379 @@
+{
+  "id": "official-7383",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7383",
+    "template_id": 7383
+  },
+  "name": "Send task completion email to customers via Motion API and Gmail",
+  "description": "📺 Full walkthrough video: https://youtu.be/ xqjoUvbXbs Who it's for This workflow is for agencies or freelancers — such as Growth AI — who manage client projects in Motion and want to automatically notify customers when a project task has been completed, without any manual follow up.",
+  "category": "AI",
+  "tags": [
+    "Project Management",
+    "Multimodal AI",
+    "Loop Over Items (Split in Batches)",
+    "Gmail",
+    "Data table",
+    "Schedule Trigger",
+    "send",
+    "task",
+    "completion",
+    "email",
+    "customers",
+    "via"
+  ],
+  "task_keywords": [
+    "send task completion email to customers via motion api and gmail",
+    "loop over items (split in batches)",
+    "send loop over items (split in batches)",
+    "notify loop over items (split in batches)",
+    "gmail",
+    "send gmail",
+    "notify gmail",
+    "data table",
+    "send data table",
+    "notify data table",
+    "schedule trigger",
+    "send task"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "Gmail",
+    "Data table"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263"
+    },
+    "nodes": [
+      {
+        "id": "4170422b-6fbe-48a8-903b-3928e3521d44",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2912,
+          416
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a8ee732b-bfa0-4dfd-88a5-4f8de167fbc4",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2912,
+          0
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "598fc088-9df6-41fe-a138-af30174fc2f5",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          192,
+          0
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a7845c7e-a97b-4cba-865b-c8928278438f",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          704,
+          288
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a9b99523-6ad4-46e5-ae11-7214b5e96353",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1328,
+          288
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a1ff3a4f-08cd-4779-b34b-80f4483e28a1",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2064,
+          256
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3e2c7cb0-9bdb-4d7d-bac8-57f247e1bfa0",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2480,
+          240
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2d8fe00b-b350-4686-bfa2-9bae57ce2cc2",
+        "name": "Loop Over Items in Batches of 10",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          1376,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "f4c99d4c-d9e3-44a8-8a91-7ea498d52714",
+        "name": "Filter Todo Projects",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          1872,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "0cc63421-5cd7-4eac-80c8-b9d59e592433",
+        "name": "Fetch Motion Projects",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1632,
+          416
+        ],
+        "parameters": {},
+        "executeOnce": true,
+        "typeVersion": 4.2
+      },
+      {
+        "id": "d0da1ad2-4fc9-4b73-a03e-a9da8b48ca67",
+        "name": "Fetch Motion Tasks",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2112,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "aabfde6d-b273-4938-a264-979cda365211",
+        "name": "If Task is Completed",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          2304,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "5043d3b5-1836-417a-8165-dccd1c37d06e",
+        "name": "Send Email to Customer",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          2528,
+          416
+        ],
+        "webhookId": "8ee7592a-0b31-4661-901d-dd50a7e59723",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "53bcb0ea-f67a-43bc-a8a8-fa787b27bd00",
+        "name": "Get Rows from Data Table",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          944,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "e57e7309-4574-4826-816b-7930dfcb18b0",
+        "name": "Update Row in Data Table",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          2736,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "9d4d2d5e-0ac0-497f-a41a-898451256eb4",
+        "name": "Filter Eligible Rows",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          1136,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 2.3
+      },
+      {
+        "id": "1bff5caf-e37c-4444-8361-83f7b7667733",
+        "name": "Every Day at 10",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          752,
+          416
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Every Day at 10": {
+        "main": [
+          [
+            {
+              "node": "Get Rows from Data Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Motion Tasks": {
+        "main": [
+          [
+            {
+              "node": "If Task is Completed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Eligible Rows": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items in Batches of 10",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Todo Projects": {
+        "main": [
+          [
+            {
+              "node": "Fetch Motion Tasks",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If Task is Completed": {
+        "main": [
+          [
+            {
+              "node": "Send Email to Customer",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Loop Over Items in Batches of 10",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Motion Projects": {
+        "main": [
+          [
+            {
+              "node": "Filter Todo Projects",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Email to Customer": {
+        "main": [
+          [
+            {
+              "node": "Update Row in Data Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Rows from Data Table": {
+        "main": [
+          [
+            {
+              "node": "Filter Eligible Rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Row in Data Table": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items in Batches of 10",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items in Batches of 10": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Fetch Motion Projects",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

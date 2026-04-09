@@ -1,0 +1,139 @@
+{
+  "id": "n8n-workflow-templates-new-woocommerce-product-to-slack-0374262aa9",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1148_Woocommerce_Slack_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1148_Woocommerce_Slack_Create_Triggered.json"
+  },
+  "name": "New WooCommerce product to Slack",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: New WooCommerce product to Slack",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "woo Commerce",
+    "slack",
+    "woo Commerce Trigger",
+    "woocommerce",
+    "product",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "new woocommerce product to slack",
+    "woo commerce",
+    "slack",
+    "woo commerce trigger",
+    "woocommerce product",
+    "product slack",
+    "slack n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates"
+  ],
+  "required_services": [
+    "woo Commerce",
+    "slack"
+  ],
+  "triggers": [
+    "woo Commerce Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 80,
+    "name": "New WooCommerce product to Slack",
+    "nodes": [
+      {
+        "name": "Product Created",
+        "type": "n8n-nodes-base.wooCommerceTrigger",
+        "position": [
+          320,
+          500
+        ],
+        "webhookId": "267c4855-6227-4d33-867e-74600097473e",
+        "parameters": {
+          "event": "product.created"
+        },
+        "credentials": {
+          "wooCommerceApi": {
+            "id": "48",
+            "name": "WooCommerce account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send to Slack",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          540,
+          500
+        ],
+        "parameters": {
+          "text": ":new: A new product has been added! :new:",
+          "channel": "woo-commerce",
+          "blocksUi": {
+            "blocksValues": []
+          },
+          "attachments": [
+            {
+              "color": "#66FF00",
+              "fields": {
+                "item": [
+                  {
+                    "short": false,
+                    "title": "Name",
+                    "value": "={{$json[\"name\"]}}"
+                  },
+                  {
+                    "short": true,
+                    "title": "Price",
+                    "value": "={{$json[\"regular_price\"]}}"
+                  },
+                  {
+                    "short": true,
+                    "title": "Sale Price",
+                    "value": "={{$json[\"sale_price\"]}}"
+                  },
+                  {
+                    "short": false,
+                    "title": "Link",
+                    "value": "={{$json[\"permalink\"]}}"
+                  }
+                ]
+              },
+              "footer": "=Added: {{$json[\"date_created\"]}}"
+            }
+          ],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "53",
+            "name": "Slack Access Token"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Product Created": {
+        "main": [
+          [
+            {
+              "node": "Send to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

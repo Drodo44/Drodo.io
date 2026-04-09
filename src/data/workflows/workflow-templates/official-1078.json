@@ -1,0 +1,137 @@
+{
+  "id": "official-1078",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1078",
+    "template_id": 1078
+  },
+  "name": "Get an mp4 attachment from Gmail to Google Drive",
+  "description": "This simple workflow allows you to get an mp4 attachment from gmail email and then upload it to Google Drive to get attachment webview link.",
+  "category": "AI",
+  "tags": [
+    "File Management",
+    "Gmail",
+    "Google Drive",
+    "Edit Fields (Set)",
+    "mp4",
+    "attachment",
+    "gmail",
+    "google",
+    "drive",
+    "simple"
+  ],
+  "task_keywords": [
+    "get an mp4 attachment from gmail to google drive",
+    "gmail",
+    "google drive",
+    "edit fields (set)",
+    "mp4 attachment",
+    "attachment gmail",
+    "gmail google",
+    "drive simple",
+    "simple workflow",
+    "workflow allows",
+    "allows you",
+    "you mp4"
+  ],
+  "required_services": [
+    "Gmail",
+    "Google Drive",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Gmail1",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          -34.5,
+          449.5
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "getAll",
+          "additionalFields": {
+            "format": "resolved",
+            "labelIds": [
+              "Label_1819449526183990002"
+            ]
+          }
+        },
+        "credentials": {
+          "gmailOAuth2": "Gmail"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Upload File1",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          115.5,
+          449.5
+        ],
+        "parameters": {
+          "name": "={{$binary.attachment_0.fileName}}",
+          "parents": [
+            "1I-tBNWFhH2FwcyiKeBOcGseWktF-nXBr"
+          ],
+          "binaryData": true,
+          "resolveData": true,
+          "authentication": "oAuth2",
+          "binaryPropertyName": "attachment_0"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": "Google Drive OAuth2 API"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Get attachment Link",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          280,
+          450
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "mp4_attachment",
+                "value": "={{$json[\"webViewLink\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Gmail1": {
+        "main": [
+          [
+            {
+              "node": "Upload File1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload File1": {
+        "main": [
+          [
+            {
+              "node": "Get attachment Link",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

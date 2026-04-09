@@ -1,0 +1,67 @@
+{
+  "id": "official-628",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/628",
+    "template_id": 628
+  },
+  "name": "Receive updates from HubSpot on a new contact creation",
+  "description": "Companion workflow for HubSpot Trigger node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "HubSpot",
+    "HubSpot Trigger",
+    "receive",
+    "updates",
+    "hubspot",
+    "contact",
+    "creation",
+    "companion"
+  ],
+  "task_keywords": [
+    "receive updates from hubspot on a new contact creation",
+    "hubspot",
+    "update hubspot",
+    "hubspot trigger",
+    "receive updates",
+    "updates hubspot",
+    "hubspot contact",
+    "contact creation",
+    "creation companion",
+    "companion workflow",
+    "workflow hubspot",
+    "trigger node"
+  ],
+  "required_services": [
+    "HubSpot"
+  ],
+  "triggers": [
+    "HubSpot Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Hubspot Trigger",
+        "type": "n8n-nodes-base.hubspotTrigger",
+        "position": [
+          700,
+          260
+        ],
+        "webhookId": "9fe8c037-be4f-4809-a7c2-96e509bfc52e",
+        "parameters": {
+          "appId": "dghert3",
+          "additionalFields": {
+            "maxConcurrentRequests": 5
+          }
+        },
+        "credentials": {
+          "hubspotDeveloperApi": "hubspot_trigger"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

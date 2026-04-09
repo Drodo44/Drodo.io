@@ -1,0 +1,877 @@
+{
+  "id": "n8n-workflow-template-multi-agent-contenu-90efc00cc1",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Multi_Agent_Contenu.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Multi_Agent_Contenu.json"
+  },
+  "name": "Multi Agent Contenu",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Multi Agent Contenu",
+  "category": "AI",
+  "tags": [
+    "agent",
+    "Open AI",
+    "google Sheets",
+    "information Extractor",
+    "chat",
+    "tool Vector Store",
+    "Pinecone",
+    "embeddings Open AI",
+    "chat Trigger",
+    "multi",
+    "contenu",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "multi agent contenu",
+    "agent",
+    "open ai",
+    "google sheets",
+    "information extractor",
+    "chat",
+    "tool vector store",
+    "pinecone",
+    "embeddings open ai",
+    "chat trigger",
+    "multi agent",
+    "agent contenu"
+  ],
+  "required_services": [
+    "agent",
+    "Open AI",
+    "google Sheets",
+    "information Extractor",
+    "chat",
+    "tool Vector Store",
+    "Pinecone",
+    "embeddings Open AI"
+  ],
+  "triggers": [
+    "chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Multi Agent Contenu",
+    "nodes": [
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "82b59eaf-c040-40ec-a1eb-b87c5204cd50",
+                "name": "query",
+                "value": "={{ $json['Contenu du Sujet'] }}",
+                "type": "string"
+              },
+              {
+                "id": "876a529d-0c4c-4ab5-a58b-dca77d9aab7b",
+                "name": "audience",
+                "value": "={{ $json.Audience }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1120,
+          0
+        ],
+        "id": "8e42003b-e320-410c-8180-73cb8d63af9c",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.tavily.com/search",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"api_key\":\"TA CLE API\",\n\"query\":\"{{ $json.query.replace(/\"/g,'\\\\\"') }}\",\n\"search_depth\":\"basic\",\n\"include_answer\":\"true\",\n\"topic\":\"general\",\n\"include_raw_content\":true,\n\"max_results\":3\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1320,
+          0
+        ],
+        "id": "bcb38611-0cdc-4fef-b88d-72693f33412b",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "results",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          1520,
+          0
+        ],
+        "id": "501bbbce-982f-4303-813d-4c80b99cc672",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "include": "specifiedFields",
+          "fieldsToInclude": "title,raw_content",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          1740,
+          0
+        ],
+        "id": "38bc45e3-5194-47fb-866a-8601be1366f3",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Audience : \n{{ $('Edit Fields').item.json.audience }}\n\nContenu Article : \n{{ $('Aggregate').item.json.data.toJsonString()}}\n",
+          "options": {
+            "systemMessage": "=ACTION\nRédige un post LinkedIn engageant et viral sur un sujet spécifique et pour une audience définie. Intègre les règles de viralité propres à LinkedIn.\n\nSTEPS\n\nAnalyse des données : Utilise l'outil RécupérerLinkedInPost pour analyser les posts précédents de la personne et identifier son ton, son style d'écriture et ses sujets préférés.\nDéfinir le sujet et l’audience : Basé sur les informations fournies, clarifie le sujet et l’audience cible.\nStructurer le post :\nCommence par un hook puissant pour capter l’attention (ex. anecdote, statistique, question).\nDéveloppe le contenu avec une structure claire, incluant une valeur concrète pour l’audience.\nTermine par un appel à l’action engageant (CTA).\nAppliquer les règles virales de LinkedIn :\nUtilise des phrases courtes et percutantes.\nPersonnalisation : Adapte le ton pour refléter celui de la personne en s'inspirant des données de RécupérerLinkedInPost.\nValidation : Assure-toi que le post reste authentique et aligné avec la voix et les valeurs de la personne.\nPERSONA\nAgis comme un expert en marketing digital spécialisé dans la rédaction de posts LinkedIn viraux. Tu es également un analyste capable de repérer et de recréer le ton et le style d'une personne.\n\nEXAMPLES\n\nExemple de post récupéré avec RécupérerLinkedInPost :\n\"Il y a deux ans, je me lançais dans une aventure qui m’a complètement transformé. Aujourd’hui, je veux partager les 3 leçons qui ont tout changé pour moi. [liste des leçons]. Et vous, quelle a été votre plus grande leçon cette année ? 👇\"\n\nRéponse générée adaptée :\n\"Quand j’ai découvert [sujet], tout a changé. Aujourd’hui, voici les étapes concrètes qui m’ont permis d’atteindre [résultat]. [étapes]. Quelle est votre prochaine grande étape ? \"\n\nCONTEXT\nLe sujet et l’audience cibles seront définis pour chaque requête. Exemples :\n\nSujet : \"Comment se différencier dans un marché saturé ?\"\nAudience : Entrepreneurs et responsables marketing dans le secteur tech.\nL'outil RécupérerLinkedInPost est utilisé pour capturer le ton et le style d’écriture.\n\nCONSTRAINTS\n\nLe post doit être compris entre 400 et 800 caractères (espace inclus).\nNe jamais utiliser de jargon complexe.\nUtiliser un ton professionnel mais humain et engageant.\nNe jamais copier mot pour mot un post existant.\nTEMPLATE\nVoici la structure type :\n\nHook : Une phrase percutante pour captiver l'attention.\nDéveloppement : Raconte une histoire ou partage des conseils, structurés en points clairs.\nCTA : Pose une question ouverte ou invite à interagir."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          380,
+          280
+        ],
+        "id": "1a363c7a-6c13-485f-a856-684d63007bd4",
+        "name": "LinkedIn"
+      },
+      {
+        "parameters": {
+          "agent": "conversationalAgent",
+          "promptType": "define",
+          "text": "=Audience : \n{{ $('Edit Fields').item.json.audience }}\n\nContenu Article : \n{{ $('Aggregate').item.json.data.toJsonString()}}",
+          "options": {
+            "systemMessage": "=Vous êtes un agent IA spécialisé dans la création de contenu pour des blogs. Votre mission est de rédiger des articles de blog informatifs, engageants et optimisés pour le SEO en vous basant sur les informations fournies. Voici les directives à suivre :\n\nObjectifs :\n\nCréer un article de blog complet et bien structuré qui résonne avec l'audience cible.\nSynthétiser et organiser les informations des articles pour fournir une valeur ajoutée.\nOptimiser le contenu pour le SEO en intégrant des mots-clés pertinents.\nMaintenir un ton adapté au blog (professionnel, informatif, engageant, etc.).\nInclure des éléments interactifs ou visuels lorsque cela est approprié (ex. : sous-titres, listes, images suggérées).\nStructure de l'article de blog :\n\nTitre accrocheur : Un titre optimisé pour le SEO et attirant l'attention.\nIntroduction : Présenter le sujet et capter l'intérêt du lecteur.\nCorps de l'article : Divisé en sections avec des sous-titres, présentant les points clés de manière claire et organisée.\nConclusion : Résumer les points principaux et inclure un appel à l'action (ex. : commenter, partager, s'inscrire à une newsletter).\nOptimisation SEO : Intégrer des mots-clés pertinents naturellement dans le texte, les sous-titres et les méta descriptions.\nConsidérations supplémentaires :\n\nUtiliser un langage clair, simple et accessible.\nÉviter le jargon technique à moins qu'il ne soit approprié pour l'audience.\nAssurer l'exactitude et la véracité des informations présentées.\nMaintenir la neutralité et éviter les biais.\nS'assurer que le contenu est original et exempt de plagiat.\nProposer des suggestions d'images ou de visuels pertinents pour illustrer l'article.\nExemple d'article attendu :\n\nTitre : Les Tendances SEO Incontournables pour 2025\n\nIntroduction : Le paysage du SEO est en constante évolution, et rester à jour avec les dernières tendances est crucial pour maintenir une visibilité en ligne optimale. En 2025, plusieurs nouvelles tendances émergent qui promettent de transformer la manière dont nous optimisons nos contenus.\n\nSection 1 : L'Intelligence Artificielle au Service du SEO L'IA continue de révolutionner le référencement naturel. Des outils avancés permettent désormais d'analyser les comportements des utilisateurs avec une précision inégalée, facilitant ainsi la création de contenus hautement pertinents.\n\nSection 2 : La Recherche Vocale Prend de l'Importance Avec l'augmentation de l'utilisation des assistants vocaux, optimiser son contenu pour la recherche vocale devient essentiel. Cela implique de se concentrer sur des phrases plus conversationnelles et des réponses directes aux questions fréquentes des utilisateurs.\n\nSection 3 : L'Expérience Utilisateur (UX) comme Facteur de Classement Google accorde de plus en plus d'importance à l'expérience utilisateur. Des éléments tels que la vitesse de chargement des pages, la compatibilité mobile et la navigation intuitive sont désormais des critères déterminants pour le classement des sites.\n\nConclusion : Pour rester compétitif en 2025, il est impératif d'adopter ces nouvelles tendances SEO. Intégrer l'IA, optimiser pour la recherche vocale et améliorer l'expérience utilisateur sont des stratégies clés pour augmenter votre visibilité en ligne. Quelles tendances pensez-vous intégrer dans votre stratégie SEO cette année ? Partagez vos réflexions dans les commentaires !\n\nOptimisation SEO :\n\nMots-clés principaux : tendances SEO 2025, intelligence artificielle SEO, recherche vocale\nMéta description : Découvrez les tendances SEO incontournables pour 2025 et comment elles peuvent transformer votre stratégie de référencement naturel.\nSuggestions d'images :\n\nInfographie des tendances SEO 2025\nDiagramme illustrant l'impact de l'IA sur le SEO\nImage d'un assistant vocal en action"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          900,
+          280
+        ],
+        "id": "298013a4-0351-4060-8425-3c0a8fdceeec",
+        "name": "Blog"
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          380,
+          440
+        ],
+        "id": "ac84c3a0-6669-4def-a12e-6bb6c2810ee2",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          920,
+          440
+        ],
+        "id": "785d7d00-5c74-4a6f-bcf4-1a061db18cd5",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1400,
+          440
+        ],
+        "id": "b3632b52-082d-40a7-b381-088c4625c6f8",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Audience : \n{{ $('Edit Fields').item.json.audience }}\n\nContenu Article : \n{{ $('Aggregate').item.json.data.toJsonString()}}",
+          "options": {
+            "systemMessage": "=Vous êtes un agent IA spécialisé dans la création de tweets pour X, adaptés à une audience spécifique. On vous fournit:\n\n**Votre tâche est de:**\n- Condenser le contenu brut en un tweet percutant, engageant et pertinent pour l'audience cible.\n- Utiliser un ton et un style qui résonnent avec les tendances actuelles sur X pour cette audience.\n- Inclure des hashtags pertinents et populaires pour augmenter la visibilité et l'engagement.\n- Si pertinent, ajouter des emojis pour enrichir le message et captiver l'attention, mais ne pas en abuser.\n- S'assurer que le tweet respecte la limite de caractères de X (max 280 caractères), en se concentrant sur l'essentiel tout en gardant l'impact.\n- Incorporer un appel à l'action ou poser une question pour encourager les interactions comme les retweets, likes et commentaires.\n- Garder le contenu factuel et véridique, mais adapté au format et à l'audience de X.\n\n**Exemples basés sur des tweets réels:**\n\n1. **Titre**: La révolution du café à emporter  \n   **Contenu Brut**: Les cafés à emporter ont vu une augmentation de 50% de leur fréquentation depuis le retour au bureau.  \n   **Audience Cible**: Jeunes professionnels urbains\n\n   **Tweet Final**: \"Le café à emporter est la nouvelle norme! ☕️ #CaféAuBureau #VieDeBureau 50% plus de personnes s'y arrêtent. C'est quoi votre go-to pour un boost matinal?\"\n\n2. **Titre**: Les chiens de secours en action  \n   **Contenu Brut**: Les chiens de secours ont joué un rôle clé dans les opérations de sauvetage après le tremblement de terre majeur.  \n   **Audience Cible**: Amoureux des animaux et humanitaires\n\n   **Tweet Final**: \"Les héros à quatre pattes en action! 🐕 #ChiensDeSauvetage #HérosSansMots Leur courage après le séisme est incroyable. Partagez pour les honorer! ❤️\"\n\n3. **Titre**: Le streaming devient la norme  \n   **Contenu Brut**: 70% des jeunes adultes préfèrent maintenant regarder des séries via des services de streaming plutôt que la télévision traditionnelle.  \n   **Audience Cible**: Millennials et Gen Z\n\n   **Tweet Final**: \"Streaming > TV classique pour 70% de nous! 📺 #StreamingAddict #BingeWatch Quelle série vous a complètement happé dernièrement?\"\n\n**Contraintes à respecter:**\n- **Limite de caractères**: Maximum 280 caractères.\n- **Hashtags**: Utilisez entre 1 à 3 hashtags pertinents et populaires.\n- **Emojis**: Un à trois emojis maximum, choisis pour renforcer le message sans surcharger.\n- **Appel à l'action/Question**: Tout tweet doit contenir une invitation à l'interaction.\n- **Factualité**: Assurez-vous que le tweet est basé sur des faits du contenu brut fourni.\n- **Adaptation Culturelle**: Le tweet doit parler directement à l'audience cible en utilisant un langage ou des références qu'ils comprendront et apprécieront.\n\nVotre réponse doit être dans le format suivant:\n- **Tweet Final**: [Tweet complet de 280 caractères ou moins]\n\nAssurez vous que votre Tweet soit en Français\n\nAssurez-vous que chaque mot et chaque caractère comptent pour maximiser l'engagement et la viralité sur X."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1380,
+          280
+        ],
+        "id": "4970c2c0-7329-4594-9ae0-56924ea276e8",
+        "name": "X"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM",
+            "mode": "list",
+            "cachedResultName": "Multi Agent Contenu ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Feuille 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "X": "={{ $json.output }}",
+              "Blog": "={{ $('Blog').item.json.output }}",
+              "LinkedIn": "={{ $('LinkedIn').item.json.output }}",
+              "row_number": "={{ $('Google Sheets2').item.json.row_number }}"
+            },
+            "matchingColumns": [
+              "row_number"
+            ],
+            "schema": [
+              {
+                "id": "Campagne",
+                "displayName": "Campagne",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Contenu du Sujet",
+                "displayName": "Contenu du Sujet",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Audience",
+                "displayName": "Audience",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "LinkedIn",
+                "displayName": "LinkedIn",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "X",
+                "displayName": "X",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Blog",
+                "displayName": "Blog",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          1740,
+          280
+        ],
+        "id": "45b1bf1f-0cc7-4cdc-82c6-c956b91bd760",
+        "name": "Google Sheets1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cU9T52A3LDYpCi48",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM",
+            "mode": "list",
+            "cachedResultName": "Multi Agent Contenu ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Feuille 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Campagne": "={{ $json.output.nom_campagne }}",
+              "Contenu du Sujet": "={{ $json.output.contenu_sujet }}",
+              "Audience": "={{ $json.output.audience }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Campagne",
+                "displayName": "Campagne",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Contenu du Sujet",
+                "displayName": "Contenu du Sujet",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Audience",
+                "displayName": "Audience",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "LinkedIn",
+                "displayName": "LinkedIn",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "X",
+                "displayName": "X",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Blog",
+                "displayName": "Blog",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          700,
+          0
+        ],
+        "id": "debf2f90-9978-4a98-8f9e-06259a95ddc6",
+        "name": "Google Sheets",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cU9T52A3LDYpCi48",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "text": "={{ $json.chatInput }}",
+          "attributes": {
+            "attributes": [
+              {
+                "name": "audience",
+                "description": "L'audience cible ",
+                "required": true
+              },
+              {
+                "name": "contenu_sujet",
+                "description": "Le contenu du sujet ",
+                "required": true
+              },
+              {
+                "name": "nom_campagne",
+                "description": "Le nom de campagne si précisé"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+        "typeVersion": 1,
+        "position": [
+          380,
+          0
+        ],
+        "id": "c3da18e7-3069-4f13-bc43-09c91427b6b6",
+        "name": "Information Extractor"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          200,
+          0
+        ],
+        "id": "acb7d695-3be6-43ac-bfd2-74750fbbe919",
+        "name": "When chat message received",
+        "webhookId": "6c68a348-0f0c-4535-b4d8-e3114f99d5e7"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          460,
+          140
+        ],
+        "id": "9a77119b-5032-442d-8492-6a3d388bf389",
+        "name": "OpenAI Chat Model3",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM",
+            "mode": "list",
+            "cachedResultName": "Multi Agent Contenu ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Feuille 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tvz4vLi3M1oiYue9bL1lO72-fDW0G7-GYSyf4wY_ZZM/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "Campagne",
+                "lookupValue": "={{ $json.Campagne }}"
+              },
+              {
+                "lookupColumn": "Contenu du Sujet",
+                "lookupValue": "={{ $json['Contenu du Sujet'] }}"
+              },
+              {
+                "lookupColumn": "Audience",
+                "lookupValue": "={{ $json.Audience }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          920,
+          0
+        ],
+        "id": "12225a0f-15ce-4cc3-bd76-8ce26eb95917",
+        "name": "Google Sheets2",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cU9T52A3LDYpCi48",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "LinkedIn_database",
+          "description": "Récupere les informations sur les anciens post LinkedIn de la personne pour définir son ton de voix"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1,
+        "position": [
+          560,
+          460
+        ],
+        "id": "76ef7fd8-774e-4e90-88e5-bbbba16676be",
+        "name": "Vector Store Tool"
+      },
+      {
+        "parameters": {
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "linkedin",
+            "mode": "list",
+            "cachedResultName": "linkedin"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          480,
+          620
+        ],
+        "id": "3edebf46-2019-4a2a-b9c7-b640e2cbdeb8",
+        "name": "Pinecone Vector Store",
+        "credentials": {
+          "pineconeApi": {
+            "id": "G1IIOJE1RuVk1Usf",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          820,
+          640
+        ],
+        "id": "c8893516-0527-4e85-b9ce-973a44b80493",
+        "name": "OpenAI Chat Model4",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          520,
+          760
+        ],
+        "id": "b48b8a46-ebc6-423a-b86c-49846ff1e691",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          [
+            {
+              "node": "LinkedIn",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LinkedIn": {
+        "main": [
+          [
+            {
+              "node": "Blog",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "LinkedIn",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Blog",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Blog": {
+        "main": [
+          [
+            {
+              "node": "X",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "X",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "X": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Information Extractor": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Information Extractor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model3": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Information Extractor",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets2": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector Store Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "LinkedIn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model4": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "55b0af1f-4138-4359-9637-116197e449e5",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "8mnRssjm511Uwas2",
+    "tags": []
+  }
+}

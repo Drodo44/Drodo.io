@@ -1,0 +1,163 @@
+{
+  "id": "official-936",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/936",
+    "template_id": 936
+  },
+  "name": "Add the affiliate to a program automatically",
+  "description": "This workflow allows you to create an affiliate, add metadata, and add the affiliate to a program.",
+  "category": "Data",
+  "tags": [
+    "CRM",
+    "Tapfiliate",
+    "manual",
+    "Manual Trigger",
+    "add",
+    "affiliate",
+    "program",
+    "automatically",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "add the affiliate to a program automatically",
+    "tapfiliate",
+    "create tapfiliate",
+    "manual",
+    "create manual",
+    "manual trigger",
+    "add affiliate",
+    "affiliate program",
+    "program automatically",
+    "automatically workflow",
+    "workflow allows",
+    "allows you"
+  ],
+  "required_services": [
+    "Tapfiliate",
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Tapfiliate2",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "resource": "programAffiliate",
+          "programId": "testing-program-5",
+          "affiliateId": "={{$node[\"Tapfiliate\"].json[\"id\"]}}",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "tapfiliateApi": {
+            "id": "credential-id",
+            "name": "tapfiliateApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Tapfiliate1",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "resource": "affiliateMetadata",
+          "metadataUi": {
+            "metadataValues": [
+              {
+                "key": "tag",
+                "value": "n8n"
+              }
+            ]
+          },
+          "affiliateId": "={{$json[\"id\"]}}"
+        },
+        "credentials": {
+          "tapfiliateApi": {
+            "id": "credential-id",
+            "name": "tapfiliateApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Tapfiliate",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "email": "user@example.com",
+          "lastname": "Ryan",
+          "firstname": "Jack",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "tapfiliateApi": {
+            "id": "credential-id",
+            "name": "tapfiliateApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Tapfiliate": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Tapfiliate1": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

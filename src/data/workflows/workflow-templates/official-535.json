@@ -1,0 +1,63 @@
+{
+  "id": "official-535",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/535",
+    "template_id": 535
+  },
+  "name": "Receive updates on a new invoice via Invoice Ninja",
+  "description": "Companion workflow for Invoice Ninja Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "Invoice Processing",
+    "Invoice Ninja",
+    "Invoice Ninja Trigger",
+    "receive",
+    "updates",
+    "invoice",
+    "via",
+    "ninja"
+  ],
+  "task_keywords": [
+    "receive updates on a new invoice via invoice ninja",
+    "invoice ninja",
+    "update invoice ninja",
+    "invoice ninja trigger",
+    "receive updates",
+    "updates invoice",
+    "invoice via",
+    "via invoice",
+    "ninja companion",
+    "companion workflow",
+    "workflow invoice",
+    "ninja trigger"
+  ],
+  "required_services": [
+    "Invoice Ninja"
+  ],
+  "triggers": [
+    "Invoice Ninja Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Invoice Ninja Trigger",
+        "type": "n8n-nodes-base.invoiceNinjaTrigger",
+        "position": [
+          890,
+          400
+        ],
+        "webhookId": "97be21b3-ebf5-48cf-b291-5d954657a544",
+        "parameters": {
+          "event": "create_invoice"
+        },
+        "credentials": {
+          "invoiceNinjaApi": "invoice_ninja_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

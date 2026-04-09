@@ -1,0 +1,135 @@
+{
+  "id": "n8n-automation-templates-5000-template-153-4ee19f8d55",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/sales_153_email_trigger_salesforce_to_clearbit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/sales_153_email_trigger_salesforce_to_clearbit.json"
+  },
+  "name": "Template 153",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 153",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "salesforce",
+    "clearbit",
+    "gmail Trigger",
+    "template",
+    "153",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 153",
+    "gmail",
+    "salesforce",
+    "clearbit",
+    "gmail trigger",
+    "153 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "gmail",
+    "salesforce",
+    "clearbit"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 153",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Salesforce",
+        "type": "n8n-nodes-base.salesforce",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Clearbit",
+        "type": "n8n-nodes-base.clearbit",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Salesforce",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Salesforce": {
+        "main": [
+          [
+            {
+              "node": "Clearbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 153
+  }
+}

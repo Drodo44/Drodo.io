@@ -1,0 +1,130 @@
+{
+  "id": "n8n-automation-templates-5000-template-936-d309bbe390",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Medium/home_automation_936_api_polling_email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Medium/home_automation_936_api_polling_email.json"
+  },
+  "name": "Template 936",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 936",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Medium",
+    "email",
+    "medium",
+    "template",
+    "936",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 936",
+    "email",
+    "medium",
+    "936 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000"
+  ],
+  "required_services": [
+    "email",
+    "medium"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 936",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://api.example.com/data",
+          "method": "GET"
+        },
+        "name": "API Polling",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Email",
+        "type": "n8n-nodes-base.email",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Medium",
+        "type": "n8n-nodes-base.medium",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "API Polling": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email": {
+        "main": [
+          [
+            {
+              "node": "Medium",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 936
+  }
+}

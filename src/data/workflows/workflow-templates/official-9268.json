@@ -1,0 +1,860 @@
+{
+  "id": "official-9268",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/9268",
+    "template_id": 9268
+  },
+  "name": "YouTube channel monitor with Video Stats, AI transcription & Summarization",
+  "description": "This n8n workflow monitors YouTube channels 24/7, transcribes new videos with AI, and scores them by relevance—all automatically saved to Google Sheets.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "AI Summarization",
+    "Structured Output Parser",
+    "Google Gemini Chat Model",
+    "Loop Over Items (Split in Batches)",
+    "Edit Fields (Set)",
+    "Google Sheets",
+    "Schedule Trigger",
+    "youtube",
+    "channel",
+    "monitor",
+    "video",
+    "stats",
+    "transcription"
+  ],
+  "task_keywords": [
+    "youtube channel monitor with video stats, ai transcription & summarization",
+    "structured output parser",
+    "monitor structured output parser",
+    "google gemini chat model",
+    "monitor google gemini chat model",
+    "loop over items (split in batches)",
+    "monitor loop over items (split in batches)",
+    "edit fields (set)",
+    "monitor edit fields (set)",
+    "google sheets",
+    "monitor google sheets",
+    "schedule trigger"
+  ],
+  "required_services": [
+    "Structured Output Parser",
+    "Google Gemini Chat Model",
+    "Loop Over Items (Split in Batches)",
+    "Edit Fields (Set)",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "b6be3264d10563f53f60f119665bef14019561878be2f73c07ebd4200e9255cf",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "23ed0a44-17f3-4ddd-98d7-667c813b8c26",
+        "name": "Structured Output Parser1",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          -2936,
+          -188
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1f54c4f3-f673-40be-b40a-a1ebe1d95c8f",
+        "name": "Google Gemini Chat Model13",
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "position": [
+          -3064,
+          -188
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "acc97cba-b203-42ef-9c88-b9f3c84e034e",
+        "name": "youtube video summariser",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -3072,
+          -412
+        ],
+        "parameters": {},
+        "retryOnFail": true,
+        "typeVersion": 1.5
+      },
+      {
+        "id": "bbfdd52b-e9ae-41e9-830e-ac080c661fc5",
+        "name": "If4",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -5088,
+          -124
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "80402260-bb85-42b9-84b1-05f4dcd27e88",
+        "name": "Loop Over Videos",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -4640,
+          -124
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "5875d204-c4d9-4bf5-95a3-922f91c72293",
+        "name": "Edit Fields1",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -3296,
+          -412
+        ],
+        "parameters": {},
+        "typeVersion": 3.4,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "91a45e4e-1bc5-4bfc-ba87-83f55cf233fa",
+        "name": "Youtube Transcriber Gemini",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          -3744,
+          -364
+        ],
+        "parameters": {},
+        "typeVersion": 4.2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "50bf5f8c-0451-47dc-bb87-1f58e091fe5d",
+        "name": "Get row(s) in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -6032,
+          -768
+        ],
+        "parameters": {},
+        "typeVersion": 4.7
+      },
+      {
+        "id": "ef915172-5a3b-412f-a499-99a73262783c",
+        "name": "check if youtube link",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -5584,
+          -768
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "980c2c80-b9fd-454a-b8b5-737a45d93f01",
+        "name": "Split into individual links",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -5808,
+          -768
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "5ddd6b95-2478-4fe2-87a0-c84ec9eff978",
+        "name": "Loop Over channels",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -5360,
+          -768
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "83b56b40-54d7-45e4-ac7f-aa305d2e1ae4",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4976,
+          -832
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "12741747-d3cf-4d31-b8fd-eb34258ca2d9",
+        "name": "video details",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -3520,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "771f493f-204e-493a-bca0-08ea4b961b13",
+        "name": "If title?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -3296,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 2.2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "6c1a61e0-65f7-4d2f-b58c-c9ab72bfdc35",
+        "name": "Video Data and criteria",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -4416,
+          -220
+        ],
+        "parameters": {},
+        "typeVersion": 3.4,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "f96c44e3-c59d-406c-8988-d75574d3aeb7",
+        "name": "Get row(s) in sheet1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -4192,
+          -292
+        ],
+        "parameters": {},
+        "typeVersion": 4.7,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "928e2dd5-c6a6-4bd2-875c-7a70e647de79",
+        "name": "if not exist in sheet?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -3968,
+          -292
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "cce80df2-48e0-46f5-aada-cf4220876e0e",
+        "name": "If transcript exists",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -3520,
+          -364
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "f035199a-b515-4ae6-b536-177cf6e84736",
+        "name": "Append or update row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -2720,
+          -412
+        ],
+        "parameters": {},
+        "typeVersion": 4.7
+      },
+      {
+        "id": "96e91e5b-52ff-49f3-9b89-fdd6f92de5f1",
+        "name": "End",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -4416,
+          -560
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "c2dc9bcc-7e97-4c9a-b775-a72dffc60941",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4736,
+          -368
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b3a5afe3-5fe5-47cc-94f3-b14feea2d956",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3168,
+          -560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "45e914ff-808e-4596-bf69-6c6799324702",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3912,
+          -604
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "68dfb732-4799-46e7-8274-5749cd8dc807",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -6256,
+          -768
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1a29295c-be37-4b1f-b281-c9e00c6de8c5",
+        "name": "Wait 2 sec",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          -3008,
+          -752
+        ],
+        "webhookId": "e7a42ad4-7cb0-4942-9709-d9dae054d8c6",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "27f95674-e042-4fd1-9d54-c34c70cd8fba",
+        "name": "Wait 85 sec on fail",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          -3296,
+          -100
+        ],
+        "webhookId": "8580d46f-0ff8-4687-a5f2-e71960000462",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "ddb1108d-c984-47be-bc43-0dedb3ced055",
+        "name": "Wait 70 sec for next video",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          -2496,
+          -148
+        ],
+        "webhookId": "999d44b4-113e-4dcf-bbf0-a0c3dcce7369",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "a025fc4a-b79f-4cf8-a8c7-fc2795c3b729",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -7472,
+          -1184
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6692843e-a7ac-459d-a817-918ead87b947",
+        "name": "Get candidate videos",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4416,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "8113ec23-2c02-45f6-8982-5fbf8909177c",
+        "name": "Get channel stats",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4640,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "0d1c8bc1-43d9-4248-8862-be6da4c28cdf",
+        "name": "Split Out",
+        "type": "n8n-nodes-base.splitOut",
+        "position": [
+          -4192,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "e28d8f14-0707-44b8-b8f5-3463e539c680",
+        "name": "Last 30 days",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          -3968,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 2.3
+      },
+      {
+        "id": "8f03fadc-0518-4681-8a0e-4369f79edf0a",
+        "name": "Get Channel ID1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4864,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "2c5e034e-ac34-4fc2-b9a7-85d802b7591b",
+        "name": "Get baseline video stats",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -3744,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "0d1b3537-08a9-4c76-ab99-5896c6ca8741",
+        "name": "Append or update row in sheet1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -4864,
+          -124
+        ],
+        "parameters": {},
+        "typeVersion": 4.7
+      },
+      {
+        "id": "519695fd-2a60-4c4c-95c4-2f439e85e116",
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          -3744,
+          -172
+        ],
+        "webhookId": "a907aec1-44b0-4a81-9a3e-c4b9cea59217",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "a6a4e066-3e32-4fdd-9e5e-5ff26324ecd0",
+        "name": "Set channel and API",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -5088,
+          -752
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "If4": {
+        "main": [
+          [
+            {
+              "node": "Append or update row in sheet1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Videos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If title?": {
+        "main": [
+          [
+            {
+              "node": "Wait 2 sec",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Last 30 days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 2 sec": {
+        "main": [
+          [
+            {
+              "node": "Loop Over channels",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "youtube video summariser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Last 30 days": {
+        "main": [
+          [
+            {
+              "node": "Get baseline video stats",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "video details": {
+        "main": [
+          [
+            {
+              "node": "If title?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Channel ID1": {
+        "main": [
+          [
+            {
+              "node": "Get channel stats",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Videos": {
+        "main": [
+          [
+            {
+              "node": "End",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Video Data and criteria",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get channel stats": {
+        "main": [
+          [
+            {
+              "node": "Get candidate videos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over channels": {
+        "main": [
+          [
+            {
+              "node": "If4",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Set channel and API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Split into individual links",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set channel and API": {
+        "main": [
+          [
+            {
+              "node": "Get Channel ID1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 85 sec on fail": {
+        "main": [
+          [
+            {
+              "node": "Video Data and criteria",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get candidate videos": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet1": {
+        "main": [
+          [
+            {
+              "node": "if not exist in sheet?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If transcript exists": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait 85 sec on fail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "check if youtube link": {
+        "main": [
+          [
+            {
+              "node": "Loop Over channels",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "if not exist in sheet?": {
+        "main": [
+          [
+            {
+              "node": "Youtube Transcriber Gemini",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Video Data and criteria": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get baseline video stats": {
+        "main": [
+          [
+            {
+              "node": "video details",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "youtube video summariser": {
+        "main": [
+          [
+            {
+              "node": "Append or update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "youtube video summariser",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model13": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "youtube video summariser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 70 sec for next video": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Videos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Youtube Transcriber Gemini": {
+        "main": [
+          [
+            {
+              "node": "If transcript exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split into individual links": {
+        "main": [
+          [
+            {
+              "node": "check if youtube link",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append or update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Wait 70 sec for next video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append or update row in sheet1": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Videos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "official-559",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/559",
+    "template_id": 559
+  },
+  "name": "Create a new folder in Box",
+  "description": "Companion workflow for Box node docs",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "manual",
+    "Box",
+    "Manual Trigger",
+    "create",
+    "folder",
+    "box",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "create a new folder in box",
+    "manual",
+    "create manual",
+    "create box",
+    "manual trigger",
+    "create folder",
+    "folder box",
+    "box companion",
+    "companion workflow",
+    "workflow box",
+    "box node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Box"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Box",
+        "type": "n8n-nodes-base.box",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "name": "n8n-rocks",
+          "options": {},
+          "resource": "folder"
+        },
+        "credentials": {
+          "boxOAuth2Api": "box"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Box",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

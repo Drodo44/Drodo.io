@@ -1,0 +1,99 @@
+{
+  "id": "official-1546",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1546",
+    "template_id": 1546
+  },
+  "name": "Create a QuickBooks invoice on a new Onfleet task creation",
+  "description": "Summary Onfleet is a last mile delivery software that provides end to end route planning, dispatch, communication, and analytics to handle the heavy lifting while you can focus on your customers.",
+  "category": "Communication",
+  "tags": [
+    "Invoice Processing",
+    "Onfleet",
+    "QuickBooks Online",
+    "Onfleet Trigger",
+    "create",
+    "quickbooks",
+    "invoice",
+    "onfleet",
+    "task",
+    "creation"
+  ],
+  "task_keywords": [
+    "create a quickbooks invoice on a new onfleet task creation",
+    "onfleet",
+    "create onfleet",
+    "quickbooks online",
+    "create quickbooks online",
+    "onfleet trigger",
+    "create quickbooks",
+    "quickbooks invoice",
+    "invoice onfleet",
+    "onfleet task",
+    "task creation",
+    "creation summary"
+  ],
+  "required_services": [
+    "Onfleet",
+    "QuickBooks Online"
+  ],
+  "triggers": [
+    "Onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Create a QuickBooks invoice on a new Onfleet Task creation",
+    "nodes": [
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "6d6a2bee-f83e-4ebd-a1d5-8708c34393dc",
+        "parameters": {
+          "triggerOn": "taskCreated",
+          "additionalFields": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "QuickBooks Online",
+        "type": "n8n-nodes-base.quickbooks",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "Line": [],
+          "resource": "invoice",
+          "operation": "create",
+          "additionalFields": {
+            "Balance": 0,
+            "TxnDate": "",
+            "ShipAddr": "",
+            "BillEmail": ""
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "QuickBooks Online",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

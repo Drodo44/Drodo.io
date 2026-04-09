@@ -1,0 +1,410 @@
+{
+  "id": "n8n-ai-automations-the-recap-ai-nano-banana-influencer-ad-creative-bd59075f3a",
+  "source": {
+    "type": "github",
+    "repository": "lucaswalter/n8n-ai-automations",
+    "repository_stars": 1434,
+    "path": "nano_banana_ad_creative_generator.json",
+    "url": "https://github.com/lucaswalter/n8n-ai-automations/blob/main/nano_banana_ad_creative_generator.json"
+  },
+  "name": "The Recap AI - Nano Banana Influencer Ad Creative",
+  "description": "n8n workflow template from lucaswalter/n8n-ai-automations: The Recap AI - Nano Banana Influencer Ad Creative",
+  "category": "AI",
+  "tags": [
+    "form",
+    "google Drive",
+    "split In Batches",
+    "form Trigger",
+    "recap",
+    "nano",
+    "banana",
+    "influencer",
+    "creative",
+    "n8n"
+  ],
+  "task_keywords": [
+    "the recap ai - nano banana influencer ad creative",
+    "form",
+    "google drive",
+    "split in batches",
+    "form trigger",
+    "recap nano",
+    "nano banana",
+    "banana influencer",
+    "influencer creative",
+    "creative n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "form",
+    "google Drive",
+    "split In Batches"
+  ],
+  "triggers": [
+    "form Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "The Recap AI - Nano Banana Influencer Ad Creative",
+    "nodes": [
+      {
+        "parameters": {
+          "formTitle": "Influencer Ad Creative Generator",
+          "formDescription": "Select and upload an image of your product. ",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Image",
+                "fieldType": "file",
+                "multipleFiles": false,
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.2,
+        "position": [
+          512,
+          -224
+        ],
+        "id": "765aa3a3-7cce-4510-a342-c297d13e8c87",
+        "name": "form_trigger",
+        "webhookId": "fe94ee22-4cc4-41f1-98ea-e69855b6b630"
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "returnAll": true,
+          "filter": {
+            "folderId": {
+              "__rl": true,
+              "value": "1HTaxyt9ZIlf3faATFlN4ujlTZge9_yg-",
+              "mode": "id"
+            }
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1040,
+          -224
+        ],
+        "id": "a66447f3-377e-498a-a925-f21a60fee7df",
+        "name": "list_influencer_images",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          512,
+          0
+        ],
+        "id": "0a5ddc7f-e7bf-4cec-8bf4-8fb107ca0676",
+        "name": "iterate_influencer_images"
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          784,
+          64
+        ],
+        "id": "96c2c161-08ba-4dc6-87e3-da1ac17154b6",
+        "name": "download_influencer_image",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "Image",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          784,
+          -224
+        ],
+        "id": "92609f61-eb3f-4eff-8f74-3392af805e3f",
+        "name": "product_image_to_base64"
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          1040,
+          64
+        ],
+        "id": "be421a9d-d907-4a9d-8183-1ee15d325417",
+        "name": "influencer_image_to_base_64"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": \"Create an image where the cup/tumbler in image 1 is being held by the person in the 2nd image (like they are about to take a drink from the cup). The person should be sitting at a table at a cafe or coffee shop and is smiling warmly while looking at the camera. This is not a professional photo, it should feel like a friend is taking a picture of the person in the 2nd image. Only return the final generated image. The angle of the image should instead by slightly at an angle from the side (vary this angle).\" },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['product_image_to_base64'].json.data }}\"\n        }\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/jpeg\",\n          \"data\": \"{{ $node['influencer_image_to_base_64'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1280,
+          64
+        ],
+        "id": "5a0d1500-72d5-4f6c-bd9e-caa43559c28e",
+        "name": "generate_image",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "image_result",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          1760,
+          64
+        ],
+        "id": "a784a2b9-42d4-4f69-9f0f-0c2b22db061f",
+        "name": "get_image"
+      },
+      {
+        "parameters": {
+          "name": "=Influencer Image #{{ $runIndex + 1 }}",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list",
+            "cachedResultName": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1ZatlrK3cMUHkeel-HTeCFYDf1mdBRAWj",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2016,
+          160
+        ],
+        "id": "f4bd7aed-8cc0-4c9a-9209-8a4af074e89f",
+        "name": "upload_image",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "524da01b-f8b9-4c2c-9e28-319455903e4d",
+                "name": "=image_result",
+                "value": "={{ $json.candidates[0].content.parts.filter(item => item.inlineData).first().inlineData.data }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1520,
+          64
+        ],
+        "id": "f6d7116b-51f6-4a7a-9684-8b92320eed2f",
+        "name": "set_result"
+      },
+      {
+        "parameters": {
+          "content": "## Nano Banana Ad Creative Generator\n",
+          "height": 832,
+          "width": 1936
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          368,
+          -400
+        ],
+        "typeVersion": 1,
+        "id": "392150b5-f890-4918-a6ad-ab51e75560fb",
+        "name": "Sticky Note"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "form_trigger": {
+        "main": [
+          [
+            {
+              "node": "product_image_to_base64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "list_influencer_images": {
+        "main": [
+          [
+            {
+              "node": "iterate_influencer_images",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "iterate_influencer_images": {
+        "main": [
+          [],
+          [
+            {
+              "node": "download_influencer_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "download_influencer_image": {
+        "main": [
+          [
+            {
+              "node": "influencer_image_to_base_64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "product_image_to_base64": {
+        "main": [
+          [
+            {
+              "node": "list_influencer_images",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "influencer_image_to_base_64": {
+        "main": [
+          [
+            {
+              "node": "generate_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_image": {
+        "main": [
+          [
+            {
+              "node": "set_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_image": {
+        "main": [
+          [
+            {
+              "node": "upload_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "upload_image": {
+        "main": [
+          [
+            {
+              "node": "iterate_influencer_images",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_result": {
+        "main": [
+          [
+            {
+              "node": "get_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "c3a360de-66e9-42ce-a91e-e76220068fe3",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+    },
+    "id": "sywT2pKhyWK0seSM",
+    "tags": []
+  }
+}

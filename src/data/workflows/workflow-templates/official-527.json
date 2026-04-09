@@ -1,0 +1,63 @@
+{
+  "id": "official-527",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/527",
+    "template_id": 527
+  },
+  "name": "Receive updates for GitHub events",
+  "description": "Companion workflow for Github Trigger node docs",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "Github Trigger",
+    "receive",
+    "updates",
+    "github",
+    "events",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for github events",
+    "github trigger",
+    "receive updates",
+    "updates github",
+    "github events",
+    "events companion",
+    "companion workflow",
+    "workflow github",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [],
+  "triggers": [
+    "Github Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Github Trigger",
+        "type": "n8n-nodes-base.githubTrigger",
+        "position": [
+          260,
+          410
+        ],
+        "webhookId": "887a6b2b-dfc3-48b5-86e3-fc414613baee",
+        "parameters": {
+          "owner": "n8n-io",
+          "events": [
+            "*"
+          ],
+          "repository": "n8n-docs"
+        },
+        "credentials": {
+          "githubApi": "github_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

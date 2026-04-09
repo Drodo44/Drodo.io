@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   GitBranch,
   Plus,
@@ -15,6 +15,8 @@ import {
   Circle,
   Copy,
   X,
+  Search,
+  Workflow,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -22,11 +24,14 @@ import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
+import { getWorkflowCategories, getWorkflowCount, getWorkflowTemplate, searchWorkflows, type WorkflowIndex } from '../lib/workflows'
 import type { Message, Provider } from '../types'
 
 const WORKFLOWS_KEY = 'drodo_workflow_defs'
 const RUNS_KEY = 'drodo_workflow_runs'
 const LEGACY_PROVIDER_PREFIX = 'drodo_provider_'
+const TEMPLATE_SECTION_PREVIEW_LIMIT = 6
+const TEMPLATE_GRID_RENDER_LIMIT = 160
 
 type WorkflowTab = 'workflows' | 'builder' | 'history'
 type StepRunStatus = 'pending' | 'running' | 'complete' | 'error' | 'stopped'
@@ -412,6 +417,11 @@ export function WorkflowsView() {
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({})
   const [expandedOutputs, setExpandedOutputs] = useState<Record<string, boolean>>({})
   const [clearConfirm, setClearConfirm] = useState(false)
+  const [templateQuery, setTemplateQuery] = useState('')
+  const [activeTemplateCategory, setActiveTemplateCategory] = useState('All')
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
+  const [selectedTemplateJson, setSelectedTemplateJson] = useState('')
+  const [templateImportStatus, setTemplateImportStatus] = useState<string | null>(null)
   const activeStreamRef = useRef<{ abort: () => void } | null>(null)
   const pendingStepAbortResolverRef = useRef<(() => void) | null>(null)
   const stepRunsRef = useRef<StepRunState[]>([])
@@ -764,6 +774,95 @@ export function WorkflowsView() {
   const selectedWorkflow = workflows.find(workflow => workflow.id === selectedId) ?? null
   const combinedOutput = buildRunOutput(stepRuns)
   const showOutputPanel = workflowRunning || stepRuns.length > 0
+  const allTemplates = useMemo(() => searchWorkflows(''), [])
+  const templateCategories = useMemo(() => ['All', ...getWorkflowCategories()], [])
+  const searchedTemplates = useMemo(() => searchWorkflows(templateQuery), [templateQuery])
+  const filteredTemplates = useMemo(() => {
+    if (activeTemplateCategory === 'All') {
+      return searchedTemplates
+    }
+
+    return searchedTemplates.filter(template => template.category === activeTemplateCategory)
+  }, [activeTemplateCategory, searchedTemplates])
+  const previewTemplateSections = useMemo(() => {
+    if (templateQuery.trim() || activeTemplateCategory !== 'All') {
+      return []
+    }
+
+    return getWorkflowCategories()
+      .map(category => {
+        const templates = allTemplates.filter(template => template.category === category)
+        return {
+          category,
+          count: templates.length,
+          templates: templates.slice(0, TEMPLATE_SECTION_PREVIEW_LIMIT),
+        }
+      })
+      .filter(section => section.count > 0)
+  }, [activeTemplateCategory, allTemplates, templateQuery])
+  const templateCategoryCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const template of allTemplates) {
+      counts.set(template.category, (counts.get(template.category) ?? 0) + 1)
+    }
+    return counts
+  }, [allTemplates])
+  const displayedTemplates = useMemo(() => {
+    if (!templateQuery.trim() && activeTemplateCategory === 'All') {
+      return []
+    }
+
+    return filteredTemplates.slice(0, TEMPLATE_GRID_RENDER_LIMIT)
+  }, [activeTemplateCategory, filteredTemplates, templateQuery])
+  const selectedTemplate = useMemo(
+    () => allTemplates.find(template => template.id === selectedTemplateId) ?? null,
+    [allTemplates, selectedTemplateId]
+  )
+
+  const openTemplate = (template: WorkflowIndex) => {
+    const templateJson = getWorkflowTemplate(template.id)
+    if (!templateJson) {
+      setTemplateImportStatus('Template JSON could not be loaded.')
+      return
+    }
+
+    setSelectedTemplateId(template.id)
+    setSelectedTemplateJson(JSON.stringify(templateJson, null, 2))
+    setTemplateImportStatus(null)
+  }
+
+  const copySelectedTemplate = () => {
+    if (!selectedTemplateJson.trim()) return
+    void navigator.clipboard.writeText(selectedTemplateJson).catch(() => {
+      setTemplateImportStatus('Copy failed. Clipboard access was denied.')
+    })
+  }
+
+  const deploySelectedTemplate = async () => {
+    if (!selectedTemplateJson.trim()) return
+
+    try {
+      const parsed = JSON.parse(selectedTemplateJson)
+      const response = await fetch('http://localhost:5678/rest/workflows', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed),
+      })
+
+      if (!response.ok) {
+        const message = await response.text()
+        throw new Error(message || `HTTP ${response.status}`)
+      }
+
+      const imported = await response.json().catch(() => null)
+      const workflowName = imported?.name || parsed?.name || selectedTemplate?.name || 'workflow'
+      setTemplateImportStatus(`Imported to n8n successfully: ${workflowName}`)
+      void notify('Drodo', `Template deployed: ${workflowName}`)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      setTemplateImportStatus(`Import failed: ${message}`)
+    }
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
@@ -778,7 +877,7 @@ export function WorkflowsView() {
           <div>
             <h1 className="font-bold text-[var(--text-primary)] text-lg">Workflows</h1>
             <p className="text-xs text-[var(--text-secondary)]">
-              {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(runs.length, 'run')}
+              {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(getWorkflowCount(), 'template')} · {getWorkflowCountLabel(runs.length, 'run')}
             </p>
           </div>
         </div>
@@ -862,123 +961,360 @@ export function WorkflowsView() {
             ))}
           </div>
 
-          {selectedWorkflow ? (
-            <div className="flex flex-col min-h-0 overflow-hidden">
-              <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
-                <div>
-                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">{selectedWorkflow.name || 'Untitled Workflow'}</h2>
-                  <p className="text-xs text-[var(--text-secondary)] mt-1">
-                    {getWorkflowCountLabel(selectedWorkflow.steps.length, 'step')} · updated {fmtTimestamp(selectedWorkflow.updatedAt)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setTab('builder')}
-                    className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
-                  >
-                    Open Builder
-                  </button>
-                  <button
-                    onClick={() => handleDeleteWorkflow(selectedWorkflow.id)}
-                    className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
-                    title="Delete workflow"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Created</div>
-                    <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.createdAt)}</div>
-                  </div>
-                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Updated</div>
-                    <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.updatedAt)}</div>
-                  </div>
-                  <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
-                    <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Steps</div>
-                    <div className="mt-2 text-sm text-[var(--text-primary)]">{selectedWorkflow.steps.length}</div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {selectedWorkflow.steps.length === 0 ? (
-                    <div className="flex flex-col items-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-8 text-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
-                        <Plus size={22} className="text-[var(--text-secondary)]" />
+          <div className="flex flex-col min-h-0 overflow-hidden">
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: '#1d9e7518' }}>
+                        <Workflow size={18} style={{ color: '#1d9e75' }} />
                       </div>
-                      <h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">No steps yet</h3>
-                      <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
-                        Open this workflow in Builder to add ordered steps and run it.
-                      </p>
-                      <button
-                        onClick={() => setTab('builder')}
-                        className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-                        style={{ background: '#7f77dd' }}
-                      >
-                        <Plus size={14} />
-                        Open Builder
-                      </button>
+                      <div>
+                        <h2 className="text-base font-semibold text-[var(--text-primary)]">Template Library</h2>
+                        <p className="text-xs text-[var(--text-secondary)]">
+                          Browse {getWorkflowCountLabel(getWorkflowCount(), 'bundled template')} across official and starred public n8n sources.
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    selectedWorkflow.steps.map((step, index) => (
-                      <div key={step.stepId} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
-                                Step {index + 1}
-                              </span>
-                              <span className="text-sm font-semibold text-[var(--text-primary)]">
-                                {step.label.trim() || 'Untitled Step'}
-                              </span>
-                              <span
-                                className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                                style={{ background: '#7f77dd18', color: '#a09ae8' }}
-                              >
-                                {providerBadge(savedProviders, step.model)}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">{promptPreview(step.prompt)}</p>
-                          </div>
-                          <div className="text-right text-xs text-[var(--text-secondary)]">
-                            <div>{step.outputVar || 'No output var'}</div>
-                            {step.useOutputFrom && <div className="mt-1">uses {step.useOutputFrom}</div>}
-                          </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {templateCategories.map(category => {
+                        const count = category === 'All'
+                          ? allTemplates.length
+                          : (templateCategoryCounts.get(category) ?? 0)
+
+                        return (
+                          <button
+                            key={category}
+                            onClick={() => setActiveTemplateCategory(category)}
+                            className={clsx(
+                              'rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                              activeTemplateCategory === category
+                                ? 'text-white'
+                                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                            )}
+                            style={activeTemplateCategory === category
+                              ? { background: '#7f77dd', borderColor: '#7f77dd' }
+                              : { borderColor: 'var(--border-color)' }}
+                          >
+                            {category} ({count})
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <label
+                    className="flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2 lg:w-[360px]"
+                    style={{ borderColor: 'var(--border-color)', background: 'var(--bg-primary)' }}
+                  >
+                    <Search size={14} className="text-[var(--text-secondary)]" />
+                    <input
+                      value={templateQuery}
+                      onChange={event => setTemplateQuery(event.target.value)}
+                      placeholder="Search name, description, tags, or services..."
+                      className="w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
+                    />
+                  </label>
+                </div>
+
+                {selectedTemplate && (
+                  <div className="mt-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
+                    <div className="flex flex-col gap-3 border-b border-[var(--border-color)] px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: '#1d9e7518', color: '#1d9e75' }}>
+                            {selectedTemplate.category}
+                          </span>
+                          <span className="rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
+                            {selectedTemplate.complexity}
+                          </span>
+                        </div>
+                        <h3 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{selectedTemplate.name}</h3>
+                        <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">{selectedTemplate.description}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {selectedTemplate.required_services.slice(0, 8).map(service => (
+                            <span
+                              key={service}
+                              className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
+                              style={{ borderColor: 'var(--border-color)' }}
+                            >
+                              {service}
+                            </span>
+                          ))}
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={copySelectedTemplate}
+                          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                        >
+                          <Copy size={12} />
+                          Copy JSON
+                        </button>
+                        <button
+                          onClick={() => void deploySelectedTemplate()}
+                          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                          style={{ background: '#1d9e75' }}
+                        >
+                          <Play size={12} />
+                          Deploy to n8n
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-4">
+                      <pre className="max-h-[420px] overflow-y-auto rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-xs text-[var(--text-primary)] whitespace-pre-wrap break-all">
+                        {selectedTemplateJson}
+                      </pre>
+                      {templateImportStatus && (
+                        <div
+                          className="mt-3 rounded-xl px-4 py-3 text-xs"
+                          style={{
+                            background: templateImportStatus.startsWith('Imported') ? '#1d9e7510' : '#e0505010',
+                            border: `1px solid ${templateImportStatus.startsWith('Imported') ? '#1d9e7528' : '#e0505028'}`,
+                            color: templateImportStatus.startsWith('Imported') ? '#1d9e75' : '#e05050',
+                          }}
+                        >
+                          {templateImportStatus}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {!templateQuery.trim() && activeTemplateCategory === 'All' ? (
+                  <div className="mt-5 space-y-5">
+                    {previewTemplateSections.map(section => (
+                      <div key={section.category}>
+                        <div className="mb-3 flex items-center justify-between">
+                          <div>
+                            <h3 className="text-sm font-semibold text-[var(--text-primary)]">{section.category}</h3>
+                            <p className="text-xs text-[var(--text-secondary)]">{getWorkflowCountLabel(section.count, 'template')}</p>
+                          </div>
+                          <button
+                            onClick={() => setActiveTemplateCategory(section.category)}
+                            className="text-xs font-semibold text-[#7f77dd] hover:opacity-80 transition-opacity"
+                          >
+                            View Category
+                          </button>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                          {section.templates.map(template => (
+                            <div key={template.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div className="rounded-full inline-flex px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
+                                    {template.complexity}
+                                  </div>
+                                  <h4 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{template.name}</h4>
+                                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{template.description}</p>
+                                </div>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {template.required_services.slice(0, 4).map(service => (
+                                  <span
+                                    key={service}
+                                    className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
+                                    style={{ borderColor: 'var(--border-color)' }}
+                                  >
+                                    {service}
+                                  </span>
+                                ))}
+                              </div>
+                              <button
+                                onClick={() => openTemplate(template)}
+                                className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                                style={{ background: '#7f77dd' }}
+                              >
+                                <Workflow size={12} />
+                                Use Template
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-xs text-[var(--text-secondary)]">
+                        Showing {displayedTemplates.length} of {filteredTemplates.length} matching templates
+                        {filteredTemplates.length > displayedTemplates.length ? ' — refine search to narrow further.' : ''}
+                      </p>
+                    </div>
+
+                    {displayedTemplates.length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-primary)] px-5 py-10 text-center">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)]">No templates match this filter</h3>
+                        <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                          Adjust the search terms or switch categories to broaden the results.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        {displayedTemplates.map(template => (
+                          <div key={template.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#1d9e7518', color: '#1d9e75' }}>
+                                    {template.category}
+                                  </span>
+                                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
+                                    {template.complexity}
+                                  </span>
+                                </div>
+                                <h4 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{template.name}</h4>
+                                <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{template.description}</p>
+                              </div>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {template.required_services.slice(0, 5).map(service => (
+                                <span
+                                  key={service}
+                                  className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
+                                  style={{ borderColor: 'var(--border-color)' }}
+                                >
+                                  {service}
+                                </span>
+                              ))}
+                            </div>
+                            <button
+                              onClick={() => openTemplate(template)}
+                              className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                              style={{ background: '#7f77dd' }}
+                            >
+                              <Workflow size={12} />
+                              Use Template
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
+
+              {selectedWorkflow ? (
+                <section className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-hidden">
+                  <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]">
+                    <div>
+                      <h2 className="text-sm font-semibold text-[var(--text-primary)]">{selectedWorkflow.name || 'Untitled Workflow'}</h2>
+                      <p className="text-xs text-[var(--text-secondary)] mt-1">
+                        {getWorkflowCountLabel(selectedWorkflow.steps.length, 'step')} · updated {fmtTimestamp(selectedWorkflow.updatedAt)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setTab('builder')}
+                        className="rounded-lg bg-[var(--bg-tertiary)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+                      >
+                        Open Builder
+                      </button>
+                      <button
+                        onClick={() => handleDeleteWorkflow(selectedWorkflow.id)}
+                        className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                        title="Delete workflow"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-5 space-y-5">
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Created</div>
+                        <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.createdAt)}</div>
+                      </div>
+                      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Updated</div>
+                        <div className="mt-2 text-sm text-[var(--text-primary)]">{fmtTimestamp(selectedWorkflow.updatedAt)}</div>
+                      </div>
+                      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                        <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--text-secondary)]">Steps</div>
+                        <div className="mt-2 text-sm text-[var(--text-primary)]">{selectedWorkflow.steps.length}</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {selectedWorkflow.steps.length === 0 ? (
+                        <div className="flex flex-col items-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-8 text-center">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+                            <Plus size={22} className="text-[var(--text-secondary)]" />
+                          </div>
+                          <h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">No steps yet</h3>
+                          <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+                            Open this workflow in Builder to add ordered steps and run it.
+                          </p>
+                          <button
+                            onClick={() => setTab('builder')}
+                            className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                            style={{ background: '#7f77dd' }}
+                          >
+                            <Plus size={14} />
+                            Open Builder
+                          </button>
+                        </div>
+                      ) : (
+                        selectedWorkflow.steps.map((step, index) => (
+                          <div key={step.stepId} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">
+                                    Step {index + 1}
+                                  </span>
+                                  <span className="text-sm font-semibold text-[var(--text-primary)]">
+                                    {step.label.trim() || 'Untitled Step'}
+                                  </span>
+                                  <span
+                                    className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                    style={{ background: '#7f77dd18', color: '#a09ae8' }}
+                                  >
+                                    {providerBadge(savedProviders, step.model)}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">{promptPreview(step.prompt)}</p>
+                              </div>
+                              <div className="text-right text-xs text-[var(--text-secondary)]">
+                                <div>{step.outputVar || 'No output var'}</div>
+                                {step.useOutputFrom && <div className="mt-1">uses {step.useOutputFrom}</div>}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </section>
+              ) : (
+                <section className="rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-secondary)] px-5 py-10 text-center">
+                  <div
+                    className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
+                    style={{ background: '#6366f122' }}
+                  >
+                    <GitBranch size={22} style={{ color: '#6366f1' }} />
+                  </div>
+                  <h2 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">Select a saved workflow</h2>
+                  <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                    Choose a workflow from the left or create a new one to inspect its steps after browsing the template library.
+                  </p>
+                  <button
+                    onClick={handleNew}
+                    className="mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                    style={{ background: '#7f77dd' }}
+                  >
+                    <Plus size={14} />
+                    New Workflow
+                  </button>
+                </section>
+              )}
             </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="max-w-sm text-center space-y-3">
-                <div
-                  className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center"
-                  style={{ background: '#6366f122' }}
-                >
-                  <GitBranch size={22} style={{ color: '#6366f1' }} />
-                </div>
-                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Select a workflow</h2>
-                <p className="text-sm text-[var(--text-secondary)]">
-                  Choose a saved workflow from the left or create a new one to inspect its steps.
-                </p>
-                <button
-                  onClick={handleNew}
-                  className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-                  style={{ background: '#7f77dd' }}
-                >
-                  <Plus size={14} />
-                  New Workflow
-                </button>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       )}
 

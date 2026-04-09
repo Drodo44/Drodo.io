@@ -1,0 +1,125 @@
+{
+  "id": "official-700",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/700",
+    "template_id": 700
+  },
+  "name": "Purge n8n execution history located in Mysql",
+  "description": "This workflow is useful if you have lots of tasks running daily.",
+  "category": "AI",
+  "tags": [
+    "DevOps",
+    "manual",
+    "MySQL",
+    "Cron",
+    "Manual Trigger",
+    "Cron Trigger",
+    "purge",
+    "n8n",
+    "execution",
+    "history",
+    "located",
+    "mysql"
+  ],
+  "task_keywords": [
+    "purge n8n execution history located in mysql",
+    "manual",
+    "mysql",
+    "cron",
+    "manual trigger",
+    "cron trigger",
+    "purge n8n",
+    "n8n execution",
+    "execution history",
+    "history located",
+    "located mysql",
+    "mysql workflow"
+  ],
+  "required_services": [
+    "manual",
+    "MySQL",
+    "Cron"
+  ],
+  "triggers": [
+    "Manual Trigger",
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "60",
+    "name": "n8n_mysql_purge_history_greater_than_10_days",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "MySQL",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "query": "DELETE FROM execution_entity \nWHERE DATE(stoppedAt) < DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "mySql": "n8n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          250,
+          460
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 7
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": true,
+    "settings": {},
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "MySQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "MySQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "id": "n8n-automation-templates-5000-template-1863-b61f71281a",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/government_&_non-profit_1863_email_trigger_crm_to_open_data_api.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/government_&_non-profit_1863_email_trigger_crm_to_open_data_api.json"
+  },
+  "name": "Template 1863",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1863",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "crm",
+    "opendataapi",
+    "gmail Trigger",
+    "template",
+    "1863",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1863",
+    "gmail",
+    "opendataapi",
+    "gmail trigger",
+    "1863 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "gmail",
+    "crm",
+    "opendataapi"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1863",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CRM",
+        "type": "n8n-nodes-base.crm",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Open Data API",
+        "type": "n8n-nodes-base.opendataapi",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CRM": {
+        "main": [
+          [
+            {
+              "node": "Open Data API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1863
+  }
+}

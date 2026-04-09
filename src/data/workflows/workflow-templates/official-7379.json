@@ -1,0 +1,472 @@
+{
+  "id": "official-7379",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7379",
+    "template_id": 7379
+  },
+  "name": "Generate a hierarchical sitemap from a URL into Google Sheets using Firecrawl",
+  "description": "📺 Full walkthrough video: https://youtu.be/yjeKYfZP0kU &gt; ⚠️ Self hosted only — This template uses a community node (@mendable/n8n nodes firecrawl) and cannot run on n8n Cloud.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "Multimodal AI",
+    "Google Drive",
+    "Google Sheets",
+    "firecrawl",
+    "Chat Trigger",
+    "generate",
+    "hierarchical",
+    "sitemap",
+    "url",
+    "google",
+    "sheets"
+  ],
+  "task_keywords": [
+    "generate a hierarchical sitemap from a url into google sheets using firecrawl",
+    "google drive",
+    "google sheets",
+    "firecrawl",
+    "chat trigger",
+    "generate hierarchical",
+    "hierarchical sitemap",
+    "sitemap url",
+    "url google",
+    "sheets firecrawl",
+    "firecrawl full",
+    "full walkthrough"
+  ],
+  "required_services": [
+    "Google Drive",
+    "Google Sheets",
+    "firecrawl"
+  ],
+  "triggers": [
+    "Chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263"
+    },
+    "nodes": [
+      {
+        "id": "0fe60fa7-bb31-4fbe-a0c2-e3f34fa82382",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -432,
+          -576
+        ],
+        "parameters": {
+          "width": 816,
+          "height": 336,
+          "content": "## Need more advanced automation solutions? Contact us for custom enterprise workflows!\n\n# Growth-AI.fr\n\n## https://www.linkedin.com/in/allanvaccarizi/\n## https://www.linkedin.com/in/hugo-marinier-%F0%9F%A7%B2-6537b633/"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "28a285eb-ea10-497c-9492-fdb968e86830",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          416,
+          -608
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "![Logo Growth AI](https://cdn.prod.website-files.com/6825df5b20329ba581df4914/68d413c43f8729fa336568a6_Logo_horizontal.png)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "62181c94-d08e-40f5-b47e-dfdad5b8d0d2",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -432,
+          -160
+        ],
+        "parameters": {
+          "width": 480,
+          "height": 896,
+          "content": "## Website mapping\n\n### How it works\n\n1. The workflow is triggered when a chat message is received, typically containing a website URL to crawl.\n2. Firecrawl maps the website and retrieves all available URLs from it.\n3. A conditional check validates whether the Firecrawl response was successful; if not, the workflow stops with an error.\n4. On success, a Google Drive template is copied to serve as the destination spreadsheet.\n5. A code node sorts and structures the crawled URLs into a tabular format.\n6. The processed URL data is written into a Google Sheet via data mapping.\n\n### Setup steps\n\n- - [ ] Configure the **Firecrawl** node with a valid Firecrawl API key and set the target website URL (or map it from the chat message input).\n- - [ ] Set up **Google Drive** credentials and specify the template file ID to copy for each run.\n- - [ ] Set up **Google Sheets** credentials and configure the destination sheet/range in the **Data mapping** node.\n- - [ ] Review the **Sorting URL into table** code node to ensure the URL structuring logic matches your expected output format.\n- - [ ] Optionally configure the **Stop and Error** node with a meaningful error message for failed Firecrawl responses.\n\n### Customization\n\nYou can adapt the **Sorting URL into table** code node to filter, deduplicate, or categorize URLs before they are written to the sheet. The chat trigger input can also be used to dynamically pass different website URLs per run."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "934445d5-9c50-412b-8b72-ea365e82f21d",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          128,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 448,
+          "height": 320,
+          "content": "## Trigger and website crawl\n\nReceives a chat message to initiate the workflow, then uses Firecrawl to map a website and retrieve all its URLs."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2127c702-c800-4059-a450-612bce8d2339",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          624,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 432,
+          "height": 480,
+          "content": "## Validate response or stop\n\nChecks whether the Firecrawl response was successful. If the check fails, the workflow halts immediately with an error message."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ca2ff766-42c0-4a19-9aec-bf9503c9dba9",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1088,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 576,
+          "height": 320,
+          "content": "## Structure and save URL data\n\nCopies a Google Drive template, sorts the crawled URLs into a structured table via custom code, then writes the final mapped data into a Google Sheet."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "841c6c91-6ec8-469f-a25c-0fa783292a17",
+        "name": "If Firecrawl Succeeded",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          672,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "d1e1025f-704e-4392-bf2b-5be624a9c3a2",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.success }}",
+                "rightValue": "true"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "1653cf0b-b40a-40c9-9e14-76850f11adf6",
+        "name": "Copy Report Template in Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          1136,
+          0
+        ],
+        "parameters": {
+          "name": "={{ $('When Chat Message Received').item.json.chatInput }} - n8n - Arborescence",
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "1YEk44f6DlFqJIx9LGKyMxJS8Y0WQD2BXNJQB4wD-_G0"
+          },
+          "options": {},
+          "operation": "copy"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "3TalAPza9NdMx3yx",
+            "name": "Hugo Strent"
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 3
+      },
+      {
+        "id": "7358b789-e740-466c-9edc-e235eb3221d4",
+        "name": "Append URL Data to Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1504,
+          0
+        ],
+        "parameters": {
+          "columns": {
+            "value": {},
+            "schema": [
+              {
+                "id": "Niv 0",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 0",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Niv 1",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 1",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Niv 2",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 2",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Niv 3",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 3",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Niv 4",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 4",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Niv 5",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Niv 5",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "error",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "error",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "message",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "message",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "autoMapInputData",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "append",
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "FR"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Copy Report Template in Drive').item.json.id }}"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "wBRLUCktxqXE6DVJ",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.5
+      },
+      {
+        "id": "811ccac9-9dbb-4558-9a72-821765611f9b",
+        "name": "Organize URLs into Table Format",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1328,
+          0
+        ],
+        "parameters": {
+          "jsCode": "/**\n * Fonction pour traiter les URLs collectées par Firecrawl et générer une arborescence de site\n * en traitant séparément les différents domaines et sous-domaines\n * \n * @param {Object} inputData - Les données brutes de l'appel Firecrawl\n * @returns {Array} - Tableau d'objets avec les colonnes pour Google Sheets\n */\nfunction createSiteHierarchy(inputData) {\n  // Vérifier que les données d'entrée sont valides\n  if (!inputData || !inputData.success || !Array.isArray(inputData.links) || inputData.links.length === 0) {\n    throw new Error(\"Données d'entrée invalides ou vides\");\n  }\n\n  // Normaliser toutes les URLs (convertir http en https)\n  const urls = inputData.links.map(url => {\n    if (url.startsWith('http://')) {\n      return 'https://' + url.substring(7);\n    }\n    return url;\n  });\n\n  // Extraire les différents domaines/sous-domaines présents dans les URLs\n  const domainPattern = /^https?:\\/\\/([^\\/]+)/;\n  const domains = {};\n  \n  // Regrouper les URLs par domaine/sous-domaine\n  for (const url of urls) {\n    const match = url.match(domainPattern);\n    if (!match) continue;\n    \n    const fullDomain = match[1]; // ex: www.zest.fr, wiki.zest.fr\n    \n    // Extraire le sous-domaine et le domaine de base\n    const domainParts = fullDomain.split('.');\n    const isSubdomain = domainParts.length > 2;\n    \n    // Déterminer le domaine principal\n    let mainDomain;\n    if (isSubdomain) {\n      // Pour les sous-domaines comme wiki.zest.fr\n      mainDomain = domainParts.slice(domainParts.length - 2).join('.');\n    } else {\n      // Pour les domaines principaux comme zest.fr\n      mainDomain = fullDomain;\n    }\n    \n    // Enregistrer cette URL dans son groupe de domaine\n    if (!domains[fullDomain]) {\n      domains[fullDomain] = {\n        mainDomain: mainDomain,\n        fullDomain: fullDomain,\n        baseUrl: `https://${fullDomain}`,\n        urls: []\n      };\n    }\n    \n    domains[fullDomain].urls.push(url);\n  }\n  \n  // Traiter chaque domaine/sous-domaine séparément\n  const results = [];\n  \n  // Fonction pour formater le texte d'affichage d'une URL\n  function formatDisplayText(segment) {\n    if (!segment) return \"HOME PAGE\";\n    // Décodage des caractères URL (comme %20, %C3%A9, etc.)\n    try {\n      const decoded = decodeURIComponent(segment);\n      return decoded.toUpperCase().replace(/-/g, ' ');\n    } catch (e) {\n      // En cas d'erreur de décodage, utiliser le segment tel quel\n      return segment.toUpperCase().replace(/-/g, ' ');\n    }\n  }\n  \n  // Fonction pour extraire le chemin relatif d'une URL\n  function getPathFromUrl(url, baseUrl) {\n    // Supprimer le domaine\n    let path = url.replace(baseUrl, '');\n    \n    // Supprimer les slashes au début et à la fin\n    if (path.startsWith('/')) path = path.substring(1);\n    if (path.endsWith('/')) path = path.substring(0, path.length - 1);\n    \n    return path;\n  }\n  \n  // Fonction pour créer l'arborescence d'un domaine spécifique\n  function processUrlsForDomain(domainInfo) {\n    // Créer une structure arborescente pour ce domaine\n    const tree = {};\n    \n    // Ajouter la page d'accueil (niveau 0)\n    tree[domainInfo.baseUrl] = {\n      url: domainInfo.baseUrl,\n      level: 0,\n      segments: [],\n      displayText: domainInfo.fullDomain.toUpperCase(),\n      children: {}\n    };\n    \n    // Trier les URLs par longueur de chemin (du plus court au plus long)\n    domainInfo.urls.sort((a, b) => {\n      const pathA = getPathFromUrl(a, domainInfo.baseUrl);\n      const pathB = getPathFromUrl(b, domainInfo.baseUrl);\n      \n      const segmentsA = pathA ? pathA.split('/') : [];\n      const segmentsB = pathB ? pathB.split('/') : [];\n      \n      // D'abord comparer le nombre de segments\n      if (segmentsA.length !== segmentsB.length) {\n        return segmentsA.length - segmentsB.length;\n      }\n      \n      // Si même nombre de segments, comparer alphabétiquement\n      return pathA.localeCompare(pathB);\n    });\n    \n    // Construire l'arborescence\n    for (const url of domainInfo.urls) {\n      // Ignorer l'URL racine déjà ajoutée\n      if (url === domainInfo.baseUrl || url === domainInfo.baseUrl + '/') continue;\n      \n      const path = getPathFromUrl(url, domainInfo.baseUrl);\n      const segments = path ? path.split('/') : [];\n      \n      // Déterminer le niveau (limité à 5)\n      const level = Math.min(segments.length, 5);\n      \n      if (level === 0) continue; // Ignorer les duplications de l'URL racine\n      \n      // Construire le chemin complet segment par segment\n      let currentNode = tree[domainInfo.baseUrl];\n      let parentPath = domainInfo.baseUrl;\n      \n      for (let i = 0; i < level; i++) {\n        const segment = segments[i];\n        const currentPath = parentPath + '/' + segment;\n        \n        // Créer le nœud s'il n'existe pas\n        if (!currentNode.children[segment]) {\n          currentNode.children[segment] = {\n            url: currentPath,\n            level: i + 1,\n            segments: segments.slice(0, i + 1),\n            displayText: formatDisplayText(segment),\n            children: {}\n          };\n        }\n        \n        // Avancer au nœud enfant\n        currentNode = currentNode.children[segment];\n        parentPath = currentPath;\n      }\n    }\n    \n    // Convertir l'arborescence en lignes\n    const domainRows = [];\n    \n    // Fonction récursive pour parcourir l'arborescence\n    function traverseTree(node) {\n      // Créer une nouvelle ligne\n      const row = {\n        \"Niv 0\": \"\",\n        \"Niv 1\": \"\",\n        \"Niv 2\": \"\",\n        \"Niv 3\": \"\",\n        \"Niv 4\": \"\",\n        \"Niv 5\": \"\",\n        \"URL\": node.url // Ajout de la colonne URL avec l'URL en texte brut\n      };\n      \n      // Définir la valeur au niveau approprié\n      if (node.level <= 5) {\n        row[`Niv ${node.level}`] = `=HYPERLINK(\"${node.url}\";\"${node.displayText}\")`;\n      }\n      \n      // Ajouter la ligne au résultat\n      domainRows.push(row);\n      \n      // Traiter les enfants dans l'ordre alphabétique\n      const children = Object.values(node.children);\n      children.sort((a, b) => a.displayText.localeCompare(b.displayText));\n      \n      for (const child of children) {\n        traverseTree(child);\n      }\n    }\n    \n    // Commencer le parcours avec le nœud racine\n    traverseTree(tree[domainInfo.baseUrl]);\n    \n    return domainRows;\n  }\n  \n  // Trier les domaines: d'abord le domaine principal (sans sous-domaine), puis les sous-domaines\n  const sortedDomains = Object.values(domains).sort((a, b) => {\n    // Si un domaine est exactement le domaine principal, il vient en premier\n    const aParts = a.fullDomain.split('.');\n    const bParts = b.fullDomain.split('.');\n    \n    // Cas spécial pour www: le traiter comme domaine principal\n    const aIsWWW = aParts.length > 2 && aParts[0] === 'www';\n    const bIsWWW = bParts.length > 2 && bParts[0] === 'www';\n    \n    if (aIsWWW && !bIsWWW) return -1;\n    if (!aIsWWW && bIsWWW) return 1;\n    \n    // Ensuite comparer par nombre de parties\n    if (aParts.length !== bParts.length) {\n      return aParts.length - bParts.length;\n    }\n    \n    // Enfin, comparer alphabétiquement\n    return a.fullDomain.localeCompare(b.fullDomain);\n  });\n  \n  // Traiter chaque domaine et ajouter les résultats\n  for (const domainInfo of sortedDomains) {\n    const domainRows = processUrlsForDomain(domainInfo);\n    results.push(...domainRows);\n  }\n  \n  return results;\n}\n\n/**\n * Fonction principale pour traiter l'entrée de n8n\n */\nfunction processInput() {\n  try {\n    // Récupérer les données de la node \"Map a website and get urls\" en utilisant la méthode $()\n    // Cette méthode a été confirmée fonctionnelle par nos tests\n    const firecrawlData = $('Crawl Website and Get URLs').item.json;\n    \n    // Vérifier la structure des données\n    if (!firecrawlData || !firecrawlData.success || !Array.isArray(firecrawlData.links)) {\n      throw new Error(\"Données d'entrée non valides ou structure incorrecte\");\n    }\n    \n    // Traiter les URLs pour créer l'arborescence\n    const siteHierarchy = createSiteHierarchy(firecrawlData);\n    \n    // Créer un nouvel item pour chaque ligne de l'arborescence\n    // C'est le format attendu par Google Sheets dans n8n\n    return siteHierarchy.map(row => {\n      return {\n        json: row\n      };\n    });\n    \n  } catch (error) {\n    console.error(\"Erreur lors du traitement:\", error.message);\n    // Retourner un message d'erreur formaté pour n8n\n    return [{\n      json: {\n        error: true,\n        message: error.message,\n        details: error.stack\n      }\n    }];\n  }\n}\n\n// Exécuter le traitement\nreturn processInput();"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "40ae0f18-c854-4eb9-9114-8e10dac4ac25",
+        "name": "Crawl Website and Get URLs",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "position": [
+          432,
+          0
+        ],
+        "parameters": {
+          "url": "={{ $json.chatInput }}",
+          "operation": "map",
+          "sitemapOnly": true,
+          "ignoreSitemap": false,
+          "requestOptions": {}
+        },
+        "credentials": {
+          "firecrawlApi": {
+            "id": "E34WDB80ik5VHjiI",
+            "name": "Firecrawl account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ef0c586c-cedb-461d-80ad-7e07afa1e77f",
+        "name": "Stop on Firecrawl Failure",
+        "type": "n8n-nodes-base.stopAndError",
+        "position": [
+          912,
+          160
+        ],
+        "parameters": {
+          "errorMessage": "Can't map the site"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "de29569c-eba9-4d78-baff-df60e99239f4",
+        "name": "When Chat Message Received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          176,
+          0
+        ],
+        "webhookId": "e06c41c3-b2fa-4f00-a50d-b839f3439303",
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1.4
+      },
+      {
+        "id": "d0f9fa91-649c-4590-a732-a0e45b2e86f7",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          112,
+          432
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 1152,
+          "height": 128,
+          "content": "# Google Sheets Template\n## https://docs.google.com/spreadsheets/d/1YEk44f6DlFqJIx9LGKyMxJS8Y0WQD2BXNJQB4wD-_G0\n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "If Firecrawl Succeeded": {
+        "main": [
+          [
+            {
+              "node": "Copy Report Template in Drive",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Stop on Firecrawl Failure",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Crawl Website and Get URLs": {
+        "main": [
+          [
+            {
+              "node": "If Firecrawl Succeeded",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Chat Message Received": {
+        "main": [
+          [
+            {
+              "node": "Crawl Website and Get URLs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Copy Report Template in Drive": {
+        "main": [
+          [
+            {
+              "node": "Organize URLs into Table Format",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Organize URLs into Table Format": {
+        "main": [
+          [
+            {
+              "node": "Append URL Data to Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

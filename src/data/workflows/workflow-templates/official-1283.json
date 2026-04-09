@@ -1,0 +1,105 @@
+{
+  "id": "official-1283",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1283",
+    "template_id": 1283
+  },
+  "name": "Get email notifications for newly uploaded Google Drive files",
+  "description": "This workflow sends out email notifications when a new file has been uploaded to Google Drive.",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "Google Drive",
+    "Send Email",
+    "Google Drive Trigger",
+    "email",
+    "notifications",
+    "newly",
+    "uploaded",
+    "google",
+    "drive"
+  ],
+  "task_keywords": [
+    "get email notifications for newly uploaded google drive files",
+    "google drive",
+    "send google drive",
+    "send email",
+    "send send email",
+    "google drive trigger",
+    "email notifications",
+    "notifications newly",
+    "newly uploaded",
+    "uploaded google",
+    "drive files",
+    "files workflow"
+  ],
+  "required_services": [
+    "Google Drive",
+    "Send Email"
+  ],
+  "triggers": [
+    "Google Drive Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google Drive Trigger",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          250,
+          150
+        ],
+        "parameters": {
+          "event": "fileCreated",
+          "options": {},
+          "triggerOn": "specificFolder",
+          "folderToWatch": "1HwOAKkkgveLji8vVpW9Xrg1EsBskwMNb"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDriveOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          450,
+          150
+        ],
+        "parameters": {
+          "text": "=A file in your Google Drive file folder has been created: {{$json[\"name\"]}}",
+          "options": {},
+          "subject": "File Update",
+          "toEmail": "user@example.com",
+          "fromEmail": "user@example.com"
+        },
+        "credentials": {
+          "smtp": {
+            "id": "credential-id",
+            "name": "smtp Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Google Drive Trigger": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

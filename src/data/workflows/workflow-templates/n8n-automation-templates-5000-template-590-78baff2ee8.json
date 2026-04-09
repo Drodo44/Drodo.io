@@ -1,0 +1,136 @@
+{
+  "id": "n8n-automation-templates-5000-template-590-78baff2ee8",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/OpenAI/ai_agents_590_webhook_vector_db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/OpenAI/ai_agents_590_webhook_vector_db.json"
+  },
+  "name": "Template 590",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 590",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "OpenAI",
+    "vectordb",
+    "openai",
+    "webhook",
+    "template",
+    "590",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 590",
+    "vectordb",
+    "openai",
+    "webhook",
+    "590 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "vectordb",
+    "openai"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 590",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-590",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Vector DB",
+        "type": "n8n-nodes-base.vectordb",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Generate a follow-up email with a friendly tone."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Vector DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector DB": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 590
+  }
+}

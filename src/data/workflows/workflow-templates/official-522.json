@@ -1,0 +1,92 @@
+{
+  "id": "official-522",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/522",
+    "template_id": 522
+  },
+  "name": "Send an email using Mailgun",
+  "description": "Companion workflow for Mailgun node docs",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Mailgun",
+    "Manual Trigger",
+    "send",
+    "email",
+    "mailgun",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "send an email using mailgun",
+    "manual",
+    "send manual",
+    "mailgun",
+    "send mailgun",
+    "manual trigger",
+    "send email",
+    "email mailgun",
+    "mailgun companion",
+    "companion workflow",
+    "workflow mailgun",
+    "mailgun node"
+  ],
+  "required_services": [
+    "manual",
+    "Mailgun"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mailgun",
+        "type": "n8n-nodes-base.mailgun",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "text": "This is a test message ",
+          "subject": "This is a Subject",
+          "toEmail": "user@example.com",
+          "fromEmail": "user@example.com"
+        },
+        "credentials": {
+          "mailgunApi": {
+            "id": "credential-id",
+            "name": "mailgunApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mailgun",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

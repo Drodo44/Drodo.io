@@ -1,0 +1,106 @@
+{
+  "id": "official-1525",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1525",
+    "template_id": 1525
+  },
+  "name": "Send a Whatsapp message via Twilio when a certain Onfleet event happens",
+  "description": "Summary Onfleet is a last mile delivery software that provides end to end route planning, dispatch, communication, and analytics to handle the heavy lifting while you can focus on your customers.",
+  "category": "AI",
+  "tags": [
+    "Support Chatbot",
+    "Twilio",
+    "Onfleet",
+    "Onfleet Trigger",
+    "send",
+    "whatsapp",
+    "message",
+    "via",
+    "twilio",
+    "when"
+  ],
+  "task_keywords": [
+    "send a whatsapp message via twilio when a certain onfleet event happens",
+    "twilio",
+    "send twilio",
+    "onfleet",
+    "send onfleet",
+    "onfleet trigger",
+    "send whatsapp",
+    "whatsapp message",
+    "message via",
+    "via twilio",
+    "twilio when",
+    "when certain"
+  ],
+  "required_services": [
+    "Twilio",
+    "Onfleet"
+  ],
+  "triggers": [
+    "Onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 7,
+    "name": "Onfleet Trigger --> Twilio Whatsapp",
+    "nodes": [
+      {
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "message": "=Your delivery is on the way, please visit {{$json[\"body\"][\"data\"][\"task\"][\"trackingURL\"]}} to track your driver's location.",
+          "options": {},
+          "toWhatsapp": true
+        },
+        "credentials": {
+          "twilioApi": {
+            "id": "credential-id",
+            "name": "twilioApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "db02ef2c-fda1-43f0-84d5-ba4ad7d5dea3",
+        "parameters": {
+          "triggerOn": "taskCreated",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "credential-id",
+            "name": "onfleetApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

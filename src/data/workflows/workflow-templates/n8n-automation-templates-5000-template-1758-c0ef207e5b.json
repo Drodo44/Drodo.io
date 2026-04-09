@@ -1,0 +1,130 @@
+{
+  "id": "n8n-automation-templates-5000-template-1758-c0ef207e5b",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Booking.com/travel_&_booking_1758_api_polling_booking.com_api.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Booking.com/travel_&_booking_1758_api_polling_booking.com_api.json"
+  },
+  "name": "Template 1758",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1758",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Booking.com",
+    "comapi",
+    "mailchimp",
+    "template",
+    "1758",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1758",
+    "comapi",
+    "mailchimp",
+    "1758 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000"
+  ],
+  "required_services": [
+    "comapi",
+    "mailchimp"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1758",
+    "nodes": [
+      {
+        "parameters": {
+          "url": "https://api.example.com/data",
+          "method": "GET"
+        },
+        "name": "API Polling",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Booking.com API",
+        "type": "n8n-nodes-base.booking.comapi",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Mailchimp",
+        "type": "n8n-nodes-base.mailchimp",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "API Polling": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Booking.com API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Booking.com API": {
+        "main": [
+          [
+            {
+              "node": "Mailchimp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1758
+  }
+}

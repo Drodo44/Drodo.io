@@ -1,0 +1,154 @@
+{
+  "id": "official-901",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/901",
+    "template_id": 901
+  },
+  "name": "Add contacts to SendGrid automatically",
+  "description": "This workflow allows you to create, update and get a contact using the SendGrid node.",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "SendGrid",
+    "Manual Trigger",
+    "add",
+    "contacts",
+    "sendgrid",
+    "automatically",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "add contacts to sendgrid automatically",
+    "manual",
+    "send manual",
+    "create manual",
+    "update manual",
+    "sendgrid",
+    "send sendgrid",
+    "create sendgrid",
+    "update sendgrid",
+    "manual trigger",
+    "add contacts",
+    "contacts sendgrid"
+  ],
+  "required_services": [
+    "manual",
+    "SendGrid"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "209",
+    "name": "Create, update and get a contact using the SendGrid node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "SendGrid",
+        "type": "n8n-nodes-base.sendGrid",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "email": "",
+          "resource": "contact",
+          "additionalFields": {
+            "firstName": ""
+          }
+        },
+        "credentials": {
+          "sendGridApi": "SendGrid Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SendGrid1",
+        "type": "n8n-nodes-base.sendGrid",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "email": "={{$node[\"SendGrid\"].parameter[\"email\"]}}",
+          "resource": "contact",
+          "additionalFields": {
+            "lastName": ""
+          }
+        },
+        "credentials": {
+          "sendGridApi": "SendGrid Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SendGrid2",
+        "type": "n8n-nodes-base.sendGrid",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "by": "email",
+          "email": "={{$node[\"SendGrid\"].parameter[\"email\"]}}",
+          "resource": "contact",
+          "operation": "get"
+        },
+        "credentials": {
+          "sendGridApi": "SendGrid Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "SendGrid": {
+        "main": [
+          [
+            {
+              "node": "SendGrid1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SendGrid1": {
+        "main": [
+          [
+            {
+              "node": "SendGrid2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "SendGrid",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

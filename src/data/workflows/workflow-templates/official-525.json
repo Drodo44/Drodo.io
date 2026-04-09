@@ -1,0 +1,82 @@
+{
+  "id": "official-525",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/525",
+    "template_id": 525
+  },
+  "name": "Get articles from Hacker News",
+  "description": "Companion workflow for Hacker News node docs",
+  "category": "Productivity",
+  "tags": [
+    "Market Research",
+    "manual",
+    "Hacker News",
+    "Manual Trigger",
+    "articles",
+    "hacker",
+    "news",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get articles from hacker news",
+    "manual",
+    "hacker news",
+    "manual trigger",
+    "articles hacker",
+    "news companion",
+    "companion workflow",
+    "workflow hacker",
+    "news node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Hacker News"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Hacker News",
+        "type": "n8n-nodes-base.hackerNews",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "resource": "all",
+          "additionalFields": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Hacker News",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

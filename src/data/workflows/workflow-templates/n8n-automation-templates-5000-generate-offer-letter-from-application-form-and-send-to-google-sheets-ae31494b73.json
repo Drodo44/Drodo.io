@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-generate-offer-letter-from-application-form-and-send-to-google-sheets-ae31494b73",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/generate-offer-letter-application-form-google-sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/generate-offer-letter-application-form-google-sheets.json"
+  },
+  "name": "Generate offer letter from Application form and send to Google Sheets",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Generate offer letter from Application form and send to Google Sheets",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "generate",
+    "offer",
+    "letter",
+    "application",
+    "form",
+    "send"
+  ],
+  "task_keywords": [
+    "generate offer letter from application form and send to google sheets",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "generate offer",
+    "offer letter",
+    "letter application",
+    "application form",
+    "form send",
+    "send google"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Generate offer letter from Application form and send to Google Sheets",
+    "nodes": [
+      {
+        "id": "trigger-application-form",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          106000
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "generate-offer-letter-from-application-form-and-send-to-google-sheets",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-application-form",
+        "name": "Fetch data from Application form",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          106000
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/application-form",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-generate-offer-letter",
+        "name": "AI: Generate Offer Letter",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          106000
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: generate offer letter"
+        }
+      },
+      {
+        "id": "send-google-sheets",
+        "name": "Send to Google Sheets",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          106000
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/google-sheets",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-106000",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          106000
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Application form",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Application form": {
+        "main": [
+          {
+            "node": "AI: Generate Offer Letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Generate Offer Letter": {
+        "main": [
+          [
+            {
+              "node": "AI: Generate Offer Letter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

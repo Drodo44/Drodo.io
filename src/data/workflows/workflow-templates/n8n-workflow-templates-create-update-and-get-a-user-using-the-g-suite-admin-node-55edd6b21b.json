@@ -1,0 +1,156 @@
+{
+  "id": "n8n-workflow-templates-create-update-and-get-a-user-using-the-g-suite-admin-node-55edd6b21b",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0455_Manual_Gsuiteadmin_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0455_Manual_Gsuiteadmin_Create_Triggered.json"
+  },
+  "name": "Create, update, and get a user using the G Suite Admin node",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Create, update, and get a user using the G Suite Admin node",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "manual",
+    "g Suite Admin",
+    "Manual Trigger",
+    "create",
+    "update",
+    "user",
+    "suite",
+    "admin",
+    "node"
+  ],
+  "task_keywords": [
+    "create, update, and get a user using the g suite admin node",
+    "manual",
+    "create manual",
+    "update manual",
+    "g suite admin",
+    "create g suite admin",
+    "update g suite admin",
+    "manual trigger",
+    "create update",
+    "update user",
+    "user suite",
+    "suite admin"
+  ],
+  "required_services": [
+    "manual",
+    "g Suite Admin"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "215",
+    "name": "Create, update, and get a user using the G Suite Admin node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          240,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "G Suite Admin",
+        "type": "n8n-nodes-base.gSuiteAdmin",
+        "position": [
+          440,
+          300
+        ],
+        "parameters": {
+          "domain": "n8n.io",
+          "lastName": "Nat",
+          "password": "sjhdjsdhbajshdb",
+          "username": "nat",
+          "firstName": "Nathan",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "gSuiteAdminOAuth2Api": "Google"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "G Suite Admin1",
+        "type": "n8n-nodes-base.gSuiteAdmin",
+        "position": [
+          640,
+          300
+        ],
+        "parameters": {
+          "userId": "={{$node[\"G Suite Admin\"].json[\"id\"]}}",
+          "operation": "update",
+          "updateFields": {
+            "lastName": "Nate"
+          }
+        },
+        "credentials": {
+          "gSuiteAdminOAuth2Api": "Google"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "G Suite Admin2",
+        "type": "n8n-nodes-base.gSuiteAdmin",
+        "position": [
+          840,
+          300
+        ],
+        "parameters": {
+          "userId": "={{$node[\"G Suite Admin\"].json[\"id\"]}}",
+          "options": {},
+          "operation": "get"
+        },
+        "credentials": {
+          "gSuiteAdminOAuth2Api": "Google"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "G Suite Admin": {
+        "main": [
+          [
+            {
+              "node": "G Suite Admin1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "G Suite Admin1": {
+        "main": [
+          [
+            {
+              "node": "G Suite Admin2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "G Suite Admin",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

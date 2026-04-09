@@ -1,0 +1,99 @@
+{
+  "id": "official-984",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/984",
+    "template_id": 984
+  },
+  "name": "Send a message on Mattermost when a lead replies to your Lemlist email",
+  "description": "This workflow allows you to send a message on Mattermost when a lead replies to your email.",
+  "category": "AI",
+  "tags": [
+    "Lead Nurturing",
+    "Lemlist",
+    "Mattermost",
+    "Lemlist Trigger",
+    "send",
+    "message",
+    "mattermost",
+    "when",
+    "lead",
+    "replies"
+  ],
+  "task_keywords": [
+    "send a message on mattermost when a lead replies to your lemlist email",
+    "lemlist",
+    "send lemlist",
+    "mattermost",
+    "send mattermost",
+    "lemlist trigger",
+    "send message",
+    "message mattermost",
+    "mattermost when",
+    "when lead",
+    "lead replies",
+    "replies lemlist"
+  ],
+  "required_services": [
+    "Lemlist",
+    "Mattermost"
+  ],
+  "triggers": [
+    "Lemlist Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Lemlist Trigger",
+        "type": "n8n-nodes-base.lemlistTrigger",
+        "position": [
+          410,
+          160
+        ],
+        "webhookId": "e1e29f99-7222-488a-826f-5af50ffe7505",
+        "parameters": {
+          "event": "emailsReplied",
+          "options": {
+            "campaignId": "cam_H5pYEryq6mRKBiy5v"
+          }
+        },
+        "credentials": {
+          "lemlistApi": "Lemlist API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          610,
+          160
+        ],
+        "parameters": {
+          "message": "={{$json[\"firstName\"]}} has replied back to your {{$json[\"campaignName\"]}}. Below is the reply:\n> {{$json[\"text\"]}}",
+          "channelId": "qx9yo1i9z3bg5qcy5a1oxnh69c",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "Mattermost Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Lemlist Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

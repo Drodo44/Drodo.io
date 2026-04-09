@@ -1,0 +1,64 @@
+{
+  "id": "official-547",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/547",
+    "template_id": 547
+  },
+  "name": "Receive updates on an order created in Shopify",
+  "description": "Companion workflow for Shopify Trigger node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Shopify",
+    "Shopify Trigger",
+    "receive",
+    "updates",
+    "order",
+    "created",
+    "shopify",
+    "companion"
+  ],
+  "task_keywords": [
+    "receive updates on an order created in shopify",
+    "shopify",
+    "create shopify",
+    "update shopify",
+    "shopify trigger",
+    "receive updates",
+    "updates order",
+    "order created",
+    "created shopify",
+    "shopify companion",
+    "companion workflow",
+    "workflow shopify"
+  ],
+  "required_services": [
+    "Shopify"
+  ],
+  "triggers": [
+    "Shopify Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Shopify Trigger",
+        "type": "n8n-nodes-base.shopifyTrigger",
+        "position": [
+          450,
+          450
+        ],
+        "webhookId": "fd11b3d8-ff82-4902-89cc-c93b36ae38e7",
+        "parameters": {
+          "topic": "orders/create"
+        },
+        "credentials": {
+          "shopifyApi": "shopify_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

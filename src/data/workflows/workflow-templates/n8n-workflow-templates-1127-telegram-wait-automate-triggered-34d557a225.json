@@ -1,0 +1,188 @@
+{
+  "id": "n8n-workflow-templates-1127-telegram-wait-automate-triggered-34d557a225",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1127_Telegram_Wait_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1127_Telegram_Wait_Automate_Triggered.json"
+  },
+  "name": "1127 Telegram Wait Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1127 Telegram Wait Automate Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "manual",
+    "telegram",
+    "google Sheets",
+    "split In Batches",
+    "Manual Trigger",
+    "1127",
+    "wait",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "1127 telegram wait automate triggered",
+    "manual",
+    "telegram",
+    "google sheets",
+    "split in batches",
+    "manual trigger",
+    "1127 telegram",
+    "telegram wait",
+    "wait automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "manual",
+    "telegram",
+    "google Sheets",
+    "split In Batches"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          -60,
+          400
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          500,
+          400
+        ],
+        "parameters": {
+          "text": "Hello",
+          "chatId": "={{$node[\"SplitInBatches\"].json[\"Chat ID\"]}}",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": null,
+            "name": "telegram-bot"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          120,
+          400
+        ],
+        "parameters": {
+          "range": "A:A",
+          "options": {},
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": null,
+            "name": "google-sheet"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SplitInBatches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          320,
+          400
+        ],
+        "parameters": {
+          "options": {},
+          "batchSize": 30
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Wait1",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          660,
+          180
+        ],
+        "webhookId": "22fca54c-eac4-44bc-adf7-68b33818695c",
+        "parameters": {
+          "unit": "seconds",
+          "amount": 30
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "SplitInBatches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "SplitInBatches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SplitInBatches": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1356 @@
+{
+  "id": "n8n-workflow-template-agent-ia-churn-d851e6e40a",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_IA_Churn.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_IA_Churn.json"
+  },
+  "name": "Agent IA Churn",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent IA Churn",
+  "category": "AI",
+  "tags": [
+    "Open AI",
+    "airtable",
+    "tool Http Request",
+    "gmail",
+    "document Default Data Loader",
+    "embeddings Open AI",
+    "google Drive",
+    "supabase",
+    "Supabase",
+    "text Splitter Recursive Character Text Splitter",
+    "tool Vector Store",
+    "tool Workflow",
+    "agent",
+    "google Docs"
+  ],
+  "task_keywords": [
+    "agent ia churn",
+    "open ai",
+    "airtable",
+    "tool http request",
+    "gmail",
+    "document default data loader",
+    "embeddings open ai",
+    "google drive",
+    "supabase",
+    "text splitter recursive character text splitter",
+    "tool vector store",
+    "tool workflow"
+  ],
+  "required_services": [
+    "Open AI",
+    "airtable",
+    "tool Http Request",
+    "gmail",
+    "document Default Data Loader",
+    "embeddings Open AI",
+    "google Drive",
+    "supabase",
+    "Supabase",
+    "text Splitter Recursive Character Text Splitter",
+    "tool Vector Store",
+    "tool Workflow",
+    "agent",
+    "google Docs"
+  ],
+  "triggers": [
+    "google Drive Trigger",
+    "execute Workflow Trigger",
+    "chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent IA Churn",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          500,
+          240
+        ],
+        "id": "74cfd7dd-768e-4868-980e-7ca68def9fe6",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "base": {
+            "__rl": true,
+            "value": "app5TXgsQQlRXdkD5",
+            "mode": "list",
+            "cachedResultName": "Agent IA Churn",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblHLIvj5oOYYdEF8",
+            "mode": "list",
+            "cachedResultName": "Supports Tickets",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5/tblHLIvj5oOYYdEF8"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Urgence": "={{ $fromAI(\"urgence\",\"Les seuls valeurs possible sont : Très Urgent, Urgent, Peu Urgent\") }}",
+              "id": "={{ $fromAI(\"id_airtable\",\"L'ID Airtable dans la base de donnée\") }}"
+            },
+            "matchingColumns": [
+              "id"
+            ],
+            "schema": [
+              {
+                "id": "id",
+                "displayName": "id",
+                "required": false,
+                "defaultMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": true,
+                "removed": false
+              },
+              {
+                "id": "ID Client",
+                "displayName": "ID Client",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Age",
+                "displayName": "Age",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Duree Abonnement",
+                "displayName": "Duree Abonnement",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Mensuel",
+                "displayName": "Mensuel",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Ticket",
+                "displayName": "Ticket",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Type Plan",
+                "displayName": "Type Plan",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "options",
+                "options": [
+                  {
+                    "name": "mensuel",
+                    "value": "mensuel"
+                  },
+                  {
+                    "name": "annuel",
+                    "value": "annuel"
+                  }
+                ],
+                "readOnly": false,
+                "removed": true
+              },
+              {
+                "id": "Urgence",
+                "displayName": "Urgence",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "options",
+                "options": [
+                  {
+                    "name": "Très Urgent",
+                    "value": "Très Urgent"
+                  },
+                  {
+                    "name": "Peu Urgent",
+                    "value": "Peu Urgent"
+                  },
+                  {
+                    "name": "Urgent",
+                    "value": "Urgent"
+                  }
+                ],
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Created Time",
+                "displayName": "Created Time",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": true,
+                "removed": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1980,
+          240
+        ],
+        "id": "1f0590a0-60fc-4582-bd81-f122e7d4426e",
+        "name": "Set_Statut_Urgence",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "dE4NT25Jrongrf6s",
+            "name": "Airtable Personal Access Token account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "toolDescription": "Cet outil te permet de prédire et de donner une probabilité sur le taux de churn (désabonnement) d'un utilisateur en fonction du ticket envoyé au support.",
+          "method": "POST",
+          "url": "http://ADRESSE IP FLASK/NOM DE VOTRE FOCNTION",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n\"age\":{age},\n\"tenure\":{duree_abonnement},\n\"spend_rate\":{prix_mensuel},\n\"plan_type\":{type_abonnement},\n\"ticket_notes\":{ticket_support}\n}",
+          "placeholderDefinitions": {
+            "values": [
+              {
+                "name": "age",
+                "description": "L'age de la personne",
+                "type": "number"
+              },
+              {
+                "name": "duree_abonnement",
+                "description": "La durée de l'abonnement",
+                "type": "number"
+              },
+              {
+                "name": "prix_mensuel",
+                "description": "Le prix mensuel dépensé chaque mois / année.",
+                "type": "number"
+              },
+              {
+                "name": "type_abonnement",
+                "description": "Le type d'abonnement \"monthly\" ou \"annual\" uniquement ecrit comme fournis en anglais.",
+                "type": "string"
+              },
+              {
+                "name": "ticket_support",
+                "description": "Le ticket envoyé par la personne au support",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+        "typeVersion": 1.1,
+        "position": [
+          2340,
+          240
+        ],
+        "id": "493d1353-72da-4132-ac15-96e8b81eac6e",
+        "name": "Prediction Churn"
+      },
+      {
+        "parameters": {
+          "sendTo": "benoit.ferrere11@gmail.com",
+          "subject": "={{ $fromAI(\"sujet_mail_team\",\"le sujet du mail au support\") }}",
+          "emailType": "text",
+          "message": "={{ $fromAI(\"contenu_mail\",\"le contenu du mail pour le support\") }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1640,
+          240
+        ],
+        "id": "2fedd77e-2398-47fc-97f9-18a3b48be83c",
+        "name": "Notifie Support",
+        "webhookId": "7173c50c-e946-4ac7-aac5-f6c4cf8a0157",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "UmQVpdkoXBkWxSK0",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonMode": "expressionData",
+          "jsonData": "={{ $json.data }}",
+          "options": {
+            "metadata": {
+              "metadataValues": [
+                {
+                  "name": "=file_id",
+                  "value": "={{ $('Set File ID').item.json.file_id }}"
+                }
+              ]
+            }
+          }
+        },
+        "id": "88ff0159-15e1-470a-8f18-3cff1e3e2cbe",
+        "name": "Default Data Loader",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "typeVersion": 1,
+        "position": [
+          2240,
+          1460
+        ]
+      },
+      {
+        "parameters": {
+          "model": "text-embedding-3-small",
+          "options": {}
+        },
+        "id": "b6165c52-d947-4acc-bbb4-c961e8aa0e8a",
+        "name": "Embeddings OpenAI1",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1980,
+          1440
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "authentication": "serviceAccount",
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $('Set File ID').item.json.file_id }}",
+            "mode": "id"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          }
+        },
+        "id": "b8c54e23-8d1c-416c-9d84-4011a82358d6",
+        "name": "Download File",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1480,
+          1360
+        ],
+        "executeOnce": true,
+        "credentials": {
+          "googleApi": {
+            "id": "PFZCSB8SABA4I1FA",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1OVg32O8_y7JsiKhJsGRJd4TJ0X-FTdDo",
+            "mode": "list",
+            "cachedResultName": "Support Agent IA Churn ",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1OVg32O8_y7JsiKhJsGRJd4TJ0X-FTdDo"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "id": "1467b17b-7207-46e3-a4bb-a5a638019260",
+        "name": "File Created",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          480,
+          1480
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "tQbtVtecVIcBzD4Q",
+            "name": "Google Drive account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1OVg32O8_y7JsiKhJsGRJd4TJ0X-FTdDo",
+            "mode": "list",
+            "cachedResultName": "Support Agent IA Churn ",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1OVg32O8_y7JsiKhJsGRJd4TJ0X-FTdDo"
+          },
+          "event": "fileUpdated",
+          "options": {}
+        },
+        "id": "7de16a5f-739e-487f-8128-5de95ee7f95b",
+        "name": "File Updated",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          480,
+          1200
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "tQbtVtecVIcBzD4Q",
+            "name": "Google Drive account"
+          }
+        },
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "operation": "text",
+          "options": {}
+        },
+        "id": "a5eb54f7-b25d-4866-8571-941f5b6fb30a",
+        "name": "Extract Document Text",
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          1740,
+          1360
+        ],
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "tableId": "documents"
+        },
+        "id": "afc81ddf-14d3-4a82-8a06-0781d3bd1cae",
+        "name": "Delete Old Doc Rows",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1140,
+          1360
+        ],
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "VFzL7jkcc8NMEene",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+                "name": "file_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "82570586-9fd7-4260-afed-8b85837e69f9",
+        "name": "Set File ID",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          800,
+          1360
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "tableName": {
+            "__rl": true,
+            "value": "documents",
+            "mode": "list",
+            "cachedResultName": "documents"
+          },
+          "options": {}
+        },
+        "id": "b201d4d7-25fd-4590-9fbe-f5043d10a619",
+        "name": "Insert into Supabase Vectorstore",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+        "typeVersion": 1,
+        "position": [
+          2020,
+          1220
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "VFzL7jkcc8NMEene",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          2260,
+          1600
+        ],
+        "id": "7dbf275e-72e8-4640-a9c6-8f65a282c6e7",
+        "name": "Recursive Character Text Splitter"
+      },
+      {
+        "parameters": {
+          "name": "documents_support"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1,
+        "position": [
+          820,
+          260
+        ],
+        "id": "433d5755-2e3b-45dd-948d-e7c354661096",
+        "name": "Vector Store Tool"
+      },
+      {
+        "parameters": {
+          "tableName": {
+            "__rl": true,
+            "value": "documents",
+            "mode": "list",
+            "cachedResultName": "documents"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+        "typeVersion": 1,
+        "position": [
+          720,
+          380
+        ],
+        "id": "abf0da81-8b2e-4d64-a1f5-2b15102a9905",
+        "name": "Supabase Vector Store",
+        "credentials": {
+          "supabaseApi": {
+            "id": "VFzL7jkcc8NMEene",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          780,
+          500
+        ],
+        "id": "b2ec6c89-a2d2-4cf1-91ed-ed4c85da7e21",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1120,
+          400
+        ],
+        "id": "39431803-4f20-46dd-8ab6-585becb9c52f",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          520,
+          620
+        ],
+        "id": "296164da-a17f-4a5e-b4a4-2097c58db0d2",
+        "name": "Execute Workflow Trigger"
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          700,
+          820
+        ],
+        "id": "43d15ec4-656e-44c0-8dc7-4fd2d72d6baf",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "45ebda0e-0432-4023-a134-43eee798375f",
+                "name": "url_analyse",
+                "value": "=https://docs.google.com/document/d/{{ $json.documentId }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1720,
+          620
+        ],
+        "id": "0b90d868-8d77-4c5c-bd80-dd9e56826286",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "app5TXgsQQlRXdkD5",
+            "mode": "list",
+            "cachedResultName": "Agent IA Churn",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblHLIvj5oOYYdEF8",
+            "mode": "list",
+            "cachedResultName": "Supports Tickets",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5/tblHLIvj5oOYYdEF8"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          860,
+          820
+        ],
+        "id": "99ec809a-3e2f-4457-8809-66d322d02e74",
+        "name": "Get Ticket Support DataBase",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "dE4NT25Jrongrf6s",
+            "name": "Airtable Personal Access Token account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "Analyse_Long_Terme",
+          "description": "Cet outil te permet de faire une analyse long terme de tous les tickets du support",
+          "workflowId": {
+            "__rl": true,
+            "value": "ErWUEl6a2casehiJ",
+            "mode": "list",
+            "cachedResultName": "Agent IA Churn"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          1480,
+          240
+        ],
+        "id": "1121d8da-6520-4d89-bb41-b2201b0e24af",
+        "name": "Analyse_Long_Terme"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Fais une analyse long terme des tickets de notre base de données\n\nNous sommes le {{ $now.format('yyyy-MM-dd') }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=**Rôle**\nVous êtes un agent d'analyse chargé d'effectuer une analyse approfondie à long terme basée sur une base de données de tickets clients provenant du support. Votre objectif est de produire un rapport structuré et clair sur Google Doc, synthétisant les tendances, les problèmes récurrents, et les axes d'amélioration pour le service client.\n\n**Objectifs**\nProduire un document Google Doc final qui présente une analyse long terme détaillée, bien structurée et visuellement agréable, offrant des insights actionnables et des recommandations stratégiques pour l’amélioration continue du support client.\n\n**Etapes**\n\n1. **Analyse des Données :**\n   - Examinez les tickets clients de la base de données afin d’identifier les tendances, motifs récurrents, et points bloquants.\n   - Utilisez des méthodes d’analyse qualitative et quantitative pour dégager des statistiques et des insights pertinents.\n   - Assurez-vous de couvrir une période définie comme \"long terme\" pour avoir une vision globale et temporelle.\n\n2. **Structuration du Rapport**\n   - Organisez le contenu en sections claires et logiques :\n     - Introduction (contexte, objectifs de l’analyse)\n     - Méthodologie (comment l’analyse a été réalisée)\n     - Résultats (découvertes clés, données chiffrées, graphiques si nécessaire)\n     - Discussion (interprétation des résultats, impacts sur le service client)\n     - Recommandations (actions à envisager, améliorations suggérées)\n     - Conclusion\n   - Utilisez des titres et sous-titres pour faciliter la lecture et la navigation dans le document.\n\n3. **Formatage pour Google Doc**\n   - Assurez-vous que le texte est bien formaté : utilisation de listes à puces, tableaux, et graphiques insérés si pertinent.\n   - Veillez à la clarté et à la lisibilité : titres en gras, paragraphes aérés, et mise en évidence des points importants.\n   - Si nécessaire, insérez des sections avec des liens hypertextes vers des sources ou des documents additionnels.\n\n4. **Considérations**\n   - Respectez un langage professionnel, clair et concis.\n   - Adaptez le ton en fonction de l’audience principale (équipe interne, direction, etc.).\n   - Veillez à la confidentialité des informations sensibles des clients durant l’analyse et la rédaction du rapport.\n\n*Suivez ces instructions pour vous assurer que le rapport est complet, pertinent et formaté selon les meilleures pratiques pour un usage professionnel.*\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          780,
+          620
+        ],
+        "id": "d8e7e922-987c-40c3-abe9-41b069cd8349",
+        "name": "Agent Analyse Long Terme"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Inputs d'entrées : \n\nMessage : {{ $json.chatInput }}\n\nDate ajourd'hui : {{ $now.format('yyyy-MM-dd') }}",
+          "options": {
+            "systemMessage": "=Tu es un agent IA spécialisé dans le support client. Ton but est d'optimiser la productivité des équipes de support pour la gestion des tickets\n\n\nOUTILS \n\nPrediction Churn : cet outil te permet de prédire le churn (désabonnement) de la personne en fonction des informations fournis sur lui et de son ticket envoyé au support. Il te renvoie un pourcentage du risque de désabonnement. et si oui ou non il va se désabonner (1 = Oui / 0 = Non)\n\nSet_Statut_Urgence : Cet outil te permet de modifier l'urgence de prise en charge pour une personne dans une base de donnée. Les valeurs possibles. \n\nVerifier Rapport : Cet outil te permet de vérifier si il existe bien un fichier Rapport à la date voulus demandés par l'utilisateur. Il doit être impérativement être utiliser avant Recuperer Rapport pour vérifier l'existance du fichier\n\nRecuperer Rapport : Cet outil te permet de de récuperer un rapport du support client à la période voulus. Tu dois vérifier l'existance du fichier avant d'utiliser l'outil\n\nNotifie Suppport : Cet outil te permet d'envoyer un mail a l'équipe du support si tu as reperer un cas Trés Urgent ou Urgent. Le contenu du mail doit être une synthése de la requete de la personne et doit donner les étapes a suivre par l'équipe pour régle le probleme du client. Tu dois fournir les étapes de résolutions dans ton mail.\n\nVector Store Tool : Cet outil te permet récuperer toutes les informations sur le fonctionnement du support et les étapes a suivre selon le problème du client. Il est important et crucial de l'utiliser si tu as besoin d'informations a ce sujet. Tu dois impérativement l'utiliser avant Notifier Support\n\nHistorique Client : Cet outil te permet de récuperer l'historique du client et des messages précedemment envoyés au support par ce meme client suivant notre base de données.\n\nGet Ticket Support Database1 : Cet outil te permet de récuperer la base de données sur tous les tickets formulés par les clients \n\nCONTRAINTES\n\nTu dois appeler Prediction Churn avant Set_Statut_Urgence et te baser principalement sur la probabilité de churn donner par l'outil Prediction Churn pour juger de l'urgence\n\nLe Vector Store Tool doit être utiliser avant d'utiliser l'outil Notifier Support.\n\nLe contenu du mail doit comporter l'ID du client, l'ID Airtable et la requete ainsi que les étapes a suivre par l'équipe du support pour résoudre le ticket",
+            "passthroughBinaryImages": true
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          720,
+          0
+        ],
+        "id": "602c2f9c-2830-4a57-a1c6-2a1edaa01027",
+        "name": "Agent Prediction Churn"
+      },
+      {
+        "parameters": {
+          "folderId": "default",
+          "title": "Analyse Long Terme - Support Client"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1180,
+          620
+        ],
+        "id": "85bc20ae-f61b-4f8e-b0ed-73deca1e1c18",
+        "name": "Google Docs",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "y3vPDig67pfwqG4H",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentURL": "={{ $json.id }}",
+          "actionsUi": {
+            "actionFields": [
+              {
+                "action": "insert",
+                "text": "={{ $('Agent Analyse Long Terme').item.json.output.analyse_long_terme }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1440,
+          620
+        ],
+        "id": "9b3f5ab8-a224-4c7f-b80b-810be758d543",
+        "name": "Google Docs1",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "y3vPDig67pfwqG4H",
+            "name": "Google Docs account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"analyse_long_terme\":\"l'analyse long terme détaillée sur le support client au format Markdown\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          1020,
+          820
+        ],
+        "id": "860e1f1e-54b2-4127-ace5-cae2771893dc",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "app5TXgsQQlRXdkD5",
+            "mode": "list",
+            "cachedResultName": "Agent IA Churn",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblHLIvj5oOYYdEF8",
+            "mode": "list",
+            "cachedResultName": "Supports Tickets",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5/tblHLIvj5oOYYdEF8"
+          },
+          "filterByFormula": "={ID Client}=\"{{$fromAI(\"id_client\",\"ID client de la personne\")}}\"",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          2140,
+          240
+        ],
+        "id": "84754bc6-f8a4-4a8b-82f1-3fcd9697a271",
+        "name": "Historique Client",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "dE4NT25Jrongrf6s",
+            "name": "Airtable Personal Access Token account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "Recuperer_Rapports",
+          "description": "Cet outil te permet de récupérer un rapport du support d'une période donnée",
+          "workflowId": {
+            "__rl": true,
+            "value": "B3rsE9I5QrraS8M8",
+            "mode": "list",
+            "cachedResultName": "My Sub-Workflow 1"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"id_fichier\":\"l'id du fichier du rapport de la période demandé\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          1140,
+          240
+        ],
+        "id": "2c49ec29-7388-4753-90f7-7fafc8776e8a",
+        "name": "Recuperer_Rapport"
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "returnAll": true,
+          "filter": {
+            "folderId": {
+              "__rl": true,
+              "value": "19_GmXpbDUUdMLuguxzYXEqF5ztkMib9-",
+              "mode": "list",
+              "cachedResultName": "Rapports",
+              "cachedResultUrl": "https://drive.google.com/drive/folders/19_GmXpbDUUdMLuguxzYXEqF5ztkMib9-"
+            }
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDriveTool",
+        "typeVersion": 3,
+        "position": [
+          1300,
+          240
+        ],
+        "id": "9c1d4afb-3053-4b2d-af84-1e33b2d3312b",
+        "name": "Verifier Rapport",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "tQbtVtecVIcBzD4Q",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          660,
+          240
+        ],
+        "id": "750a265f-ab5b-453a-91bb-db9ae07826ef",
+        "name": "Window Buffer Memory"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          380,
+          0
+        ],
+        "id": "183d7e0d-6f9d-423b-b143-f16b2bb6f4ca",
+        "name": "When chat message received",
+        "webhookId": "c96aa5c8-20e9-435a-b36f-530158e3c9ae"
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "app5TXgsQQlRXdkD5",
+            "mode": "list",
+            "cachedResultName": "Agent IA Churn",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblHLIvj5oOYYdEF8",
+            "mode": "list",
+            "cachedResultName": "Supports Tickets",
+            "cachedResultUrl": "https://airtable.com/app5TXgsQQlRXdkD5/tblHLIvj5oOYYdEF8"
+          },
+          "filterByFormula": "{Urgence}= \"\"",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1800,
+          240
+        ],
+        "id": "2146156e-9625-411b-8cbe-f310a7a6ec9b",
+        "name": "Get Ticket Support DataBase1",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "dE4NT25Jrongrf6s",
+            "name": "Airtable Personal Access Token account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set_Statut_Urgence": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prediction Churn": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notifie Support": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Insert into Supabase Vectorstore",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Insert into Supabase Vectorstore",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download File": {
+        "main": [
+          [
+            {
+              "node": "Extract Document Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File Created": {
+        "main": [
+          [
+            {
+              "node": "Set File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File Updated": {
+        "main": [
+          [
+            {
+              "node": "Set File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Document Text": {
+        "main": [
+          [
+            {
+              "node": "Insert into Supabase Vectorstore",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete Old Doc Rows": {
+        "main": [
+          [
+            {
+              "node": "Download File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set File ID": {
+        "main": [
+          [
+            {
+              "node": "Delete Old Doc Rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector Store Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supabase Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Supabase Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Workflow Trigger": {
+        "main": [
+          [
+            {
+              "node": "Agent Analyse Long Terme",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Analyse Long Terme",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Ticket Support DataBase": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Analyse Long Terme",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Analyse_Long_Terme": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Analyse Long Terme": {
+        "main": [
+          [
+            {
+              "node": "Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Docs": {
+        "main": [
+          [
+            {
+              "node": "Google Docs1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Docs1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent Analyse Long Terme",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Historique Client": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer_Rapport": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Verifier Rapport": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Window Buffer Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Ticket Support DataBase1": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Prediction Churn",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "201b0a5b-11bb-439a-b70d-e84bb287eebb",
+    "meta": {
+      "instanceId": "4c252789664afada9907c81c7427745c36d84337e0c009a0e17e3eabfb01f993"
+    },
+    "id": "ErWUEl6a2casehiJ",
+    "tags": []
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "official-667",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/667",
+    "template_id": 667
+  },
+  "name": "Send an SMS using the Mocean node",
+  "description": "Send an SMS using the Mocean node",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Mocean",
+    "Manual Trigger",
+    "send",
+    "sms",
+    "mocean",
+    "node"
+  ],
+  "task_keywords": [
+    "send an sms using the mocean node",
+    "manual",
+    "send manual",
+    "mocean",
+    "send mocean",
+    "manual trigger",
+    "send sms",
+    "sms mocean",
+    "mocean node",
+    "node send"
+  ],
+  "required_services": [
+    "manual",
+    "Mocean"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "59",
+    "name": "Send an SMS using the Mocean node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          590,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mocean",
+        "type": "n8n-nodes-base.mocean",
+        "position": [
+          790,
+          260
+        ],
+        "parameters": {
+          "to": "",
+          "from": "",
+          "message": ""
+        },
+        "credentials": {
+          "moceanApi": "mocean"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mocean",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

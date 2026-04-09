@@ -1,0 +1,159 @@
+{
+  "id": "n8n-automation-templates-5000-template-832-f16cd8f8ad",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/health_832_calendar_event_trigger_twilio_to_google_fit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/health_832_calendar_event_trigger_twilio_to_google_fit.json"
+  },
+  "name": "Template 832",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 832",
+  "category": "Communication",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "twilio",
+    "googlefit",
+    "transcriptionapi",
+    "google Calendar Trigger",
+    "template",
+    "832",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 832",
+    "google calendar",
+    "twilio",
+    "googlefit",
+    "transcriptionapi",
+    "google calendar trigger",
+    "832 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "google Calendar",
+    "twilio",
+    "googlefit",
+    "transcriptionapi"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 832",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Fit",
+        "type": "n8n-nodes-base.googlefit",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Transcription API",
+        "type": "n8n-nodes-base.transcriptionapi",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Twilio": {
+        "main": [
+          [
+            {
+              "node": "Google Fit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Fit": {
+        "main": [
+          [
+            {
+              "node": "Transcription API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 832
+  }
+}

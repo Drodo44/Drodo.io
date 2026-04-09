@@ -1,0 +1,89 @@
+{
+  "id": "official-427",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/427",
+    "template_id": 427
+  },
+  "name": "Add a event to Google Calendar automatically",
+  "description": "Add an event to Google Calendar",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Google Calendar",
+    "Manual Trigger",
+    "add",
+    "event",
+    "google",
+    "calendar",
+    "automatically"
+  ],
+  "task_keywords": [
+    "add a event to google calendar automatically",
+    "manual",
+    "google calendar",
+    "manual trigger",
+    "add event",
+    "event google",
+    "calendar automatically",
+    "automatically add"
+  ],
+  "required_services": [
+    "manual",
+    "Google Calendar"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "1",
+    "name": "Add a event to Calender",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          410,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Calendar",
+        "type": "n8n-nodes-base.googleCalendar",
+        "position": [
+          830,
+          320
+        ],
+        "parameters": {
+          "end": "2020-06-27T07:00:00.000Z",
+          "start": "2020-06-25T07:00:00.000Z",
+          "calendar": "shaligramshraddha@gmail.com",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "googleCalendarOAuth2Api": "new one"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "official-1393",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1393",
+    "template_id": 1393
+  },
+  "name": "Extract and store text from chat images using AWS S3",
+  "description": "This workflow extracts text from images sent in a Telegram chat and uploads the images to AWS S3.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "AWS Textract",
+    "Telegram",
+    "Airtable",
+    "AWS S3",
+    "Telegram Trigger",
+    "extract",
+    "store",
+    "text",
+    "chat",
+    "images",
+    "aws"
+  ],
+  "task_keywords": [
+    "extract and store text from chat images using aws s3",
+    "aws textract",
+    "telegram",
+    "airtable",
+    "aws s3",
+    "telegram trigger",
+    "extract store",
+    "store text",
+    "text chat",
+    "chat images",
+    "images aws",
+    "aws workflow"
+  ],
+  "required_services": [
+    "AWS Textract",
+    "Telegram",
+    "Airtable",
+    "AWS S3"
+  ],
+  "triggers": [
+    "Telegram Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "AWS Textract",
+        "type": "n8n-nodes-base.awsTextract",
+        "position": [
+          700,
+          340
+        ],
+        "parameters": {},
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          520,
+          220
+        ],
+        "webhookId": "12345",
+        "parameters": {
+          "updates": [
+            "*"
+          ],
+          "additionalFields": {
+            "download": true,
+            "imageSize": "medium"
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          880,
+          340
+        ],
+        "parameters": {
+          "table": "receipts",
+          "options": {},
+          "operation": "append",
+          "application": "qwertz",
+          "addAllFields": false
+        },
+        "credentials": {
+          "airtableApi": {
+            "id": "credential-id",
+            "name": "airtableApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          700,
+          100
+        ],
+        "parameters": {
+          "fileName": "={{$binary.data.fileName}}",
+          "operation": "upload",
+          "bucketName": "textract-demodata",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "AWS Textract": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "AWS S3",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "AWS Textract",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

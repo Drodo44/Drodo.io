@@ -1,0 +1,80 @@
+{
+  "id": "official-583",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/583",
+    "template_id": 583
+  },
+  "name": "Read an RSS feed",
+  "description": "Companion workflow for RSS Feed Read node docs",
+  "category": "Productivity",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Manual Trigger",
+    "read",
+    "rss",
+    "feed",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "read an rss feed",
+    "manual",
+    "manual trigger",
+    "read rss",
+    "rss feed",
+    "feed companion",
+    "companion workflow",
+    "workflow rss",
+    "feed read",
+    "read node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          260,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "RSS Feed Read",
+        "type": "n8n-nodes-base.rssFeedRead",
+        "position": [
+          460,
+          320
+        ],
+        "parameters": {
+          "url": "https://failedmachine.com/rss/"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "RSS Feed Read",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

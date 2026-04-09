@@ -1,0 +1,60 @@
+{
+  "id": "official-513",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/513",
+    "template_id": 513
+  },
+  "name": "Receive messages for an ActiveMQ queue",
+  "description": "Receive messages for an ActiveMQ queue",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "AMQP",
+    "AMQP Trigger",
+    "receive",
+    "messages",
+    "activemq",
+    "queue"
+  ],
+  "task_keywords": [
+    "receive messages for an activemq queue",
+    "amqp",
+    "amqp trigger",
+    "receive messages",
+    "messages activemq",
+    "activemq queue",
+    "queue receive"
+  ],
+  "required_services": [
+    "AMQP"
+  ],
+  "triggers": [
+    "AMQP Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "135",
+    "name": "Receive messages for an ActiveMQ queue via AMQP Trigger",
+    "nodes": [
+      {
+        "name": "AMQP Trigger",
+        "type": "n8n-nodes-base.amqpTrigger",
+        "position": [
+          650,
+          200
+        ],
+        "parameters": {
+          "sink": ""
+        },
+        "credentials": {
+          "amqp": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

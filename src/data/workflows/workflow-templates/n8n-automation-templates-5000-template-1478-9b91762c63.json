@@ -1,0 +1,159 @@
+{
+  "id": "n8n-automation-templates-5000-template-1478-9b91762c63",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/meeting_summaries_1478_webhook_google_docs.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/meeting_summaries_1478_webhook_google_docs.json"
+  },
+  "name": "Template 1478",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1478",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "googledocs",
+    "openai",
+    "stripe",
+    "webhook",
+    "template",
+    "1478",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1478",
+    "googledocs",
+    "openai",
+    "stripe",
+    "webhook",
+    "1478 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "googledocs",
+    "openai",
+    "stripe"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1478",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-1478",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Docs",
+        "type": "n8n-nodes-base.googledocs",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Process a payment using Stripe based on extracted billing details."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Stripe",
+        "type": "n8n-nodes-base.stripe",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Docs": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Stripe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1478
+  }
+}

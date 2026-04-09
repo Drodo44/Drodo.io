@@ -1,0 +1,114 @@
+{
+  "id": "official-515",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/515",
+    "template_id": 515
+  },
+  "name": "Download a file from Google Drive",
+  "description": "Companion workflow for Google Drive node docs",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "manual",
+    "Google Drive",
+    "Write Binary File",
+    "Manual Trigger",
+    "download",
+    "file",
+    "google",
+    "drive",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "download a file from google drive",
+    "manual",
+    "google drive",
+    "write binary file",
+    "manual trigger",
+    "download file",
+    "file google",
+    "drive companion",
+    "companion workflow",
+    "workflow google",
+    "drive node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Google Drive",
+    "Write Binary File"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "fileId": "1dJEBaECGmua09YP7W6WCBu66icIq32yRadQpk",
+          "options": {},
+          "operation": "download"
+        },
+        "credentials": {
+          "googleApi": "n8n-test-service-account"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Write Binary File",
+        "type": "n8n-nodes-base.writeBinaryFile",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "fileName": "/data/downloaded_file.pdf"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Write Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "id": "official-410",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/410",
+    "template_id": 410
+  },
+  "name": "Send a message with a Discord bot",
+  "description": "Send a message with a Discord bot",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Discord",
+    "Manual Trigger",
+    "send",
+    "message",
+    "discord",
+    "bot"
+  ],
+  "task_keywords": [
+    "send a message with a discord bot",
+    "manual",
+    "send manual",
+    "discord",
+    "send discord",
+    "manual trigger",
+    "send message",
+    "message discord",
+    "discord bot",
+    "bot send"
+  ],
+  "required_services": [
+    "manual",
+    "Discord"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "2",
+    "name": "Discord Intro",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          510,
+          330
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          800,
+          330
+        ],
+        "parameters": {
+          "text": "Hello World!",
+          "webhookUri": "https://discordapp.com/api/webhooks/XXX/XXX"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

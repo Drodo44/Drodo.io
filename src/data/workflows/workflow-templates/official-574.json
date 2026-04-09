@@ -1,0 +1,81 @@
+{
+  "id": "official-574",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/574",
+    "template_id": 574
+  },
+  "name": "Encrypt some data using the crypto node",
+  "description": "Companion workflow for Crypto node docs",
+  "category": "Data",
+  "tags": [
+    "SecOps",
+    "manual",
+    "Manual Trigger",
+    "encrypt",
+    "some",
+    "data",
+    "crypto",
+    "node",
+    "companion"
+  ],
+  "task_keywords": [
+    "encrypt some data using the crypto node",
+    "manual",
+    "manual trigger",
+    "encrypt some",
+    "some data",
+    "data crypto",
+    "crypto node",
+    "node companion",
+    "companion workflow",
+    "workflow crypto",
+    "node docs"
+  ],
+  "required_services": [
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Crypto",
+        "type": "n8n-nodes-base.crypto",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "value": "n8n rocks!"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Crypto",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

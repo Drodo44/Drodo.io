@@ -1,0 +1,116 @@
+{
+  "id": "official-1474",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1474",
+    "template_id": 1474
+  },
+  "name": "Standup bot (3/4): override config",
+  "description": "This is the third bot for the Mattermost Standup Bot.",
+  "category": "Data",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Write Binary File",
+    "Convert to/from binary data",
+    "Manual Trigger",
+    "standup",
+    "bot",
+    "override",
+    "config",
+    "third"
+  ],
+  "task_keywords": [
+    "standup bot (3/4): override config",
+    "manual",
+    "write binary file",
+    "convert to/from binary data",
+    "manual trigger",
+    "standup bot",
+    "bot override",
+    "override config",
+    "config third",
+    "third bot",
+    "bot mattermost",
+    "mattermost standup"
+  ],
+  "required_services": [
+    "manual",
+    "Write Binary File",
+    "Convert to/from binary data"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 113,
+    "name": "Standup Bot - Override Config",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          240,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Write Binary File",
+        "type": "n8n-nodes-base.writeBinaryFile",
+        "position": [
+          600,
+          300
+        ],
+        "parameters": {
+          "fileName": "/home/node/.n8n/standup-bot-config.json"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Move Binary Data",
+        "type": "n8n-nodes-base.moveBinaryData",
+        "position": [
+          420,
+          300
+        ],
+        "parameters": {
+          "mode": "jsonToBinary",
+          "options": {
+            "encoding": "utf8",
+            "fileName": "standup-bot-config.json"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Move Binary Data": {
+        "main": [
+          [
+            {
+              "node": "Write Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Move Binary Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

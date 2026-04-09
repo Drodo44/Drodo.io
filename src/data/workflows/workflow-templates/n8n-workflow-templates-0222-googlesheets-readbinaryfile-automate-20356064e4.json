@@ -1,0 +1,124 @@
+{
+  "id": "n8n-workflow-templates-0222-googlesheets-readbinaryfile-automate-20356064e4",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0222_GoogleSheets_Readbinaryfile_Automate.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0222_GoogleSheets_Readbinaryfile_Automate.json"
+  },
+  "name": "0222 GoogleSheets Readbinaryfile Automate",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0222 GoogleSheets Readbinaryfile Automate",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "google Sheets",
+    "read Binary File",
+    "move Binary Data",
+    "0222",
+    "googlesheets",
+    "readbinaryfile",
+    "automate",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "0222 googlesheets readbinaryfile automate",
+    "google sheets",
+    "read binary file",
+    "move binary data",
+    "0222 googlesheets",
+    "googlesheets readbinaryfile",
+    "readbinaryfile automate",
+    "automate n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n"
+  ],
+  "required_services": [
+    "google Sheets",
+    "read Binary File",
+    "move Binary Data"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google Sheets1",
+        "type": "n8n-nodes-base.googleSheets",
+        "notes": "Append data to sheet",
+        "position": [
+          980,
+          -120
+        ],
+        "parameters": {
+          "range": "A:C",
+          "options": {
+            "usePathForKeyRow": true
+          },
+          "sheetId": "qwertz",
+          "operation": "append",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "2",
+            "name": "google_sheets_oauth"
+          }
+        },
+        "notesInFlow": true,
+        "typeVersion": 1
+      },
+      {
+        "name": "read json file",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          620,
+          -120
+        ],
+        "parameters": {
+          "filePath": "/username/users_spreadsheet.json"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "move binary data 2",
+        "type": "n8n-nodes-base.moveBinaryData",
+        "position": [
+          800,
+          -120
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "read json file": {
+        "main": [
+          [
+            {
+              "node": "move binary data 2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "move binary data 2": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "official-521",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/521",
+    "template_id": 521
+  },
+  "name": "Receive updates on emails sent via Mailjet",
+  "description": "Companion workflow for Mailjet Trigger node docs",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Mailjet",
+    "Mailjet Trigger",
+    "receive",
+    "updates",
+    "emails",
+    "sent",
+    "via",
+    "mailjet"
+  ],
+  "task_keywords": [
+    "receive updates on emails sent via mailjet",
+    "mailjet",
+    "update mailjet",
+    "mailjet trigger",
+    "receive updates",
+    "updates emails",
+    "emails sent",
+    "sent via",
+    "via mailjet",
+    "mailjet companion",
+    "companion workflow",
+    "workflow mailjet"
+  ],
+  "required_services": [
+    "Mailjet"
+  ],
+  "triggers": [
+    "Mailjet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Mailjet Trigger",
+        "type": "n8n-nodes-base.mailjetTrigger",
+        "position": [
+          530,
+          400
+        ],
+        "parameters": {
+          "event": "sent"
+        },
+        "credentials": {
+          "mailjetEmailApi": "mailjet creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

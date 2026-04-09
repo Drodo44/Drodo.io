@@ -1,0 +1,81 @@
+{
+  "id": "official-766",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/766",
+    "template_id": 766
+  },
+  "name": "Create multiple JSON items from an array",
+  "description": "You can use the Function node to create multiple JSON items from an array.",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "Function",
+    "create",
+    "multiple",
+    "json",
+    "items",
+    "array",
+    "you"
+  ],
+  "task_keywords": [
+    "create multiple json items from an array",
+    "function",
+    "create function",
+    "create multiple",
+    "multiple json",
+    "json items",
+    "items array",
+    "array you",
+    "you can",
+    "can function",
+    "function node",
+    "node create"
+  ],
+  "required_services": [
+    "Function"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Mock Data",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          670,
+          371
+        ],
+        "parameters": {
+          "functionCode": "return [\n  {\n    json:[\n      {\n        id: 1,\n        name: \"Jim\"\n      }, \n      {\n        id: 2,\n        name: \"Stefan\"\n      },\n      {\n        id: 3,\n        name: \"Hans\"\n      }\n    ]\n  }\n];"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Create JSON-items",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          910,
+          371
+        ],
+        "parameters": {
+          "functionCode": "return items[0].json.map(item => { \n  return {\n    json: item,\n  }\n})\n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Mock Data": {
+        "main": [
+          [
+            {
+              "node": "Create JSON-items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

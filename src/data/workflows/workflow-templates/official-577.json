@@ -1,0 +1,83 @@
+{
+  "id": "official-577",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/577",
+    "template_id": 577
+  },
+  "name": "Read a file from disk",
+  "description": "Companion workflow for Read Binary File node docs",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "manual",
+    "Read Binary File",
+    "Manual Trigger",
+    "read",
+    "file",
+    "disk",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "read a file from disk",
+    "manual",
+    "read binary file",
+    "manual trigger",
+    "read file",
+    "file disk",
+    "disk companion",
+    "companion workflow",
+    "workflow read",
+    "read binary",
+    "binary file",
+    "file node"
+  ],
+  "required_services": [
+    "manual",
+    "Read Binary File"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          470,
+          320
+        ],
+        "parameters": {
+          "filePath": "/data/picture.jpg"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Read Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

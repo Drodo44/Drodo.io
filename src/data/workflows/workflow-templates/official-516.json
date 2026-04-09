@@ -1,0 +1,70 @@
+{
+  "id": "official-516",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/516",
+    "template_id": 516
+  },
+  "name": "Catch MailChimp subscribe events",
+  "description": "Companion workflow for Mailchimp Trigger node docs",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Mailchimp",
+    "Mailchimp Trigger",
+    "catch",
+    "mailchimp",
+    "subscribe",
+    "events",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "catch mailchimp subscribe events",
+    "mailchimp",
+    "mailchimp trigger",
+    "catch mailchimp",
+    "mailchimp subscribe",
+    "subscribe events",
+    "events companion",
+    "companion workflow",
+    "workflow mailchimp",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "Mailchimp"
+  ],
+  "triggers": [
+    "Mailchimp Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Mailchimp Trigger",
+        "type": "n8n-nodes-base.mailchimpTrigger",
+        "position": [
+          870,
+          370
+        ],
+        "parameters": {
+          "list": "0a5a4ca5de",
+          "events": [
+            "subscribe"
+          ],
+          "sources": [
+            "api",
+            "admin",
+            "user"
+          ]
+        },
+        "credentials": {
+          "mailchimpApi": "mailchimp_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-875-f99ff7788e",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Twilio/health_875_schedule_trigger_twilio.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Twilio/health_875_schedule_trigger_twilio.json"
+  },
+  "name": "Template 875",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 875",
+  "category": "Communication",
+  "tags": [
+    "Templates based on paltforms",
+    "Twilio",
+    "schedule",
+    "twilio",
+    "freshdesk",
+    "schedule Trigger",
+    "template",
+    "875",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 875",
+    "schedule",
+    "twilio",
+    "freshdesk",
+    "schedule trigger",
+    "875 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "schedule",
+    "twilio",
+    "freshdesk"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 875",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 360
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Freshdesk",
+        "type": "n8n-nodes-base.freshdesk",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Twilio": {
+        "main": [
+          [
+            {
+              "node": "Freshdesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 875
+  }
+}

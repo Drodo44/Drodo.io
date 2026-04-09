@@ -1,0 +1,476 @@
+{
+  "id": "n8n-workflow-template-agent-youtube-synthese-notif-idee-vid-o-76594c087c",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_Youtube__Synthese_Notif_Idee_Vid_o_.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_Youtube__Synthese_Notif_Idee_Vid_o_.json"
+  },
+  "name": "Agent Youtube (Synthese,Notif,Idee Vidéo)",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent Youtube (Synthese,Notif,Idee Vidéo)",
+  "category": "AI",
+  "tags": [
+    "manual",
+    "gmail",
+    "Open AI",
+    "agent",
+    "slack",
+    "open AI",
+    "google Docs",
+    "output Parser Structured",
+    "Manual Trigger",
+    "youtube",
+    "synthese",
+    "notif",
+    "idee",
+    "vid"
+  ],
+  "task_keywords": [
+    "agent youtube (synthese,notif,idee vidéo)",
+    "manual",
+    "gmail",
+    "open ai",
+    "agent",
+    "slack",
+    "google docs",
+    "output parser structured",
+    "manual trigger",
+    "agent youtube",
+    "youtube synthese",
+    "synthese notif"
+  ],
+  "required_services": [
+    "manual",
+    "gmail",
+    "Open AI",
+    "agent",
+    "slack",
+    "open AI",
+    "google Docs",
+    "output Parser Structured"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent Youtube (Synthese,Notif,Idee Vidéo)",
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "7294abdb-620d-4115-b74c-bca1f13f1e2b",
+        "name": "When clicking ‘Test workflow’",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -740,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "draft",
+          "subject": "=Synthése - Vidéo Youtube -  {{ $('HTTP Request').item.json.videoTitle }}",
+          "message": "={{ $json.output }}",
+          "options": {}
+        },
+        "id": "06d8d40b-cbc9-4a7d-8bc9-8f580419ef1d",
+        "name": "Gmail1",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          680,
+          0
+        ],
+        "webhookId": "96b82daf-5685-42be-b48f-f0223485cf52",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "19p4iXYoKKybt47N",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "id": "8dfb706a-3eeb-4e1a-82b5-a00d257ac03e",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          200,
+          180
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "agent": "conversationalAgent",
+          "promptType": "define",
+          "text": "=ACTION\nAnalyse et résume le contenu de la transcription de la vidéo Youtube en mettant en avant les éléments clés, tout en orientant le résumé vers l’action. Le but est de fournir une synthèse qui inspire et pousse à un changement positif dans la bonne direction.\n\n\n\nSTEPS\n\nIdentifie les points les plus importants et résume-les de manière concise.\nExtrai les sujets ou thèmes significatifs abordés dans le texte.\nSélectionne les citations, statistiques ou données les plus percutantes et utiles pour le lecteur.\nPropose des recommandations ou actions concrètes, pratiques et directement exploitables.\nOrganise les informations dans un format clair et facile à lire, en mettant l’accent sur l’impact des actions suggérées.\nPERSONA\nAgis en tant qu’expert en développement personnel ou en stratégie, spécialisé dans l’identification d’actions concrètes pour transformer les idées en résultats tangibles.\n\nEXAMPLES\n\nRésumé bref : \"Le texte explore comment des ajustements simples dans nos habitudes peuvent améliorer significativement notre productivité.\"\nThèmes abordés : \"Optimisation personnelle, gestion du temps, automatisation des tâches.\"\nCitation notable : \"Les petites actions quotidiennes cumulées mènent à des transformations majeures.\"\nAction suggérée : \"Identifiez une habitude inefficace et remplacez-la par une action concrète et mesurable dès aujourd'hui.\"\nCONTEXT\nLe texte contient des leçons ou insights visant à inspirer, motiver ou guider le lecteur vers une amélioration personnelle ou professionnelle. Le résumé doit être une boussole, aidant à passer directement à l’action.\n\nCONSTRAINTS\n\nLe résumé doit rester bref et impactant, sans dépasser 300 mots.\nLes actions suggérées doivent être concrètes, orientées vers des résultats positifs et facilement applicables.\nUtilise un langage motivant et engageant pour inciter à agir immédiatement.\nTEMPLATE\nPrésente les informations comme suit :\n\nRésumé Bref\n[Phrase synthétisant les points principaux]\nSujets ou Thèmes Significatifs\n[Thème 1]\n[Thème 2]\n[Thème 3]\nCitations, Statistiques ou Données Notables\n\"[Citation ou donnée notable]\"\n\"[Autre statistique ou citation]\"\nRecommandations ou Actions Suggérées\nAction 1 : [Description concise et orientée résultat]\nAction 2 : [Description concise et orientée résultat]\nAction 3 : [Description concise et orientée résultat]\n\nTRANSCRIPTION DE LA VIDEO YOUTUBE\n\n{{ $json.transcript }}\n",
+          "options": {}
+        },
+        "id": "7ad823b9-bdfa-4280-94a5-8ba9129f2045",
+        "name": "Synthese Agent IA",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.6,
+        "position": [
+          240,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "authentication": "oAuth2",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C085C8SK0NB",
+            "mode": "list",
+            "cachedResultName": "insights"
+          },
+          "text": "=J'ai regardé cette vidéo recemmment. Je me suis dis que elle pourrai être interessante pour vous : \n\n{{ $json.message.content }}\n\n{{ $('HTTP Request').item.json.url }}",
+          "otherOptions": {}
+        },
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.3,
+        "position": [
+          640,
+          720
+        ],
+        "id": "971d67de-5284-47ca-b383-be03caf272f4",
+        "name": "Slack",
+        "webhookId": "529cbe14-af7a-43e3-ab23-48077713c1ae",
+        "credentials": {
+          "slackOAuth2Api": {
+            "id": "GclRxAEqnPLUGzpf",
+            "name": "Slack account (Slack TEST)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "=ACTION\nAnalyse la transcription de la vidéo YouTube que je vais te fournir et génère 5 idées de contenu ultra-qualitatives pour chaque catégorie suivante :\n\nTutoriels d'automatisation que je peux montrer avec n8n.\nActualités ou nouveautés pertinentes.\nVidéos techniques où j'explique des concepts en détail.\nSTEPS\n\nIdentifie le sujet principal abordé dans la transcription.\nDécompose les points clés et les thèmes récurrents.\nGénére 5 idées par catégorie (tutoriels, news, vidéos techniques).\nAssure-toi que les idées sont précises, réalisables et adaptées à une audience technique ou intéressée par l'automatisation.\nFormate les résultats sous forme de liste organisée par catégorie.\nPERSONA\nAdopte la perspective d’un expert en automatisation et créateur de contenu technique, expérimenté avec n8n, ayant pour objectif de proposer des contenus à forte valeur ajoutée pour une audience technique et passionnée par l’innovation.\n\nEXAMPLES\n\nTutoriel : \"Comment automatiser le suivi des leads avec n8n et Google Sheets.\"\nNews : \"Les dernières fonctionnalités de n8n : Ce qui change pour les créateurs d'automatisation.\"\nVidéo technique : \"Analyse approfondie des webhooks dans n8n : usages et bonnes pratiques.\"\nCONTEXT\nLa vidéo source traite d’un sujet lié à l’automatisation, à l’actualité tech ou à une problématique technique. L’audience cible comprend des professionnels, des développeurs et des passionnés de l’automatisation.\n\nCONSTRAINTS\n\nLes idées doivent être exploitables avec les outils et concepts mentionnés dans la transcription.\nLes contenus doivent être innovants et se démarquer des tutoriels déjà existants.\nLimiter chaque idée à une phrase claire et concise.\nTa réponse doit etre au format texte completement\nLes idées de vidéos doivent être en rapport avec l'automatisation, Agent IA, Make, n8n. Tout autre idée n'est pas bonne\n\nTEMPLATE\nOrganise les idées sous le format suivant :\n\nTutoriels d’automatisation\n[Idée 1]\n[Idée 2]\n[Idée 3]\n[Idée 4]\n[Idée 5]\nNews\n[Idée 1]\n[Idée 2]\n[Idée 3]\n[Idée 4]\n[Idée 5]\nVidéos techniques\n[Idée 1]\n[Idée 2]\n[Idée 3]\n[Idée 4]\n[Idée 5]\n\nVoici la transcription VIDEO YOUTUBE : \n\n{{ $json.transcript }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "0d0a6da0-a944-48a7-bcb3-c7f3fbbea24f",
+        "name": "Social Media Post Ideas",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.5,
+        "position": [
+          240,
+          340
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "folderId": "default",
+          "title": "=Vidéo - {{$('HTTP Request').item.json.videoTitle}} - Idées Post"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1100,
+          320
+        ],
+        "id": "d1400296-df77-4626-85ad-315717d58bbb",
+        "name": "Google Docs",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "I7l6aWJH3WMLx0fw",
+            "name": "Google Docs account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Voici les idées sous formes de liste :\n\n{{ $json.message.content }}\n",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=ACTION \n\nTu dois depuis des idées faire 3 titres de vidéo Youtube ultra virales et qui captent l'attention.\n\nCONTEXTE \n\nTu es un youtubeur qui fait des vidéos sur les automatisations et l'IA. Tu possède une Agence et tu as déjà des clients. Tu fais des vidéos dans un contexte de build une personal bran solide.\n\nEXEMPLES DE TITRE DE VIDEO VIRALE \n\nVidéo Technique\n\"Le guide ultime de l'auto hébergement n8n\"\n\"n8n Masterclass : De débutant à créateur d'agent\"\nVideo Tutoriel / Automatisations\n\"Cet Agent IA change Tout! (NO CODE!)\"\n\"Cet Agent n8n convertit des Vidéos Youtube en workflow incroyable\"\n\"Etape par Etape : Construit ce (NO CODE) Multiple AI Agent workflow avec n8n\"\nVidéo News\n\"Ce nouveau modèle GPT est INCROYABLE!\"\n\"Agent vocal IA le plus simple ? Mise à jour CRAZY ElevenLabs\"\n\nCONTRAINTES \n\nTu dois faire des titres de 70 caractère maximum\nLe format doit etre structuré et lisible.\nLes titres de vidéos doivent être en rapport avec les idées et UNIQUEMENT LES IDEES Ressortis de la transcription de la vidéo Youtube.\nLes titres de vidéos doivent être en rapport avec mon public et doit parler d'automatisation, gestion de l'opérationnel, processus, Agent IA, n8n, IA Make etc. \nJe ne veux pas des choses extravagantes non plus\n\nEXEMPLE DE SORTIE\n\n{\n  \"texte_document\":TOUS LE DOCUMENT\n}\n\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          680,
+          320
+        ],
+        "id": "8493059b-9df4-45d4-881b-80c0b7cf16fe",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          640,
+          540
+        ],
+        "id": "e27369c4-49b9-4012-9a9e-8094250f4fed",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n  \"texte_document\":\"Titre 1 : Il boit de l'eau ?\"\n}\n"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          900,
+          520
+        ],
+        "id": "4d039351-1dda-4c53-9e10-5af366806d48",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "url": "https://api.apify.com/v2/acts/topaz_sharingan~youtube-transcript-scraper/run-sync-get-dataset-items?token=<YOUR API KEY>",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n    \"startUrls\": [\n        \"Lien Youtube ici\"\n    ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -400,
+          300
+        ],
+        "id": "374fb2ba-c611-4629-9643-231d3a014adf",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "=ACTION\nRéalise une synthèse ultra-synthétique de la vidéo en trois points clés, présentée de manière simple et engageante pour inciter au visionnage.\n\nSTEPS\n\nAnalyse le contenu de la vidéo et identifie les trois idées principales les plus percutantes.\nReformule chaque idée de manière concise et accrocheuse.\nAssure-toi que chaque point donne envie au lecteur de découvrir davantage en visionnant la vidéo.\nPERSONA\nAdopte le rôle d’un créateur de contenu ou d’un marketeur spécialisé dans la promotion de vidéos, avec une approche captivante et orientée vers l’audience.\n\nEXAMPLES\n\nIdée 1 : \"Découvrez comment automatiser vos tâches répétitives en 5 minutes avec cet outil puissant.\"\nIdée 2 : \"Un aperçu exclusif des dernières tendances tech à ne pas manquer cette année.\"\nIdée 3 : \"Apprenez à optimiser votre workflow comme un pro grâce à cette méthode infaillible.\"\nCONTEXT\nLa vidéo explore des thèmes qui peuvent intéresser un public curieux, motivé par l’innovation ou l’amélioration personnelle, et cherche à maximiser les clics ou l’engagement.\n\nCONSTRAINTS\n\nChaque idée doit être formulée en une phrase simple et accrocheuse.\nÉvitez les détails complexes ou techniques pour rester accessible et attractif.\nLa synthèse ne doit pas dépasser trois lignes en tout.\nTa reponse doi etre au format Markdown \nNe pas ajouter dans le texte \"\"\n\nExemple : \n\n\n\nTEMPLATE\nPrésente la synthèse sous ce format :\n\nSynthèse en Trois Points\nIdée 1 : [Phrase concise et engageante]\nIdée 2 : [Phrase concise et engageante]\nIdée 3 : [Phrase concise et engageante]",
+                "role": "system"
+              },
+              {
+                "content": "=Voici la transcription de la vidéo Youtube : \n\n{{ $json.transcript }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          240,
+          720
+        ],
+        "id": "13492660-16a2-4e55-bdba-f3c8b806881d",
+        "name": "3 points clés",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentURL": "={{ $json.id }}",
+          "actionsUi": {
+            "actionFields": [
+              {
+                "action": "insert",
+                "text": "=Idées Vidéos : \n\n{{ $('Social Media Post Ideas').item.json.message.content }}\n\n\nTitres de vidéo Youtube :\n \n{{ $('AI Agent').item.json.output.texte_document }}"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          1360,
+          320
+        ],
+        "id": "e37aec1b-9a40-4aa4-a5fc-270e6afc1597",
+        "name": "Google Docs1",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "PdW5hHsBJ56vzZRS",
+            "name": "Google Docs account"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Synthese Agent IA",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Synthese Agent IA": {
+        "main": [
+          [
+            {
+              "node": "Gmail1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Social Media Post Ideas": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Synthese Agent IA",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Social Media Post Ideas",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "3 points clés",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3 points clés": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Docs": {
+        "main": [
+          [
+            {
+              "node": "Google Docs1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "1e60e876-1f08-4254-a3ce-a26cc99bec2d",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "a38f7fIVI9tAf9cF",
+    "tags": []
+  }
+}

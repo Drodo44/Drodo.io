@@ -1,0 +1,159 @@
+{
+  "id": "official-600",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/600",
+    "template_id": 600
+  },
+  "name": "Insert and read data from Google Sheets",
+  "description": "Companion workflow for Google Sheets node docs",
+  "category": "Data",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Google Sheets",
+    "Edit Fields (Set)",
+    "Manual Trigger",
+    "insert",
+    "read",
+    "data",
+    "google",
+    "sheets",
+    "companion"
+  ],
+  "task_keywords": [
+    "insert and read data from google sheets",
+    "manual",
+    "google sheets",
+    "edit fields (set)",
+    "manual trigger",
+    "insert read",
+    "read data",
+    "data google",
+    "sheets companion",
+    "companion workflow",
+    "workflow google",
+    "sheets node"
+  ],
+  "required_services": [
+    "manual",
+    "Google Sheets",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "range": "A:B",
+          "options": {},
+          "sheetId": "1ijnLMy6htVTX_68e2lsdGYiA5_6ZG72FXUbxAy_DC94",
+          "operation": "append",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": "Amudhan-GoogleSheets"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "id"
+              }
+            ],
+            "string": [
+              {
+                "name": "name",
+                "value": "n8n"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "Google Sheets1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          850,
+          300
+        ],
+        "parameters": {
+          "range": "A:B",
+          "options": {},
+          "sheetId": "1ijnLMy6htVTX_68e2lsdGYiA5_6ZG72FXUbxAy_DC94",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": "Amudhan-GoogleSheets"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

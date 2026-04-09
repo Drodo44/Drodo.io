@@ -1,0 +1,87 @@
+{
+  "id": "official-552",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/552",
+    "template_id": 552
+  },
+  "name": "Get all leads from Zoho CRM",
+  "description": "Companion workflow for Zoho CRM node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Zoho CRM",
+    "Manual Trigger",
+    "all",
+    "leads",
+    "zoho",
+    "crm",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all leads from zoho crm",
+    "manual",
+    "zoho crm",
+    "manual trigger",
+    "all leads",
+    "leads zoho",
+    "crm companion",
+    "companion workflow",
+    "workflow zoho",
+    "crm node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Zoho CRM"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Zoho CRM",
+        "type": "n8n-nodes-base.zohoCrm",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll"
+        },
+        "credentials": {
+          "zohoOAuth2Api": "zoho_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Zoho CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

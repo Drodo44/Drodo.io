@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-escalate-priority-from-call-transcript-and-send-to-knowledge-base-467e2e1e9d",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/escalate-priority-call-transcript-knowledge-base.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/escalate-priority-call-transcript-knowledge-base.json"
+  },
+  "name": "Escalate priority from Call transcript and send to Knowledge base",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Escalate priority from Call transcript and send to Knowledge base",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "escalate",
+    "priority",
+    "call",
+    "transcript",
+    "send",
+    "knowledge"
+  ],
+  "task_keywords": [
+    "escalate priority from call transcript and send to knowledge base",
+    "slack",
+    "send slack",
+    "webhook",
+    "escalate priority",
+    "priority call",
+    "call transcript",
+    "transcript send",
+    "send knowledge",
+    "knowledge base",
+    "base n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Escalate priority from Call transcript and send to Knowledge base",
+    "nodes": [
+      {
+        "id": "trigger-call-transcript",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          97200
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "escalate-priority-from-call-transcript-and-send-to-knowledge-base",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-call-transcript",
+        "name": "Fetch data from Call transcript",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          97200
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/call-transcript",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-knowledge-base",
+        "name": "Send to Knowledge base",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          97200
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/knowledge-base",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-97200",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          97200
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Call transcript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Call transcript": {
+        "main": [
+          {
+            "node": "Send to Knowledge base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Knowledge base": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

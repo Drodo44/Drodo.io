@@ -1,0 +1,86 @@
+{
+  "id": "official-566",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/566",
+    "template_id": 566
+  },
+  "name": "Get all Excel workbooks",
+  "description": "Companion workflow for Excel node docs",
+  "category": "Data",
+  "tags": [
+    "File Management",
+    "manual",
+    "Microsoft Excel 365",
+    "Manual Trigger",
+    "all",
+    "excel",
+    "workbooks",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all excel workbooks",
+    "manual",
+    "microsoft excel 365",
+    "manual trigger",
+    "all excel",
+    "excel workbooks",
+    "workbooks companion",
+    "companion workflow",
+    "workflow excel",
+    "excel node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Microsoft Excel 365"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft Excel",
+        "type": "n8n-nodes-base.microsoftExcel",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "filters": {},
+          "operation": "getAll"
+        },
+        "credentials": {
+          "microsoftExcelOAuth2Api": "ms-oauth-creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Microsoft Excel",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

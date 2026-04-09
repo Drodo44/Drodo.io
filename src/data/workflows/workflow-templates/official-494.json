@@ -1,0 +1,88 @@
+{
+  "id": "official-494",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/494",
+    "template_id": 494
+  },
+  "name": "Create a client in Harvest",
+  "description": "Create a client in Harvest",
+  "category": "Other",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Harvest",
+    "Manual Trigger",
+    "create",
+    "client",
+    "harvest"
+  ],
+  "task_keywords": [
+    "create a client in harvest",
+    "manual",
+    "create manual",
+    "harvest",
+    "create harvest",
+    "manual trigger",
+    "create client",
+    "client harvest",
+    "harvest create"
+  ],
+  "required_services": [
+    "manual",
+    "Harvest"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "120",
+    "name": "Create a client in Harvest",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Harvest",
+        "type": "n8n-nodes-base.harvest",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "name": "",
+          "resource": "client",
+          "operation": "create",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "harvestApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Harvest",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

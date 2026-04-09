@@ -1,0 +1,136 @@
+{
+  "id": "n8n-automation-templates-5000-template-1054-d1ef0f4b11",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/hr_1054_calendar_event_trigger_workday.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/hr_1054_calendar_event_trigger_workday.json"
+  },
+  "name": "Template 1054",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1054",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "workday",
+    "ifttt",
+    "google Calendar Trigger",
+    "template",
+    "1054",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1054",
+    "google calendar",
+    "workday",
+    "ifttt",
+    "google calendar trigger",
+    "1054 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "google Calendar",
+    "workday",
+    "ifttt"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1054",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Workday",
+        "type": "n8n-nodes-base.workday",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "IFTTT",
+        "type": "n8n-nodes-base.ifttt",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Workday",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workday": {
+        "main": [
+          [
+            {
+              "node": "IFTTT",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1054
+  }
+}

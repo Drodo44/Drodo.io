@@ -1,0 +1,130 @@
+{
+  "id": "official-7982",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7982",
+    "template_id": 7982
+  },
+  "name": "Generate and email PDF invoices from Tally Forms with Google Docs",
+  "description": "Stop copy pasting invoice details!",
+  "category": "AI",
+  "tags": [
+    "Invoice Processing",
+    "Multimodal AI",
+    "Google Docs",
+    "Send Email",
+    "Google Drive",
+    "Webhook",
+    "generate",
+    "email",
+    "pdf",
+    "invoices",
+    "tally",
+    "forms"
+  ],
+  "task_keywords": [
+    "generate and email pdf invoices from tally forms with google docs",
+    "google docs",
+    "send email",
+    "google drive",
+    "webhook",
+    "generate email",
+    "email pdf",
+    "pdf invoices",
+    "invoices tally",
+    "tally forms",
+    "forms google",
+    "docs stop"
+  ],
+  "required_services": [
+    "Google Docs",
+    "Send Email",
+    "Google Drive"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "meta": {
+      "instanceId": "__PLACEHOLDER__"
+    },
+    "name": "Tally-to-PDF Invoice Bot",
+    "nodes": [
+      {
+        "id": "webhook-tally",
+        "name": "📝 Tally Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          200,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "gdocs-pdf",
+        "name": "📄 Google Docs → PDF",
+        "type": "n8n-nodes-base.googleDocs",
+        "position": [
+          480,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "email-client",
+        "name": "💌 Email Invoice",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          760,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "drive-backup",
+        "name": "☁️ Drive Backup",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          760,
+          480
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "📝 Tally Webhook": {
+        "main": [
+          [
+            {
+              "node": "📄 Google Docs → PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📄 Google Docs → PDF": {
+        "main": [
+          [
+            {
+              "node": "💌 Email Invoice",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "☁️ Drive Backup",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

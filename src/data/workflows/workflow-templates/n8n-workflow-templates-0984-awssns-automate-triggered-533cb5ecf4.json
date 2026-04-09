@@ -1,0 +1,65 @@
+{
+  "id": "n8n-workflow-templates-0984-awssns-automate-triggered-533cb5ecf4",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0984_Awssns_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0984_Awssns_Automate_Triggered.json"
+  },
+  "name": "0984 Awssns Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0984 Awssns Automate Triggered",
+  "category": "DevOps",
+  "tags": [
+    "workflows",
+    "aws Sns",
+    "aws Sns Trigger",
+    "0984",
+    "awssns",
+    "automate",
+    "triggered",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "0984 awssns automate triggered",
+    "aws sns",
+    "aws sns trigger",
+    "0984 awssns",
+    "awssns automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates"
+  ],
+  "required_services": [
+    "aws Sns"
+  ],
+  "triggers": [
+    "aws Sns Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "AWS-SNS-Trigger",
+        "type": "n8n-nodes-base.awsSnsTrigger",
+        "position": [
+          440,
+          300
+        ],
+        "parameters": {
+          "topic": "arn:aws:sns:ap-south-1:100558637562:n8n-rocks"
+        },
+        "credentials": {
+          "aws": "amudhan-aws"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

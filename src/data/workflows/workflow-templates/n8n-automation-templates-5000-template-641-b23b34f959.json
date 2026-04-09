@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-641-b23b34f959",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/PagerDuty/security_641_schedule_trigger_pagerduty_to_aws_cloudwatch.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/PagerDuty/security_641_schedule_trigger_pagerduty_to_aws_cloudwatch.json"
+  },
+  "name": "Template 641",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 641",
+  "category": "DevOps",
+  "tags": [
+    "Templates based on paltforms",
+    "PagerDuty",
+    "schedule",
+    "pagerduty",
+    "awscloudwatch",
+    "schedule Trigger",
+    "template",
+    "641",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 641",
+    "schedule",
+    "pagerduty",
+    "awscloudwatch",
+    "schedule trigger",
+    "641 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "schedule",
+    "pagerduty",
+    "awscloudwatch"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 641",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 720
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS CloudWatch",
+        "type": "n8n-nodes-base.awscloudwatch",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "AWS CloudWatch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 641
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "official-534",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/534",
+    "template_id": 534
+  },
+  "name": "Get multiple clients' data from Invoice Ninja",
+  "description": "Companion workflow for Invoice Ninja node docs",
+  "category": "Data",
+  "tags": [
+    "CRM",
+    "manual",
+    "Invoice Ninja",
+    "Manual Trigger",
+    "multiple",
+    "clients",
+    "data",
+    "invoice",
+    "ninja",
+    "companion"
+  ],
+  "task_keywords": [
+    "get multiple clients' data from invoice ninja",
+    "manual",
+    "invoice ninja",
+    "manual trigger",
+    "multiple clients",
+    "clients data",
+    "data invoice",
+    "ninja companion",
+    "companion workflow",
+    "workflow invoice",
+    "ninja node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Invoice Ninja"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          220,
+          310
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Invoice Ninja",
+        "type": "n8n-nodes-base.invoiceNinja",
+        "position": [
+          410,
+          310
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll"
+        },
+        "credentials": {
+          "invoiceNinjaApi": "invoice_ninja_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Invoice Ninja",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

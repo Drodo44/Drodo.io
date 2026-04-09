@@ -1,0 +1,69 @@
+{
+  "id": "official-669",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/669",
+    "template_id": 669
+  },
+  "name": "Receive updates when a customer is created in HelpScout",
+  "description": "Receive updates when a customer is created in HelpScout",
+  "category": "Support",
+  "tags": [
+    "Ticket Management",
+    "Help Scout",
+    "Help Scout Trigger",
+    "receive",
+    "updates",
+    "when",
+    "customer",
+    "created",
+    "helpscout"
+  ],
+  "task_keywords": [
+    "receive updates when a customer is created in helpscout",
+    "help scout",
+    "create help scout",
+    "update help scout",
+    "help scout trigger",
+    "receive updates",
+    "updates when",
+    "when customer",
+    "customer created",
+    "created helpscout",
+    "helpscout receive"
+  ],
+  "required_services": [
+    "Help Scout"
+  ],
+  "triggers": [
+    "Help Scout Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "61",
+    "name": "Receive updates when a customer is created in HelpScout",
+    "nodes": [
+      {
+        "name": "HelpScout Trigger",
+        "type": "n8n-nodes-base.helpScoutTrigger",
+        "position": [
+          690,
+          260
+        ],
+        "webhookId": "aaaf8b3f-8247-4d98-ae65-8c6626aade95",
+        "parameters": {
+          "events": [
+            "customer.created"
+          ]
+        },
+        "credentials": {
+          "helpScoutOAuth2Api": "helpscout"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

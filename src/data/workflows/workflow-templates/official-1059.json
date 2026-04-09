@@ -1,0 +1,144 @@
+{
+  "id": "official-1059",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1059",
+    "template_id": 1059
+  },
+  "name": "Send a message on Mattermost when a workflow is updated",
+  "description": "This workflow allows you to send a message on Mattermost when a workflow is updated.",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "Edit Fields (Set)",
+    "Mattermost",
+    "Workflow",
+    "Webhook",
+    "Workflow Trigger",
+    "send",
+    "message",
+    "mattermost",
+    "when",
+    "workflow",
+    "updated"
+  ],
+  "task_keywords": [
+    "send a message on mattermost when a workflow is updated",
+    "edit fields (set)",
+    "send edit fields (set)",
+    "update edit fields (set)",
+    "mattermost",
+    "send mattermost",
+    "update mattermost",
+    "workflow",
+    "send workflow",
+    "update workflow",
+    "webhook",
+    "workflow trigger"
+  ],
+  "required_services": [
+    "Edit Fields (Set)",
+    "Mattermost",
+    "Workflow"
+  ],
+  "triggers": [
+    "Webhook",
+    "Workflow Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          490,
+          460
+        ],
+        "webhookId": "c0345765-4488-4ac8-a9da-02f647dd2b90",
+        "parameters": {
+          "path": "c0345765-4488-4ac8-a9da-02f647dd2b90",
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          690,
+          460
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "Message",
+                "value": "Hello!"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          690,
+          610
+        ],
+        "parameters": {
+          "message": "=The workflow {{$workflow.name}}, was updated.",
+          "channelId": "toyi3uoycf8rirtm7d5jm15sso",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "Mattermost Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Workflow Trigger",
+        "type": "n8n-nodes-base.workflowTrigger",
+        "position": [
+          490,
+          610
+        ],
+        "parameters": {
+          "events": [
+            "update"
+          ]
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workflow Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

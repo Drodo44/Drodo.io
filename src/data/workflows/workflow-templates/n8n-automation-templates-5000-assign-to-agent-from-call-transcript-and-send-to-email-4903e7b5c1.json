@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-assign-to-agent-from-call-transcript-and-send-to-email-4903e7b5c1",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/assign-to-agent-call-transcript-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/assign-to-agent-call-transcript-email.json"
+  },
+  "name": "Assign to agent from Call transcript and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Assign to agent from Call transcript and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "assign",
+    "agent",
+    "call",
+    "transcript",
+    "send",
+    "email"
+  ],
+  "task_keywords": [
+    "assign to agent from call transcript and send to email",
+    "slack",
+    "send slack",
+    "webhook",
+    "assign agent",
+    "agent call",
+    "call transcript",
+    "transcript send",
+    "send email",
+    "email n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Assign to agent from Call transcript and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-call-transcript",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          95100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "assign-to-agent-from-call-transcript-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-call-transcript",
+        "name": "Fetch data from Call transcript",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          95100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/call-transcript",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          95100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-95100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          95100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Call transcript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Call transcript": {
+        "main": [
+          {
+            "node": "Send to Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

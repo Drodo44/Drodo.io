@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-1943-1a7a21ed04",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Fitbit/sports_&_recreation_1943_schedule_trigger_fitbit_to_google_calendar.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Fitbit/sports_&_recreation_1943_schedule_trigger_fitbit_to_google_calendar.json"
+  },
+  "name": "Template 1943",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1943",
+  "category": "Productivity",
+  "tags": [
+    "Templates based on paltforms",
+    "Fitbit",
+    "schedule",
+    "fitbit",
+    "googlecalendar",
+    "schedule Trigger",
+    "template",
+    "1943",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1943",
+    "schedule",
+    "fitbit",
+    "googlecalendar",
+    "schedule trigger",
+    "1943 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "schedule",
+    "fitbit",
+    "googlecalendar"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1943",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 1440
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Fitbit",
+        "type": "n8n-nodes-base.fitbit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Calendar",
+        "type": "n8n-nodes-base.googlecalendar",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Fitbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fitbit": {
+        "main": [
+          [
+            {
+              "node": "Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1943
+  }
+}

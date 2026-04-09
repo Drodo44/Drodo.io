@@ -1,0 +1,171 @@
+{
+  "id": "official-1396",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1396",
+    "template_id": 1396
+  },
+  "name": "Sync data between Google Drive and AWS S3",
+  "description": "This workflow synchronizes files one way from Google Drive to AWS S3.",
+  "category": "Data",
+  "tags": [
+    "File Management",
+    "Google Drive",
+    "AWS S3",
+    "Google Drive Trigger",
+    "sync",
+    "data",
+    "between",
+    "google",
+    "drive",
+    "aws"
+  ],
+  "task_keywords": [
+    "sync data between google drive and aws s3",
+    "google drive",
+    "sync google drive",
+    "aws s3",
+    "sync aws s3",
+    "google drive trigger",
+    "sync data",
+    "data between",
+    "between google",
+    "drive aws",
+    "aws workflow",
+    "workflow synchronizes"
+  ],
+  "required_services": [
+    "Google Drive",
+    "AWS S3"
+  ],
+  "triggers": [
+    "Google Drive Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google Drive Trigger",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          480,
+          1480
+        ],
+        "parameters": {
+          "event": "fileUpdated",
+          "options": {},
+          "triggerOn": "specificFolder",
+          "folderToWatch": "https://drive.google.com/drive/folders/[your_id]"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "credential-id",
+            "name": "googleDriveOAuth2Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Merge",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          680,
+          1560
+        ],
+        "parameters": {
+          "mode": "removeKeyMatches",
+          "propertyName1": "name.value",
+          "propertyName2": "Key.value"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3  - get",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          480,
+          1660
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll",
+          "bucketName": "mybucket"
+        },
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3 - upload",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          860,
+          1560
+        ],
+        "parameters": {
+          "tagsUi": {
+            "tagsValues": [
+              {
+                "key": "source",
+                "value": "gdrive"
+              }
+            ]
+          },
+          "fileName": "={{$json[\"name\"]}}",
+          "operation": "upload",
+          "binaryData": false,
+          "bucketName": "mybucket",
+          "additionalFields": {
+            "serverSideEncryption": "AES256"
+          }
+        },
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "AWS S3 - upload",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS S3  - get": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Google Drive Trigger": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

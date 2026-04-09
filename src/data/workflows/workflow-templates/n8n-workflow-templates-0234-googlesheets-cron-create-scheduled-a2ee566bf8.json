@@ -1,0 +1,138 @@
+{
+  "id": "n8n-workflow-templates-0234-googlesheets-cron-create-scheduled-a2ee566bf8",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0234_GoogleSheets_Cron_Create_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0234_GoogleSheets_Cron_Create_Scheduled.json"
+  },
+  "name": "0234 GoogleSheets Cron Create Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0234 GoogleSheets Cron Create Scheduled",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "cron",
+    "my Sql",
+    "google Sheets",
+    "cron Trigger",
+    "0234",
+    "googlesheets",
+    "create",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0234 googlesheets cron create scheduled",
+    "cron",
+    "create cron",
+    "my sql",
+    "create my sql",
+    "google sheets",
+    "create google sheets",
+    "cron trigger",
+    "0234 googlesheets",
+    "googlesheets cron",
+    "cron create",
+    "create scheduled"
+  ],
+  "required_services": [
+    "cron",
+    "my Sql",
+    "google Sheets"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          100,
+          160
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 5,
+                "mode": "everyWeek"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "MySQL - insert",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          500,
+          160
+        ],
+        "parameters": {
+          "table": "books",
+          "columns": "title, price",
+          "options": {
+            "ignore": true,
+            "priority": "LOW_PRIORITY"
+          }
+        },
+        "credentials": {
+          "mySql": {
+            "id": "82",
+            "name": "MySQL account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Sheets - read",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          300,
+          160
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "qwertz",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "2",
+            "name": "google_sheets_oauth"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets - read",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets - read": {
+        "main": [
+          [
+            {
+              "node": "MySQL - insert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "official-486",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/486",
+    "template_id": 486
+  },
+  "name": "Receive updates for events in Chargebee",
+  "description": "Receive updates for events in Chargebee",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Chargebee",
+    "Chargebee Trigger",
+    "receive",
+    "updates",
+    "events",
+    "chargebee"
+  ],
+  "task_keywords": [
+    "receive updates for events in chargebee",
+    "chargebee",
+    "update chargebee",
+    "chargebee trigger",
+    "receive updates",
+    "updates events",
+    "events chargebee",
+    "chargebee receive"
+  ],
+  "required_services": [
+    "Chargebee"
+  ],
+  "triggers": [
+    "Chargebee Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "108",
+    "name": "Receive updates for events in Chargebee",
+    "nodes": [
+      {
+        "name": "Chargebee Trigger",
+        "type": "n8n-nodes-base.chargebeeTrigger",
+        "position": [
+          700,
+          250
+        ],
+        "parameters": {
+          "events": [
+            "*"
+          ]
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

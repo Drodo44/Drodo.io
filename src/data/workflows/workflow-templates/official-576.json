@@ -1,0 +1,106 @@
+{
+  "id": "official-576",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/576",
+    "template_id": 576
+  },
+  "name": "Get information of an image",
+  "description": "Companion workflow for Edit Image node docs",
+  "category": "Productivity",
+  "tags": [
+    "Document Extraction",
+    "manual",
+    "Edit Image",
+    "Manual Trigger",
+    "information",
+    "image",
+    "companion",
+    "workflow",
+    "edit"
+  ],
+  "task_keywords": [
+    "get information of an image",
+    "manual",
+    "edit image",
+    "manual trigger",
+    "information image",
+    "image companion",
+    "companion workflow",
+    "workflow edit",
+    "image node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Image"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Edit Image",
+        "type": "n8n-nodes-base.editImage",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "operation": "information"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "url": "https://picsum.photos/200/300",
+          "options": {},
+          "responseFormat": "file"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Edit Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "id": "official-2",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/2",
+    "template_id": 2
+  },
+  "name": "Transfer data from Postgres to Excel",
+  "description": "1.",
+  "category": "Data",
+  "tags": [
+    "Document Extraction",
+    "Postgres",
+    "Spreadsheet File",
+    "Write Binary File",
+    "transfer",
+    "data",
+    "postgres",
+    "excel"
+  ],
+  "task_keywords": [
+    "transfer data from postgres to excel",
+    "postgres",
+    "spreadsheet file",
+    "write binary file",
+    "transfer data",
+    "data postgres",
+    "postgres excel"
+  ],
+  "required_services": [
+    "Postgres",
+    "Spreadsheet File",
+    "Write Binary File"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Run Query",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          450,
+          450
+        ],
+        "parameters": {
+          "query": "SELECT name, ean FROM product",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": "postgres"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Spreadsheet File",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          600,
+          450
+        ],
+        "parameters": {
+          "operation": "toFile"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Write Binary File",
+        "type": "n8n-nodes-base.writeBinaryFile",
+        "position": [
+          750,
+          450
+        ],
+        "parameters": {
+          "fileName": "spreadsheet.xls"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Run Query": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Spreadsheet File": {
+        "main": [
+          [
+            {
+              "node": "Write Binary File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

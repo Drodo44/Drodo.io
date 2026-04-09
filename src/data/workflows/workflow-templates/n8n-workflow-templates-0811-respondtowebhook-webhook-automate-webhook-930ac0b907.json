@@ -1,0 +1,128 @@
+{
+  "id": "n8n-workflow-templates-0811-respondtowebhook-webhook-automate-webhook-930ac0b907",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0811_Respondtowebhook_Webhook_Automate_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0811_Respondtowebhook_Webhook_Automate_Webhook.json"
+  },
+  "name": "0811 Respondtowebhook Webhook Automate Webhook",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0811 Respondtowebhook Webhook Automate Webhook",
+  "category": "Productivity",
+  "tags": [
+    "workflows",
+    "respond To Webhook",
+    "html2 Pdf",
+    "webhook",
+    "0811",
+    "respondtowebhook",
+    "automate",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0811 respondtowebhook webhook automate webhook",
+    "respond to webhook",
+    "html2 pdf",
+    "webhook",
+    "0811 respondtowebhook",
+    "respondtowebhook webhook",
+    "webhook automate",
+    "automate webhook",
+    "webhook n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "respond To Webhook",
+    "html2 Pdf"
+  ],
+  "triggers": [
+    "webhook",
+    "respond To Webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "meta": {
+      "instanceId": "fcf18fc485cc336a31bc65574fd28e124660f468281b7aad773616b17903afe6",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "37bd6cc9-3cc4-442e-94c1-42972c0fce0d",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          80,
+          0
+        ],
+        "webhookId": "060dbacf-0feb-43d4-b4ac-44011a7dd1a4",
+        "parameters": {
+          "path": "060dbacf-0feb-43d4-b4ac-44011a7dd1a4",
+          "options": {},
+          "responseMode": "responseNode"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "3c05c0e4-7121-46d0-b35c-fc39cdd35ae7",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          580,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "respondWith": "binary"
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "3f5ba2a7-148d-4921-b2ca-9dee17a2b278",
+        "name": "HTML to PDF",
+        "type": "@custom-js/n8n-nodes-pdf-toolkit.html2Pdf",
+        "position": [
+          340,
+          0
+        ],
+        "parameters": {
+          "htmlInput": "<h1>Hello CustomJS!</h1>\n<h2>CustomJS provides the missing toolset for your no-code projects</h2>"
+        },
+        "credentials": {
+          "customJsApi": {
+            "id": "SZkqeEHVYyWhaGem",
+            "name": "CustomJS account"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "HTML to PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTML to PDF": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

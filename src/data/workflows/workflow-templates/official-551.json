@@ -1,0 +1,69 @@
+{
+  "id": "official-551",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/551",
+    "template_id": 551
+  },
+  "name": "Get updates when a response is created in SurveyMonkey",
+  "description": "Companion workflow for SurveyMonkey node docs",
+  "category": "Productivity",
+  "tags": [
+    "Market Research",
+    "SurveyMonkey",
+    "SurveyMonkey Trigger",
+    "updates",
+    "when",
+    "response",
+    "created",
+    "surveymonkey",
+    "companion"
+  ],
+  "task_keywords": [
+    "get updates when a response is created in surveymonkey",
+    "surveymonkey",
+    "create surveymonkey",
+    "update surveymonkey",
+    "surveymonkey trigger",
+    "updates when",
+    "when response",
+    "response created",
+    "created surveymonkey",
+    "surveymonkey companion",
+    "companion workflow",
+    "workflow surveymonkey"
+  ],
+  "required_services": [
+    "SurveyMonkey"
+  ],
+  "triggers": [
+    "SurveyMonkey Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "SurveyMonkey Trigger",
+        "type": "n8n-nodes-base.surveyMonkeyTrigger",
+        "position": [
+          880,
+          390
+        ],
+        "webhookId": "52754661-725a-49e0-88fc-a8e5dbbea5a5",
+        "parameters": {
+          "event": "response_created",
+          "surveyIds": [
+            "288506979"
+          ],
+          "objectType": "survey",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "surveyMonkeyOAuth2Api": "surveymonkey_oauth"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

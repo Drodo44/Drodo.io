@@ -1,0 +1,64 @@
+{
+  "id": "official-554",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/554",
+    "template_id": 554
+  },
+  "name": "Receive updates when a new contact is added in Keap",
+  "description": "Companion workflow for Keap Trigger node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Keap",
+    "Keap Trigger",
+    "receive",
+    "updates",
+    "when",
+    "contact",
+    "added",
+    "keap"
+  ],
+  "task_keywords": [
+    "receive updates when a new contact is added in keap",
+    "keap",
+    "update keap",
+    "keap trigger",
+    "receive updates",
+    "updates when",
+    "when contact",
+    "contact added",
+    "added keap",
+    "keap companion",
+    "companion workflow",
+    "workflow keap"
+  ],
+  "required_services": [
+    "Keap"
+  ],
+  "triggers": [
+    "Keap Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Keap Trigger",
+        "type": "n8n-nodes-base.keapTrigger",
+        "position": [
+          440,
+          320
+        ],
+        "webhookId": "1df33e6f-7e5c-4d70-b90d-d5666aaf63e7",
+        "parameters": {
+          "eventId": "contact.add"
+        },
+        "credentials": {
+          "keapOAuth2Api": "keap_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

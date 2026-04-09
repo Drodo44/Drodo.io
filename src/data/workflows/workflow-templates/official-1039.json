@@ -1,0 +1,99 @@
+{
+  "id": "official-1039",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1039",
+    "template_id": 1039
+  },
+  "name": "Send a message on Mattermost when you get a reply in Emelia",
+  "description": "This workflow allows you to send a message on Mattermost when a lead replies to your email.",
+  "category": "AI",
+  "tags": [
+    "Lead Nurturing",
+    "Mattermost",
+    "Emelia",
+    "Emelia Trigger",
+    "send",
+    "message",
+    "mattermost",
+    "when",
+    "you",
+    "reply"
+  ],
+  "task_keywords": [
+    "send a message on mattermost when you get a reply in emelia",
+    "mattermost",
+    "send mattermost",
+    "emelia",
+    "send emelia",
+    "emelia trigger",
+    "send message",
+    "message mattermost",
+    "mattermost when",
+    "when you",
+    "you reply",
+    "reply emelia"
+  ],
+  "required_services": [
+    "Mattermost",
+    "Emelia"
+  ],
+  "triggers": [
+    "Emelia Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          650,
+          200
+        ],
+        "parameters": {
+          "message": "={{$json[\"contact\"][\"firstName\"]}} from {{$json[\"contact\"][\"company\"]}} has replied back to your campaign.",
+          "channelId": "qx9yo1i9z3bg5qcy5a1oxnh69c",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "Mattermost Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Emelia Trigger",
+        "type": "n8n-nodes-base.emeliaTrigger",
+        "position": [
+          450,
+          200
+        ],
+        "webhookId": "f53bc370-a8cb-4748-8f81-be7ae9b94972",
+        "parameters": {
+          "events": [
+            "replied"
+          ],
+          "campaignId": "6054d068b374b64365740101"
+        },
+        "credentials": {
+          "emeliaApi": "Emelia API Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Emelia Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

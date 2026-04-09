@@ -1,0 +1,198 @@
+{
+  "id": "official-4213",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/4213",
+    "template_id": 4213
+  },
+  "name": "Automatic media download from WhatsApp Business messages with HTTP storage",
+  "description": "This workflow listens for incoming WhatsApp messages that contain media (e.g., images) and automatically downloads the media file using WhatsApp's private media URL.",
+  "category": "AI",
+  "tags": [
+    "File Management",
+    "WhatsApp",
+    "WhatsApp Business Cloud",
+    "WhatsApp Trigger",
+    "automatic",
+    "media",
+    "download",
+    "whatsapp",
+    "business",
+    "messages"
+  ],
+  "task_keywords": [
+    "automatic media download from whatsapp business messages with http storage",
+    "whatsapp",
+    "whatsapp business cloud",
+    "whatsapp trigger",
+    "automatic media",
+    "media download",
+    "download whatsapp",
+    "whatsapp business",
+    "business messages",
+    "messages http",
+    "http storage",
+    "storage workflow"
+  ],
+  "required_services": [
+    "WhatsApp",
+    "WhatsApp Business Cloud"
+  ],
+  "triggers": [
+    "WhatsApp Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "instanceId": "4e229722e6c43a4914d2d66178b48335adf795d73afbee5b0ea0c52938ef4d8e",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "a24e0949-dcf6-48d4-8b9e-ce201e8b87d8",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2380,
+          -400
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 240,
+          "content": "This note indicates that the workflow triggers when a new WhatsApp message with media is received."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f513cc8b-89d3-4481-b7fa-ac9d33ba8562",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1980,
+          -400
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 240,
+          "content": "This note explains that the media ID is used to retrieve a private URL for downloading the media."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3bae6af6-8858-4da4-ab2c-846a2c3e0ffe",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1600,
+          -400
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 240,
+          "content": "This note highlights that the media file is downloaded using the retrieved private URL."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f694abd7-dacf-41a7-82aa-157bfcf54f83",
+        "name": "Trigger WhatsApp Media",
+        "type": "n8n-nodes-base.whatsAppTrigger",
+        "position": [
+          -2280,
+          -320
+        ],
+        "webhookId": "864469fd-2008-445c-83fe-852dac2b236a",
+        "parameters": {
+          "options": {},
+          "updates": [
+            "messages"
+          ]
+        },
+        "credentials": {
+          "whatsAppTriggerApi": {
+            "id": "credential-id",
+            "name": "whatsAppTriggerApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "33e74a92-4475-470d-8003-7631ea0b706f",
+        "name": "Fetch Media Download URL",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          -1880,
+          -320
+        ],
+        "webhookId": "b052dd6a-55b8-4195-a64e-c0088b7419cc",
+        "parameters": {
+          "resource": "media",
+          "operation": "mediaUrlGet",
+          "mediaGetId": "={{ $json.messages[0].image.id }}"
+        },
+        "credentials": {
+          "whatsAppApi": {
+            "id": "credential-id",
+            "name": "whatsAppApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5e9b09e8-b9d2-4571-a897-d49d32a68c3c",
+        "name": "Download Media File",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -1500,
+          -320
+        ],
+        "parameters": {
+          "url": "={{ $json.url }}",
+          "options": {
+            "response": {
+              "response": {}
+            }
+          },
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth"
+        },
+        "credentials": {
+          "httpBearerAuth": {
+            "id": "credential-id",
+            "name": "httpBearerAuth Credential"
+          },
+          "httpHeaderAuth": {
+            "id": "credential-id",
+            "name": "httpHeaderAuth Credential"
+          }
+        },
+        "typeVersion": 4.2
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Trigger WhatsApp Media": {
+        "main": [
+          [
+            {
+              "node": "Fetch Media Download URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Media Download URL": {
+        "main": [
+          [
+            {
+              "node": "Download Media File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

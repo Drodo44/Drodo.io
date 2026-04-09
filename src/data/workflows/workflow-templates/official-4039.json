@@ -1,0 +1,145 @@
+{
+  "id": "official-4039",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/4039",
+    "template_id": 4039
+  },
+  "name": "Download media files from Slack messages",
+  "description": "Description: This n8n workflow helps you capture Slack messages via a webhook and download attached media files (like images, documents, or videos) directly from those messages.",
+  "category": "Communication",
+  "tags": [
+    "File Management",
+    "Slack",
+    "Slack Trigger",
+    "download",
+    "media",
+    "files",
+    "slack",
+    "messages",
+    "description"
+  ],
+  "task_keywords": [
+    "download media files from slack messages",
+    "slack",
+    "slack trigger",
+    "download media",
+    "media files",
+    "files slack",
+    "slack messages",
+    "messages description",
+    "description n8n",
+    "n8n workflow",
+    "workflow helps",
+    "helps you"
+  ],
+  "required_services": [
+    "Slack"
+  ],
+  "triggers": [
+    "Slack Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "meta": {
+      "instanceId": "4e229722e6c43a4914d2d66178b48335adf795d73afbee5b0ea0c52938ef4d8e",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "0a986ad8-37ca-4869-9071-2236cefddd49",
+        "name": "Trigger Slack File Message",
+        "type": "n8n-nodes-base.slackTrigger",
+        "position": [
+          -2460,
+          -200
+        ],
+        "webhookId": "88033a8d-c5a4-4226-a742-909e005bb5b3",
+        "parameters": {
+          "options": {},
+          "trigger": [
+            "message"
+          ],
+          "watchWorkspace": true
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "credential-id",
+            "name": "slackApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bb609575-b106-4786-8fe6-85f9eaed45c0",
+        "name": "Download Media from Slack",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -2100,
+          -200
+        ],
+        "parameters": {
+          "url": "={{ $('Trigger Slack File Message').item.json.files[0].url_private_download }}",
+          "options": {
+            "response": {
+              "response": {}
+            }
+          },
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth"
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "credential-id",
+            "name": "httpHeaderAuth Credential"
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "5248c9ad-adbb-419d-a193-cf97efc14541",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2560,
+          -260
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 220,
+          "content": "This node listens for new messages in Slack that include file attachments."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b363e861-cf22-4be9-a534-414d98190da0",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2180,
+          -260
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 220,
+          "content": "This node downloads the file from the Slack message using the private download URL. "
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Trigger Slack File Message": {
+        "main": [
+          [
+            {
+              "node": "Download Media from Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

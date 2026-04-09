@@ -1,0 +1,94 @@
+{
+  "id": "official-453",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/453",
+    "template_id": 453
+  },
+  "name": "Create a meeting in Zoom automatically",
+  "description": "Create a meeting in Zoom automatically",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Zoom",
+    "Manual Trigger",
+    "create",
+    "meeting",
+    "zoom",
+    "automatically"
+  ],
+  "task_keywords": [
+    "create a meeting in zoom automatically",
+    "manual",
+    "create manual",
+    "zoom",
+    "create zoom",
+    "manual trigger",
+    "create meeting",
+    "meeting zoom",
+    "zoom automatically",
+    "automatically create"
+  ],
+  "required_services": [
+    "manual",
+    "Zoom"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "83",
+    "name": "Creating a meeting with the Zoom node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Zoom",
+        "type": "n8n-nodes-base.zoom",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "topic": "Something",
+          "authentication": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "zoomOAuth2Api": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Zoom": {
+        "main": [
+          []
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Zoom",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

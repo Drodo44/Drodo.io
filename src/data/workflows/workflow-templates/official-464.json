@@ -1,0 +1,87 @@
+{
+  "id": "official-464",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/464",
+    "template_id": 464
+  },
+  "name": "Create a new user in Intercom",
+  "description": "Create a new user in Intercom",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Intercom",
+    "Manual Trigger",
+    "create",
+    "user",
+    "intercom"
+  ],
+  "task_keywords": [
+    "create a new user in intercom",
+    "manual",
+    "create manual",
+    "intercom",
+    "create intercom",
+    "manual trigger",
+    "create user",
+    "user intercom",
+    "intercom create"
+  ],
+  "required_services": [
+    "manual",
+    "Intercom"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "91",
+    "name": "Create a new user in Intercom",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          600,
+          250
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Intercom",
+        "type": "n8n-nodes-base.intercom",
+        "position": [
+          800,
+          250
+        ],
+        "parameters": {
+          "idValue": "",
+          "identifierType": "email",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "intercomApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Intercom",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

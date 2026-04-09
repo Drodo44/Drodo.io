@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-667-9dec62f7ab",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/PagerDuty/security_667_cron_email_to_pagerduty.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/PagerDuty/security_667_cron_email_to_pagerduty.json"
+  },
+  "name": "Template 667",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 667",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "PagerDuty",
+    "cron",
+    "email",
+    "pagerduty",
+    "cron Trigger",
+    "template",
+    "667",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 667",
+    "cron",
+    "email",
+    "pagerduty",
+    "cron trigger",
+    "667 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "cron",
+    "email",
+    "pagerduty"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 667",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/12 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Email",
+        "type": "n8n-nodes-base.email",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 667
+  }
+}

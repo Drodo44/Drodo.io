@@ -1,0 +1,945 @@
+{
+  "id": "n8n-ai-automations-the-recap-ai-gmail-agent-ce7e4cde28",
+  "source": {
+    "type": "github",
+    "repository": "lucaswalter/n8n-ai-automations",
+    "repository_stars": 1434,
+    "path": "ai_gmail_agent.json",
+    "url": "https://github.com/lucaswalter/n8n-ai-automations/blob/main/ai_gmail_agent.json"
+  },
+  "name": "The Recap AI - Gmail Agent",
+  "description": "n8n workflow template from lucaswalter/n8n-ai-automations: The Recap AI - Gmail Agent",
+  "category": "AI",
+  "tags": [
+    "form",
+    "chain Llm",
+    "gmail",
+    "agent",
+    "tool Think",
+    "google Sheets",
+    "Google Gemini",
+    "google Docs",
+    "form Trigger",
+    "gmail Trigger",
+    "recap",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "the recap ai - gmail agent",
+    "form",
+    "chain llm",
+    "gmail",
+    "agent",
+    "tool think",
+    "google sheets",
+    "google gemini",
+    "google docs",
+    "form trigger",
+    "gmail trigger",
+    "recap gmail"
+  ],
+  "required_services": [
+    "form",
+    "chain Llm",
+    "gmail",
+    "agent",
+    "tool Think",
+    "google Sheets",
+    "Google Gemini",
+    "google Docs"
+  ],
+  "triggers": [
+    "form Trigger",
+    "gmail Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "The Recap AI - Gmail Agent",
+    "nodes": [
+      {
+        "parameters": {
+          "formTitle": "Knowledge Base Builders",
+          "formDescription": "Create a knowledge base for a lawn services company when provided the home page of their website.",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Website",
+                "placeholder": "https://recap.aitools.inc",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Google Drive Folder Id",
+                "placeholder": "1M5g9mX8wRWlT45Cd-OfIq9eKgjreZO-7",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.2,
+        "position": [
+          0,
+          32
+        ],
+        "id": "e8f27ddb-412e-43c6-9975-7906d45e8651",
+        "name": "form_trigger",
+        "webhookId": "11057270-a4bb-40e4-842c-6947806208c7"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.firecrawl.dev/v2/map",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"url\": \"{{ $json.Website }}\",\n  \"sitemap\": \"include\",\n  \"includeSubdomains\": false\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          224,
+          32
+        ],
+        "id": "17108927-f69a-4dbe-809a-bac825e6e860",
+        "name": "map_urls",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "vOYFxLc6HUcni7SU",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.firecrawl.dev/v2/batch/scrape",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"urls\": {{ JSON.stringify($json.links.map(l => l.url)) }},\n  \"formats\": [\"markdown\"],\n  \"excludeTags\": [\"img\"]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          464,
+          32
+        ],
+        "id": "4e793b92-875b-4d36-9b17-56af2c1c1193",
+        "name": "start_batch_scrape",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "vOYFxLc6HUcni7SU",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.firecrawl.dev/v2/batch/scrape/{{ $node['start_batch_scrape'].json.id }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          928,
+          32
+        ],
+        "id": "abacf226-a934-4127-abf0-08e05b2aeb70",
+        "name": "fetch_scrape_status",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "vOYFxLc6HUcni7SU",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "cc296f33-b896-49c7-898c-4d8b5f11266a",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": "completed",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1168,
+          96
+        ],
+        "id": "fb8100e0-2c81-4098-be60-47319bc79182",
+        "name": "check_status"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          688,
+          32
+        ],
+        "id": "347f0f30-3ce5-4447-9537-883a5eacbe51",
+        "name": "rate_limit_wait",
+        "webhookId": "3a93d231-a459-4747-b124-4229372407a8"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "9efaad04-014a-45a4-9760-1b3edbf51c8d",
+                "name": "scraped_pages",
+                "value": "=Website: {{ $('form_trigger').item.json.Website }}\n\n-----\n{{ $json.data.map(item => {\n  let result = '';\n  result += 'Page Title: ' + item.metadata.title + '\\n';\n  result += 'Page Description: ' + item.metadata.description + '\\n';\n  result += 'Page Url: ' + item.metadata.url + '\\n\\n';\n\n  result += item.markdown;\n\n  return result;\n}).join(\"\\n-----\\n\") }}\n",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1424,
+          112
+        ],
+        "id": "eac2f9f6-f8a4-4b95-8a99-7a61a8130cf6",
+        "name": "set_scrape_result"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=# ROLE\nYou are an information architect and technical writer. Your mission is to synthesize a complete set of a **local lawn care service's** website pages (provided as Markdown) into a **comprehensive, deduplicated Business Knowledge Base**. This knowledge base will be the single source of truth for future customer support and automation agents. You must preserve **all unique information** from the source pages, while structuring it logically for fast retrieval.\n\n---\n\n# PRIME DIRECTIVES\n1.  **Information Integrity (Non-Negotiable):** All unique facts, policies, numbers, names, hours, service details, and other key information from the source pages must be captured and placed in the appropriate knowledge base section. Redundant information (e.g., the same phone number on 10 different pages) should be captured once, with all its original source pages cited for traceability.\n2.  **Organized for Lawn Care Support:** The primary output is the organized layer (Taxonomy, FAQs, etc.). This is not just an index; it is the knowledge base itself. It should be structured to answer an agent's questions directly and efficiently, covering topics from service quotes to post-treatment care.\n3.  **No Hallucinations:** Do not invent or infer details (e.g., prices, application schedules, specific chemical names) not present in the source text. If information is genuinely missing or unclear, explicitly state `UNKNOWN`.\n4.  **Deterministic Structure:** Follow the exact output format specified below. Use stable, predictable IDs and anchors for all entries.\n5.  **Source Traceability:** Every piece of information in the knowledge base must cite the `page_id`(s) it was derived from. Conversely, all substantive information from every source page must be integrated into the knowledge base; nothing should be dropped.\n6.  **Language:** Keep the original language of the source text when quoting verbatim policies or names. The organizing layer (summaries, labels) should use the site’s primary language.\n\n---\n\n# INPUT FORMAT\nYou will receive one batch with all pages of a single lawn care service website. **This is the only input; there is no other metadata.**\n\n<<<PAGES\n{{ $json.scraped_pages }}\n>>>\n\n**Stable Page IDs:** Generate `page_id` as a deterministic kebab-case slug of `title`:\n-   Lowercase; ASCII alphanumerics and hyphens; spaces → hyphens; strip punctuation.\n-   If duplicates occur, append `-2`, `-3`, … in order of appearance.\n\n---\n\n# OUTPUT FORMAT (Markdown)\n\nYour entire response must be a single Markdown document in the following exact structure. **There is no appendix or full-text archive; the knowledge base itself is the complete output.**\n\n## 1) Metadata\n\n```yaml\n---\nknowledge_base_version: 1.1 # Version reflects new synthesis model\ngenerated_at: <ISO-8601 timestamp (UTC)>\nsite:\n  name: \"UNKNOWN\" # set to company name if clearly inferable from sources; else UNKNOWN\ncounts:\n  total_pages_processed: <integer>\n  total_entries: <integer> # knowledge base entries you create\n  total_glossary_terms: <integer>\n  total_media_links: <integer> # image/file/link targets found\nintegrity:\n  information_synthesis_method: \"deduplicated_canonical\"\n  all_pages_processed: true # set false only if you could not process a page\n---\n```\n\n## 2) Title\n\n# <Lawn Care Service Name or UNKNOWN> — Business Knowledge Base\n\n## 3) Table of Contents\nLinked outline to all major sections and subsections.\n\n## 4) Quick Start for Agents (Orientation Layer)\n-   **What this is:** 2–4 bullets explaining that this is a complete, searchable business knowledge base built from the lawn care service's website.\n-   **How to navigate:** 3–6 bullets (e.g., “Use the Taxonomy to find policies. Use the search function for specific keywords like 'aeration cost' or 'pet safety'.\").\n-   **Support maturity:** If present, summarize known channels/hours/SLAs. If unknown, write `UNKNOWN`.\n\n## 5) Taxonomy & Topics (The Core Knowledge Base)\nOrganize all synthesized information into these **lawn care categories**. Omit empty categories. Within each category, create **entries** that contain the canonical, deduplicated information.\n\n**Categories (use this order):**\n1.  Company Overview & Service Area (brand, history, mission, counties/zip codes served)\n2.  Core Lawn Care Services (mowing, fertilization, weed control, insect control, disease control)\n3.  Additional & Specialty Services (aeration, overseeding, landscaping, tree/shrub care, irrigation)\n4.  Service Plans & Programs (annual packages, bundled services, tiers)\n5.  Pricing, Quotes & Promotions (how to get an estimate, free quotes, discounts, referral programs)\n6.  Scheduling & Service Logistics (booking first service, service frequency, weather delays, notifications)\n7.  Service Visit Procedures (what to expect, lawn prep, gate access, cleanup, service notes)\n8.  Post-Service Care & Expectations (watering instructions, when to mow, time to see results)\n9.  Products, Chemicals & Safety (materials used, organic options, pet/child safety guidelines, MSDS links)\n10. Billing, Payments & Account Management (payment methods, auto-pay, due dates, online portal)\n11. Service Guarantee, Cancellations & Issue Resolution (satisfaction guarantee, refund policy, rescheduling, complaint process)\n12. Seasonal Services & Calendar (spring clean-up, fall aeration, winterization, application timelines)\n13. Policies & Terms of Service (damage policy, privacy, liability)\n14. Contact, Hours & Support Channels\n15. Miscellaneous / Unclassified (minimize)\n\n**Entry format (for every entry):**\n\n### [EntryID: <kebab-case-stable-id>] <Entry Title>\n**Category:** <one of the categories above>\n**Summary:** <2–6 sentences summarizing the topic. This is a high-level orientation for the agent.>\n**Key Facts:**\n-   <short, atomic, deduplicated fact (e.g., \"Standard mowing height: 3.5 inches\")>\n-   <short, atomic, deduplicated fact (e.g., \"Pet safe-reentry period: 2 hours after application\")>\n-   ...\n**Canonical Details & Policies:**\n<This section holds longer, verbatim text that cannot be broken down into key facts. Examples: full satisfaction guarantee text, detailed descriptions of a 7-step fertilization program, legal disclaimers. If a policy is identical across multiple sources, present it here once. Use Markdown formatting like lists and bolding for readability.>\n**Procedures (if any):**\n1.  <step>\n2.  <step>\n**Known Issues / Contradictions (if any):** <Note any conflicting information found across pages, citing sources. E.g., \"Homepage lists service area as 3 counties, but About Us page lists 4. [home, about-us]\"> or `None`.\n**Sources:** [<page_id-1>, <page_id-2>, ...]\n\n## 6) FAQs (If Present in Sources)\nAggregate explicit Q→A pairs. Keep answers concise and reference their sources.\n\n### Q: <verbatim question or minimally edited>\nA: <brief, synthesized answer>\n**Sources:** [<page_id-1>, <page_id-2>, ...]\n\n## 7) Glossary (If Present)\nAlphabetical list of terms defined in sources (e.g., \"Aeration,\" \"Thatch,\" \"Pre-emergent\").\n\n-   **<Term>** — <definition as stated in the source; if multiple, synthesize or note variants>\n    -   **Sources:** [<page_id-1>, ...]\n\n## 8) Service & Plan Index\nA quick-reference list of all distinct services and plans offered.\n\n### Services\n-   **<Service Name e.g., Core Aeration>**\n    -   **Description:** <Brief description from source>\n    -   **Sources:** [<page-id-1>, <page-id-2>]\n-   **<Service Name e.g., Grub Control>**\n    -   **Description:** <Brief description from source>\n    -   **Sources:** [<page-id-1>]\n\n### Plans\n-   **<Plan Name e.g., Premium Annual Program>**\n    -   **Description:** <Brief description from source>\n    -   **Sources:** [<page-id-1>, <page-id-2>]\n-   **<Plan Name e.g., Basic Mowing>**\n    -   **Description:** <Brief description from source>\n    -   **Sources:** [<page-id-1>]\n\n## 9) Contact & Support Channels (If Present)\nA canonical, deduplicated list of all official contact methods.\n\n### Phone\n-   **New Quotes:** 555-123-4567\n    -   **Sources:** [<home>, <contact>, <services>]\n-   **Current Customer Support:** 555-123-9876\n    -   **Sources:** [<contact>]\n\n### Email\n-   **General Inquiries:** support@lawncare.com\n    -   **Sources:** [<contact>]\n\n### Business Hours\n-   **Standard Hours:** Mon-Fri, 8:00 AM - 5:00 PM\n    -   **Sources:** [<contact>, <about-us>]\n\n## 10) Coverage & Integrity Report\n-   **Pages Processed:** `<N>`\n-   **Entries Created:** `<M>`\n-   **Potentially Unprocessed Content:** List any pages or major sections of pages whose content you could not confidently place into an entry. Explain why (e.g., \"Content on `page-id: photo-gallery` was purely images with no text to process.\"). Should be `None` in most cases.\n-   **Identified Contradictions:** Summarize any major conflicting policies or facts discovered during synthesis (e.g., \"Service guarantee contradicts itself between FAQ and Terms of Service page.\").\n\n---\n\n# CONTENT SYNTHESIS & FORMATTING RULES\n-   **Deduplication:** Your primary goal is to identify and merge identical pieces of information. A phone number or policy listed on 5 pages should appear only once in the final business knowledge base, with all 5 pages cited as sources.\n-   **Conflict Resolution:** When sources contain conflicting information (e.g., different service frequencies for the same plan), do not choose one. Present both versions and flag the contradiction in the `Known Issues / Contradictions` field of the relevant entry and in the main `Coverage & Integrity Report`.\n-   **Formatting:** You are free to clean up formatting. Normalize headings and standardize lists (bullets/numbers). Retain all original text from list items and captions.\n-   **Links & Media:** Keep link text inline. You do not need to preserve the URL targets unless they are for external resources or downloadable files (like safety data sheets), in which case list them. Include image alt text/captions as `Image: <alt text>`.\n\n---\n\n# QUALITY CHECKS (Perform before finalizing)\n1.  **Completeness:** Have you processed all input pages? (`total_pages_processed` in YAML should match input).\n2.  **Information Integrity:** Have you reviewed each source page to ensure all unique facts, numbers, policies, and service details have been captured somewhere in the business knowledge base (Sections 5-9)?\n3.  **Traceability:** Does every entry and key piece of data have a `Sources` list citing the original `page_id`(s)?\n4.  **Contradiction Flagging:** Have all discovered contradictions been noted in the appropriate entries and summarized in the final report?\n5.  **No Fabrication:** Confirm that all information is derived from the source text and that any missing data is marked `UNKNOWN`.\n\n---\n\n# NOW DO THE WORK\nUsing the provided `PAGES` (title, description, markdown), produce the lawn care service's Business Knowledge Base exactly as specified above.",
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          0,
+          352
+        ],
+        "id": "df024af0-1e33-46c6-8bdc-d01a33ac60e2",
+        "name": "build_knowledge_base"
+      },
+      {
+        "parameters": {
+          "mode": "markdownToHtml",
+          "markdown": "={{ $json.text }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.markdown",
+        "typeVersion": 1,
+        "position": [
+          464,
+          352
+        ],
+        "id": "a5fdd1cf-5793-492e-81e9-a217ced82144",
+        "name": "convert_to_html"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e7ee03ac-13e3-4fca-a7bc-57c8fc56dc42",
+                "name": "document_name",
+                "value": "=Knowledge Base",
+                "type": "string"
+              },
+              {
+                "id": "48a07ef2-ae46-4bfc-aa7e-d92a74ef46d6",
+                "name": "html_content",
+                "value": "={{ $json.data }}",
+                "type": "string"
+              },
+              {
+                "id": "22b02fba-ba72-423a-b92f-1191a183a554",
+                "name": "drive_folder_id",
+                "value": "={{ $node['form_trigger'].json['Google Drive Folder Id'] }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          688,
+          352
+        ],
+        "id": "6f45bb7e-cb73-43a7-8fbb-e210a7b785a1",
+        "name": "set_google_doc_values",
+        "notesInFlow": true
+      },
+      {
+        "parameters": {
+          "jsCode": "const boundary = 'divider';\nconst docName = $input.first().json.document_name;\nconst folderId = $input.first().json.drive_folder_id;\nconst htmlContent = $input.first().json.html_content;\n\nconst metadata = JSON.stringify({\n  name: docName,\n  mimeType: \"application/vnd.google-apps.document\",\n  parents: [folderId]\n});\n\nconst htmlWithStyles = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    /* Add bottom margin to block elements for spacing */\n    p,\n    ul,\n    ol,\n    table,\n    h1,\n    h2,\n    h3,\n    h4,\n    h5,\n    h6 {\n      margin-bottom: 10pt;\n    }\n\n    h2 {\n      margin-top: 20pt;\n    }\n\n    /* Prevent margin collapse issues or excessive space inside lists */\n    li {\n       margin-bottom: 2pt; /* Optional: small space between list items */\n    }\n\n    /* Remove margin from the last child within common containers if needed */\n    /* This might be overly aggressive, test without it first */\n    /*\n    body > *:last-child,\n    li > *:last-child {\n       margin-bottom: 0;\n    }\n    */\n  </style>\n</head>\n<body>\n  ${htmlContent}\n</body>\n</html>\n`;\n\n// Construct the body with literal \\r\\n ONLY\nlet body = `--${boundary}\\r\\n`;\nbody += `Content-Type: application/json; charset=UTF-8\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${metadata}\\r\\n`;\nbody += `--${boundary}\\r\\n`;\nbody += `Content-Type: text/html\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${htmlWithStyles}\\r\\n`; // Add the HTML content\nbody += `--${boundary}--\\r\\n`; // Final boundary\n\nreturn {\n  rawData: body \n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          928,
+          352
+        ],
+        "id": "6c3f3f19-92c2-47bb-9115-5de5f18ef0a2",
+        "name": "build_google_request_data"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://www.googleapis.com/upload/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "uploadType",
+                "value": "multipart"
+              },
+              {
+                "name": "supportsAllDrives",
+                "value": "true"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "raw",
+          "rawContentType": "multipart/related; boundary=divider",
+          "body": "={{ $json.rawData }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1168,
+          352
+        ],
+        "id": "a230c7ae-50a8-46c4-a8b8-c5bc847f5180",
+        "name": "create_google_doc",
+        "notesInFlow": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "filters": {}
+        },
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -16,
+          896
+        ],
+        "id": "08a4a74a-85f6-454d-9f98-f9738e43a4e0",
+        "name": "email_received_trigger",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "LMd4VK2OBGx5r02q",
+            "name": "Gmail - lucas@dlmholdings.com"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Email Message Id: `{{ $json.id }}`\nEmail Thread Id: `{{ $json.threadId }}`\nSender / From: `{{ $json.From }}`\nSubject: `{{ $json.Subject }}`\nTimestamp: `{{ $now.toISO() }}`\nMessage: `{{ $json.snippet }}`",
+          "options": {
+            "systemMessage": "=# Gmail Agent System Prompt\n\nYou are an intelligent email assistant for a lawn care service company. Your primary role is to analyze incoming Gmail messages and determine whether you can provide helpful responses based on the company's knowledge base. You must follow a structured decision-making process for every email received.\n\n## Thinking Process Guidelines\n\nWhen using the `think` tool, structure your thoughts clearly and methodically:\n\n### Initial Analysis Thinking Template:\n```\nMESSAGE ANALYSIS:\n- Sender: [email address]\n- Subject: [subject line]\n- Message type: [customer inquiry/personal/spam/other]\n- Key questions/requests identified: [list them]\n- Preliminary assessment: [should respond/shouldn't respond and why]\n\nPLANNING:\n- Information needed from knowledge base: [specific topics to look for]\n- Potential response approach: [if applicable]\n- Next steps: [load knowledge base, then re-analyze]\n```\n\n### Post-Knowledge Base Thinking Template:\n```\nKNOWLEDGE BASE ANALYSIS:\n- Relevant information found: [list key points]\n- Information gaps: [what's missing that they asked about]\n- Match quality: [excellent/good/partial/poor]\n- Additional helpful info available: [related topics they might want]\n\nRESPONSE DECISION:\n- Should respond: [YES/NO]\n- Reasoning: [detailed explanation of decision]\n- Key points to include: [if responding]\n- Tone/approach: [professional, helpful, etc.]\n```\n\n### Final Decision Thinking Template:\n```\nFINAL ASSESSMENT:\n- Decision: [RESPOND/NO_RESPONSE]\n- Confidence level: [high/medium/low]\n- Response strategy: [if applicable]\n- Potential risks/concerns: [if any]\n- Logging details: [what to record]\n\nQUALITY CHECK:\n- Is this the right decision? [yes/no and why]\n- Am I being appropriately conservative? [yes/no]\n- Would this response be helpful and accurate? [yes/no]\n```\n\n## Core Responsibilities\n\n1. **Message Analysis**: Evaluate incoming emails to determine if they contain questions or requests you can address\n2. **Knowledge Base Consultation**: Use the company knowledge base to inform your decisions and responses\n3. **Deep Thinking**: Use the think tool to carefully analyze each situation before taking action\n4. **Response Generation**: Create helpful, professional email replies when appropriate\n5. **Activity Logging**: Record all decisions and actions taken for tracking purposes\n\n## Decision-Making Process\n\n### Step 1: Initial Analysis and Planning\n- **ALWAYS** start by calling the `think` tool to analyze the incoming message and plan your approach\n- In your thinking, consider:\n  - What type of email is this? (customer inquiry, personal message, spam, etc.)\n  - What specific questions or requests are being made?\n  - What information would I need from the knowledge base to address this?\n  - Is this the type of message I should respond to based on my guidelines?\n  - What's my preliminary assessment before loading the knowledge base?\n\n### Step 2: Load Knowledge Base\n- Call the `get_knowledge_base` tool to retrieve the current company knowledge base\n- This knowledge base contains information about services, pricing, policies, contact details, and other company information\n- Use this as your primary source of truth for all decisions and responses\n\n### Step 3: Deep Analysis with Knowledge Base\n- Use the `think` tool again to thoroughly analyze the message against the knowledge base\n- In this thinking phase, consider:\n  - Can I find specific information in the knowledge base that directly addresses their question?\n  - Is the information complete enough to provide a helpful response?\n  - Are there any gaps between what they're asking and what the knowledge base provides?\n  - What would be the most helpful way to structure my response?\n  - Are there related topics in the knowledge base they might also find useful?\n\n### Step 4: Final Decision Making\n- Use the `think` tool one more time to make your final decision\n- Consider:\n  - Based on my analysis, should I respond or not?\n  - If responding, what key points should I include?\n  - How should I structure the response for maximum helpfulness?\n  - What should I log about this interaction?\n  - Am I confident this is the right decision?\n\n### Step 5: Analyze the Incoming Message\n### Step 5: Message Classification\nEvaluate the email based on these criteria:\n\n**RESPOND IF the email contains:**\n- Questions about services offered (lawn care, fertilization, pest control, etc.)\n- Pricing inquiries or quote requests\n- Service area coverage questions\n- Contact information requests\n- Business hours inquiries\n- Service scheduling questions\n- Policy questions (cancellation, guarantee, etc.)\n- General business information requests\n- Follow-up questions about existing services\n\n**DO NOT RESPOND IF the email contains:**\n- Personal conversations between known parties\n- Spam or promotional content\n- Technical support requests requiring human intervention\n- Complaints requiring management attention\n- Payment disputes or billing issues\n- Requests for services not offered by the company\n- Emails that appear to be automated/system-generated\n- Messages that are clearly not intended for customer service\n\n### Step 6: Knowledge Base Match Assessment\n- Check if the knowledge base contains relevant information to answer the question\n- Look for direct matches in services, pricing, policies, contact info, etc.\n- If you can find specific, accurate information in the knowledge base, proceed to respond\n- If the knowledge base lacks sufficient detail to provide a helpful answer, do not respond\n\n### Step 7: Response Generation (if appropriate)\nWhen responding, follow these guidelines:\n\n**Response Format:**\n- Use a professional, friendly tone\n- Start with a brief acknowledgment of their inquiry\n- Provide clear, concise answers based on knowledge base information\n- Include relevant contact information when appropriate\n- Close with an offer for further assistance\n\n**Response Content Rules:**\n- Only use information directly from the knowledge base\n- Do not make assumptions or provide information not in the knowledge base\n- If pricing is requested but not available in the knowledge base, direct them to contact for a quote\n- Always maintain accuracy over helpfulness\n\n**Sample Response Structure:**\n```\nSubject: Re: [Original Subject]\n\nHello [Name if available],\n\nThank you for your inquiry about [topic]. \n\n[Specific answer based on knowledge base information]\n\n[Additional relevant information if applicable]\n\nIf you have any other questions or would like to discuss your specific needs, please don't hesitate to contact us at [contact information from knowledge base].\n\nBest regards,\n[Company Name] Customer Service Team\n```\n\n### Step 8: Logging Requirements\n**ALWAYS** call the `log_message` tool to record:\n\n**Required Log Fields:**\n- **Timestamp**: When the email was received\n- **Sender**: Email address of the sender\n- **Subject**: Original email subject line\n- **Message Preview**: First 100 characters of the original message\n- **Decision**: \"RESPOND\" or \"NO_RESPONSE\"\n- **Action Taken**: \n  - If responded: \"REPLIED - [brief description of response topic]\"\n  - If not responded: \"NO_OP - [brief reason - e.g., 'Not service-related', 'Insufficient knowledge base info', 'Personal conversation']\"\n\n## Example Workflow with Thinking\n\nHere's how a complete interaction should flow:\n\n**1. Initial Email Received:**\n```\nFrom: customer@email.com\nSubject: Lawn care services\nMessage: Hi, do you provide weekly mowing services in the 64111 zip code? What would that cost?\n```\n\n**2. First Think Call:**\n```\nMESSAGE ANALYSIS:\n- Sender: customer@email.com  \n- Subject: Lawn care services\n- Message type: Customer inquiry\n- Key questions: Weekly mowing availability, service area coverage (64111), pricing\n- Preliminary assessment: Likely should respond if we have this info\n\nPLANNING:\n- Need to check: Services offered, service area coverage, pricing info\n- Potential response: Confirm services and area, provide pricing or quote process\n- Next steps: Load knowledge base and analyze available information\n```\n\n**3. Load Knowledge Base**\n\n**4. Second Think Call:**\n```\nKNOWLEDGE BASE ANALYSIS:\n- Services: Weekly mowing available ✓\n- Service area: 64111 covered ✓  \n- Pricing: No specific prices listed, mentions \"contact for quote\"\n- Additional info: Service includes edging, cleanup\n\nRESPONSE DECISION:\n- Should respond: YES\n- Reasoning: Can confirm service availability and area, can direct to quote process\n- Key points: Confirm weekly mowing, confirm area coverage, explain quote process\n- Tone: Professional and helpful\n```\n\n**5. Send Response**\n\n**6. Final Think Call:**\n```\nFINAL ASSESSMENT:\n- Decision: RESPONDED\n- Confidence: High - provided accurate available information\n- Response covered: Service confirmation, area coverage, quote process\n- Quality: Good - helpful without making up pricing info\n\nLOGGING DETAILS:\n- Action: REPLIED - Confirmed mowing services and quote process\n- Knowledge base match: Excellent\n- Response appropriate: Yes\n```\n\n**7. Log to Sheets**\n\n## Important Guidelines\n\n### Quality Control\n- Never guess or make up information not in the knowledge base\n- When in doubt, err on the side of not responding rather than providing incorrect information\n- Maintain consistent tone and branding as represented in the knowledge base\n\n### Edge Cases\n- If an email appears to be both personal and business-related, prioritize the business aspect if it can be addressed from the knowledge base\n- For urgent-seeming requests (emergency, same-day service), still follow the standard process but note urgency in logs\n- If someone asks about services not mentioned in the knowledge base, do not respond\n\n### Error Handling\n- If the knowledge base cannot be loaded, log this issue and do not respond to any emails\n- If there are technical issues with sending responses, log the attempt and error details\n\n## Example Decision Matrix\n\n| Email Type | Knowledge Base Has Info? | Action |\n|------------|-------------------------|---------|\n| \"What services do you offer?\" | Yes - services listed | RESPOND with service list |\n| \"How much for lawn care?\" | No - no pricing info | NO_RESPONSE - insufficient info |\n| \"Do you service ZIP 12345?\" | Yes - service areas listed | RESPOND with coverage info |\n| \"My payment didn't go through\" | N/A - billing issue | NO_RESPONSE - requires human |\n| \"Hey John, about lunch...\" | N/A - personal message | NO_RESPONSE - not business related |\n| \"When are you open?\" | Yes - hours in knowledge base | RESPOND with business hours |\n\n## Success Metrics\nYour effectiveness will be measured by:\n- Accuracy of responses (only using knowledge base information)\n- Appropriate response/no-response decisions\n- Complete and accurate logging of all activities\n- Professional tone and helpful responses when appropriate\n\nRemember: Your goal is to be helpful when you can be accurate and appropriate, while ensuring all activities are properly documented for review and improvement."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          272,
+          896
+        ],
+        "id": "f11d463b-8140-435d-a74a-53fa88d99005",
+        "name": "gmail_agent"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          624,
+          896
+        ],
+        "id": "6275b711-4440-4ca7-be25-c717991859de",
+        "name": "no_op"
+      },
+      {
+        "parameters": {
+          "operation": "reply",
+          "messageId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_ID', `The email message ID that the customer originally sent in. `, 'string') }}",
+          "emailType": "text",
+          "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `The helpful response generated and written to help out the customer with their inquiry or question. `, 'string') }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          496,
+          1152
+        ],
+        "id": "e432e1df-b146-4c15-b0d7-db2e295abe24",
+        "name": "send_email",
+        "webhookId": "167be99a-4ea5-4367-98fd-5e7282668425",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "LMd4VK2OBGx5r02q",
+            "name": "Gmail - lucas@dlmholdings.com"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.toolThink",
+        "typeVersion": 1.1,
+        "position": [
+          224,
+          1152
+        ],
+        "id": "1a9b342c-4551-4f9e-a672-d3516c575c7d",
+        "name": "think"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "https://docs.google.com/spreadsheets/d/1on31fPLdwuUl914XfqFrRQXQCkp9yeWAzdyGECyAzd0/edit?gid=0#gid=0",
+            "mode": "url"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Log",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1on31fPLdwuUl914XfqFrRQXQCkp9yeWAzdyGECyAzd0/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Timestamp": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Timestamp', `When the email was received`, 'string') }}",
+              "Sender": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sender', `Email address of the sender`, 'string') }}",
+              "Subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', `Original email subject line`, 'string') }}",
+              "Message Preview": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_Preview', `First 100 characters of the original message`, 'string') }}",
+              "Decision": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Decision', `\"RESPOND\" or \"NO_RESPONSE\"`, 'string') }}",
+              "Action Taken": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Action_Taken', ``, 'string') }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Timestamp",
+                "displayName": "Timestamp",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Sender",
+                "displayName": "Sender",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Subject",
+                "displayName": "Subject",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Message Preview",
+                "displayName": "Message Preview",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Decision",
+                "displayName": "Decision",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Action Taken",
+                "displayName": "Action Taken",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.7,
+        "position": [
+          624,
+          1152
+        ],
+        "id": "da3ecc57-326b-41a9-8327-b8a2e5717965",
+        "name": "log_message",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "C8jshnaDinQz6p7c",
+            "name": "Google Sheets"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-2.5-pro",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          0,
+          544
+        ],
+        "id": "30bd62fc-4d9f-4ce6-9aea-df3632a615de",
+        "name": "gemini-2.5-pro-knowledge-base",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "qp1NlMiIctmGD0Uu",
+            "name": "Google Gemini (PaLM)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-2.5-pro",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          -16,
+          1152
+        ],
+        "id": "585a7afc-9a26-4865-bdab-bb223b4dba61",
+        "name": "gemini-2.5-pro-agent",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "qp1NlMiIctmGD0Uu",
+            "name": "Google Gemini (PaLM)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Build Company Knowledge Base\n- Scrapes the entire website of the provided lawn service company\n- LLM analyzes website content and turns it into a knowledge base document\n- Final document is uploaded to Google Drive",
+          "height": 848,
+          "width": 1728,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -96,
+          -144
+        ],
+        "typeVersion": 1,
+        "id": "f4bb815a-044b-4372-806f-8181b6c3fc97",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "## Gmail Agent\n- Triggers on Email Received\n- Analyzes message to determine if the agent should auto-respond\n- Writes and sends a reply\n- Logs all details to Google Sheets",
+          "height": 624,
+          "width": 1072
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -96,
+          720
+        ],
+        "id": "4bd17c2e-cd03-49cf-800f-459bc3589182",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "1lPznWUqtEucHOH3kVxYxizIShnFoFwlpjfiZ1yo11bg"
+        },
+        "type": "n8n-nodes-base.googleDocsTool",
+        "typeVersion": 2,
+        "position": [
+          336,
+          1152
+        ],
+        "id": "6e8c8afb-61b3-4103-b33d-d6ee3973bfa7",
+        "name": "get_knowledge_base",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "Bm31Z2Sp7Dd6X71P",
+            "name": "Google Docs"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "a6740e71-3877-4d31-bd5b-0b81d1394014",
+                "name": "document_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "22fb595c-1b16-4077-ae33-2145aa98bddd",
+                "name": "document_url",
+                "value": "=https://docs.google.com/document/d/{{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1424,
+          352
+        ],
+        "id": "2324766b-61c8-46c5-a367-90145400cd4c",
+        "name": "set_result"
+      }
+    ],
+    "pinData": {
+      "form_trigger": [
+        {
+          "json": {
+            "Website": "https://www.bythebladekc.com/",
+            "Google Drive Folder Id": "1M5g9mX8wRWlT45Cd-OfIq9eKgjreZO-7",
+            "submittedAt": "2025-08-26T15:19:50.780-05:00",
+            "formMode": "test"
+          }
+        }
+      ]
+    },
+    "connections": {
+      "form_trigger": {
+        "main": [
+          [
+            {
+              "node": "map_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "map_urls": {
+        "main": [
+          [
+            {
+              "node": "start_batch_scrape",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "start_batch_scrape": {
+        "main": [
+          [
+            {
+              "node": "rate_limit_wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "fetch_scrape_status": {
+        "main": [
+          [
+            {
+              "node": "check_status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "check_status": {
+        "main": [
+          [
+            {
+              "node": "set_scrape_result",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "rate_limit_wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "rate_limit_wait": {
+        "main": [
+          [
+            {
+              "node": "fetch_scrape_status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_scrape_result": {
+        "main": [
+          [
+            {
+              "node": "build_knowledge_base",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_knowledge_base": {
+        "main": [
+          [
+            {
+              "node": "convert_to_html",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_to_html": {
+        "main": [
+          [
+            {
+              "node": "set_google_doc_values",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_google_doc_values": {
+        "main": [
+          [
+            {
+              "node": "build_google_request_data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_google_request_data": {
+        "main": [
+          [
+            {
+              "node": "create_google_doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "email_received_trigger": {
+        "main": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "gmail_agent": {
+        "main": [
+          [
+            {
+              "node": "no_op",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "send_email": {
+        "ai_tool": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "think": {
+        "ai_tool": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "log_message": {
+        "ai_tool": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "gemini-2.5-pro-knowledge-base": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "build_knowledge_base",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "gemini-2.5-pro-agent": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_knowledge_base": {
+        "ai_tool": [
+          [
+            {
+              "node": "gmail_agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "create_google_doc": {
+        "main": [
+          [
+            {
+              "node": "set_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "a6ea4687-d7f5-4555-8d76-a69a428825f4",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+    },
+    "id": "FRcjcfyNd8Q4UvUh",
+    "tags": []
+  }
+}

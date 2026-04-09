@@ -1,0 +1,93 @@
+{
+  "id": "official-659",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/659",
+    "template_id": 659
+  },
+  "name": "Create a coupon on Paddle",
+  "description": "Create a coupon on Paddle",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Paddle",
+    "Manual Trigger",
+    "create",
+    "coupon",
+    "paddle"
+  ],
+  "task_keywords": [
+    "create a coupon on paddle",
+    "manual",
+    "create manual",
+    "paddle",
+    "create paddle",
+    "manual trigger",
+    "create coupon",
+    "coupon paddle",
+    "paddle create"
+  ],
+  "required_services": [
+    "manual",
+    "Paddle"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "54",
+    "name": "Create a coupon on Paddle",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          550,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Paddle",
+        "type": "n8n-nodes-base.paddle",
+        "position": [
+          750,
+          260
+        ],
+        "parameters": {
+          "discountAmount": 2,
+          "additionalFields": {
+            "couponCode": "n8n-docs"
+          }
+        },
+        "credentials": {
+          "paddleApi": "paddle"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Paddle": {
+        "main": [
+          []
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Paddle",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

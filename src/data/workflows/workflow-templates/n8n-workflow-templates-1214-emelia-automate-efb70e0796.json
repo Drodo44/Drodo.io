@@ -1,0 +1,119 @@
+{
+  "id": "n8n-workflow-templates-1214-emelia-automate-efb70e0796",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1214_Emelia_Automate.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1214_Emelia_Automate.json"
+  },
+  "name": "1214 Emelia Automate",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1214 Emelia Automate",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "emelia",
+    "1214",
+    "automate",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "1214 emelia automate",
+    "emelia",
+    "1214 emelia",
+    "emelia automate",
+    "automate n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates",
+    "templates 1214"
+  ],
+  "required_services": [
+    "emelia"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Emelia",
+        "type": "n8n-nodes-base.emelia",
+        "position": [
+          530,
+          310
+        ],
+        "parameters": {
+          "operation": "create",
+          "campaignName": "n8n-docs"
+        },
+        "credentials": {
+          "emeliaApi": "Emelia API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Emelia1",
+        "type": "n8n-nodes-base.emelia",
+        "position": [
+          730,
+          310
+        ],
+        "parameters": {
+          "operation": "addContact",
+          "campaignId": "603dfd70cbe34c3c9730fd09",
+          "contactEmail": "email@example.com",
+          "additionalFields": {
+            "firstName": "NAME"
+          }
+        },
+        "credentials": {
+          "emeliaApi": "Emelia API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Emelia2",
+        "type": "n8n-nodes-base.emelia",
+        "position": [
+          930,
+          310
+        ],
+        "parameters": {
+          "campaignId": "={{$node[\"Emelia\"].json[\"_id\"]}}"
+        },
+        "credentials": {
+          "emeliaApi": "Emelia API Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Emelia": {
+        "main": [
+          [
+            {
+              "node": "Emelia1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Emelia1": {
+        "main": [
+          [
+            {
+              "node": "Emelia2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

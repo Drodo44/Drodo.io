@@ -1,0 +1,109 @@
+{
+  "id": "official-799",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/799",
+    "template_id": 799
+  },
+  "name": "Receive a Mattermost message when new data gets added to Airtable",
+  "description": "Receive a Mattermost message when new data gets added to Airtable",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "Airtable",
+    "Mattermost",
+    "Airtable Trigger",
+    "receive",
+    "mattermost",
+    "message",
+    "when",
+    "data",
+    "gets"
+  ],
+  "task_keywords": [
+    "receive a mattermost message when new data gets added to airtable",
+    "airtable",
+    "mattermost",
+    "airtable trigger",
+    "receive mattermost",
+    "mattermost message",
+    "message when",
+    "when data",
+    "data gets",
+    "gets added",
+    "added airtable",
+    "airtable receive"
+  ],
+  "required_services": [
+    "Airtable",
+    "Mattermost"
+  ],
+  "triggers": [
+    "Airtable Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "151",
+    "name": "Receive a Mattermost message when new data gets added to Airtable",
+    "nodes": [
+      {
+        "name": "Airtable Trigger",
+        "type": "n8n-nodes-base.airtableTrigger",
+        "position": [
+          550,
+          340
+        ],
+        "parameters": {
+          "baseId": "",
+          "tableId": "Data",
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerField": "Created",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "airtableApi": "Airtable Credentials n8n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          750,
+          340
+        ],
+        "parameters": {
+          "message": "=New Data was added to Airtable.\nID:{{$node[\"Airtable Trigger\"].json[\"fields\"][\"id\"]}}\nName: {{$node[\"Airtable Trigger\"].json[\"fields\"][\"name\"]}}",
+          "channelId": "",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "mattermost"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Airtable Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

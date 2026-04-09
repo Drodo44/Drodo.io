@@ -1,0 +1,130 @@
+{
+  "id": "n8n-workflow-templates-send-a-cocktail-recipe-every-day-via-a-telegram-17e7964fc3",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1043_HTTP_Telegram_Send_Webhook.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1043_HTTP_Telegram_Send_Webhook.json"
+  },
+  "name": "Send a cocktail recipe every day via a Telegram",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Send a cocktail recipe every day via a Telegram",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "telegram",
+    "cron",
+    "cron Trigger",
+    "send",
+    "cocktail",
+    "recipe",
+    "every",
+    "day",
+    "via"
+  ],
+  "task_keywords": [
+    "send a cocktail recipe every day via a telegram",
+    "telegram",
+    "send telegram",
+    "cron",
+    "send cron",
+    "cron trigger",
+    "send cocktail",
+    "cocktail recipe",
+    "recipe every",
+    "every day",
+    "day via",
+    "via telegram"
+  ],
+  "required_services": [
+    "telegram",
+    "cron"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "57",
+    "name": "Send a cocktail recipe every day via a Telegram",
+    "nodes": [
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          930,
+          300
+        ],
+        "parameters": {
+          "file": "={{$node[\"HTTP Request\"].json[\"drinks\"][0][\"strDrinkThumb\"]}}",
+          "chatId": "-485396236",
+          "operation": "sendPhoto",
+          "additionalFields": {
+            "caption": "={{$node[\"HTTP Request\"].json[\"drinks\"][0][\"strInstructions\"]}}"
+          }
+        },
+        "credentials": {
+          "telegramApi": "telegram-bot"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          530,
+          300
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 20
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          730,
+          300
+        ],
+        "parameters": {
+          "url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-extract-key-decisions-from-google-meet-and-send-to-email-b6faa8a767",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/extract-key-decisions-google-meet-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/extract-key-decisions-google-meet-email.json"
+  },
+  "name": "Extract key decisions from Google Meet and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Extract key decisions from Google Meet and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "extract",
+    "key",
+    "decisions",
+    "google",
+    "meet",
+    "send"
+  ],
+  "task_keywords": [
+    "extract key decisions from google meet and send to email",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "extract key",
+    "key decisions",
+    "decisions google",
+    "google meet",
+    "meet send",
+    "send email"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Extract key decisions from Google Meet and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-google-meet",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          15900
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "extract-key-decisions-from-google-meet-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-google-meet",
+        "name": "Fetch data from Google Meet",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          15900
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/google-meet",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-extract-key-decisions",
+        "name": "AI: Extract Key Decisions",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          15900
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: extract key decisions"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          15900
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-15900",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          15900
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Google Meet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Google Meet": {
+        "main": [
+          {
+            "node": "AI: Extract Key Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Extract Key Decisions": {
+        "main": [
+          [
+            {
+              "node": "AI: Extract Key Decisions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

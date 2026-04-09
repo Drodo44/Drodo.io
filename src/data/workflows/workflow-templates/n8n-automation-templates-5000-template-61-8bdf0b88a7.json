@@ -1,0 +1,111 @@
+{
+  "id": "n8n-automation-templates-5000-template-61-8bdf0b88a7",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Mailchimp/marketing_61_cron_mailchimp.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Mailchimp/marketing_61_cron_mailchimp.json"
+  },
+  "name": "Template 61",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 61",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Mailchimp",
+    "cron",
+    "mailchimp",
+    "cron Trigger",
+    "template",
+    "n8n",
+    "workflow",
+    "ritik",
+    "prog"
+  ],
+  "task_keywords": [
+    "template 61",
+    "cron",
+    "mailchimp",
+    "cron trigger",
+    "template n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "cron",
+    "mailchimp"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 61",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/6 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Mailchimp",
+        "type": "n8n-nodes-base.mailchimp",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Mailchimp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 61
+  }
+}

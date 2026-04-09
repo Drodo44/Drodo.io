@@ -1,0 +1,226 @@
+{
+  "id": "official-1471",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1471",
+    "template_id": 1471
+  },
+  "name": "Message on website content changed in Telegram",
+  "description": "I wanted a system to monitor website content changes and notify me.",
+  "category": "Communication",
+  "tags": [
+    "Market Research",
+    "Cron",
+    "Telegram",
+    "No Operation, do nothing",
+    "Cron Trigger",
+    "message",
+    "website",
+    "content",
+    "changed",
+    "telegram",
+    "wanted"
+  ],
+  "task_keywords": [
+    "message on website content changed in telegram",
+    "cron",
+    "notify cron",
+    "monitor cron",
+    "telegram",
+    "notify telegram",
+    "monitor telegram",
+    "no operation, do nothing",
+    "notify no operation, do nothing",
+    "monitor no operation, do nothing",
+    "cron trigger",
+    "message website"
+  ],
+  "required_services": [
+    "Cron",
+    "Telegram",
+    "No Operation, do nothing"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          520,
+          440
+        ],
+        "parameters": {
+          "url": "https://news.ycombinator.com/",
+          "options": {},
+          "responseFormat": "string"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          680,
+          440
+        ],
+        "webhookId": "e5f84b2f-2568-4f5b-a72b-ed54838c768b",
+        "parameters": {
+          "unit": "minutes",
+          "amount": 5
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          880,
+          440
+        ],
+        "parameters": {
+          "url": "https://news.ycombinator.com/",
+          "options": {},
+          "responseFormat": "string"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1100,
+          440
+        ],
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{$node[\"HTTP Request\"].json[\"data\"]}} {{$node[\"HTTP Request\"].json[\"data\"]}}",
+                "value2": "="
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          320,
+          440
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "everyX",
+                "unit": "minutes",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram1",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1320,
+          520
+        ],
+        "parameters": {
+          "text": "Something got changed",
+          "chatId": "1234",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "NoOp",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          1320,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "NoOp",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

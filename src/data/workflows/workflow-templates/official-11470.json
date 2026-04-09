@@ -1,0 +1,1328 @@
+{
+  "id": "official-11470",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/11470",
+    "template_id": 11470
+  },
+  "name": "Real-time ISS overhead alert with weather check and multi-channel notifications",
+  "description": "Get notified when the International Space Station passes over your location but only when you can actually see it!",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "AI Summarization",
+    "OpenAI Chat Model",
+    "Google Sheets",
+    "Telegram",
+    "Discord",
+    "Loop Over Items (Split in Batches)",
+    "Google Calendar",
+    "Slack",
+    "Schedule Trigger",
+    "real",
+    "time",
+    "iss",
+    "overhead"
+  ],
+  "task_keywords": [
+    "real-time iss overhead alert with weather check and multi-channel notifications",
+    "openai chat model",
+    "google sheets",
+    "telegram",
+    "discord",
+    "loop over items (split in batches)",
+    "google calendar",
+    "slack",
+    "schedule trigger",
+    "real time",
+    "time iss",
+    "iss overhead"
+  ],
+  "required_services": [
+    "OpenAI Chat Model",
+    "Google Sheets",
+    "Telegram",
+    "Discord",
+    "Loop Over Items (Split in Batches)",
+    "Google Calendar",
+    "Slack"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "062f0e1ec3617ffb26cbc1b3c3518f28f3e57f08ddc210c471f532bb0bd6cf07"
+    },
+    "nodes": [
+      {
+        "id": "f3d745a2-edd3-4d86-bcfc-ff772f0dd9bd",
+        "name": "Real-time Check (5 min)",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -5472,
+          944
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "7a27519a-2676-4215-8589-769cbd2e05ef",
+        "name": "Daily Predictions (6 AM)",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -5472,
+          1744
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 6
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "74b0a74f-17eb-4363-a7e8-4dbfc2b8a7f9",
+        "name": "Weekly Report (Sunday 8 PM)",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -5472,
+          2368
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "daysInterval": 7,
+                "triggerAtHour": 20
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "6d10a256-3f6f-4a9d-97ba-e4b9b0f28e77",
+        "name": "Get ISS Detailed (N2YO)",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4992,
+          944
+        ],
+        "parameters": {
+          "url": "=https://api.n2yo.com/rest/v1/satellite/positions/25544/{{ $vars.USER_LAT }}/{{ $vars.USER_LON }}/0/1/?apiKey={{ $vars.N2YO_API_KEY }}",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "e80a14fe-57ba-4eab-ac37-2b5d0197c80d",
+        "name": "Get Tiangong Position",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4992,
+          1104
+        ],
+        "parameters": {
+          "url": "=https://api.n2yo.com/rest/v1/satellite/positions/48274/{{ $vars.USER_LAT }}/{{ $vars.USER_LON }}/0/1/?apiKey={{ $vars.N2YO_API_KEY }}",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "46f850f4-73b6-455f-84f9-53f6486742b4",
+        "name": "Calculate All Satellites",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -4752,
+          1024
+        ],
+        "parameters": {
+          "jsCode": "// YOUR_AWS_SECRET_KEY_HERE===\n// USER CONFIGURATION via Environment Variables\n// YOUR_AWS_SECRET_KEY_HERE===\nconst USER_LAT = parseFloat($vars.USER_LAT) || 35.6762;\nconst USER_LON = parseFloat($vars.USER_LON) || 139.6503;\nconst USER_LOCATION_NAME = $vars.USER_LOCATION_NAME || 'Tokyo';\nconst VISIBILITY_RADIUS_KM = parseInt($vars.VISIBILITY_RADIUS_KM) || 800;\n\n// YOUR_AWS_SECRET_KEY_HERE===\n// Get data from previous nodes\n// YOUR_AWS_SECRET_KEY_HERE===\nconst issBasic = $('Get ISS Position1').first().json;\nconst issDetailed = $('Get ISS Detailed (N2YO)').first().json;\nconst tiangong = $('Get Tiangong Position').first().json;\n\n// YOUR_AWS_SECRET_KEY_HERE===\n// Haversine formula for distance calculation\n// YOUR_AWS_SECRET_KEY_HERE===\nfunction haversineDistance(lat1, lon1, lat2, lon2) {\n  const R = 6371;\n  const dLat = (lat2 - lat1) * Math.PI / 180;\n  const dLon = (lon2 - lon1) * Math.PI / 180;\n  const a = \n    Math.sin(dLat/2) * Math.sin(dLat/2) +\n    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * \n    Math.sin(dLon/2) * Math.sin(dLon/2);\n  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));\n  return R * c;\n}\n\n// YOUR_AWS_SECRET_KEY_HERE===\n// Calculate bearing (compass direction)\n// YOUR_AWS_SECRET_KEY_HERE===\nfunction calculateBearing(lat1, lon1, lat2, lon2) {\n  const φ1 = lat1 * Math.PI / 180;\n  const φ2 = lat2 * Math.PI / 180;\n  const Δλ = (lon2 - lon1) * Math.PI / 180;\n  const y = Math.sin(Δλ) * Math.cos(φ2);\n  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);\n  const θ = Math.atan2(y, x);\n  return (θ * 180 / Math.PI + 360) % 360;\n}\n\nfunction bearingToDirection(bearing) {\n  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];\n  return directions[Math.round(bearing / 45) % 8];\n}\n\nfunction bearingToDirectionJP(bearing) {\n  const directions = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];\n  return directions[Math.round(bearing / 45) % 8];\n}\n\n// YOUR_AWS_SECRET_KEY_HERE===\n// Process ISS\n// YOUR_AWS_SECRET_KEY_HERE===\nconst issLat = parseFloat(issBasic.iss_position.latitude);\nconst issLon = parseFloat(issBasic.iss_position.longitude);\nconst issDistance = haversineDistance(USER_LAT, USER_LON, issLat, issLon);\nconst issBearing = calculateBearing(USER_LAT, USER_LON, issLat, issLon);\nconst issAltitude = issDetailed?.positions?.[0]?.sataltitude || 408;\nconst issElevation = Math.atan2(issAltitude, issDistance) * 180 / Math.PI;\n\n// YOUR_AWS_SECRET_KEY_HERE===\n// Process Tiangong\n// YOUR_AWS_SECRET_KEY_HERE===\nlet tiangongData = null;\nif (tiangong?.positions?.[0]) {\n  const tgPos = tiangong.positions[0];\n  const tgDistance = haversineDistance(USER_LAT, USER_LON, tgPos.satlatitude, tgPos.satlongitude);\n  const tgBearing = calculateBearing(USER_LAT, USER_LON, tgPos.satlatitude, tgPos.satlongitude);\n  tiangongData = {\n    name: 'Tiangong (天宮)',\n    noradId: 48274,\n    latitude: tgPos.satlatitude,\n    longitude: tgPos.satlongitude,\n    altitude: tgPos.sataltitude,\n    distance: Math.round(tgDistance),\n    bearing: Math.round(tgBearing),\n    direction: bearingToDirection(tgBearing),\n    directionJP: bearingToDirectionJP(tgBearing),\n    elevation: Math.round(Math.atan2(tgPos.sataltitude, tgDistance) * 180 / Math.PI),\n    isNearby: tgDistance <= VISIBILITY_RADIUS_KM\n  };\n}\n\nconst satellites = [\n  {\n    name: 'ISS (国際宇宙ステーション)',\n    noradId: 25544,\n    latitude: issLat,\n    longitude: issLon,\n    altitude: Math.round(issAltitude),\n    distance: Math.round(issDistance),\n    bearing: Math.round(issBearing),\n    direction: bearingToDirection(issBearing),\n    directionJP: bearingToDirectionJP(issBearing),\n    elevation: Math.round(issElevation),\n    isNearby: issDistance <= VISIBILITY_RADIUS_KM,\n    velocity: issDetailed?.positions?.[0]?.velocity || 27600\n  }\n];\n\nif (tiangongData) satellites.push(tiangongData);\n\nconst nearbySatellites = satellites.filter(s => s.isNearby);\n\nreturn [{\n  json: {\n    satellites,\n    nearbySatellites,\n    hasNearby: nearbySatellites.length > 0,\n    userLocation: {\n      name: USER_LOCATION_NAME,\n      latitude: USER_LAT,\n      longitude: USER_LON\n    },\n    visibilityRadius: VISIBILITY_RADIUS_KM,\n    timestamp: new Date().toISOString(),\n    timestampJP: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "783657de-3858-42d0-a672-a4f29c5b2ff6",
+        "name": "Any Satellite Nearby?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -4512,
+          1024
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "has-nearby",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                },
+                "leftValue": "={{ $json.hasNearby }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "ea6d90bf-85c8-4648-a296-70132d3ab964",
+        "name": "Get Weather Conditions",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4272,
+          944
+        ],
+        "parameters": {
+          "url": "=https://api.openweathermap.org/data/2.5/weather?lat={{ $json.userLocation.latitude }}&lon={{ $json.userLocation.longitude }}&appid={{ $credentials.openWeatherMapApi.apiKey }}&units=metric",
+          "options": {},
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openWeatherMapApi"
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "cb5579d6-8260-4904-91b1-8b51d5d61fe4",
+        "name": "Get Astronauts in Space",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -4272,
+          1104
+        ],
+        "parameters": {
+          "url": "http://api.open-notify.org/astros.json",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "e21082fe-9638-468a-a2cb-79aa59982e84",
+        "name": "Observable Conditions?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -3792,
+          1024
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "can-observe",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                },
+                "leftValue": "={{ $json.observation.canObserve }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "4ad898e5-57ae-42ac-bd57-2be23a00c01c",
+        "name": "OpenAI Trivia",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -3568,
+          1152
+        ],
+        "parameters": {
+          "model": "gpt-4o-mini",
+          "options": {
+            "maxTokens": 300,
+            "temperature": 0.8
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "7e3a5437-14ef-499f-b25d-3cf7b982a74f",
+        "name": "Generate Space Trivia",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -3568,
+          1008
+        ],
+        "parameters": {
+          "text": "=Generate a fascinating space trivia fact in Japanese about one of these topics (pick randomly):\n- The International Space Station (ISS)\n- Chinese Space Station Tiangong\n- Astronaut life in space\n- Space photography\n- Satellite tracking\n- Space station history\n\nCurrent context:\n- ISS is currently {{ $json.nearbySatellites[0]?.distance || 'far' }} km away\n- There are {{ $json.astronauts.totalInSpace }} people in space right now\n- Weather: {{ $json.weather.description }}\n\nRespond with ONLY a JSON object:\n{\n  \"trivia_jp\": \"[Interesting fact in Japanese, 2-3 sentences]\",\n  \"trivia_en\": \"[Same fact in English]\",\n  \"category\": \"[ISS/Tiangong/Astronauts/Photography/History]\",\n  \"emoji\": \"[Relevant emoji]\"\n}",
+          "promptType": "define"
+        },
+        "typeVersion": 1.4
+      },
+      {
+        "id": "c527ccdc-16f6-44c2-8c71-36f276fdb27c",
+        "name": "Format Rich Notification",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -3200,
+          1008
+        ],
+        "parameters": {
+          "jsCode": "const mainData = $('Analyze Observation Conditions1').first().json;\nconst triviaResponse = $input.first().json.text || $input.first().json.output;\n\nlet trivia = {};\ntry {\n  const jsonMatch = triviaResponse.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) trivia = JSON.parse(jsonMatch[0]);\n} catch (e) {\n  trivia = {\n    trivia_jp: 'ISSは地球を約90分で1周し、1日に16回の日の出を見ることができます。',\n    trivia_en: 'The ISS orbits Earth in about 90 minutes, allowing astronauts to see 16 sunrises per day.',\n    category: 'ISS',\n    emoji: '🌅'\n  };\n}\n\n// Build notification message\nconst sat = mainData.nearbySatellites[0];\nconst loc = mainData.userLocation;\n\nlet message = `🛰️ **宇宙ステーション接近アラート**\\n\\n`;\nmessage += `📍 **観測地:** ${loc.name}\\n`;\nmessage += `⏰ **検出時刻:** ${mainData.timestampJP}\\n\\n`;\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `🎯 **接近中の衛星**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n\nmainData.nearbySatellites.forEach(s => {\n  message += `**${s.name}**\\n`;\n  message += `  📏 距離: ${s.distance.toLocaleString()} km\\n`;\n  message += `  🧭 方角: ${s.directionJP} (${s.bearing}°)\\n`;\n  message += `  📐 仰角: ${s.elevation}°\\n`;\n  message += `  🚀 高度: ${s.altitude} km\\n\\n`;\n});\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `${mainData.observation.recommendation} **観測条件**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\nmessage += `  📊 スコア: ${mainData.observation.score}/100\\n`;\nmessage += `  ${mainData.observation.timeCondition}\\n`;\nmessage += `  ${mainData.observation.conditions.join(', ')}\\n`;\nmessage += `  🌡️ 気温: ${mainData.weather.temperature}°C\\n`;\nmessage += `  ☁️ 雲量: ${mainData.weather.cloudiness}%\\n\\n`;\n\nif (mainData.photography.iso) {\n  message += `━━━━━━━━━━━━━━━━━━━━\\n`;\n  message += `📸 **撮影設定ガイド**\\n`;\n  message += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n  message += `  ISO: ${mainData.photography.iso}\\n`;\n  message += `  絞り: ${mainData.photography.aperture}\\n`;\n  message += `  シャッター: ${mainData.photography.shutter}\\n`;\n  message += `  💡 ${mainData.photography.tips}\\n\\n`;\n}\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `👨‍🚀 **現在宇宙にいる人々**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\nmessage += `  🌍 合計: ${mainData.astronauts.totalInSpace}人\\n`;\nif (mainData.astronauts.iss.length > 0) {\n  message += `  🇺🇸 ISS: ${mainData.astronauts.iss.map(a => a.name).join(', ')}\\n`;\n}\nif (mainData.astronauts.tiangong.length > 0) {\n  message += `  🇨🇳 天宮: ${mainData.astronauts.tiangong.map(a => a.name).join(', ')}\\n`;\n}\n\nmessage += `\\n━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `${trivia.emoji} **今日の宇宙トリビア**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\nmessage += `${trivia.trivia_jp}\\n\\n`;\n\nmessage += `🌍 **3Dマップで確認:**\\n`;\nmessage += `https://earth.google.com/web/search/${sat.latitude},${sat.longitude}`;\n\nreturn [{\n  json: {\n    ...mainData,\n    trivia,\n    notificationMessage: message,\n    shortMessage: `🛰️ ${sat.name}接近中！ ${sat.directionJP}方向 ${sat.distance}km`,\n    alertType: 'satellite_overhead'\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "b2df9e60-6761-49f5-b3a0-0e08c8eb51c9",
+        "name": "Log to History",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -2912,
+          1008
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "weather": "={{ $json.weather.description }}",
+              "location": "={{ $json.userLocation.name }}",
+              "direction": "={{ $json.nearbySatellites[0]?.directionJP }}",
+              "elevation": "={{ $json.nearbySatellites[0]?.elevation }}",
+              "satellite": "={{ $json.nearbySatellites[0]?.name }}",
+              "timestamp": "={{ $json.timestamp }}",
+              "cloudiness": "={{ $json.weather.cloudiness }}",
+              "distance_km": "={{ $json.nearbySatellites[0]?.distance }}",
+              "could_observe": "={{ $json.observation.canObserve }}",
+              "trivia_category": "={{ $json.trivia.category }}",
+              "observation_score": "={{ $json.observation.score }}"
+            },
+            "mappingMode": "defineBelow"
+          },
+          "options": {},
+          "operation": "append",
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "Sightings",
+            "cachedResultUrl": "",
+            "cachedResultName": ""
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "={{ $vars.GOOGLE_SHEET_ID }}",
+            "cachedResultUrl": "",
+            "cachedResultName": ""
+          }
+        },
+        "typeVersion": 4.5
+      },
+      {
+        "id": "f68e0852-c8ac-4c14-8bb4-1c66a8809270",
+        "name": "Get ISS Pass Predictions",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -5248,
+          1744
+        ],
+        "parameters": {
+          "url": "=https://api.n2yo.com/rest/v1/satellite/visualpasses/25544/{{ $vars.USER_LAT }}/{{ $vars.USER_LON }}/0/7/300/?apiKey={{ $vars.N2YO_API_KEY }}",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "af1c999e-c16d-4f78-9f54-79755fab653e",
+        "name": "Get Tiangong Predictions",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -5248,
+          1904
+        ],
+        "parameters": {
+          "url": "=https://api.n2yo.com/rest/v1/satellite/visualpasses/48274/{{ $vars.USER_LAT }}/{{ $vars.USER_LON }}/0/7/300/?apiKey={{ $vars.N2YO_API_KEY }}",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "c5ec4863-b61b-40b9-8206-11a985a848bc",
+        "name": "Process All Predictions",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -5008,
+          1824
+        ],
+        "parameters": {
+          "jsCode": "const issPasses = $('Get ISS Pass Predictions').first().json.passes || [];\nconst tiangongPasses = $('Get Tiangong Predictions').first().json.passes || [];\n\nfunction formatPass(pass, satName) {\n  const startTime = new Date(pass.startUTC * 1000);\n  const endTime = new Date(pass.endUTC * 1000);\n  const duration = Math.round((pass.endUTC - pass.startUTC) / 60);\n  \n  return {\n    satellite: satName,\n    startTime: startTime.toISOString(),\n    startTimeJP: startTime.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),\n    endTime: endTime.toISOString(),\n    duration: duration,\n    maxElevation: pass.maxEl,\n    startAzimuth: pass.startAz,\n    startDirection: getDirection(pass.startAz),\n    endAzimuth: pass.endAz,\n    endDirection: getDirection(pass.endAz),\n    magnitude: pass.mag || 'N/A',\n    brightness: getBrightness(pass.mag)\n  };\n}\n\nfunction getDirection(az) {\n  const dirs = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];\n  return dirs[Math.round(az / 45) % 8];\n}\n\nfunction getBrightness(mag) {\n  if (mag === undefined || mag === 'N/A') return '明るさ不明';\n  if (mag < -3) return '⭐⭐⭐ 非常に明るい';\n  if (mag < -1) return '⭐⭐ 明るい';\n  if (mag < 1) return '⭐ 見える';\n  return '暗い（双眼鏡推奨）';\n}\n\nconst allPasses = [\n  ...issPasses.map(p => formatPass(p, 'ISS')),\n  ...tiangongPasses.map(p => formatPass(p, 'Tiangong'))\n].sort((a, b) => new Date(a.startTime) - new Date(b.startTime));\n\nconst next7Days = allPasses.slice(0, 14);\n\n// Find best passes (high elevation, good brightness)\nconst bestPasses = allPasses\n  .filter(p => p.maxElevation >= 40)\n  .slice(0, 5);\n\nreturn [{\n  json: {\n    predictions: next7Days,\n    bestPasses,\n    totalPasses: allPasses.length,\n    userLocation: $vars.USER_LOCATION_NAME || 'Tokyo',\n    generatedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "37df7e2d-dc81-4129-9494-64929a25b4a1",
+        "name": "Format Prediction Report",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -4768,
+          1824
+        ],
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\n\nlet message = `🗓️ **今週の宇宙ステーション可視予報**\\n`;\nmessage += `📍 観測地: ${data.userLocation}\\n`;\nmessage += `📅 生成日時: ${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}\\n\\n`;\n\nif (data.bestPasses.length > 0) {\n  message += `━━━━━━━━━━━━━━━━━━━━\\n`;\n  message += `⭐ **おすすめ観測機会 TOP ${data.bestPasses.length}**\\n`;\n  message += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n  \n  data.bestPasses.forEach((pass, i) => {\n    message += `**${i + 1}. ${pass.satellite}**\\n`;\n    message += `  📅 ${pass.startTimeJP}\\n`;\n    message += `  ⏱️ ${pass.duration}分間\\n`;\n    message += `  📐 最大仰角: ${pass.maxElevation}°\\n`;\n    message += `  🧭 ${pass.startDirection} → ${pass.endDirection}\\n`;\n    message += `  ${pass.brightness}\\n\\n`;\n  });\n}\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `📋 **全予報 (次の7日間)**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n\ndata.predictions.slice(0, 10).forEach(pass => {\n  const icon = pass.satellite === 'ISS' ? '🇺🇸' : '🇨🇳';\n  message += `${icon} **${pass.startTimeJP}**\\n`;\n  message += `   ${pass.satellite} | ${pass.duration}分 | 仰角${pass.maxElevation}° | ${pass.startDirection}→${pass.endDirection}\\n\\n`;\n});\n\nif (data.predictions.length > 10) {\n  message += `... 他 ${data.predictions.length - 10} 件の通過があります\\n\\n`;\n}\n\nmessage += `💡 **観測のコツ:**\\n`;\nmessage += `• 仰角40°以上が最も見やすい\\n`;\nmessage += `• 薄明時（日没後/日出前）がベスト\\n`;\nmessage += `• 明るい点が一定速度で移動するのを探す\\n`;\n\nreturn [{\n  json: {\n    ...data,\n    predictionMessage: message,\n    calendarEvents: data.bestPasses.map(p => ({\n      title: `🛰️ ${p.satellite} 観測チャンス`,\n      start: p.startTime,\n      end: p.endTime,\n      description: `方角: ${p.startDirection}→${p.endDirection}, 仰角: ${p.maxElevation}°`\n    }))\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "89e0d973-1b17-40b2-994b-8b54bd0236a6",
+        "name": "Send Predictions to Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          -4528,
+          1744
+        ],
+        "webhookId": "2fe82570-d1d7-4c3c-a5df-57854c32a953",
+        "parameters": {
+          "text": "={{ $json.predictionMessage }}",
+          "chatId": "={{ $vars.TELEGRAM_CHAT_ID }}",
+          "additionalFields": {
+            "parse_mode": "Markdown"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "3db268d7-162f-4917-a77f-6528f3616b8a",
+        "name": "Send Predictions to Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -4528,
+          1904
+        ],
+        "webhookId": "889468d9-2b04-4d49-8ec8-491009c44304",
+        "parameters": {
+          "content": "={{ $json.predictionMessage }}",
+          "options": {},
+          "authentication": "webhook"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "52dc4e6e-b24f-4ea0-b021-cd8a5c4c072d",
+        "name": "Loop Calendar Events",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -4288,
+          1824
+        ],
+        "parameters": {
+          "options": {
+            "reset": false
+          }
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "99a045a7-686c-4483-9b32-b476c0d817e5",
+        "name": "Add to Google Calendar",
+        "type": "n8n-nodes-base.googleCalendar",
+        "position": [
+          -4032,
+          1808
+        ],
+        "parameters": {
+          "end": "={{ $json.end }}",
+          "start": "={{ $json.start }}",
+          "calendar": {
+            "__rl": true,
+            "mode": "list",
+            "value": "primary"
+          },
+          "additionalFields": {
+            "summary": "={{ $json.title }}",
+            "showMeAs": "free",
+            "description": "={{ $json.description }}"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "b8a703ad-2c5f-4ddd-b964-e211a8aec47c",
+        "name": "Get History Data",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -5232,
+          2368
+        ],
+        "parameters": {
+          "options": {},
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "Sightings",
+            "cachedResultUrl": "",
+            "cachedResultName": ""
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "={{ $vars.GOOGLE_SHEET_ID }}",
+            "cachedResultUrl": "",
+            "cachedResultName": ""
+          }
+        },
+        "typeVersion": 4.5
+      },
+      {
+        "id": "55d4f0c8-1e48-4364-b554-f66bb678e8b5",
+        "name": "Calculate Weekly Statistics",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -4992,
+          2368
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst now = new Date();\nconst weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nconst weeklyData = items.filter(item => {\n  const ts = new Date(item.json.timestamp);\n  return ts >= weekAgo;\n});\n\nconst stats = {\n  totalSightings: weeklyData.length,\n  observableSightings: weeklyData.filter(d => d.json.could_observe === 'true').length,\n  avgScore: 0,\n  satelliteBreakdown: {},\n  directionBreakdown: {},\n  weatherBreakdown: {},\n  bestSighting: null,\n  triviaCategories: {}\n};\n\nlet totalScore = 0;\nlet bestScore = 0;\n\nweeklyData.forEach(item => {\n  const d = item.json;\n  const score = parseInt(d.observation_score) || 0;\n  totalScore += score;\n  \n  if (score > bestScore) {\n    bestScore = score;\n    stats.bestSighting = d;\n  }\n  \n  // Satellite breakdown\n  const sat = d.satellite || 'Unknown';\n  stats.satelliteBreakdown[sat] = (stats.satelliteBreakdown[sat] || 0) + 1;\n  \n  // Direction breakdown\n  const dir = d.direction || 'Unknown';\n  stats.directionBreakdown[dir] = (stats.directionBreakdown[dir] || 0) + 1;\n  \n  // Weather breakdown\n  const weather = d.weather || 'Unknown';\n  stats.weatherBreakdown[weather] = (stats.weatherBreakdown[weather] || 0) + 1;\n  \n  // Trivia categories\n  const trivia = d.trivia_category || 'General';\n  stats.triviaCategories[trivia] = (stats.triviaCategories[trivia] || 0) + 1;\n});\n\nstats.avgScore = weeklyData.length > 0 ? Math.round(totalScore / weeklyData.length) : 0;\nstats.successRate = weeklyData.length > 0 ? Math.round((stats.observableSightings / weeklyData.length) * 100) : 0;\n\nreturn [{ json: stats }];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "d434026e-677f-4e60-a804-645a578a0872",
+        "name": "OpenAI Report",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -4688,
+          2544
+        ],
+        "parameters": {
+          "model": "gpt-4o-mini",
+          "options": {
+            "maxTokens": 800,
+            "temperature": 0.7
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1d32083b-1a46-47c1-82c4-8662f5d9c0fd",
+        "name": "Generate Weekly Report",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -4688,
+          2368
+        ],
+        "parameters": {
+          "text": "=You are a space observation analyst. Generate an engaging weekly report in Japanese based on this data:\n\n📊 **Weekly Statistics:**\n- Total satellite passes detected: {{ $json.totalSightings }}\n- Observable passes: {{ $json.observableSightings }}\n- Success rate: {{ $json.successRate }}%\n- Average observation score: {{ $json.avgScore }}/100\n\n🛰️ **Satellite Breakdown:**\n{{ Object.entries($json.satelliteBreakdown).map(([k, v]) => `- ${k}: ${v} passes`).join('\\n') }}\n\n🧭 **Most Common Directions:**\n{{ Object.entries($json.directionBreakdown).sort((a,b) => b[1]-a[1]).slice(0,3).map(([k, v]) => `- ${k}: ${v} times`).join('\\n') }}\n\n🌤️ **Weather Distribution:**\n{{ Object.entries($json.weatherBreakdown).map(([k, v]) => `- ${k}: ${v} times`).join('\\n') }}\n\nGenerate a report in Japanese with:\n1. 📈 週間ハイライト (Key achievements and interesting observations)\n2. 🎯 観測成功率分析 (Analysis of success rate)\n3. 🌟 来週の展望 (Outlook for next week)\n4. 💡 観測者へのアドバイス (Tips for improving observations)\n\nKeep it engaging and educational!",
+          "promptType": "define"
+        },
+        "typeVersion": 1.4
+      },
+      {
+        "id": "d2ea8685-8f71-464e-be67-39721ab1cfbc",
+        "name": "Format Weekly Report",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -4272,
+          2368
+        ],
+        "parameters": {
+          "jsCode": "const stats = $('Calculate Weekly Statistics').first().json;\nconst aiReport = $input.first().json.text || $input.first().json.output;\n\nlet message = `📊 **週間宇宙ステーション観測レポート**\\n`;\nmessage += `📅 ${new Date().toLocaleDateString('ja-JP')} 時点\\n\\n`;\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `📈 **統計サマリー**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\nmessage += `🛰️ 検出されたパス: ${stats.totalSightings}回\\n`;\nmessage += `👀 観測可能だったパス: ${stats.observableSightings}回\\n`;\nmessage += `✅ 成功率: ${stats.successRate}%\\n`;\nmessage += `⭐ 平均スコア: ${stats.avgScore}/100\\n\\n`;\n\nif (stats.bestSighting) {\n  message += `━━━━━━━━━━━━━━━━━━━━\\n`;\n  message += `🏆 **今週のベストパス**\\n`;\n  message += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\n  message += `🛰️ ${stats.bestSighting.satellite}\\n`;\n  message += `📏 ${stats.bestSighting.distance_km}km\\n`;\n  message += `📊 スコア: ${stats.bestSighting.observation_score}\\n\\n`;\n}\n\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n`;\nmessage += `🤖 **AI分析レポート**\\n`;\nmessage += `━━━━━━━━━━━━━━━━━━━━\\n\\n`;\nmessage += aiReport;\n\nreturn [{\n  json: {\n    stats,\n    weeklyReport: message\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "aa4dfcdb-55f8-4080-87a3-e8a213b60d23",
+        "name": "Send Weekly to Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          -4032,
+          2288
+        ],
+        "webhookId": "563aa211-d94d-461e-a790-3ab5d02b0c75",
+        "parameters": {
+          "text": "={{ $json.weeklyReport }}",
+          "chatId": "={{ $vars.TELEGRAM_CHAT_ID }}",
+          "additionalFields": {
+            "parse_mode": "Markdown"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "adadbd20-23b0-4af3-998e-866dbccbb11d",
+        "name": "Send Weekly to Discord",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -4032,
+          2448
+        ],
+        "webhookId": "c3fdf38b-3a01-44f3-9b24-8cbf788251f1",
+        "parameters": {
+          "content": "={{ $json.weeklyReport }}",
+          "options": {},
+          "authentication": "webhook"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "e9899310-c455-42cb-9184-f59ec3897735",
+        "name": "Real-time Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5536,
+          640
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 3128,
+          "height": 848,
+          "content": "### 🔄 Real-time Tracking Flow\nEvery 5 minutes: Check satellite positions → Weather check → AI trivia → Log & Notify"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d6e8ba35-50d7-457e-bc9a-0ab7d973dfb3",
+        "name": "Prediction Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5536,
+          1488
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 1784,
+          "height": 608,
+          "content": "### 🔮 Daily Predictions Flow\nEvery morning at 6 AM: Fetch 7-day predictions → Format report → Add to Google Calendar"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2757afc4-5dcf-4abe-8e12-299cf5aa3d86",
+        "name": "Weekly Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5536,
+          2096
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 1752,
+          "height": 560,
+          "content": "### 📊 Weekly Analytics Flow\nEvery Sunday: Aggregate history data → AI analysis → Generate insights report"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3d4ca261-1ee8-40ef-a21a-0023663dc39b",
+        "name": "Get ISS Position1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -5232,
+          944
+        ],
+        "parameters": {
+          "url": "http://api.open-notify.org/iss-now.json",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "fb5ec1f9-c4af-4f49-aa3d-33c1412a5859",
+        "name": "Analyze Observation Conditions1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -4032,
+          1024
+        ],
+        "parameters": {
+          "jsCode": "const satelliteData = $('Calculate All Satellites').first().json;\nconst weatherData = $('Get Weather Conditions').first().json;\nconst astronautData = $('Get Astronauts in Space').first().json;\n\n// Weather analysis\nconst weatherMain = weatherData.weather?.[0]?.main || 'Clear';\nconst cloudiness = weatherData.clouds?.all || 0;\nconst visibility = weatherData.visibility || 10000;\nconst sunset = new Date(weatherData.sys?.sunset * 1000);\nconst sunrise = new Date(weatherData.sys?.sunrise * 1000);\nconst now = new Date();\n\n// Observation conditions\nlet observationScore = 100;\nlet conditions = [];\n\nif (['Rain', 'Snow', 'Thunderstorm'].includes(weatherMain)) {\n  observationScore -= 80;\n  conditions.push('❌ 悪天候');\n} else if (cloudiness > 80) {\n  observationScore -= 60;\n  conditions.push('☁️ 雲量多い');\n} else if (cloudiness > 50) {\n  observationScore -= 30;\n  conditions.push('🌥️ 部分的に曇り');\n} else {\n  conditions.push('✨ 晴天');\n}\n\n// Time of day analysis\nlet timeCondition = '';\nconst hour = now.getHours();\nif (hour >= 18 && hour < 21 || hour >= 5 && hour < 7) {\n  timeCondition = '🌅 薄明時間帯 - 最高の観測条件！';\n  observationScore += 20;\n} else if (hour >= 21 || hour < 5) {\n  timeCondition = '🌙 夜間 - 良好な観測条件';\n} else {\n  timeCondition = '☀️ 日中 - 観測困難';\n  observationScore -= 40;\n}\n\nobservationScore = Math.max(0, Math.min(100, observationScore));\n\n// Astronaut info\nconst issAstronauts = astronautData.people?.filter(p => p.craft === 'ISS') || [];\nconst tiangongAstronauts = astronautData.people?.filter(p => p.craft === 'Tiangong') || [];\n\n// Photography recommendations\nlet photoSettings = {};\nif (observationScore >= 60) {\n  if (hour >= 18 || hour < 6) {\n    photoSettings = {\n      iso: '1600-3200',\n      aperture: 'f/2.8-4',\n      shutter: '1/250-1/500秒',\n      tips: '三脚使用推奨。追尾撮影がベスト。'\n    };\n  } else {\n    photoSettings = {\n      iso: '100-400',\n      aperture: 'f/8-11',\n      shutter: '1/1000秒以上',\n      tips: '日中は望遠鏡+ソーラーフィルター推奨'\n    };\n  }\n}\n\nreturn [{\n  json: {\n    ...satelliteData,\n    weather: {\n      main: weatherMain,\n      description: weatherData.weather?.[0]?.description,\n      cloudiness,\n      visibility,\n      temperature: weatherData.main?.temp,\n      humidity: weatherData.main?.humidity\n    },\n    observation: {\n      score: observationScore,\n      conditions,\n      timeCondition,\n      canObserve: observationScore >= 40,\n      recommendation: observationScore >= 70 ? '🟢 観測推奨' : observationScore >= 40 ? '🟡 観測可能' : '🔴 観測困難'\n    },\n    astronauts: {\n      iss: issAstronauts,\n      tiangong: tiangongAstronauts,\n      totalInSpace: astronautData.number || 0\n    },\n    photography: photoSettings\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "c4758a00-7bc8-43b0-a2c2-906217a806ad",
+        "name": "Send to Discord2",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -2688,
+          1008
+        ],
+        "webhookId": "1b04ca2a-d509-4d07-ab1f-d11177856ea6",
+        "parameters": {
+          "content": "={{ $json.notificationMessage }}",
+          "options": {},
+          "authentication": "webhook"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "bc84d059-9b7c-4352-ab05-c510336014d6",
+        "name": "Send to Telegram3",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          -2688,
+          1168
+        ],
+        "webhookId": "6fde2401-4b3f-40f2-9a91-8f6b845ae91d",
+        "parameters": {
+          "text": "={{ $json.notificationMessage }}",
+          "chatId": "={{ $vars.TELEGRAM_CHAT_ID }}",
+          "additionalFields": {
+            "parse_mode": "Markdown"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "3513c339-c26c-4c89-9642-1268911f0ffe",
+        "name": "Send to Slack1",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          -2688,
+          1328
+        ],
+        "webhookId": "f8e668b3-f216-4f7a-aaa3-561332187d84",
+        "parameters": {
+          "text": "={{ $json.shortMessage }}",
+          "otherOptions": {}
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "3ad6d550-a78e-428b-af2c-017d7a88f325",
+        "name": "Workflow Description1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -6080,
+          640
+        ],
+        "parameters": {
+          "width": 520,
+          "height": 860,
+          "content": "## 🛰️ Space Station Intelligence Hub\n### Advanced Satellite Tracker with Predictions & Analytics\n\n**What this workflow does:**\nTracks the International Space Station and Chinese Tiangong station in real-time, predicts visible passes, provides photography guidance, and generates weekly analytics reports.\n\n**🚀 Key Features:**\n- 📡 Multi-satellite tracking (ISS + Tiangong)\n- 🔮 7-day pass predictions with N2YO API\n- 🌤️ Weather-aware observation scoring\n- 📸 Camera settings recommendations\n- 👨‍🚀 Real-time astronaut information\n- 🤖 AI-generated space trivia (GPT-4)\n- 📊 Google Sheets history tracking\n- 📅 Google Calendar integration\n- 📈 Weekly AI analytics reports\n- 🔔 Multi-channel notifications\n\n**📋 Required Services:**\n1. N2YO API (free) - Satellite tracking\n2. OpenWeatherMap API (free) - Weather data\n3. OpenAI API - AI trivia & reports\n4. Google Sheets - History database\n5. Google Calendar - Event scheduling\n6. Discord/Telegram/Slack - Notifications\n\n**⚙️ Environment Variables:**\n- USER_LAT, USER_LON, USER_LOCATION_NAME\n- N2YO_API_KEY\n- GOOGLE_SHEET_ID\n- TELEGRAM_CHAT_ID\n- SLACK_CHANNEL\n\n**📊 Google Sheet Columns:**\ntimestamp, satellite, distance_km, direction, elevation, observation_score, weather, cloudiness, could_observe, location, trivia_category"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "79b04fd4-a4ce-4964-bd61-3fce668e6584",
+        "name": "Step 1 - Fetch Positions",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5488,
+          800
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 280,
+          "height": 128,
+          "content": "**Step 1: Fetch Satellite Positions**\nGet current positions from:\n- Open Notify API (ISS basic)\n- N2YO API (ISS detailed + Tiangong)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f674db6d-71e1-4bcb-9de2-bb8aa843118e",
+        "name": "Step 2 - Calculate",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4848,
+          816
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 260,
+          "content": "**Step 2: Calculate Distance & Direction**\nUsing Haversine formula to compute:\n- Distance from user location\n- Compass bearing (N/NE/E...)\n- Elevation angle"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a80edf3f-991e-4bcf-98f5-f6bf931f3c14",
+        "name": "Step 3 - Filter Nearby",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4544,
+          816
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 220,
+          "height": 100,
+          "content": "**Step 3: Check Proximity**\nFilter satellites within visibility radius (default 800km)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "13387e14-ac1d-4436-a3ec-9c1c52817e9d",
+        "name": "Step 4 - Context",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4304,
+          816
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 220,
+          "height": 124,
+          "content": "**Step 4: Get Context Data**\n- Weather conditions (OpenWeatherMap)\n- Current astronauts in space"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "21842888-97e3-40ac-8d21-3bd4182855f1",
+        "name": "Step 5 - Score",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4000,
+          816
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 140,
+          "content": "**Step 5: Score Observation Conditions**\nCalculate 0-100 score based on:\n- Weather (clouds, rain)\n- Time of day (twilight = best)\n- Generate camera settings"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "4dc59d0f-b40e-4ae0-a42f-7542f83ce7d4",
+        "name": "Step 6 - AI Trivia",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3568,
+          816
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 100,
+          "content": "**Step 6: Generate AI Trivia**\nOpenAI generates fun space facts in Japanese based on current context"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0d04e8c6-4975-4770-90e6-eb7bcbf03ca3",
+        "name": "Step 7 - Format",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -3264,
+          784
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 220,
+          "height": 208,
+          "content": "**Step 7: Format Notification**\nBuild rich message with:\n- Satellite details\n- Observation score\n- Camera tips\n- Astronaut list\n- Space trivia"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "50dacd3f-e069-447c-accd-59c6610f017f",
+        "name": "Step 8 - Log & Send",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2992,
+          864
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 220,
+          "height": 116,
+          "content": "**Step 8: Log & Notify**\n- Save to Google Sheets\n- Send to Discord/Telegram/Slack"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d91ea33a-76dc-4d0f-bd90-d59b03383cd1",
+        "name": "Step 1 - Fetch Predictions",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5504,
+          1600
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 140,
+          "content": "**Step 1: Fetch 7-Day Predictions**\nN2YO visual passes API for:\n- ISS (NORAD 25544)\n- Tiangong (NORAD 48274)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "39c90a07-f964-4c99-9ec9-6218b932f5c6",
+        "name": "Step 2 - Process",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5104,
+          1616
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 172,
+          "content": "**Step 2: Process & Rank Passes**\n- Combine ISS + Tiangong passes\n- Sort by time\n- Find best passes (elevation ≥40°)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6934c72f-9881-4b0e-8ef7-034c8ff4a225",
+        "name": "Step 3 - Format Report",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4816,
+          1616
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 172,
+          "content": "**Step 3: Format Report**\nCreate Japanese report with:\n- Top observation opportunities\n- Full 7-day schedule\n- Viewing tips"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "666c7056-530b-47bf-8c44-ee96a4710261",
+        "name": "Step 4 - Notify",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4544,
+          1616
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 200,
+          "height": 116,
+          "content": "**Step 4: Notify Users**\nSend prediction report to:\n- Telegram\n- Discord"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "1e037aed-e7ce-4eae-8b41-1fe8ace8e120",
+        "name": "Step 5 - Calendar",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4176,
+          1616
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 100,
+          "content": "**Step 5: Add to Calendar**\nLoop through best passes and create Google Calendar events"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a703fc5e-1188-4030-9ab6-e036671aac5c",
+        "name": "Step 1 - Load History",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5264,
+          2240
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 220,
+          "height": 116,
+          "content": "**Step 1: Load History Data**\nFetch all sighting records from Google Sheets"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ce93ac1a-148e-4a87-b768-a6dd9c2c7a16",
+        "name": "Step 2 - Stats",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -5024,
+          2240
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 104,
+          "content": "**Step 2: Calculate Statistics**\n- Total/observable sightings\n- Success rate\n- Breakdown by satellite, direction, weather"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f13aa8da-5fd8-47a4-9972-2026d2cffc53",
+        "name": "Step 3 - AI Analysis",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4720,
+          2192
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 156,
+          "content": "**Step 3: AI Analysis**\nGPT-4 generates insights:\n- Weekly highlights\n- Success rate analysis\n- Next week outlook\n- Observer tips"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b95009f7-5a81-48b7-8fbe-e67414a035ab",
+        "name": "Step 4 - Send Report",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -4352,
+          2240
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 100,
+          "content": "**Step 4: Format & Send Report**\nCombine stats + AI analysis into final report, send to channels"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "OpenAI Report": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Weekly Report",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Trivia": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Space Trivia",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log to History": {
+        "main": [
+          [
+            {
+              "node": "Send to Discord2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send to Telegram3",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send to Slack1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get History Data": {
+        "main": [
+          [
+            {
+              "node": "Calculate Weekly Statistics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get ISS Position1": {
+        "main": [
+          [
+            {
+              "node": "Get ISS Detailed (N2YO)",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Get Tiangong Position",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Weekly Report": {
+        "main": [
+          [
+            {
+              "node": "Send Weekly to Telegram",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Weekly to Discord",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Calendar Events": {
+        "main": [
+          [
+            {
+              "node": "Add to Google Calendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Any Satellite Nearby?": {
+        "main": [
+          [
+            {
+              "node": "Get Weather Conditions",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Get Astronauts in Space",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Space Trivia": {
+        "main": [
+          [
+            {
+              "node": "Format Rich Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Tiangong Position": {
+        "main": [
+          [
+            {
+              "node": "Calculate All Satellites",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add to Google Calendar": {
+        "main": [
+          [
+            {
+              "node": "Loop Calendar Events",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Weekly Report": {
+        "main": [
+          [
+            {
+              "node": "Format Weekly Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Weather Conditions": {
+        "main": [
+          [
+            {
+              "node": "Analyze Observation Conditions1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Observable Conditions?": {
+        "main": [
+          [
+            {
+              "node": "Generate Space Trivia",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Astronauts in Space": {
+        "main": [
+          [
+            {
+              "node": "Analyze Observation Conditions1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get ISS Detailed (N2YO)": {
+        "main": [
+          [
+            {
+              "node": "Calculate All Satellites",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process All Predictions": {
+        "main": [
+          [
+            {
+              "node": "Format Prediction Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Real-time Check (5 min)": {
+        "main": [
+          [
+            {
+              "node": "Get ISS Position1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculate All Satellites": {
+        "main": [
+          [
+            {
+              "node": "Any Satellite Nearby?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Daily Predictions (6 AM)": {
+        "main": [
+          [
+            {
+              "node": "Get ISS Pass Predictions",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Get Tiangong Predictions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Prediction Report": {
+        "main": [
+          [
+            {
+              "node": "Send Predictions to Telegram",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Predictions to Discord",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Loop Calendar Events",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Rich Notification": {
+        "main": [
+          [
+            {
+              "node": "Log to History",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get ISS Pass Predictions": {
+        "main": [
+          [
+            {
+              "node": "Process All Predictions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Tiangong Predictions": {
+        "main": [
+          [
+            {
+              "node": "Process All Predictions",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculate Weekly Statistics": {
+        "main": [
+          [
+            {
+              "node": "Generate Weekly Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Weekly Report (Sunday 8 PM)": {
+        "main": [
+          [
+            {
+              "node": "Get History Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Analyze Observation Conditions1": {
+        "main": [
+          [
+            {
+              "node": "Observable Conditions?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

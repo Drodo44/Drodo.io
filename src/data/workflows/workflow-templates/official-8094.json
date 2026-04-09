@@ -1,0 +1,1143 @@
+{
+  "id": "official-8094",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8094",
+    "template_id": 8094
+  },
+  "name": "Generate stock market insights with technical analysis, AI, and Telegram publishing",
+  "description": "📈 AI Stock Analytics & BCS \"Profit\" Social Network Publishing Workflow This workflow automatically generates stock market insights for selected tickers (e.g.",
+  "category": "AI",
+  "tags": [
+    "Crypto Trading",
+    "AI Summarization",
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "Telegram",
+    "Structured Output Parser",
+    "Edit Fields (Set)",
+    "Postgres",
+    "Schedule Trigger",
+    "Telegram Trigger",
+    "generate",
+    "stock",
+    "market",
+    "insights"
+  ],
+  "task_keywords": [
+    "generate stock market insights with technical analysis, ai, and telegram publishing",
+    "ai agent",
+    "openrouter chat model",
+    "telegram",
+    "structured output parser",
+    "edit fields (set)",
+    "postgres",
+    "schedule trigger",
+    "telegram trigger",
+    "generate stock",
+    "stock market",
+    "market insights"
+  ],
+  "required_services": [
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "Telegram",
+    "Structured Output Parser",
+    "Edit Fields (Set)",
+    "Postgres"
+  ],
+  "triggers": [
+    "Schedule Trigger",
+    "Telegram Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "qYCUH4cxGizp7l1b",
+    "meta": {
+      "instanceId": "673dd365761c86615255caaaae908ad0f2b40ed6e6f64e1be5631254544e65ca",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Stock Analytic Template",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "1976d330-4339-4a6c-9915-f62fcb2690be",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "onError": "continueErrorOutput",
+        "maxTries": 3,
+        "position": [
+          768,
+          -432
+        ],
+        "parameters": {
+          "text": "=Проанализируй технические данные по акции {{ $json.context.ticker }} на таймфрейме {{ $json.context.timeFrame }} и создай вирусный пост для социальных сетей.\n\nДанные для анализа:\n{{ JSON.stringify($json, null, 2) }}\n\nСоздай JSON с заголовком и полным текстом поста согласно системным инструкциям.",
+          "options": {
+            "systemMessage": "=Роль и контекст\nТы — эксперт по акциям с 10+ лет опыта, который умеет объяснять сложные вещи простыми словами. Твоя аудитория — обычные люди, которые хотят зарабатывать на акциях, но не разбираются в технических терминах.\n\nЗадача\nСоздай вирусный пост для социальных сетей, который:\n- Привлекает внимание с первых строк\n- Объясняет ситуацию без жаргона  \n- Дает четкие рекомендации\n- Мотивирует подписаться на ежедневную аналитику\n\nФормат ответа\nВАЖНО: Ответ должен быть ТОЛЬКО в формате JSON:\n{\n  \"title\": \"Заголовок поста\",\n  \"summary\": \"Полный текст поста\"\n}\n\nСтруктура title:\n🔥 Интригующий хук-заголовок (1 строка с эмодзи):\n- \"🔥 Газпром готовится к рывку вверх!\"\n- \"⚡ Внимание! Сбер дает сигнал на покупку\"  \n- \"🎯 Яндекс: время входить или лучше подождать?\"\n\nСтруктура summary (4 блока):\n\n1. 📊 Что происходит сейчас (2-3 строки)\nПростым языком объясни текущую ситуацию:\n- Растет/падает/стоит в боковике\n- Покупатели сильнее/слабее продавцов\n- Высокая/низкая активность торгов\n\n2. 🎯 Сигналы рынка говорят (3-4 строки)\nПереведи технические индикаторы на человеческий язык:\n\nРасшифровка индикаторов:\n- RSI > 70 = \"акция перекуплена\"\n- RSI < 30 = \"акция перепродана\"\n- RSI 40-60 = \"нейтральная зона\"\n- MACD bullish = \"импульс набирает силу\"\n- MACD bearish = \"импульс слабеет\"\n- Цена выше SMA20 = \"краткосрочный тренд положительный\"\n- EMA death cross = \"долгосрочный медвежий сигнал\"\n- EMA golden cross = \"долгосрочный бычий сигнал\"\n- ADX > 25 = \"сильный тренд\"\n- ADX < 20 = \"слабый тренд\"\n- BB позиция > 0.8 = \"в верхней части канала\"\n- BB позиция < 0.2 = \"в нижней части канала\"\n\n3. 💡 Что это означает для нас (2-3 строки)\nОбъясни почему это важно и к чему может привести:\n- Какие риски\n- Какие возможности\n- На что обратить внимание\n\n4. ⚡ План действий (2-3 строки + призыв)\nЧеткие рекомендации:\n- ПОКУПАЕМ — если сигналы положительные\n- ПРОДАЕМ — если пора фиксировать прибыль\n- ЖДЕМ — если ситуация неясная\n\nОбязательный призыв: \"Ставь ❤️ если полезно! Подписывайся на ежедневную аналитику 📈\"\n\nСтиль написания:\n- ✅ Простые слова вместо терминов\n- ✅ Активные глаголы и эмоции\n- ✅ Короткие предложения\n- ✅ Уверенность в рекомендациях\n- ✅ Использовать эмодзи для визуализации\n- ❌ Никакой неопределенности (\"возможно\", \"может быть\")\n- ❌ Технический жаргон без объяснений\n- ❌ Длинные абзацы\n\nТребования к форматированию JSON:\n- Все спецсимволы корректно экранированы\n- Переносы строк через \\n\n- Жирный текст через текст\n- *Курсив* через *текст*\n- Максимальная длина summary: 1200 символов\n\nЦель:\nЧитатель должен подумать: *\"Вау, как просто объяснил! Хочу еще такую аналитику!\"*\n\nПример ответа:\n{\n  \"title\": \"🔥 Газпром: готовится мощный рывок вверх!\",\n  \"summary\": \"📊 Что происходит сейчас:\\nГазпром торгуется выше ключевых уровней поддержки. Покупатели активнее продавцов, объемы торгов растут. Акция показывает признаки накопления перед рывком.\\n\\n🎯 Сигналы рынка говорят:\\nИндикатор силы в нейтральной зоне - есть потенциал для роста. Импульс набирает силу, краткосрочный тренд положительный. Акция находится в верхней части торгового канала, что говорит об активности покупателей.\\n\\n💡 Что это означает для нас:\\nТехнические сигналы указывают на высокую вероятность продолжения роста. Хороший момент для входа в позицию. Риски ограничены текущими уровнями поддержки.\\n\\n⚡ План действий:\\nПОКУПАЕМ — все сигналы зеленые, тренд поддерживает рост. Целевой уровень 140-145 рублей за акцию.\\n\\nСтавь ❤️ если полезно! Подписывайся на канал 📈\"\n}\n\nКритически важно:\n- Ответ — только валидный JSON-объект строго этого вида:\n{\"title\": \"string\", \"summary\": \"string\"}. \n- Без кода, без текста вне JSON. \n- Переносы строк — \\n. \n- Кавычки внутри строк — экранировать.\n- Ответ содержит ТОЛЬКО валидный JSON\n- Никаких дополнительных комментариев вне JSON\n- Все технические термины переведены на простой язык\n- Четкая рекомендация к действию в конце"
+          },
+          "promptType": "define",
+          "hasOutputParser": true
+        },
+        "retryOnFail": true,
+        "typeVersion": 2.2
+      },
+      {
+        "id": "bf94369a-e36d-460e-903e-2c78a428291d",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          736,
+          -64
+        ],
+        "parameters": {
+          "model": "openai/gpt-oss-120b",
+          "options": {}
+        },
+        "credentials": {
+          "openRouterApi": {
+            "id": "credential-id",
+            "name": "openRouterApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8affe1e1-06bb-49ab-bead-95e6de0696f8",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -192,
+          -432
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 11,
+                "triggerAtMinute": 15
+              },
+              {
+                "triggerAtHour": 18,
+                "triggerAtMinute": 15
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "2843ee64-77b1-40ad-927c-742786ecd60e",
+        "name": "Execute Auth Login",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "position": [
+          880,
+          -704
+        ],
+        "parameters": {
+          "options": {},
+          "workflowId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gz5RhsAPZztWijnP",
+            "cachedResultName": "BCS Login"
+          },
+          "workflowInputs": {
+            "value": {},
+            "schema": [
+              {
+                "id": "s",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "s",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "s"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "95946c93-adc2-48e5-b7d8-3413551c694a",
+        "name": "Execute Auth Trade API",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "position": [
+          208,
+          -432
+        ],
+        "parameters": {
+          "options": {},
+          "workflowId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "e4nUcFlYhUsQcGi8",
+            "cachedResultName": "Trade API Auth"
+          },
+          "workflowInputs": {
+            "value": {
+              "ticker": "={{ $json.ticker }}",
+              "classCode": "={{ $json.classCode }}"
+            },
+            "schema": [
+              {
+                "id": "ticker",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "ticker",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "classCode",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "classCode",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "s"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "4555c391-af96-4600-9d27-5df6e60489f0",
+        "name": "Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          -192,
+          -672
+        ],
+        "webhookId": "2afb4bc6-f907-44db-8c34-3796bdbef16d",
+        "parameters": {
+          "updates": [
+            "callback_query"
+          ],
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "86148c42-ccfd-4565-b32c-b9316bc38ee8",
+        "name": "Ошибка публикации",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1248,
+          -608
+        ],
+        "webhookId": "10e290b2-964a-478b-890f-b1acc63289e3",
+        "parameters": {
+          "text": "Ошибка публикации",
+          "chatId": "{ admin_chat_id }",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "3475bd7c-edd8-4bc5-9a7c-40c2ca16bff5",
+        "name": "Успешно опубликовано",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1248,
+          -768
+        ],
+        "webhookId": "6fc8899d-de7a-4f27-8a68-e63b1e4744f6",
+        "parameters": {
+          "text": "Пост успешно публикован",
+          "chatId": "{ admin_chat_id }",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "b59a7aa8-ec1c-44e2-88ef-dd945631864e",
+        "name": "Structured Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          864,
+          -208
+        ],
+        "parameters": {
+          "autoFix": true,
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"title\": \"string\",\n  \"summary\": \"string\"\n}"
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "e8f8b5c4-f4a3-492d-a78a-ac34261a8b94",
+        "name": "Get Action Type",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -16,
+          -672
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "ccf9b9b2-6b12-4bf7-9b35-7f2b70a49e40",
+                "name": "action",
+                "type": "string",
+                "value": "={{ $json.callback_query.data.split('::')[0] }}"
+              },
+              {
+                "id": "52ee0570-ed4c-4d3a-bc79-ed2589db5cae",
+                "name": "id",
+                "type": "string",
+                "value": "={{ $json.callback_query.data.split('::')[1] }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "fc7a86db-af8b-4201-a794-7dd60bf5e14e",
+        "name": "Exist type and id",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          160,
+          -672
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "ca9eaef8-3da9-477c-a782-e7f4f2f7452f",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.action }}",
+                "rightValue": ""
+              },
+              {
+                "id": "abaf219d-a434-484b-85e6-854f2f78481d",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.id }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "153d877b-6ada-482d-acf9-141cc5e18776",
+        "name": "Get Post By Id",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          352,
+          -688
+        ],
+        "parameters": {
+          "limit": 1,
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "analytics_history",
+            "cachedResultName": "analytics_history"
+          },
+          "where": {
+            "values": [
+              {
+                "value": "={{ $json.id }}",
+                "column": "id"
+              }
+            ]
+          },
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "options": {},
+          "operation": "select"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "credential-id",
+            "name": "postgres Credential"
+          }
+        },
+        "typeVersion": 2.6
+      },
+      {
+        "id": "86b0748f-c556-4979-a69f-9156d6085f2e",
+        "name": "Ошибка генерации",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1184,
+          -208
+        ],
+        "webhookId": "75d3e05e-14f4-4316-85cf-dc36c59265da",
+        "parameters": {
+          "text": "=Ошибка при генерации поста ticker: {{ $json.context.ticker }}",
+          "chatId": "{ admin_chat_id }",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "00861c84-cad2-4822-8378-e37c7d07f5f5",
+        "name": "Исторические данные",
+        "type": "n8n-nodes-base.httpRequest",
+        "maxTries": 2,
+        "position": [
+          400,
+          -432
+        ],
+        "parameters": {
+          "url": "https://be.broker.ru/trade-api-market-data-connector/api/v1/candles-chart",
+          "options": {},
+          "sendQuery": true,
+          "sendHeaders": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "ticker",
+                "value": "={{ $('Данные для анализа (тут указываются ticker)').item.json.ticker }}"
+              },
+              {
+                "name": "classCode",
+                "value": "={{ $('Данные для анализа (тут указываются ticker)').item.json.classCode }}"
+              },
+              {
+                "name": "timeFrame",
+                "value": "H1"
+              },
+              {
+                "name": "startDate",
+                "value": "={{new Date(Date.now() - 24 * 60 * 60 * 1000 * 60).toISOString()}}"
+              },
+              {
+                "name": "endDate",
+                "value": "={{new Date().toISOString()}}"
+              }
+            ]
+          },
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $('Execute Auth Trade API').item.json.access_token }}"
+              }
+            ]
+          }
+        },
+        "retryOnFail": true,
+        "typeVersion": 4.1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "0258bea4-7914-4fd3-8161-52dc5a1ee4fd",
+        "name": "Рассчет TA",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          592,
+          -432
+        ],
+        "parameters": {
+          "jsCode": "// ===== Compact TA for multi-ticker =====\n// Input options:\n//  A) multiple items: [{ json: { ticker, classCode, timeFrame, bars: [...] } }, ...]\n//  B) single item with batch: { json: { batch: [{ticker, classCode, timeFrame, bars:[...]}] } }\n//  C) single item with dict:  { json: { barsByTicker: { TICKER: [...], ... }, classCode, timeFrame } }\n//\n// Output: one item per ticker: { context, last, derived }\n\nconst PERIOD_RSI = 14;\nconst BB_PERIOD = 20, BB_K = 2.0;\nconst SMA_PERIOD = 20;\nconst EMA_FAST = 50, EMA_SLOW = 200;\nconst MACD_FAST = 12, MACD_SLOW = 26, MACD_SIGNAL = 9;\nconst ADX_PERIOD = 14;\n\n// ---------- helpers ----------\nfunction num(x){ const n = Number(x); return Number.isFinite(n) ? n : NaN; }\nfunction sma(arr, p){\n  const out = new Array(arr.length).fill(null); let s=0;\n  for(let i=0;i<arr.length;i++){ s+=arr[i]; if(i>=p) s-=arr[i-p]; if(i>=p-1) out[i]=s/p; }\n  return out;\n}\nfunction ema(arr, p){\n  const out=new Array(arr.length).fill(null); const k=2/(p+1);\n  let s=0; for(let i=0;i<p;i++) s+=arr[i]; let prev=s/p; out[p-1]=prev;\n  for(let i=p;i<arr.length;i++){ prev=arr[i]*k + prev*(1-k); out[i]=prev; }\n  return out;\n}\nfunction rollingStd(arr,p){\n  const out=new Array(arr.length).fill(null);\n  for(let i=p-1;i<arr.length;i++){\n    const sl=arr.slice(i-p+1,i+1);\n    const m=sl.reduce((a,b)=>a+b,0)/sl.length;\n    const v=sl.reduce((a,b)=>a+(b-m)*(b-m),0)/sl.length;\n    out[i]=Math.sqrt(v);\n  }\n  return out;\n}\nfunction rsi(arr,p=14){\n  const out=new Array(arr.length).fill(null); let g=0,l=0;\n  for(let i=1;i<=p;i++){ const ch=arr[i]-arr[i-1]; if(ch>0) g+=ch; else l-=ch; }\n  let avgG=g/p, avgL=l/p; out[p]=100 - (100/(1 + (avgL===0?Infinity:avgG/avgL)));\n  for(let i=p+1;i<arr.length;i++){\n    const ch=arr[i]-arr[i-1], gain=Math.max(ch,0), loss=Math.max(-ch,0);\n    avgG=(avgG*(p-1)+gain)/p; avgL=(avgL*(p-1)+loss)/p;\n    out[i]=100 - (100/(1 + (avgL===0?Infinity:avgG/avgL)));\n  }\n  return out;\n}\nfunction wilder(arr,p){\n  const out=new Array(arr.length).fill(null); let s=0;\n  for(let i=0;i<p;i++) s+=arr[i]||0; let prev=s/p; out[p-1]=prev; const a=1/p;\n  for(let i=p;i<arr.length;i++){ prev=prev + a*((arr[i]||0)-prev); out[i]=prev; }\n  return out;\n}\nfunction tr(h,l,pc){ return Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc)); }\nfunction adx(highs,lows,closes,p=14){\n  const len=closes.length, TR=new Array(len).fill(null), plusDM=new Array(len).fill(null), minusDM=new Array(len).fill(null);\n  for(let i=1;i<len;i++){\n    const up=highs[i]-highs[i-1], dn=lows[i-1]-lows[i];\n    plusDM[i]=(up>dn && up>0)?up:0; minusDM[i]=(dn>up && dn>0)?dn:0; TR[i]=tr(highs[i],lows[i],closes[i-1]);\n  }\n  const ATR=wilder(TR.map(v=>v??0),p);\n  const plusDI=wilder(plusDM.map(v=>v??0),p).map((v,i)=> ATR[i]?100*v/ATR[i]:null);\n  const minusDI=wilder(minusDM.map(v=>v??0),p).map((v,i)=> ATR[i]?100*v/ATR[i]:null);\n  const DX=plusDI.map((pdi,i)=> (pdi!=null && minusDI[i]!=null && (pdi+minusDI[i])!==0)? 100*Math.abs(pdi-minusDI[i])/(pdi+minusDI[i]) : null);\n  const ADX=wilder(DX.map(v=>v??0),p);\n  return { plusDI, minusDI, ADX };\n}\nfunction clamp01(x){ return Math.max(0, Math.min(1, x)); }\n\n// ---------- core compute for single ticker ----------\nfunction computeOne(meta){\n  const raw = Array.isArray(meta.bars) ? meta.bars : [];\n  if (raw.length < 30) {\n    return {\n      error: true,\n      payload: { context: { ticker: meta.ticker ?? null }, message: \"Недостаточно баров (нужно >= 30)\" }\n    };\n  }\n\n  // sort asc & normalize\n  const bars = raw.slice().sort((a,b)=> new Date(a.time) - new Date(b.time))\n    .map(b=>({\n      time:String(b.time),\n      open:num(b.open), high:num(b.high), low:num(b.low), close:num(b.close), volume:num(b.volume)\n    }));\n\n  const N = bars.length;\n  const closes = bars.map(b=>b.close), highs = bars.map(b=>b.high), lows = bars.map(b=>b.low);\n\n  // series\n  const rsi14 = rsi(closes, PERIOD_RSI);\n  const sma20 = sma(closes, SMA_PERIOD);\n  const ema50 = ema(closes, EMA_FAST);\n  const ema200 = ema(closes, EMA_SLOW);\n\n  const ema12 = ema(closes, MACD_FAST);\n  const ema26 = ema(closes, MACD_SLOW);\n  const macdLine = closes.map((_,i)=> (ema12[i]!=null && ema26[i]!=null) ? ema12[i]-ema26[i] : null);\n  const macdForSignal = macdLine.map(v=> v==null ? 0 : v);\n  const macdSignalCore = ema(macdForSignal.filter((_,i)=> macdLine[i]!=null), MACD_SIGNAL);\n  let si=0; const macdSignal = macdLine.map(v=> v!=null ? macdSignalCore[si++] : null);\n  const macdHist = macdLine.map((v,i)=> (v!=null && macdSignal[i]!=null) ? v - macdSignal[i] : null);\n\n  const bbMid = sma20;\n  const bbStd = rollingStd(closes, BB_PERIOD);\n  const bbUpper = bbMid.map((m,i)=> m!=null ? m + BB_K*bbStd[i] : null);\n  const bbLower = bbMid.map((m,i)=> m!=null ? m - BB_K*bbStd[i] : null);\n\n  const { plusDI, minusDI, ADX } = adx(highs, lows, closes, ADX_PERIOD);\n\n  // last\n  const i = N - 1;\n  const price = closes[i];\n  const last = {\n    price,\n    rsi14: rsi14[i],\n    macd: macdLine[i],\n    macdSignal: macdSignal[i],\n    macdHist: macdHist[i],\n    bbUpper: bbUpper[i],\n    bbMid: bbMid[i],\n    bbLower: bbLower[i],\n    sma20: sma20[i],\n    ema50: ema50[i],\n    ema200: ema200[i],\n    adx14: ADX[i],\n    plusDI: plusDI[i],\n    minusDI: minusDI[i],\n  };\n\n  const derived = {\n    priceAboveSma20: (price!=null && last.sma20!=null) ? (price > last.sma20) : null,\n    emaCross: (last.ema50!=null && last.ema200!=null) ? (last.ema50>last.ema200 ? \"golden\" : last.ema50<last.ema200 ? \"death\" : \"flat\") : null,\n    macdBias: (last.macd!=null && last.macdSignal!=null) ? (last.macd > last.macdSignal ? \"bullish\" : \"bearish\") : null,\n    trendStrength: (last.adx14==null) ? null : (last.adx14<20 ? \"weak\" : last.adx14<40 ? \"moderate\" : \"strong\"),\n    bbPos01: (last.bbUpper!=null && last.bbLower!=null && price!=null) ? clamp01((price - last.bbLower) / (last.bbUpper - last.bbLower)) : null,\n  };\n\n  const context = {\n    ticker: meta.ticker ?? null,\n    classCode: meta.classCode ?? null,\n    timeFrame: meta.timeFrame ?? \"H1\",\n    end: bars[N-1].time\n  };\n\n  return { error:false, payload:{ context, last, derived } };\n}\n\n// ---------- gather inputs ----------\nconst inputs = $input.all();   // A) multiple items case\n\nlet jobs = [];\n\n// A) multiple items with per-ticker bars\nif (inputs.length > 1 || (inputs[0]?.json?.bars && inputs[0]?.json?.ticker)) {\n  jobs = inputs.map(it => ({ ticker: it.json.ticker, meta: it.json }));\n}\n// B) single item with batch: meta.batch = [{ticker, bars, ...}, ...]\nelse if (Array.isArray(inputs[0]?.json?.batch)) {\n  jobs = inputs[0].json.batch.map(x => ({ ticker: x.ticker, meta: x }));\n}\n// C) single item with dict: meta.barsByTicker = { TICK1:[...], TICK2:[...] }\nelse if (inputs[0]?.json?.barsByTicker && typeof inputs[0].json.barsByTicker === 'object') {\n  const common = { classCode: inputs[0].json.classCode, timeFrame: inputs[0].json.timeFrame };\n  jobs = Object.entries(inputs[0].json.barsByTicker).map(([ticker, bars]) => ({\n    ticker,\n    meta: { ...common, ticker, bars }\n  }));\n}\n// fallback: single standard item\nelse {\n  jobs = [{ ticker: inputs[0]?.json?.ticker ?? null, meta: inputs[0]?.json ?? {} }];\n}\n\n// ---------- compute and return one item per ticker ----------\nconst out = [];\nfor (const { meta } of jobs) {\n  const res = computeOne(meta);\n  if (res.error) {\n    out.push({ json: { error: res.payload.message || \"Недостаточно баров (нужно >= 30)\", context: { ticker: meta.ticker ?? null } } });\n  } else {\n    out.push({ json: res.payload });\n  }\n}\n\nreturn out;\n"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "f721ec3f-c629-4045-b80d-786e78fc6672",
+        "name": "ID Generation",
+        "type": "n8n-nodes-base.crypto",
+        "position": [
+          1072,
+          -432
+        ],
+        "parameters": {
+          "action": "generate"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a5271f93-d5da-4e12-832d-de52d5c96dbe",
+        "name": "Отправка поста на валидацию",
+        "type": "n8n-nodes-base.telegram",
+        "onError": "continueErrorOutput",
+        "position": [
+          1424,
+          -432
+        ],
+        "webhookId": "e010c79b-c1fe-42c4-a7e9-0212755ec9e9",
+        "parameters": {
+          "text": "={{ $json.title }}\n\n{{ $json.summary }}",
+          "chatId": "={ admin_chat_id }",
+          "replyMarkup": "inlineKeyboard",
+          "inlineKeyboard": {
+            "rows": [
+              {
+                "row": {
+                  "buttons": [
+                    {
+                      "text": "Опубликовать",
+                      "additionalFields": {
+                        "callback_data": "=publish::{{ $('ID Generation').item.json.data }}"
+                      }
+                    },
+                    {
+                      "text": "Повторить",
+                      "additionalFields": {
+                        "callback_data": "=retry::{{ $('ID Generation').item.json.data }}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "executeOnce": false,
+        "typeVersion": 1.2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "bbdaca8b-ced8-4531-99e0-88af94944352",
+        "name": "Публикация постав в Профите",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueErrorOutput",
+        "position": [
+          1056,
+          -704
+        ],
+        "parameters": {
+          "url": "https://my.broker.ru/web/api/v2/newsfeed/posts",
+          "method": "POST",
+          "options": {
+            "redirect": {
+              "redirect": {}
+            }
+          },
+          "sendBody": true,
+          "contentType": "multipart-form-data",
+          "sendHeaders": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "body",
+                "value": "={{ $('Собираем пост').item.json.post.toJsonString() }}"
+              }
+            ]
+          },
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "authorization",
+                "value": "=Bearer {{ $json.access_token }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "0b8c343a-567d-45b3-8883-9abe03a34b77",
+        "name": "Развилка",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          528,
+          -688
+        ],
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "outputKey": "publish",
+                "conditions": {
+                  "options": {
+                    "version": 2,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "6705dbe2-66e4-4768-9400-e1de6d63b9d5",
+                      "operator": {
+                        "type": "string",
+                        "operation": "startsWith"
+                      },
+                      "leftValue": "={{ $('Get Action Type').item.json.action }}",
+                      "rightValue": "publish"
+                    }
+                  ]
+                },
+                "renameOutput": true
+              },
+              {
+                "outputKey": "retry",
+                "conditions": {
+                  "options": {
+                    "version": 2,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "1d8c2bca-9762-4ee0-ad6b-a3f564e0103d",
+                      "operator": {
+                        "type": "string",
+                        "operation": "startsWith"
+                      },
+                      "leftValue": "={{ $('Get Action Type').item.json.action }}",
+                      "rightValue": "retry"
+                    }
+                  ]
+                },
+                "renameOutput": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 3.2
+      },
+      {
+        "id": "40f72a3f-9d40-4319-857a-3372b41732fc",
+        "name": "Собираем пост",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          704,
+          -704
+        ],
+        "parameters": {
+          "jsCode": "const ticker = $input.first().json.ticker\nconst classCode = $input.first().json.classCode\nconst title = $input.first().json.title\nconst text = $input.first().json.summary\n\nconst post = {\n  title: title,\n  content: `${text}\\n#Теханализ {$${ticker}}`,\n  filesInfo: [],\n  instruments: [{ securityCode: ticker, classCode: classCode }],\n  profiles: [],\n  tags: ['Теханализ'],\n  strategies: []\n};\n\nreturn [{ json: { post } }];\n"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "3a1e1f0f-2b19-4f3e-8ef2-7ff5c1208253",
+        "name": "Send a text message",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1632,
+          -336
+        ],
+        "webhookId": "4101afc1-522e-4451-b96f-a3767f26d378",
+        "parameters": {
+          "text": "=Ошибка генерации по {{ $json.ticker }} - {{ $json.error }}",
+          "chatId": "{ admin_chat_id }",
+          "replyMarkup": "inlineKeyboard",
+          "inlineKeyboard": {
+            "rows": [
+              {
+                "row": {
+                  "buttons": [
+                    {
+                      "text": "Повторить",
+                      "additionalFields": {
+                        "callback_data": "=retry::{{ $('ID Generation').item.json.data }}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "a332ec95-1e1a-44e1-9e2d-1c3ad24dcde5",
+        "name": "Сохранение поста",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          1248,
+          -432
+        ],
+        "parameters": {
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "analytics_history",
+            "cachedResultName": "analytics_history"
+          },
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public",
+            "cachedResultName": "public"
+          },
+          "columns": {
+            "value": {
+              "id": "={{ $json.data }}",
+              "title": "={{ $('AI Agent').item.json.output.title }}",
+              "ticker": "={{ $('Рассчет TA').item.json.context.ticker }}",
+              "summary": "={{ $('AI Agent').item.json.output.summary }}",
+              "classCode": "={{ $('Рассчет TA').item.json.context.classCode }}"
+            },
+            "schema": [
+              {
+                "id": "id",
+                "type": "string",
+                "display": true,
+                "required": true,
+                "displayName": "id",
+                "defaultMatch": true,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "type": "dateTime",
+                "display": true,
+                "required": false,
+                "displayName": "created_at",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "summary",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "summary",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "ticker",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "ticker",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "classCode",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "classCode",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "title",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "title",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "id"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "credential-id",
+            "name": "postgres Credential"
+          }
+        },
+        "typeVersion": 2.6
+      },
+      {
+        "id": "cedff92e-feb3-403c-be04-f7fd74ad7fcb",
+        "name": "Данные для анализа (тут указываются ticker)",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          0,
+          -432
+        ],
+        "parameters": {
+          "jsCode": "const data = $input.first()?.json;\n\nconst defaultTickers = [ \n  { ticker: \"GAZP\", classCode: \"TQBR\" }, \n  { ticker: \"SBER\", classCode: \"TQBR\" },\n  { ticker: \"LKOH\", classCode: \"TQBR\" }\n];\n\n// Если есть входные данные с ticker и classCode - используем их, иначе дефолтные\nconst result = (data?.ticker && data?.classCode) \n  ? [{ ticker: data.ticker, classCode: data.classCode }]\n  : defaultTickers;\n\nreturn result.map(item => ({ json: item }));"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "76608d62-aef1-4fa2-b1cd-3bbd03b6b1b9",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -992,
+          -784
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 700,
+          "height": 924,
+          "content": "# 📈 AI Stock Analytics & BCS \"Profit\" Social Network Publishing Workflow  \n\nThis workflow automatically generates stock market insights for selected tickers (e.g. GAZP, SBER, LKOH) using historical data, technical indicators, and an AI model. The results are then sent to Telegram for quick moderation and publishing.  \n\n## 🔑 What this workflow does\n- **Runs twice a day** on a schedule with a predefined list of tickers.  \n- **Fetches historical market data** from a broker API.  \n- **Calculates key technical indicators** (RSI, EMA/SMA, MACD, Bollinger Bands, ADX).  \n- **Generates an investment post** (title + summary) using an LLM.  \n- **Stores results** in a PostgreSQL database.  \n- **Sends a draft post to Telegram** with inline buttons *“Publish”* and *“Retry”*.  \n- **Handles Telegram actions**: publishes the post to the final channel or re-runs the generation process.  \n\n## 📌 Key features\n- Multi-ticker support in a single run.  \n- Automatic error handling (e.g. missing data or invalid AI JSON output).  \n- Human-in-the-loop moderation through Telegram before publishing.  \n- PostgreSQL integration for history and analytics storage.  \n- Flexible structure: easy to extend with new tickers, indicators, or publishing channels.  \n\n## 🛠️ Nodes used\n- **Trigger:** Schedule (twice daily) + Telegram Trigger (button callbacks).  \n- **Data:** HTTP Request (broker API), Function (technical analysis calculations).  \n- **AI:** OpenAI / OpenRouter with structured JSON output.  \n- **Storage:** PostgreSQL (analytics history).  \n- **Messaging:** Telegram (drafts and publishing).  \n\n## 🚀 Who is this for\n- Fintech startups looking to automate market content.  \n- Investment bloggers posting daily stock analysis.  \n- Analysts experimenting with trading strategies on real market data.  \n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a42b6f27-bdd6-412a-96b5-d8d3b2ca6271",
+        "name": "Query callback",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          -16,
+          -832
+        ],
+        "webhookId": "57da57bf-7944-481d-a39d-b52db04c7b76",
+        "parameters": {
+          "queryId": "={{ $json.callback_query.id }}",
+          "resource": "callback",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "55d6ca44-7fdd-4132-a10a-85d2b67eb554",
+    "connections": {
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "ID Generation",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Ошибка генерации",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ID Generation": {
+        "main": [
+          [
+            {
+              "node": "Сохранение поста",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Post By Id": {
+        "main": [
+          [
+            {
+              "node": "Развилка",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Action Type": {
+        "main": [
+          [
+            {
+              "node": "Exist type and id",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Данные для анализа (тут указываются ticker)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get Action Type",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Query callback",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Развилка": {
+        "main": [
+          [
+            {
+              "node": "Собираем пост",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Данные для анализа (тут указываются ticker)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Exist type and id": {
+        "main": [
+          [
+            {
+              "node": "Get Post By Id",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Ошибка публикации",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Рассчет TA": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Auth Login": {
+        "main": [
+          [
+            {
+              "node": "Публикация постав в Профите",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "Structured Output Parser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Auth Trade API": {
+        "main": [
+          [
+            {
+              "node": "Исторические данные",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Собираем пост": {
+        "main": [
+          [
+            {
+              "node": "Execute Auth Login",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Сохранение поста": {
+        "main": [
+          [
+            {
+              "node": "Отправка поста на валидацию",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Исторические данные": {
+        "main": [
+          [
+            {
+              "node": "Рассчет TA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Отправка поста на валидацию": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Send a text message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Публикация постав в Профите": {
+        "main": [
+          [
+            {
+              "node": "Успешно опубликовано",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Ошибка публикации",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Данные для анализа (тут указываются ticker)": {
+        "main": [
+          [
+            {
+              "node": "Execute Auth Trade API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

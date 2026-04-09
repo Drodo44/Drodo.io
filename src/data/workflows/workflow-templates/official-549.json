@@ -1,0 +1,87 @@
+{
+  "id": "official-549",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/549",
+    "template_id": 549
+  },
+  "name": "Get all contacts from Mautic",
+  "description": "Companion workflow for Mautic node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Mautic",
+    "Manual Trigger",
+    "all",
+    "contacts",
+    "mautic",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all contacts from mautic",
+    "manual",
+    "mautic",
+    "manual trigger",
+    "all contacts",
+    "contacts mautic",
+    "mautic companion",
+    "companion workflow",
+    "workflow mautic",
+    "mautic node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Mautic"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mautic",
+        "type": "n8n-nodes-base.mautic",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "getAll",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "mauticOAuth2Api": "mautic_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mautic",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

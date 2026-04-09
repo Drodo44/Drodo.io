@@ -1,0 +1,843 @@
+{
+  "id": "official-10598",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/10598",
+    "template_id": 10598
+  },
+  "name": "Build a Telegram subscription gate with lead magnet and upsell sequence",
+  "description": "😎 For Fast Growing Your Telegram Channel (Lead Magnet Gate) 📋 No plug and play workflow This workflow implements a subscription gate for a Telegram lead magnet campaign.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "Telegram",
+    "Telegram Trigger",
+    "telegram",
+    "subscription",
+    "gate",
+    "lead",
+    "magnet",
+    "upsell"
+  ],
+  "task_keywords": [
+    "build a telegram subscription gate with lead magnet and upsell sequence",
+    "telegram",
+    "telegram trigger",
+    "telegram subscription",
+    "subscription gate",
+    "gate lead",
+    "lead magnet",
+    "magnet upsell",
+    "upsell sequence",
+    "sequence fast",
+    "fast growing",
+    "growing telegram"
+  ],
+  "required_services": [
+    "Telegram"
+  ],
+  "triggers": [
+    "Telegram Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "fwrMTM58ad7FnfaP",
+    "meta": {
+      "instanceId": "9922c7f38c5e1ade904c6ff426bbbe745d59e78d84a3d4ffcde55543d540426b"
+    },
+    "name": "🎯 Telegram Lead Magnet - Subscription Gate with Upsell Branch",
+    "tags": [
+      {
+        "id": "dY7Ra2yfdV4B8rBz",
+        "name": "Nikolenko.Club",
+        "createdAt": "2025-09-01T20:25:53.775Z",
+        "updatedAt": "2025-09-01T20:25:53.775Z"
+      },
+      {
+        "id": "O5AySGWl8YHpYsUT",
+        "name": "TG @nikolenkoclub",
+        "createdAt": "2025-10-12T12:03:14.104Z",
+        "updatedAt": "2025-10-12T12:03:14.104Z"
+      },
+      {
+        "id": "2GI1CjlTGDxA7AU0",
+        "name": "Telegram",
+        "createdAt": "2025-11-06T15:02:15.844Z",
+        "updatedAt": "2025-11-06T15:02:15.844Z"
+      },
+      {
+        "id": "WA7hUMhosMBbmE7p",
+        "name": "Golem.Agency",
+        "createdAt": "2025-11-06T15:01:59.312Z",
+        "updatedAt": "2025-11-06T15:02:51.662Z"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "fa66c5ac-228d-4880-b19c-bffd767fab7f",
+        "name": "❌ Subscription Check Failed | Перевірка підписки не вдалася2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          816,
+          1568
+        ],
+        "webhookId": "a64910c8-5de1-4c93-b2c5-c1079fca122c",
+        "parameters": {
+          "text": "=😔 На жаль вас немає серед підписників на канал: \n[NIKOLENKO.CLUB | Сучасне Підприємництво](https://t.me/+BXlg2UcAOUo0YjFi).\n\nЩоб отримати бонус потрібно зробити зараз:\n1. Перейдіть за посиланням вище і натисніть «Приєднатися».\n2. Натисніть назад \"<\". Повернетесь до цього бота.\n3. Натисніть кнопку «🔁 Спробувати ще раз», щоб запустити повторну перевірку.",
+          "chatId": "={{ $json.result.user.id }}",
+          "replyMarkup": "inlineKeyboard",
+          "inlineKeyboard": {
+            "rows": [
+              {
+                "row": {
+                  "buttons": [
+                    {
+                      "text": "🔁 Спробувати ще раз",
+                      "additionalFields": {
+                        "callback_data": "check_subscription"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "33a9d5c8-6618-4b1b-80c1-4c48b333754a",
+        "name": "🔧 Extract User & Callback Data | Витяг даних користувача2",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -128,
+          1408
+        ],
+        "parameters": {
+          "jsCode": "const update = $input.first().json;\nconst userId = update.message?.from?.id\n  || update.callback_query?.from?.id\n  || update.result?.chat?.id\n  || update.result?.from?.id;\nconst callbackId = update.callback_query?.id || null;\nif (!userId) {\n  throw new Error('Не вдалося визначити користувача для перевірки підписки.'); //text mes in your language\n}\n\nreturn [{\n  json: {\n    user_id: userId,\n    chat_id: '-1+1234567890', // For private channels, use the full numeric ID starting with -100 or id ex:nikolenkoclub\n    callback_query_id: callbackId\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "2b7b6606-1cf4-471d-b9cb-b98505dbc79e",
+        "name": "🌐 Check Telegram Subscription | Перевірка підписки в Телеграм2",
+        "type": "n8n-nodes-base.httpRequest",
+        "disabled": true,
+        "position": [
+          176,
+          1264
+        ],
+        "parameters": {
+          "url": "https://api.telegram.org/botINPUTYOURTOKENBOT@BOTFATHER/getChatMember",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "chat_id",
+                "value": "={{ $json.chat_id }}"
+              },
+              {
+                "name": "user_id",
+                "value": "={{ $json.user_id }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "4ad4918f-9ebf-4606-af3b-dbbc2f8a6041",
+        "name": "✅ Acknowledge Button Click | Підтвердження натискання кнопки2",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -336,
+          1232
+        ],
+        "parameters": {
+          "url": "=https://api.telegram.org/botINPUTYOURTOKEN@BOTFATHER/answerCallbackQuery",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "callback_query_id",
+                "value": "={{ $json.callback_query.id }}"
+              },
+              {
+                "name": "text",
+                "value": "Перевіряємо підписку… (Text community Language) | Checking subscription..."
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "c0a4ffc1-f0b8-447d-b8c5-9723c72ca364",
+        "name": "❓ Is Subscription Check Request? | Запит на перевірку підписки?2",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -736,
+          1408
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "callback-check",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{ $json.callback_query?.data }}",
+                "rightValue": "check_subscription"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "d54d9dea-6de9-4210-82a9-c73d63570881",
+        "name": "🔔 Telegram Message Trigger | Тригер повідомлень Телеграм2",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          -1040,
+          1408
+        ],
+        "webhookId": "7d4f7d11-86f3-4d7a-9534-0e114ce48b17",
+        "parameters": {
+          "updates": [
+            "message",
+            "callback_query"
+          ],
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "82463f58-ffcf-434e-bc38-150776fb7bc5",
+        "name": "📈 Upsell/CrossSell/DownSell System | Система допродажів2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          32,
+          1696
+        ],
+        "webhookId": "a82c0b83-edde-43d5-94f4-26dbfe39af34",
+        "parameters": {
+          "text": "=✋ Вітаю! На зʼвязку Ігор Ніколенко\n\n- У професійному Digital'і з 2008 року.\n- Міжнародна економіка, технічна та менеджерські вищі освіти\n- Маркетолог і digital-стратег. CEO/CMO/CRO.\n- Займаюсь розробкою Digital-маркетинг стратегій та впровадженням їх у життя.\n- У повному циклі від ідеї до присутності у Digital. \n\nМаю власні проєкти з автоматизації маркетингу!\n\n💪 Якщо ви отримали бонус, то вже підписані на мій канал\n\n[NIKOLENKO.CLUB | Сучасне підприємництво](https://t.me/nikolenkoclub) - Це круто, і ось чому!\n\n👇 Тут продовження",
+          "chatId": "={{ $json.message.chat.id }}",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "9287e559-4c34-4b9f-9cd3-9bd3fdb2cfcb",
+        "name": "🎁 Premium Offer Message | Повідомлення преміум пропозиції2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          816,
+          1904
+        ],
+        "webhookId": "bf77222b-bd91-4ab8-b9c7-d542a8c27f12",
+        "parameters": {
+          "text": "=🚀 Як і обіцяв спеціальний доступ: \n\n✅ [ДО ШАБЛОНУ N8N З ПОВНОЮ ІНСТРУКЦІЄЮ!](https://t.me/leadmagnetgatebot)\n\n👆 Який ви можете налагодити за 10 хвилин і підіймати кількість своїх підписників щодня.\n\nЦе окремий бот.\n\nВсе буде всередені і навіть інструкція куди це все впроваджувати та налаштовувати) Супер ? - Я гадаю так.\n\nP.S. Дійте - успіх любить рішучих людей!\n",
+          "chatId": "={{ $('❓ Is /ok Command? | Команда /more?2').item.json.message.chat.id }}",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "bd37adad-c2c8-4004-928d-10be039e282d",
+        "name": "🔒 Lock Permissions | Блокування дозволів2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          32,
+          2016
+        ],
+        "webhookId": "419cc8ba-aacc-4871-9248-865af817fd9d",
+        "parameters": {
+          "text": "=Запросити доступ до Бонусних 800 Гривень для сервісу SendPulse",
+          "chatId": "={{ $json.message.from.id }}",
+          "replyMarkup": "inlineKeyboard",
+          "inlineKeyboard": {
+            "rows": [
+              {
+                "row": {
+                  "buttons": [
+                    {
+                      "text": "🔓 Отримати доступ",
+                      "additionalFields": {
+                        "callback_data": "check_subscription"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "64e7423e-2c31-4ae3-af8a-d3fda69ace06",
+        "name": "✅ Subscription Confirmed - Send Lead Magnet | Підписка підтверджена2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          816,
+          1296
+        ],
+        "webhookId": "a64910c8-5de1-4c93-b2c5-c1079fca122c",
+        "parameters": {
+          "text": "=✅ Супер, ви підписані!\n\n📂 Посилання щоб отримати 800 Грн:\n\n[КЛІК СЮДИ - 800 UAH SendPulse](https://sendpulse.com?p=690372f061232&coupon=NIKOLENKO)\n\n👆 Що після натискання 👆:\n\n1. Перехід на сторінку сервісу. Клікнути на \"Активувати купон\"\n2. Зареєструватися у сервісі\n3. Бонус буде миттєво доданий на баланс облікового запису та доступний для оплати тарифних планів у сервісі після реєстрації.\n\n😉 Хочете отримати шаблон такого бота для свого каналу і зростати кожного дня у підписниках?\n\nНіяких оплат! \n\nЦе Безкоштовно з інструкцією впродження та налагодженням під себе. Як Вам?\nПишіть у чат команду /more або клікай на неї зараз\n\n",
+          "chatId": "={{ $json.result.user.id }}",
+          "forceReply": {
+            "force_reply": false
+          },
+          "replyMarkup": "forceReply",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1277f530-391c-47a6-a6be-cdf1206b25dd",
+        "name": "✅ Is User Subscribed? | Користувач підписаний?2",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          512,
+          1408
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "or",
+            "conditions": [
+              {
+                "id": "bc3e5772-ccb8-4660-a941-88529652476c",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{$json.result.status}}",
+                "rightValue": "member"
+              },
+              {
+                "id": "687eb5d8-9b10-4799-8dad-5cec8b3b34bc",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{$json.result.status}}",
+                "rightValue": "administrator"
+              },
+              {
+                "id": "e502a909-a7d2-488e-9a0b-4f5abc209623",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{$json.result.status}}",
+                "rightValue": "creator"
+              },
+              {
+                "id": "restricted-member",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{$json.result.status}}",
+                "rightValue": "restricted"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "a35f20a6-88c2-4906-9442-5f59fac592a3",
+        "name": "🔐 Bot Configuration | Налаштування бота1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -608,
+          160
+        ],
+        "parameters": {
+          "color": 3,
+          "width": 556,
+          "height": 1032,
+          "content": "# 🔐 Bot Configuration Requirements\n\n## 🤖 Telegram Bot Setup for Private Channels\n\nTo use this workflow with private channels, your bot must be properly configured:\n\n### 1. **Bot as Channel Administrator**\n- Go to your private channel\n- Click \"Manage Channel\" > \"Administrators\"\n- Add your bot as an administrator\n- Grant these essential permissions:\n  ✅ **Read messages** (required for getChatMember)\n  ✅ **View channel members** (required for subscription checks)\n  ✅ **Post messages** (optional, for sending content)\n\n### 2. **Channel ID Format**\nFor private channels, use the full numeric ID:\n- ❌ Public channel: `@channelname`\n- ✅ Private channel: `-1001234567890`\n\nHow To get your private channel ID:\n1. Forward a message from your channel to  [@getidsbot](https://t.me/getidsbot)\n2. Or send your channel invite link to [@getidsbot](https://t.me/getidsbot)\n3. The bot will return the full numeric ID\n\n### 3. **Bot Token Security**\n- Store your bot token securely in n8n credentials\n- Never hardcode tokens in workflow nodes\n- Use credential references like `{{ $credentials.telegramApi.token }}`\n\n### 4. **Permission Troubleshooting**\nIf subscription checks fail:\n- Verify bot is still an admin\n- Check that \"Read messages\" permission is enabled\n- Confirm channel ID format is correct (-100 prefix)\n- Test manually with:\n  `curl \"https://api.telegram.org/bot{TOKEN}/getChatMember?chat_id=-1001234567890&user_id=123456\"`\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e9643a5e-ca29-4aa8-8ddd-b98fc5dba13c",
+        "name": "📚 Workflow Documentation | Документація воркфлоу2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2480,
+          672
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 656,
+          "height": 1212,
+          "content": "# 🎯 Telegram Lead Magnet - Subscription Gate with UpSell Branch\n\n## 📋 Overview\nThis workflow implements a subscription gate for a Telegram lead magnet campaign. Users must subscribe to a Telegram channel before they can access the lead magnet (e.g., a free resource, discount code, or exclusive content).\n\n## 🇺🇦 Українською\nЦей воркфлоу реалізує шлюз підписки для кампанії лід-магніту в Telegram. Користувачі повинні підписатися на канал Telegram, перш ніж зможуть отримати доступ до лід-магніту (наприклад, безкоштовного ресурсу, коду знижки або ексклюзивного контенту).\nЗНИЖКИ, КУПОНУ, ТОЩО... Можна додатково запропонувати щось купити :)\n\n## 🎥 YouTube Video Placement\n[Watch Tutorial Video](https://www.youtube.com/watch?v=example) - ADD Link after Approved Workflow\n## 📝 Workflow Logic\n1. **Trigger** - Listens for Telegram messages and callback queries\n2. **Subscription Check Request** - Determines if user wants to check subscription status\n3. **User Data Extraction** - Extracts user ID and callback data from the message\n4. **Callback Acknowledgment** - Acknowledges button clicks to provide responsive UX\n5. **Telegram API Call** - Checks if user is subscribed to the specified channel\n6. **Subscription Validation** - Validates if user has proper subscription status (member, admin, creator)\n7. **Conditional Routing** - Routes user based on subscription status:\n   - ✅ Subscribed - Sends lead magnet\n   - ❌ Not Subscribed - Sends subscription instructions\n8. **Upsell Path** - Optional upsell sequence triggered by /ok command\n\n## 🛠️ Configuration Notes\n- Replace `inputyourid` with your actual Telegram channel ID (without @)\n- Replace bot token placeholders with your actual Telegram bot token\n- Update the lead magnet delivery message with your actual file/resource links\n- Customize the upsell/cross-sell content as needed\n\n## 📈 Use Cases\n- Lead generation for Telegram channels\n- Content gating for exclusive resources\n- Community building through subscription requirements\n- Marketing funnel automation\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5047135b-2f7f-47c2-8dc6-71345bdb5e6f",
+        "name": "📹 YouTube Integration | Інтеграція YouTube4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1152,
+          512
+        ],
+        "parameters": {
+          "color": 6,
+          "width": 496,
+          "height": 800,
+          "content": "# 🎬 YouTube Video\n\n## 📺 Tutorial Video\n[![Watch Tutorial](https://img.youtube.com/vi/example/maxresdefault.jpg)](https://www.youtube.com/watch?v=example)\n\n## 📖 Video Description\nThis tutorial video walks through the setup and configuration of this Telegram subscription gate workflow. Learn how to:\n- Configure your Telegram bot\n- Set up the subscription check mechanism\n- Customize messages for your audience\n- Implement bilingual support\n- Add upsell sequences\n\n## 🇺🇦 Опис відео\nЦе навчальне відео проведе вас через налаштування та конфігурацію цього воркфлоу шлюзу підписки в Telegram. Дізнайтеся, як:\n- Налаштувати свого Telegram-бота\n- Налаштувати механізм перевірки підписки\n- Налаштувати повідомлення для вашої аудиторії\n- Реалізувати двомовну підтримку\n- Додати послідовності допродажів\n\n> ⚠️ **Important:** Replace the placeholder YouTube link and thumbnail with your actual tutorial video."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "949e5653-0a39-43ad-b43e-c78656f7c08d",
+        "name": "🧠 Logic Explanation | Пояснення логіки2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1792,
+          656
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 592,
+          "height": 1000,
+          "content": "# 🧠 Node Logic Explanation\n\n## 🔔 Telegram Message Trigger\nListens for incoming messages and callback queries from users interacting with the bot.\n\n## ❓ Subscription Check Request\nDetermines if the user interaction is a request to check their subscription status.\n\n## 🔧 User Data Extraction\nExtracts essential user information (ID, callback data) needed for subscription verification.\n\n## ✅ Callback Acknowledgment\nProvides immediate feedback to users when they click buttons, improving UX.\n\n## 🌐 Telegram API Call\nUses Telegram's getChatMember API to verify if a user is subscribed to the channel.\n\n## ✅ Subscription Validation\nChecks if the user has an acceptable subscription status (member, administrator, creator).\n\n## 🔄 Conditional Routing\nRoutes the workflow based on subscription status:\n- Subscribed users receive the lead magnet\n- Non-subscribed users receive instructions\n\n## 📈 Upsell Sequence\nOptional marketing sequence triggered by the /ok command to engage users further.\n\n## 🎯 Bilingual Support\nAll messages are provided in both Ukrainian and English for international reach."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "92c85503-6169-4d88-9f26-bcfd27243e88",
+        "name": "🔐 Bot Configuration | Налаштування бота2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -16,
+          -80
+        ],
+        "parameters": {
+          "color": 3,
+          "width": 652,
+          "height": 1160,
+          "content": "# 🇺🇦 Налаштування бота для приватних каналів\n## Для використання цього воркфлоу з приватними каналами, ваш бот повинен бути належним чином налаштований:\n\n### 1. **Бот як адміністратор каналу**\n- Перейдіть до свого приватного каналу\n- Натисніть \"Керувати каналом\" > \"Адміністратори\"\n- Додайте свого бота як адміністратора\n- Надайте ці необхідні дозволи:\n  ✅ **Читати повідомлення** (необхідно для getChatMember)\n  ✅ **Переглядати учасників каналу** (необхідно для перевірок підписки)\n  ✅ **Публікувати повідомлення** (необов'язково, для надсилання контенту)\n\n### 2. **Формат ID каналу**\nДля приватних каналів використовуйте повний числовий ID:\n- ❌ Публічний канал: `@channelname`\n- ✅ Приватний канал: `-1001234567890`\n\nЯк отримати ваш приватний ID каналу:\n1. Перешліть пост або повідомлення з свого каналу у цього бота  [@getidsbot](https://t.me/getidsbot)\n2. Або відправте ваш Інвайт-лінк [@getidsbot](https://t.me/getidsbot)\n3. Бот відповість вам структурно по внутрішнім ID ваших спільнот і про ваш персональний акаунт з якого робився запит\n\n### 3. **Безпека токена бота**\n- Зберігайте токен бота в безпеці в облікових даних n8n\n- Ніколи не заносьте токени ботів у ноди HTTP воркфлоу\n- Використовуйте посилання на облікові дані, як `{{ $credentials.telegramApi.token }}`\n\nНаприклад: прокидати ключ ви можете через назву свого Підключення, яке ви створювали у меню n8n. У випадку назви Credentials \"TG Marketing Bot\", то назва буде\n{{ $credentials.tgmarketingbot.token }}`\n\n### 4. **Вирішення Проблем**\nЯк бот не може нормально перевірити підписку і показує помилку:\n- Упевніться що ваш створений бот admin у каналі\n- Перевірте дозволи \"Read messages\" має бути enabled\n- Перевірте ID формат (-100 prefix) і не має зайвих пробілів\n- Протестуйте у браузері, ось таким запитом на акаунт, який точно є підписником каналу:\n  `curl \"https://api.telegram.org/botYOURTOKEN@BOTFATHER/getChatMember?chat_id=-1001234567890&user_id=123456\"` - це для приватного\n\n  `curl \"https://api.telegram.org/botYOURTOKEN@BOTFATHER/getChatMember?chat_id=@idnamechannel&user_id=123456\"` - цей для публічного\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "dbc4d086-5b35-40c5-a939-0b87ca87b017",
+        "name": "Closed Channel",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          176,
+          1504
+        ],
+        "parameters": {
+          "url": "https://api.telegram.org/botINPUTYOURTOKEN@BOTFATHER/getChatMember",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "chat_id",
+                "value": "={{ $json.chat_id }}"
+              },
+              {
+                "name": "user_id",
+                "value": "={{ $json.user_id }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "375aea9c-f162-405e-b1a5-263b368cada8",
+        "name": "Wait",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          640,
+          1824
+        ],
+        "webhookId": "05b891be-2828-4cf3-a0a1-688d1edb138b",
+        "parameters": {
+          "amount": 25
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "f0771da1-eda7-49c9-af36-70d5c8c4f68c",
+        "name": "HTTP typing...1",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          416,
+          2192
+        ],
+        "parameters": {
+          "url": "https://api.telegram.org/botINPUTYOURTOKEN@BOTFATHER/sendChatAction ",
+          "method": "POST",
+          "options": {},
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "chat_id",
+                "value": "={{ $json.result.chat.id }}"
+              },
+              {
+                "name": "action",
+                "value": "typing"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "0fe88f3e-75d6-432c-b00c-04cec5e5d696",
+        "name": "📈 Upsell/CrossSell/DownSell System | Система допродажів",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          432,
+          1808
+        ],
+        "webhookId": "a82c0b83-edde-43d5-94f4-26dbfe39af34",
+        "parameters": {
+          "text": "=🫵 Мій канал допоможе вам:\n\n✅ Упакувати свій персональний бренд у систему, яка конвертує з $1 у $5;\n✅ Більшість інформації в каналі безкоштовна;\n✅ Просто купа цінної інформації, яка накопичувалась з 2008 року\n✅ Я розповідаю багато про ШІ, маркетинг, технічні особливості інструментів, що зазвичай не говорять у голос 😎\n\nОсь тільки мала частина, що у публічному доступі, все просто не влазить у пост:\n\n[NIKOLENKO.CLUB Тут](https://t.me/nikolenkoclub)\n\nЧому я створив канал?\n\nЯ хочу, щоб наша економіка зростала та наші підприємці були ще ефективнішими ніж є зараз у такий для нас складний час.\n\nВсі ті борги, які у нас зараз в Країні будуть віддавати наші правнуки :) \n\n🤝 Тому у нас одна спільна мета - створити та підтримувати економіку для процвітаючого майбутнього! \n\nОкремо Сильні - Разом Непереможні!\n\nГотові до впровадження Digital-інструментів?\n\n👇 Тут продовження",
+          "chatId": "={{ $json.result.chat.id }}",
+          "additionalFields": {
+            "appendAttribution": false
+          }
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "aa033e56-09bb-4193-b036-fc21ba108423",
+        "name": "Wait1",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          256,
+          1760
+        ],
+        "webhookId": "05b891be-2828-4cf3-a0a1-688d1edb138b",
+        "parameters": {
+          "amount": 20
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "fadf45ab-de6a-4c24-baa8-3226849a1336",
+        "name": "❓ Is /ok Command? | Команда /more?2",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -448,
+          1584
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "01c38a50-909a-4fcf-9243-b08a1bec9c2e",
+                "operator": {
+                  "name": "filter.operator.equals",
+                  "type": "string",
+                  "operation": "equals"
+                },
+                "leftValue": "={{ $json.message?.text || '' }}",
+                "rightValue": "/more"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "cd28b96c-e058-42ee-a6be-5622c672a338",
+        "name": "HTTP typing...",
+        "type": "n8n-nodes-base.httpRequest",
+        "onError": "continueRegularOutput",
+        "position": [
+          640,
+          2192
+        ],
+        "parameters": {
+          "url": "https://api.telegram.org/botINPUTYOURTOKEN@BOTFATHER/sendChatAction ",
+          "method": "POST",
+          "options": {},
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "chat_id",
+                "value": "={{ $json.result.chat.id }}"
+              },
+              {
+                "name": "action",
+                "value": "typing"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2,
+        "alwaysOutputData": false
+      }
+    ],
+    "active": true,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "868dffc5-f84e-4caf-af55-fb5a257ceeb0",
+    "connections": {
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "🎁 Premium Offer Message | Повідомлення преміум пропозиції2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "📈 Upsell/CrossSell/DownSell System | Система допродажів",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Closed Channel": {
+        "main": [
+          [
+            {
+              "node": "✅ Is User Subscribed? | Користувач підписаний?2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "❓ Is /ok Command? | Команда /more?2": {
+        "main": [
+          [
+            {
+              "node": "📈 Upsell/CrossSell/DownSell System | Система допродажів2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "🔒 Lock Permissions | Блокування дозволів2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "✅ Is User Subscribed? | Користувач підписаний?2": {
+        "main": [
+          [
+            {
+              "node": "✅ Subscription Confirmed - Send Lead Magnet | Підписка підтверджена2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "❌ Subscription Check Failed | Перевірка підписки не вдалася2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📈 Upsell/CrossSell/DownSell System | Система допродажів": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "HTTP typing...",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📈 Upsell/CrossSell/DownSell System | Система допродажів2": {
+        "main": [
+          [
+            {
+              "node": "HTTP typing...1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔧 Extract User & Callback Data | Витяг даних користувача2": {
+        "main": [
+          [
+            {
+              "node": "Closed Channel",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔔 Telegram Message Trigger | Тригер повідомлень Телеграм2": {
+        "main": [
+          [
+            {
+              "node": "❓ Is Subscription Check Request? | Запит на перевірку підписки?2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "❓ Is Subscription Check Request? | Запит на перевірку підписки?2": {
+        "main": [
+          [
+            {
+              "node": "✅ Acknowledge Button Click | Підтвердження натискання кнопки2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "🔧 Extract User & Callback Data | Витяг даних користувача2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "❓ Is /ok Command? | Команда /more?2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎁 Premium Offer Message | Повідомлення преміум пропозиції2": {
+        "main": [
+          []
+        ]
+      },
+      "🌐 Check Telegram Subscription | Перевірка підписки в Телеграм2": {
+        "main": [
+          []
+        ]
+      }
+    }
+  }
+}

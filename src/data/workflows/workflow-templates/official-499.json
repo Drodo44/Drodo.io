@@ -1,0 +1,88 @@
+{
+  "id": "official-499",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/499",
+    "template_id": 499
+  },
+  "name": "Create a user profile in Vero",
+  "description": "Create a user profile in Vero",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Vero",
+    "Manual Trigger",
+    "create",
+    "user",
+    "profile",
+    "vero"
+  ],
+  "task_keywords": [
+    "create a user profile in vero",
+    "manual",
+    "create manual",
+    "vero",
+    "create vero",
+    "manual trigger",
+    "create user",
+    "user profile",
+    "profile vero",
+    "vero create"
+  ],
+  "required_services": [
+    "manual",
+    "Vero"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "127",
+    "name": "Create a user profile in Vero",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Vero",
+        "type": "n8n-nodes-base.vero",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "id": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "veroApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Vero",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "id": "n8n-automation-templates-5000-draft-email-response-from-google-meet-and-send-to-trello-card-9626d34d4a",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/draft-email-response-google-meet-trello-card.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/draft-email-response-google-meet-trello-card.json"
+  },
+  "name": "Draft email response from Google Meet and send to Trello card",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Draft email response from Google Meet and send to Trello card",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "open AIApi",
+    "slack",
+    "webhook",
+    "draft",
+    "email",
+    "response",
+    "google",
+    "meet",
+    "send"
+  ],
+  "task_keywords": [
+    "draft email response from google meet and send to trello card",
+    "open aiapi",
+    "send open aiapi",
+    "slack",
+    "send slack",
+    "webhook",
+    "draft email",
+    "email response",
+    "response google",
+    "google meet",
+    "meet send",
+    "send trello"
+  ],
+  "required_services": [
+    "open AIApi",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Draft email response from Google Meet and send to Trello card",
+    "nodes": [
+      {
+        "id": "trigger-google-meet",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          11700
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "draft-email-response-from-google-meet-and-send-to-trello-card",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-google-meet",
+        "name": "Fetch data from Google Meet",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          11700
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/google-meet",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "ai-draft-email-response",
+        "name": "AI: Draft Email Response",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          11700
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Perform the following action on the incoming data: draft email response"
+        }
+      },
+      {
+        "id": "send-trello-card",
+        "name": "Send to Trello card",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          11700
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/trello-card",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-11700",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          11700
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Google Meet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Google Meet": {
+        "main": [
+          {
+            "node": "AI: Draft Email Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "AI: Draft Email Response": {
+        "main": [
+          [
+            {
+              "node": "AI: Draft Email Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send to Trello card": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

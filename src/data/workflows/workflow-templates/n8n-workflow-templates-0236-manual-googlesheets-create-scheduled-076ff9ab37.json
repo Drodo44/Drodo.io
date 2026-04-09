@@ -1,0 +1,228 @@
+{
+  "id": "n8n-workflow-templates-0236-manual-googlesheets-create-scheduled-076ff9ab37",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0236_Manual_GoogleSheets_Create_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0236_Manual_GoogleSheets_Create_Scheduled.json"
+  },
+  "name": "0236 Manual GoogleSheets Create Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0236 Manual GoogleSheets Create Scheduled",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "manual",
+    "google Sheets",
+    "interval",
+    "Manual Trigger",
+    "0236",
+    "googlesheets",
+    "create",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0236 manual googlesheets create scheduled",
+    "manual",
+    "create manual",
+    "google sheets",
+    "create google sheets",
+    "interval",
+    "create interval",
+    "manual trigger",
+    "0236 manual",
+    "manual googlesheets",
+    "googlesheets create",
+    "create scheduled"
+  ],
+  "required_services": [
+    "manual",
+    "google Sheets",
+    "interval"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          240,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Is new?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{$json[\"Processed\"]}}",
+                "operation": "isEmpty"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Do something here",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          900,
+          100
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mark Row as processed",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1120,
+          300
+        ],
+        "parameters": {
+          "key": "ID",
+          "options": {},
+          "sheetId": "1SdnwaIJ6xwaZl006FmK2j4f-b00tq7tT7iQgdfe7Qh4",
+          "operation": "update",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "228",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          460,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "sheetId": "1SdnwaIJ6xwaZl006FmK2j4f-b00tq7tT7iQgdfe7Qh4",
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "228",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set processed value",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          900,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "Processed",
+                "value": "={{ $now.toISO() }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Run every 5 minutes",
+        "type": "n8n-nodes-base.interval",
+        "position": [
+          240,
+          100
+        ],
+        "parameters": {
+          "unit": "minutes",
+          "interval": 5
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Is new?": {
+        "main": [
+          [
+            {
+              "node": "Do something here",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Set processed value",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read sheet": {
+        "main": [
+          [
+            {
+              "node": "Is new?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run every 5 minutes": {
+        "main": [
+          [
+            {
+              "node": "Read sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set processed value": {
+        "main": [
+          [
+            {
+              "node": "Mark Row as processed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Read sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

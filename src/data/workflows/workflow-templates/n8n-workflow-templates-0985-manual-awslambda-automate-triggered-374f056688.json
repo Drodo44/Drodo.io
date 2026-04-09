@@ -1,0 +1,88 @@
+{
+  "id": "n8n-workflow-templates-0985-manual-awslambda-automate-triggered-374f056688",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0985_Manual_Awslambda_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0985_Manual_Awslambda_Automate_Triggered.json"
+  },
+  "name": "0985 Manual Awslambda Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0985 Manual Awslambda Automate Triggered",
+  "category": "DevOps",
+  "tags": [
+    "workflows",
+    "manual",
+    "aws Lambda",
+    "Manual Trigger",
+    "0985",
+    "awslambda",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0985 manual awslambda automate triggered",
+    "manual",
+    "aws lambda",
+    "manual trigger",
+    "0985 manual",
+    "manual awslambda",
+    "awslambda automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "manual",
+    "aws Lambda"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS Lambda",
+        "type": "n8n-nodes-base.awsLambda",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "function": "arn:aws:lambda:ap-south-1:100558637562:function:hello-world-sample"
+        },
+        "credentials": {
+          "aws": "amudhan-aws"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS Lambda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1103 @@
+{
+  "id": "n8n-ai-automations-the-recap-ai-nano-banana-static-ad-spinner-8ff7065fb8",
+  "source": {
+    "type": "github",
+    "repository": "lucaswalter/n8n-ai-automations",
+    "repository_stars": 1434,
+    "path": "nano_banana_static_ad_variation_generator.json",
+    "url": "https://github.com/lucaswalter/n8n-ai-automations/blob/main/nano_banana_static_ad_variation_generator.json"
+  },
+  "name": "The Recap AI - Nano Banana Static Ad Spinner",
+  "description": "n8n workflow template from lucaswalter/n8n-ai-automations: The Recap AI - Nano Banana Static Ad Spinner",
+  "category": "AI",
+  "tags": [
+    "form",
+    "firecrawl",
+    "chain Llm",
+    "Google Gemini",
+    "google Docs",
+    "output Parser Structured",
+    "split In Batches",
+    "google Drive",
+    "form Trigger",
+    "recap",
+    "nano",
+    "banana",
+    "static",
+    "spinner"
+  ],
+  "task_keywords": [
+    "the recap ai - nano banana static ad spinner",
+    "form",
+    "firecrawl",
+    "chain llm",
+    "google gemini",
+    "google docs",
+    "output parser structured",
+    "split in batches",
+    "google drive",
+    "form trigger",
+    "recap nano",
+    "nano banana"
+  ],
+  "required_services": [
+    "form",
+    "firecrawl",
+    "chain Llm",
+    "Google Gemini",
+    "google Docs",
+    "output Parser Structured",
+    "split In Batches",
+    "google Drive"
+  ],
+  "triggers": [
+    "form Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "The Recap AI - Nano Banana Static Ad Spinner",
+    "nodes": [
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "Ad_Image",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          288,
+          672
+        ],
+        "id": "7042e854-d47b-4739-aac7-9a1843d1e039",
+        "name": "convert_to_base64"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "2fcf84d7-4a17-4899-9bea-a7d3b6027acd",
+                "name": "prompt",
+                "value": "=# PROMPT: Generate High-Converting Ad Creative Variations via Iterative Optimization\n\n## 1. ROLE & GOAL\n\nYou are an expert-level Ad Creative Strategist and AI Prompt Engineer, specializing in performance marketing optimization. Your primary function is to act as a creative director, performing a meta-analysis on a successful, designer-built ad creative to devise and detail a test-worthy set of **iterative variations**.\n\nYour goal is to take the provided ad creative and brand guidelines, conduct a thorough analysis to identify its core strengths, and then dynamically generate **10 distinct, strategically-justified iterative variations**. These variations will maintain the core composition and design integrity of the original ad, focusing on targeted, high-impact tweaks to test specific variables like audience resonance, color psychology, and call-to-action effectiveness.\n\nYour final output will be a set of detailed, step-by-step instructions for an AI image editor named \"Nano Banana,\" formatted for perfect clarity and execution. The resulting output image will be an 'edit' of the provided image and must match its original dimensions.\n\nYou must use `---` as a delimiter between each of the 10 variations you generate.\n\n## 2. INPUTS\n\n### Input 1: The Original Ad Creative\n**(You will analyze this designer-made image, which serves as the base for all edits. Focus on its composition, layout, color scheme, typography, product placement, any human talent featured, and the overall visual hierarchy.)**\n\n[THE ORIGINAL AD IMAGE WILL BE PROVIDED HERE]\n\n### Input 2: Brand & Product Guidelines\n**(You will analyze this text for brand voice, primary/secondary color palettes, approved fonts, non-negotiable product facts/claims, and any explicit \"do's and don'ts.\")**\n\n<guidelines_input>\n{{ $node['get_guidelines'].json.content }}\n</guidelines_input>\n\n## 3. CORE TASK & ITERATIVE STRATEGY FORMULATION\n\n**Your task is to follow a three-step analytical process to generate 10 detailed \"edit briefs\" for the Nano Banana AI.**\n\n### Step 1: In-Depth Analysis & Strategic Summary\nBefore creating variations, perform a \"meta-analysis\" of the provided inputs.\n\n*   **Analyze the Ad Creative:** What is the visual focal point? How does the layout guide the eye? What makes the design successful? Based on this strong foundation, what are the most logical, single-variable elements to test for optimization (e.g., the person, the headline, the CTA color)?\n*   **Analyze the Brand Guidelines:** Identify the available creative assets (e.g., alternate brand colors, secondary fonts) that can be used for these iterative tests.\n*   **Formulate a Strategic Summary:** Write a 2-3 sentence summary stating the core concept of the original ad and identifying the primary opportunities for *iterative testing*. (e.g., \"The original ad effectively uses a strong central image and clear typography. Key opportunities for testing include varying the talent to resonate with different demographics, testing alternate CTA colors from the brand palette for higher visibility, and experimenting with minor headline copy changes to test different emotional hooks.\")\n\n### Step 2: Devise 10 Iterative Testing Angles\nBased on your **Strategic Summary**, define 10 distinct, tightly-scoped testing angles. These are not redesigns. Each angle should isolate a specific variable for testing.\n\n**Examples of Iterative Testing Angles you might devise:**\n*   **Hypothesis: Swapping the talent's demographic will improve resonance with a different target segment.**\n*   **Hypothesis: Changing the CTA button color to the secondary brand color will increase visual contrast and clicks.**\n*   **Hypothesis: A minor copy tweak in the headline will create a greater sense of urgency.**\n*   **Hypothesis: Adjusting the position of the CTA slightly higher will place it in a more natural eye-flow path.**\n*   **Hypothesis: Inverting the color scheme (e.g., light text on dark background vs. dark on light) using brand colors will improve thumb-stop.**\n*   **Hypothesis: Changing the background from a solid color to a subtle, brand-approved texture will add premium feel without distraction.**\n\nChoose 10 distinct and compelling angles directly inspired by the inputs and the goal of optimization.\n\n### Step 3: Generate Detailed Edit Instructions\nFor each of the 10 testing angles, generate a complete and detailed edit brief for the Nano Banana AI using the required output format below.\n\n---\n\n## 4. REQUIRED OUTPUT FORMAT\n\n**(Begin your response here. First, present your \"Strategic Summary.\" Then, generate exactly 10 variations, each following this precise Markdown structure and separated by `---`.)**\n\n### **Strategic Summary**\n[YOUR 2-3 SENTENCE ANALYSIS AND ITERATIVE STRATEGY SUMMARY GOES HERE]\n\n---\n\n### **Variation 1: [Give this variation a title that reflects the specific test, e.g., \"Test Angle: Demographic Resonance (Male, 30s)\"]**\n\n*   **Hypothesis & Rationale:** A brief, one-sentence summary of the test's goal. (e.g., \"By featuring a male model in his 30s, we hypothesize we can increase ad relevance and conversion rates among our male young professional customer segment.\")\n*   **Detailed Nano Banana Edit Instructions:**\n    1.  **Base:** Start with the original ad image. All elements not explicitly mentioned below remain unchanged.\n    2.  **Primary Edit - Talent Swap:** Identify the person in the image. Replace them with a new person matching this description: '[e.g., A confident and friendly-looking man in his early 30s, of South Asian ethnicity, with short black hair].' The new person's pose, expression, and interaction with the product must mirror the original as closely as possible. Ensure lighting on the new person is perfectly blended with the scene.\n    3.  **Composition & Layout:** All other elements (product, text blocks, CTA, logos) remain in their exact original positions and sizes.\n    4.  **Color Palette:** No changes. The overall color scheme is locked.\n    5.  **Typography & Copy Edits:** No changes. All text is locked.\n\n---\n\n### **Variation 2: [Title for the specific test, e.g., \"Test Angle: CTA Color Contrast\"]**\n\n*   **Hypothesis & Rationale:** (e.g., \"By changing the CTA button to the secondary brand color (Brand-Orange), we hypothesize its higher contrast against the blue background will increase visibility and click-through rate.\")\n*   **Detailed Nano Banana Edit Instructions:**\n    1.  **Base:** Start with the original ad image.\n    2.  **Primary Edit - CTA Color:** Select the Call-to-Action button element. Change its background color from its current [e.g., Brand-Blue] to [e.g., Brand-Orange, hex: #FF6B00]. The text color inside the button should change to [e.g., White, hex: #FFFFFF] for maximum readability, as per brand guidelines.\n    3.  **All Other Elements:** The talent, product, background, text, and layout remain completely unchanged.\n\n---\n\n*(Repeat this structure for a total of 10 variations, each testing a single, specific variable like CTA text, headline copy, element repositioning, background color/texture, etc. Ensure each set of instructions is clear, concise, and separated by `---`.)*",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          800,
+          672
+        ],
+        "id": "a48f898e-63d2-43d5-b566-25cd1a3126fc",
+        "name": "build_prompt"
+      },
+      {
+        "parameters": {
+          "formTitle": "Meta Ad Form",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Ad Image",
+                "fieldType": "file",
+                "multipleFiles": false,
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Google Doc Id",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.3,
+        "position": [
+          0,
+          672
+        ],
+        "id": "23acb3aa-89ce-4717-a28c-eda9e17fbe5c",
+        "name": "generate_ads_trigger",
+        "webhookId": "60fa31b8-ba8a-439b-b5cf-9b759bf54285"
+      },
+      {
+        "parameters": {
+          "formTitle": "Brand Form",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Brand Website URL",
+                "placeholder": "https://www.greenies.com/",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Google Drive Folder Id",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.3,
+        "position": [
+          0,
+          -176
+        ],
+        "id": "3003b470-3fc2-4581-bbab-f51ae056c858",
+        "name": "brand_form_trigger",
+        "webhookId": "3f74485c-07fc-4492-9296-738cf750a2f1"
+      },
+      {
+        "parameters": {
+          "operation": "map",
+          "url": "={{ $json['Brand Website URL'] }}",
+          "additionalFields": {
+            "customProperties": "={\n    \"search\": \"home about company mission how it works membership shop\",\n    \"limit\": 20\n  }"
+          },
+          "useCustomBody": true,
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          288,
+          -176
+        ],
+        "id": "5de76847-eba0-4764-856a-a11d294dbedc",
+        "name": "map_website",
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "links",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          592,
+          -176
+        ],
+        "id": "9c63d899-6c63-4fe5-8bb0-02e333cac99e",
+        "name": "split_urls"
+      },
+      {
+        "parameters": {
+          "operation": "scrape",
+          "url": "={{ $json.url }}",
+          "scrapeOptions": {
+            "options": {
+              "formats": {
+                "format": [
+                  {}
+                ]
+              },
+              "headers": {}
+            }
+          },
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          864,
+          -176
+        ],
+        "id": "21f39208-127c-4b67-af57-c29700d4cb93",
+        "name": "scrape_urls",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          1136,
+          -176
+        ],
+        "id": "e1fef487-8a91-40c2-942d-63462d59ebfc",
+        "name": "aggregate_urls"
+      },
+      {
+        "parameters": {
+          "operation": "scrape",
+          "url": "={{ $node['brand_form_trigger'].json['Brand Website URL'] }}",
+          "scrapeOptions": {
+            "options": {
+              "formats": {
+                "format": [
+                  {}
+                ]
+              },
+              "headers": {}
+            }
+          },
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          1392,
+          -176
+        ],
+        "id": "80fd2646-17ce-4279-8503-f595c7327c18",
+        "name": "scrape_home",
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "bac503ec-3577-43a2-9562-b4e63b3fda14",
+                "name": "prompt",
+                "value": "=# ROLE AND GOAL\nYou are an expert Brand Strategist and Marketing Analyst. Your task is to analyze the provided scraped website content from a company or product and synthesize it into a comprehensive Brand Guidelines document. This document's primary purpose is to serve as the foundational context for an AI-powered advertising system. Therefore, your analysis must be sharp, marketing-focused, and extract actionable insights for creating compelling, on-brand ad copy.\n\n# INSTRUCTIONS\n1.  **Adopt the Persona:** Think like a senior marketer building a briefing document for a creative team. Your focus is on clarity, strategy, and actionable direction.\n2.  **Deep Analysis:** Do not just summarize. Read all the provided text to identify recurring themes, key phrases, value propositions, product details, and the underlying brand philosophy.\n3.  **Infer and Synthesize:** The content may not explicitly state everything. You must infer the target audience, brand voice, and strategic positioning based on the language, features, and benefits presented.\n4.  **Structure is Key:** Your output MUST follow the provided Markdown format precisely. This structure is designed to be easily parsed and used for ad generation.\n5.  **Focus on Actionability:** Every piece of information should be useful for writing an ad. For example, instead of just saying \"the brand is friendly,\" specify *how* it's friendly (e.g., \"Uses conversational language, asks questions, and uses words like 'we' and 'you'\").\n\n# OUTPUT FORMAT (Use this exact Markdown structure AND output the final markdown)\n\n# Brand Guidelines: [Company/Product Name - Infer from content]\n\n## 1. Executive Summary & Brand Essence\n- **Brand Essence (The \"Vibe\"):** In 1-2 sentences, what is the core feeling or identity of the brand? (e.g., \"Innovative and empowering,\" \"Reliable and traditional,\" \"Playful and irreverent\").\n- **One-Liner Pitch:** If you had to describe what this company does and for whom in a single sentence, what would it be?\n\n## 2. Company & Mission\n- **Company Mission/Vision:** What is the stated or implied goal of the company? What future are they trying to create?\n- **Core Values:** What principles seem to guide their business and communication? (e.g., Simplicity, Customer-Obsession, Sustainability).\n- **Brand Story (if available):** Is there an origin story or narrative they use to connect with customers?\n\n## 3. Target Audience Profile (Inferred)\n- **Primary Audience:** Describe the ideal customer. Be specific.\n- **Pain Points Addressed:** What specific problems, frustrations, or needs does the brand solve for this audience?\n- **Desired Outcomes:** What does the customer achieve or feel after using the product/service? (e.g., \"Peace of mind,\" \"Increased productivity,\" \"Sense of belonging\").\n\n## 4. Brand Voice & Tone\n- **Voice Adjectives (Pick 3-5):** (e.g., Confident, Enthusiastic, Professional, Witty, Empathetic, Direct, Technical).\n- **Tone Profile:** Describe the general tone. Is it formal or casual? Serious or humorous? Scientific or simple?\n- **Key Phrases & Slogans:** List any recurring taglines, slogans, or unique phrases used throughout the site.\n- **Vocabulary/Lexicon:** List specific words or jargon the brand frequently uses (e.g., \"synergy,\" \"ecosystem,\" \"seamless,\" \"unlock\"). Also, list words they seem to avoid.\n\n## 5. Core Messaging & Value Propositions\n- **Unique Selling Proposition (USP):** What is the single most compelling thing that differentiates this brand/product from its competitors?\n- **Primary Benefits (The \"Why\"):** List the top 3-5 emotional and functional benefits for the customer. (e.g., \"Save 10 hours per week,\" \"Never worry about data loss again,\" \"Impress your clients\").\n- **Supporting Features (The \"How\"):** List the key features that deliver the benefits above.\n\n## 6. Product/Service Breakdown\n*(Repeat this section for each distinct product or service identified)*\n### Product: [Product/Service Name]\n- **Description:** A concise summary of what it is and what it does.\n- **Target User:** Who is this specific product for?\n- **Primary Use Case:** What is the main job this product is hired to do?\n\n## 7. Strategic Advertising Angles\n- **Calls-to-Action (CTAs):** List the common CTAs found on the site (e.g., \"Start Your Free Trial,\" \"Request a Demo,\" \"Shop Now,\" \"Learn More\").\n- **Emotional Hooks:** What emotions does the brand's messaging tap into? (e.g., Fear of Missing Out (FOMO), Aspiration, Trust, Frustration with the status quo).\n- **Objection Handlers (Inferred):** How does the website preemptively address customer doubts or competitor claims? (e.g., Mentions of \"money-back guarantee,\" \"24/7 support,\" social proof, transparent pricing).\n\n---\n**INPUT:**\n\nHere is the scraped website content. Analyze it and generate the brand guidelines.\n\n{{ $node['aggregate_urls'].json.data.map(o => o.data.markdown).join('\\n\\n') }}\n\n{{ $node['scrape_home'].json.data.markdown }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1680,
+          -176
+        ],
+        "id": "119e0f3a-c782-43f9-ac75-53a28ec87afc",
+        "name": "build_guidelines_prompt"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.prompt }}",
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          0,
+          112
+        ],
+        "id": "14d4d44d-5b8b-4ff1-a5cb-7ee00c6925da",
+        "name": "write_guidelines"
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-2.5-pro",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          1280,
+          1360
+        ],
+        "id": "7a5f7ea4-9558-4f27-b88a-f26ff340c641",
+        "name": "gemini-2.5-pro",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "qp1NlMiIctmGD0Uu",
+            "name": "Google Gemini (PaLM)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "markdownToHtml",
+          "markdown": "={{ $json.text }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.markdown",
+        "typeVersion": 1,
+        "position": [
+          592,
+          112
+        ],
+        "id": "b3c06156-2058-473e-8c67-620af6857d55",
+        "name": "convert_to_html"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e7ee03ac-13e3-4fca-a7bc-57c8fc56dc42",
+                "name": "document_name",
+                "value": "=Brand Guidelines",
+                "type": "string"
+              },
+              {
+                "id": "48a07ef2-ae46-4bfc-aa7e-d92a74ef46d6",
+                "name": "html_content",
+                "value": "={{ $json.data }}",
+                "type": "string"
+              },
+              {
+                "id": "22b02fba-ba72-423a-b92f-1191a183a554",
+                "name": "drive_folder_id",
+                "value": "={{ $node['brand_form_trigger'].json['Google Drive Folder Id'] }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          864,
+          112
+        ],
+        "id": "1239711d-352c-40af-8318-e7767f320979",
+        "name": "set_google_doc_values",
+        "notesInFlow": true
+      },
+      {
+        "parameters": {
+          "jsCode": "const boundary = 'divider';\nconst docName = $input.first().json.document_name;\nconst folderId = $input.first().json.drive_folder_id;\nconst htmlContent = $input.first().json.html_content;\n\nconst metadata = JSON.stringify({\n  name: docName,\n  mimeType: \"application/vnd.google-apps.document\",\n  parents: [folderId]\n});\n\nconst htmlWithStyles = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    /* Add bottom margin to block elements for spacing */\n    p,\n    ul,\n    ol,\n    table,\n    h1,\n    h2,\n    h3,\n    h4,\n    h5,\n    h6 {\n      margin-bottom: 10pt;\n    }\n\n    h2 {\n      margin-top: 20pt;\n    }\n\n    /* Prevent margin collapse issues or excessive space inside lists */\n    li {\n       margin-bottom: 2pt; /* Optional: small space between list items */\n    }\n\n    /* Remove margin from the last child within common containers if needed */\n    /* This might be overly aggressive, test without it first */\n    /*\n    body > *:last-child,\n    li > *:last-child {\n       margin-bottom: 0;\n    }\n    */\n  </style>\n</head>\n<body>\n  ${htmlContent}\n</body>\n</html>\n`;\n\n// Construct the body with literal \\r\\n ONLY\nlet body = `--${boundary}\\r\\n`;\nbody += `Content-Type: application/json; charset=UTF-8\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${metadata}\\r\\n`;\nbody += `--${boundary}\\r\\n`;\nbody += `Content-Type: text/html\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${htmlWithStyles}\\r\\n`; // Add the HTML content\nbody += `--${boundary}--\\r\\n`; // Final boundary\n\nreturn {\n  rawData: body \n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1136,
+          112
+        ],
+        "id": "c98a4e3d-293c-4e66-a681-2155a15d8a2f",
+        "name": "build_google_request_data"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://www.googleapis.com/upload/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "uploadType",
+                "value": "multipart"
+              },
+              {
+                "name": "supportsAllDrives",
+                "value": "true"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "raw",
+          "rawContentType": "multipart/related; boundary=divider",
+          "body": "={{ $json.rawData }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1392,
+          112
+        ],
+        "id": "b3e7b62e-18fb-4a05-9480-2c18b2fd792d",
+        "name": "create_google_doc",
+        "notesInFlow": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "a6740e71-3877-4d31-bd5b-0b81d1394014",
+                "name": "document_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "22fb595c-1b16-4077-ae33-2145aa98bddd",
+                "name": "document_url",
+                "value": "=https://docs.google.com/document/d/{{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1680,
+          112
+        ],
+        "id": "b7fe8cb1-cc6d-4ffc-be6f-7f8d17e922c2",
+        "name": "set_result"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "={{ $node['generate_ads_trigger'].json['Google Doc Id'] }}"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          560,
+          672
+        ],
+        "id": "06ff04bb-3970-4c39-9436-a00755e48f64",
+        "name": "get_guidelines",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "Bm31Z2Sp7Dd6X71P",
+            "name": "Google Docs"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=I want you to extract a list or array of the nano banana image model prompts that were generated. All of them are included here in the input for you to analyze and extract. Make sure you're extracting these verbatim word-for-word exactly how these prompts appeared. Just need it formatted as my list. \n\nWhen extracting, look for `---` as the delimiter between each prompt.\n\n---\n{{ $json.candidates[0].content.parts[0].text }}",
+          "hasOutputParser": true,
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          1280,
+          672
+        ],
+        "id": "941e99c7-973d-42b1-964f-684277e4ea21",
+        "name": "extract_prompts"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "output.prompts",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          1680,
+          672
+        ],
+        "id": "bd47be1b-43df-4132-be7d-e342a2b0de46",
+        "name": "split_prompts"
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"prompts\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n\t\t\t\t\"type\": \"string\",\n                \"description\": \"An individual prompt that has been extracted from the input text.\"\n\t\t\t}\n\t\t}\n\t}\n}",
+          "autoFix": true
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.3,
+        "position": [
+          1344,
+          880
+        ],
+        "id": "2a988e4b-c988-44af-9cd4-ace3bea28b6a",
+        "name": "prompts-parser"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          288,
+          1008
+        ],
+        "id": "b5581c12-45af-4987-8081-c9ef3ac0f679",
+        "name": "iterate_prompts"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": {{ JSON.stringify('Generate an image with the changes/edits detailed below. The image you generate is an edit of the source image provdied so make sure the length and width of the reuslting image match the provided source image.\\n Here are the edit instructions you must follow for the image your are editing and generating:' + $json['output.prompts']) }} },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['convert_to_base64'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          560,
+          1024
+        ],
+        "id": "fc2a6b3f-c37d-4cb0-8a46-97e3a568e1a6",
+        "name": "generate_ad_image",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "524da01b-f8b9-4c2c-9e28-319455903e4d",
+                "name": "=image_result",
+                "value": "={{ $json.candidates[0].content.parts.filter(item => item.inlineData).first().inlineData.data }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          800,
+          1024
+        ],
+        "id": "97d21991-c52f-422b-a18b-bb1a60cae309",
+        "name": "set_image_result"
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "image_result",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          1408,
+          992
+        ],
+        "id": "e447d06c-3030-4a6d-824e-27ef47f559e9",
+        "name": "get_image"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": {{ JSON.stringify($json.prompt) }} },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['convert_to_base64'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1056,
+          672
+        ],
+        "id": "5b843fe7-bf3d-471c-8733-011106e38e70",
+        "name": "generate_ad_image_prompts",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "inputDataFieldName": "Ad_Image",
+          "name": "=Source Ad",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list",
+            "cachedResultName": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "https://drive.google.com/drive/u/0/folders/1yLdt7G161FV-1wYJfYF5qJ_tNhB9wd2l",
+            "mode": "url"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1680,
+          432
+        ],
+        "id": "ed30bf2b-0c64-419b-bad6-a58acbc5b53d",
+        "name": "upload_source_ad",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "=Ad Variation #{{ $runIndex + 1 }}",
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list",
+            "cachedResultName": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "https://drive.google.com/drive/u/0/folders/1yLdt7G161FV-1wYJfYF5qJ_tNhB9wd2l",
+            "mode": "url"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1680,
+          1024
+        ],
+        "id": "df9c4854-2e61-4cbb-9770-f20f0ad38baf",
+        "name": "upload_result_ad",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## Build Brand Guidelines",
+          "height": 704,
+          "width": 2096,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -144,
+          -336
+        ],
+        "typeVersion": 1,
+        "id": "79c62d6d-b0e7-4209-b5a9-9907e3f5de40",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "## Generate Ad Variations",
+          "height": 864,
+          "width": 2096,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -144,
+          384
+        ],
+        "typeVersion": 1,
+        "id": "1ebf19a1-4197-48ee-ab5d-ad351a3f79c4",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "900ed60d-f4bd-4090-a7f1-4032f177ed6c",
+                "leftValue": "={{ $json.image_result }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1008,
+          1008
+        ],
+        "id": "c8370929-af80-475d-894a-a7a50644ca8c",
+        "name": "check_exists"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "convert_to_base64": {
+        "main": [
+          [
+            {
+              "node": "get_guidelines",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_ads_trigger": {
+        "main": [
+          [
+            {
+              "node": "convert_to_base64",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "upload_source_ad",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "brand_form_trigger": {
+        "main": [
+          [
+            {
+              "node": "map_website",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "map_website": {
+        "main": [
+          [
+            {
+              "node": "split_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "split_urls": {
+        "main": [
+          [
+            {
+              "node": "scrape_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "scrape_urls": {
+        "main": [
+          [
+            {
+              "node": "aggregate_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "aggregate_urls": {
+        "main": [
+          [
+            {
+              "node": "scrape_home",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "scrape_home": {
+        "main": [
+          [
+            {
+              "node": "build_guidelines_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_guidelines_prompt": {
+        "main": [
+          [
+            {
+              "node": "write_guidelines",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "gemini-2.5-pro": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "write_guidelines",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "extract_prompts",
+              "type": "ai_languageModel",
+              "index": 0
+            },
+            {
+              "node": "prompts-parser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_to_html": {
+        "main": [
+          [
+            {
+              "node": "set_google_doc_values",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_google_doc_values": {
+        "main": [
+          [
+            {
+              "node": "build_google_request_data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_google_request_data": {
+        "main": [
+          [
+            {
+              "node": "create_google_doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "create_google_doc": {
+        "main": [
+          [
+            {
+              "node": "set_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "write_guidelines": {
+        "main": [
+          [
+            {
+              "node": "convert_to_html",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_guidelines": {
+        "main": [
+          [
+            {
+              "node": "build_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_prompt": {
+        "main": [
+          [
+            {
+              "node": "generate_ad_image_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "extract_prompts": {
+        "main": [
+          [
+            {
+              "node": "split_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "prompts-parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "extract_prompts",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "split_prompts": {
+        "main": [
+          [
+            {
+              "node": "iterate_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "iterate_prompts": {
+        "main": [
+          [],
+          [
+            {
+              "node": "generate_ad_image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_ad_image": {
+        "main": [
+          [
+            {
+              "node": "set_image_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_image_result": {
+        "main": [
+          [
+            {
+              "node": "check_exists",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_image": {
+        "main": [
+          [
+            {
+              "node": "upload_result_ad",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_ad_image_prompts": {
+        "main": [
+          [
+            {
+              "node": "extract_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "upload_result_ad": {
+        "main": [
+          [
+            {
+              "node": "iterate_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "check_exists": {
+        "main": [
+          [
+            {
+              "node": "get_image",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "iterate_prompts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "144016f7-a702-4d67-ae74-74bdecce48a8",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+    },
+    "id": "PfzwD91FshGQAVGK",
+    "tags": []
+  }
+}

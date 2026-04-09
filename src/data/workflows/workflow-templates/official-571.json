@@ -1,0 +1,93 @@
+{
+  "id": "official-571",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/571",
+    "template_id": 571
+  },
+  "name": "Send an email template using Mandrill",
+  "description": "Companion workflow for Mandrill node docs",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Mandrill",
+    "Manual Trigger",
+    "send",
+    "email",
+    "template",
+    "mandrill",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "send an email template using mandrill",
+    "manual",
+    "send manual",
+    "mandrill",
+    "send mandrill",
+    "manual trigger",
+    "send email",
+    "email template",
+    "template mandrill",
+    "mandrill companion",
+    "companion workflow",
+    "workflow mandrill"
+  ],
+  "required_services": [
+    "manual",
+    "Mandrill"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mandrill",
+        "type": "n8n-nodes-base.mandrill",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "toEmail": "user@example.com",
+          "template": "welcomeemailv2",
+          "fromEmail": "user@example.com"
+        },
+        "credentials": {
+          "mandrillApi": {
+            "id": "credential-id",
+            "name": "mandrillApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mandrill",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

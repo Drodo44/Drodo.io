@@ -1,0 +1,110 @@
+{
+  "id": "n8n-automation-templates-5000-template-218-e052a75d38",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/AWS/it_operations_218_webhook_aws_lambda.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/AWS/it_operations_218_webhook_aws_lambda.json"
+  },
+  "name": "Template 218",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 218",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "AWS",
+    "awslambda",
+    "webhook",
+    "template",
+    "218",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 218",
+    "awslambda",
+    "webhook",
+    "218 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates",
+    "templates 5000"
+  ],
+  "required_services": [
+    "awslambda"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 218",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-218",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS Lambda",
+        "type": "n8n-nodes-base.awslambda",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "AWS Lambda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 218
+  }
+}

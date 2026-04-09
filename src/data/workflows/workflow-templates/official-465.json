@@ -1,0 +1,86 @@
+{
+  "id": "official-465",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/465",
+    "template_id": 465
+  },
+  "name": "Get details of a GitLab repository",
+  "description": "Get details of a GitLab repository",
+  "category": "AI",
+  "tags": [
+    "DevOps",
+    "manual",
+    "GitLab",
+    "Manual Trigger",
+    "details",
+    "gitlab",
+    "repository"
+  ],
+  "task_keywords": [
+    "get details of a gitlab repository",
+    "manual",
+    "gitlab",
+    "manual trigger",
+    "details gitlab",
+    "gitlab repository",
+    "repository details"
+  ],
+  "required_services": [
+    "manual",
+    "GitLab"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "7",
+    "name": "6",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          440,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Gitlab",
+        "type": "n8n-nodes-base.gitlab",
+        "position": [
+          780,
+          320
+        ],
+        "parameters": {
+          "owner": "shaligramshraddha",
+          "resource": "repository",
+          "operation": "get",
+          "repository": "trial"
+        },
+        "credentials": {
+          "gitlabApi": "new"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Gitlab",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

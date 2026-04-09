@@ -1,0 +1,104 @@
+{
+  "id": "official-526",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/526",
+    "template_id": 526
+  },
+  "name": "Assign values to variables using the Set node",
+  "description": "Assign values to variables using the Set node",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Edit Fields (Set)",
+    "Manual Trigger",
+    "assign",
+    "values",
+    "variables",
+    "set",
+    "node"
+  ],
+  "task_keywords": [
+    "assign values to variables using the set node",
+    "manual",
+    "edit fields (set)",
+    "manual trigger",
+    "assign values",
+    "values variables",
+    "variables set",
+    "set node",
+    "node assign"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "141",
+    "name": "Assign values to variables using the Set node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "number",
+                "value": 20
+              }
+            ],
+            "string": [
+              {
+                "name": "string",
+                "value": "From n8n with love"
+              }
+            ],
+            "boolean": [
+              {
+                "name": "boolean",
+                "value": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

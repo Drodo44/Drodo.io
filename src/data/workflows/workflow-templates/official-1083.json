@@ -1,0 +1,118 @@
+{
+  "id": "official-1083",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1083",
+    "template_id": 1083
+  },
+  "name": "Create an event file and send it as an email attachment",
+  "description": "This workflow allows you to create an event file and send it as an attachment via email.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "manual",
+    "iCalendar",
+    "Send Email",
+    "Manual Trigger",
+    "create",
+    "event",
+    "file",
+    "send",
+    "email",
+    "attachment"
+  ],
+  "task_keywords": [
+    "create an event file and send it as an email attachment",
+    "manual",
+    "send manual",
+    "create manual",
+    "icalendar",
+    "send icalendar",
+    "create icalendar",
+    "send email",
+    "send send email",
+    "create send email",
+    "manual trigger",
+    "create event"
+  ],
+  "required_services": [
+    "manual",
+    "iCalendar",
+    "Send Email"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          350,
+          200
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "iCalendar",
+        "type": "n8n-nodes-base.iCal",
+        "position": [
+          550,
+          200
+        ],
+        "parameters": {
+          "end": "2021-06-11T16:15:00.000Z",
+          "start": "2021-06-11T15:30:00.000Z",
+          "title": "n8n Community Meetup",
+          "additionalFields": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          750,
+          200
+        ],
+        "parameters": {
+          "text": "Hey Harshil,\n\nWe are excited to invite you to the n8n community meetup!\n\nWith this email you will find the invite attached.\n\nLooking forward to seeing you at the meetup!\n\nCheers,\nHarshil",
+          "options": {},
+          "subject": "n8n Community Meetup 🚀",
+          "attachments": "data"
+        },
+        "credentials": {
+          "smtp": "Outlook Burner Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "iCalendar": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "iCalendar",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

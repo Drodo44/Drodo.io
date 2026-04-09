@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-capture-lead-from-cold-email-replies-and-send-to-pipedrive-7ea210d90d",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/capture-lead-cold-email-replies-pipedrive.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/capture-lead-cold-email-replies-pipedrive.json"
+  },
+  "name": "Capture lead from Cold email replies and send to Pipedrive",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Capture lead from Cold email replies and send to Pipedrive",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "capture",
+    "lead",
+    "cold",
+    "email",
+    "replies",
+    "send"
+  ],
+  "task_keywords": [
+    "capture lead from cold email replies and send to pipedrive",
+    "slack",
+    "send slack",
+    "webhook",
+    "capture lead",
+    "lead cold",
+    "cold email",
+    "email replies",
+    "replies send",
+    "send pipedrive",
+    "pipedrive n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Capture lead from Cold email replies and send to Pipedrive",
+    "nodes": [
+      {
+        "id": "trigger-cold-email-replies",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          52600
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "capture-lead-from-cold-email-replies-and-send-to-pipedrive",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-cold-email-replies",
+        "name": "Fetch data from Cold email replies",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          52600
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/cold-email-replies",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-pipedrive",
+        "name": "Send to Pipedrive",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          52600
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/pipedrive",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-52600",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          52600
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Cold email replies",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Cold email replies": {
+        "main": [
+          {
+            "node": "Send to Pipedrive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Pipedrive": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

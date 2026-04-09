@@ -1,0 +1,360 @@
+{
+  "id": "official-10315",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/10315",
+    "template_id": 10315
+  },
+  "name": "Japanese document translation quality checker with DeepL & Google Drive to Slack",
+  "description": "Title Japanese Document Translation Quality Checker with DeepL & Google Drive to Slack Who’s it for Localization teams, QA reviewers, and operations leads who need a fast, objective signal on Japanese document translation quality without manual checks.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "AI Summarization",
+    "Google Drive",
+    "Slack",
+    "Google Docs",
+    "DeepL",
+    "Edit Fields (Set)",
+    "Google Drive Trigger",
+    "japanese",
+    "document",
+    "translation",
+    "quality",
+    "checker",
+    "deepl"
+  ],
+  "task_keywords": [
+    "japanese document translation quality checker with deepl & google drive to slack",
+    "google drive",
+    "slack",
+    "google docs",
+    "deepl",
+    "edit fields (set)",
+    "google drive trigger",
+    "japanese document",
+    "document translation",
+    "translation quality",
+    "quality checker",
+    "checker deepl"
+  ],
+  "required_services": [
+    "Google Drive",
+    "Slack",
+    "Google Docs",
+    "DeepL",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Google Drive Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "MOst08M9BYcBnP4g",
+    "meta": {
+      "instanceId": "15d6057a37b8367f33882dd60593ee5f6cc0c59310ff1dc66b626d726083b48d",
+      "templateCredsSetupCompleted": true
+    },
+    "tags": [],
+    "nodes": [
+      {
+        "id": "60887f7a-e208-4543-be68-da1b53eb31cc",
+        "name": "Watch for New Japanese Documents",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          -1904,
+          880
+        ],
+        "parameters": {
+          "event": "fileCreated",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "mode": "id",
+            "value": "<__PLACEHOLDER_VALUE__監視対象のGoogle DriveフォルダID__>"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e2600bcc-7bb7-4b51-a719-e382cd730cb8",
+        "name": "Send Slack Notification",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          -336,
+          880
+        ],
+        "webhookId": "62a46f55-d1bd-4d58-bc88-f8f356c5931d",
+        "parameters": {
+          "text": "=🔍 Translation Quality Report Ready\n\nFile: {{ $('Generate Diff Analysis').first().json.fileName }}\nQuality Score: {{ (100 - parseFloat($('Generate Diff Analysis').first().json.diffPercentage)).toFixed(2) }}%\nDifferences: {{ $('Generate Diff Analysis').first().json.diffCount }}\n\n📄 Report: {{ $json.documentUrl }}",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Workflow Configuration').first().json.slackChannel }}"
+          },
+          "otherOptions": {},
+          "authentication": "oAuth2"
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "f0ed9077-f7f9-49aa-be69-528374839ef6",
+        "name": "Create Diff Report in Google Docs",
+        "type": "n8n-nodes-base.googleDocs",
+        "position": [
+          -560,
+          880
+        ],
+        "parameters": {
+          "title": "={{ 'Translation Quality Report - ' + $json.fileName }}",
+          "driveId": "My Drive",
+          "folderId": "={{ $('Workflow Configuration').first().json.targetFolder }}"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "0114cd5c-ab38-4aaa-a3b5-fb81e2857921",
+        "name": "Generate Diff Analysis",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -784,
+          880
+        ],
+        "parameters": {
+          "jsCode": "const originalText = $('Get Text via Authenticated API Call').first().json.data;\nconst translatedText = $('Translate JP to EN').first().json.text;\nconst backTranslatedText = $('Back-Translate EN to JP').first().json.text;\nconst fileName = $('Watch for New Japanese Documents').first().json.name;\n\n// Simple character-by-character diff\nfunction generateDiff(original, backTranslated) {\n  const maxLen = Math.max(original.length, backTranslated.length);\n  let diffReport = [];\n  \n  for (let i = 0; i < maxLen; i++) {\n    const origChar = original[i] || '';\n    const backChar = backTranslated[i] || '';\n    \n    if (origChar !== backChar) {\n      diffReport.push({\n        position: i,\n        original: origChar,\n        backTranslated: backChar\n      });\n    }\n  }\n  \n  return diffReport;\n}\n\nconst differences = generateDiff(originalText, backTranslatedText);\nconst diffPercentage = ((differences.length / Math.max(originalText.length, backTranslatedText.length)) * 100).toFixed(2);\n\nreturn [{\n  json: {\n    fileName,\n    originalText,\n    translatedText,\n    backTranslatedText,\n    differences,\n    diffCount: differences.length,\n    diffPercentage,\n    summary: `Translation quality: ${100 - diffPercentage}% match between original and back-translation`\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "f7b745b2-d348-4d90-8c36-b7d2cb6d1523",
+        "name": "Back-Translate EN to JP",
+        "type": "n8n-nodes-base.deepL",
+        "position": [
+          -1008,
+          880
+        ],
+        "parameters": {
+          "text": "={{ $json.text }}",
+          "translateTo": "JA",
+          "additionalFields": {
+            "sourceLang": "EN"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "01968967-b19f-43f9-ab7b-52df76afccc3",
+        "name": "Translate JP to EN",
+        "type": "n8n-nodes-base.deepL",
+        "position": [
+          -1232,
+          880
+        ],
+        "parameters": {
+          "text": "={{ $('Get Text via Authenticated API Call').first().json.data }}",
+          "translateTo": "EN-US",
+          "additionalFields": {
+            "sourceLang": "JA"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "18637617-7c71-4f0c-af19-eb9c726b87f7",
+        "name": "Workflow Configuration",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -1680,
+          880
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "targetFolder",
+                "type": "string",
+                "value": "<__PLACEHOLDER_VALUE__Google Drive folder ID for storing diff reports__>"
+              },
+              {
+                "id": "id-2",
+                "name": "slackChannel",
+                "type": "string",
+                "value": "<__PLACEHOLDER_VALUE__Slack channel ID or name (e.g., #translations)__>"
+              }
+            ]
+          },
+          "includeOtherFields": true
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "0421a90b-61dd-44ff-a3d4-6c6edeac2870",
+        "name": "Get Text via Authenticated API Call",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -1456,
+          880
+        ],
+        "parameters": {
+          "url": "=https://www.googleapis.com/drive/v3/files/{{ $('Watch for New Japanese Documents').first().json.id }}/export?mimeType=text/plain",
+          "options": {},
+          "sendHeaders": true,
+          "authentication": "predefinedCredentialType",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{$credentials.googleDriveOAuth2Api.accessToken}}"
+              }
+            ]
+          },
+          "nodeCredentialType": "googleDriveOAuth2Api"
+        },
+        "typeVersion": 4.1
+      },
+      {
+        "id": "7ec9dad8-5ef7-4639-b2ef-ec2b8acbbe61",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2736,
+          624
+        ],
+        "parameters": {
+          "width": 768,
+          "height": 960,
+          "content": "## Who’s it for\n\nTeams that translate Japanese documents and want an automatic, objective signal when quality drops—localization leads, QA reviewers, and operations teams.\n\n## What it does / How it works\n\nWhen a new Japanese file lands in a specific Google Drive folder, the workflow exports the text, translates it JA → EN (DeepL), back-translates EN → JA, then compares original vs. back-translation to estimate a quality score. It writes a Google Docs report and posts a Slack notification with the score and diffs.\n\n### 具体例\n\n#### 品質スコアの計算方法\n品質スコアは、元の日本語テキストと、英語に翻訳した後に再度日本語に「逆翻訳」したテキストを比較し、その一致率をパーセンテージで示します。\n\n**計算式:**\n`品質スコア = 100 - (差異文字数 / 全文字数 * 100)`\n\n**例:**\n- **元のテキスト:** `今日は良い天気です` (8文字)\n- **逆翻訳テキスト:** `今日は良い天気だ` (8文字)\n- 最後の「す」と「だ」が異なるため、差異文字数は `1` です。\n- **差異の割合:** `(1 / 8) * 100 = 12.5%`\n- **品質スコア:** `100 - 12.5 = 87.5%`\n\n#### レポートのフォーマット\nワークフローは、Googleドキュメントのレポートを作成し、Slackで通知を送信します。\n\n**Slack通知の例:**\n```\n🔍 Translation Quality Report Ready\n\nFile: monthly_report_JP.docx\nQuality Score: 87.50%\nDifferences: 1\n\n📄 Report: https://docs.google.com/document/d/...\n```\n\n**Googleドキュメントのレポート例:**\n- **タイトル:** `Translation Quality Report - monthly_report_JP.docx`\n- **内容:**\n    - **ファイル名:** `monthly_report_JP.docx`\n    - **品質スコア:** `87.50%`\n    - **差異の数:** `1`\n    - ---\n    - **元のテキスト（JP）:** `今日は良い天気です`\n    - **逆翻訳テキスト（JP）:** `今日は良い天気だ`\n    - **中間翻訳（EN）:** `Today the weather is good`\n\n## How to set up\n\n1. Connect Google Drive, DeepL, Slack credentials.\n2. Point the Google Drive Trigger to your “incoming JP docs” folder.\n3. In **Workflow Configuration** (Set node), fill `targetFolder` (for reports) and `slackChannel`.\n4. Run once manually, then activate.\n5. Drop a JP doc (Google Docs / exportable) into the watched folder to test.\n\n## Requirements\n\n* n8n (self-hosted or Cloud)\n* Google Drive, DeepL, Slack credentials\n* A Drive folder for incoming JP docs + a folder for reports"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e0bd2b2d-cb01-4d1e-8ae8-be21c7479335",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -976,
+          1072
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 768,
+          "height": 176,
+          "content": "### Troubleshooting\n\n* **URL validation / 403** → Reconnect Drive OAuth and confirm export scopes.\n* **Empty text** → Confirm file is Google Docs or exportable MIME.\n* **Slack not posting** → Check `slackChannel` value and app channel permission.\n* **DeepL errors** → Verify quota, region, and credentials binding in n8n.\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a1b2c3d4-e5f6-4g7h-8i9j-k0l1m2n3o4p5",
+        "name": "Sticky Note - Advanced",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -976,
+          1344
+        ],
+        "parameters": {
+          "color": 2,
+          "width": 768,
+          "height": 416,
+          "content": "### ✨ 高度な設定とカスタマイズ\n\n- **翻訳エンジンの変更:**\nDeepLノードをGoogle Translateなど他の翻訳サービスノードに置き換え可能です。APIキー等の認証情報を適切に設定してください。\n\n- **差分分析ロジックの強化:**\n現在の「Generate Diff Analysis」ノードは文字単位の比較です。コードを編集し、単語単位の比較（`diff`ライブラリ等を利用）や、より高度な自然言語処理を組み込むこともできます。\n\n- **通知チャネルの追加:**\nSlackノードの後ろにメール送信やMicrosoft Teamsノードを追加し、複数のチャネルに通知できます。\n\n- **API利用量の注意:**\nこのワークフローはファイル追加ごとにDeepL APIを2回（翻訳＋逆翻訳）呼び出します。大量のファイルを処理する場合、DeepLの利用料金やプラン上限にご注意ください。\n\n- **ファイル形式の制限:**\nテキスト抽出はGoogleドキュメントまたはエクスポート可能なファイル（例: .docx）で最適に動作します。スキャンされたPDFや画像内のテキストは抽出できません。"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "c69777ba-f626-4b80-a9c1-a54000b08597",
+    "connections": {
+      "Translate JP to EN": {
+        "main": [
+          [
+            {
+              "node": "Back-Translate EN to JP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Diff Analysis": {
+        "main": [
+          [
+            {
+              "node": "Create Diff Report in Google Docs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workflow Configuration": {
+        "main": [
+          [
+            {
+              "node": "Get Text via Authenticated API Call",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Back-Translate EN to JP": {
+        "main": [
+          [
+            {
+              "node": "Generate Diff Analysis",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Watch for New Japanese Documents": {
+        "main": [
+          [
+            {
+              "node": "Workflow Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Diff Report in Google Docs": {
+        "main": [
+          [
+            {
+              "node": "Send Slack Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Text via Authenticated API Call": {
+        "main": [
+          [
+            {
+              "node": "Translate JP to EN",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

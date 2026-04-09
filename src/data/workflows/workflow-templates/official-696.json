@@ -1,0 +1,96 @@
+{
+  "id": "official-696",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/696",
+    "template_id": 696
+  },
+  "name": "Send email via Gmail on workflow error",
+  "description": "Send an email via Gmail when a workflow error occurs.",
+  "category": "AI",
+  "tags": [
+    "DevOps",
+    "Error",
+    "Gmail",
+    "Error Trigger",
+    "send",
+    "email",
+    "via",
+    "gmail",
+    "workflow",
+    "error"
+  ],
+  "task_keywords": [
+    "send email via gmail on workflow error",
+    "error",
+    "send error",
+    "gmail",
+    "send gmail",
+    "error trigger",
+    "send email",
+    "email via",
+    "via gmail",
+    "gmail workflow",
+    "workflow error",
+    "error send"
+  ],
+  "required_services": [
+    "Error",
+    "Gmail"
+  ],
+  "triggers": [
+    "Error Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Error Trigger",
+        "type": "n8n-nodes-base.errorTrigger",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "toList": [
+            "user@example.com"
+          ],
+          "message": "=Workflow: {{$json[\"workflow\"][\"name\"]}}\nError: {{$json[\"execution\"][\"error\"][\"message\"]}}\nLast node executed: {{$json[\"execution\"][\"lastNodeExecuted\"]}}\nExecution URL: {{$json[\"execution\"][\"url\"]}}\nStacktrace:\n{{$json[\"execution\"][\"error\"][\"stack\"]}}",
+          "subject": "=n8n Workflow Failure:  {{$json[\"workflow\"][\"name\"]}}",
+          "resource": "message",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "credential-id",
+            "name": "gmailOAuth2 Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Error Trigger": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

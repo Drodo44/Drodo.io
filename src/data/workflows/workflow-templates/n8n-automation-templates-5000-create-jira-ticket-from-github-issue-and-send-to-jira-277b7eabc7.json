@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-create-jira-ticket-from-github-issue-and-send-to-jira-277b7eabc7",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/create-jira-ticket-github-issue-jira.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/create-jira-ticket-github-issue-jira.json"
+  },
+  "name": "Create jira ticket from GitHub issue and send to Jira",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Create jira ticket from GitHub issue and send to Jira",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "create",
+    "jira",
+    "ticket",
+    "github",
+    "issue",
+    "send"
+  ],
+  "task_keywords": [
+    "create jira ticket from github issue and send to jira",
+    "slack",
+    "send slack",
+    "create slack",
+    "webhook",
+    "create jira",
+    "jira ticket",
+    "ticket github",
+    "github issue",
+    "issue send",
+    "send jira",
+    "jira n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Create jira ticket from GitHub issue and send to Jira",
+    "nodes": [
+      {
+        "id": "trigger-github-issue",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          135100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "create-jira-ticket-from-github-issue-and-send-to-jira",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-github-issue",
+        "name": "Fetch data from GitHub issue",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          135100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/github-issue",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-jira",
+        "name": "Send to Jira",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          135100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/jira",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-135100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          135100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from GitHub issue",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from GitHub issue": {
+        "main": [
+          {
+            "node": "Send to Jira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Jira": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

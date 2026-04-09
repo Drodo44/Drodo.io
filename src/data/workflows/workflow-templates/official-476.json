@@ -1,0 +1,87 @@
+{
+  "id": "official-476",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/476",
+    "template_id": 476
+  },
+  "name": "Create an organization in Affinity",
+  "description": "Create an organization in Affinity",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Affinity",
+    "Manual Trigger",
+    "create",
+    "organization",
+    "affinity"
+  ],
+  "task_keywords": [
+    "create an organization in affinity",
+    "manual",
+    "create manual",
+    "affinity",
+    "create affinity",
+    "manual trigger",
+    "create organization",
+    "organization affinity",
+    "affinity create"
+  ],
+  "required_services": [
+    "manual",
+    "Affinity"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "95",
+    "name": "Create an organization in Affinity",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          400,
+          250
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Affinity",
+        "type": "n8n-nodes-base.affinity",
+        "position": [
+          600,
+          250
+        ],
+        "parameters": {
+          "name": "",
+          "domain": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "affinityApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Affinity",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

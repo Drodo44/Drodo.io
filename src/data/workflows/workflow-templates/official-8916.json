@@ -1,0 +1,1424 @@
+{
+  "id": "official-8916",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8916",
+    "template_id": 8916
+  },
+  "name": "Index Google Drive files into a Supabase vector store with OpenAI embeddings",
+  "description": "📺 Full walkthrough video: https://youtu.be/r5kN la0O7I Author: Cole Medin Who it's for This workflow is for developers, data engineers, and knowledge management teams who need to automatically ingest documents stored in Google Drive into a searchable vector database — supporting RAG (retrieval augmented generation)...",
+  "category": "AI",
+  "tags": [
+    "AI RAG",
+    "Default Data Loader",
+    "Embeddings OpenAI",
+    "Google Drive",
+    "Supabase",
+    "Edit Fields (Set)",
+    "Character Text Splitter",
+    "Summarize",
+    "Supabase Vector Store",
+    "Loop Over Items (Split in Batches)",
+    "Postgres",
+    "Google Drive Trigger",
+    "Chat Trigger",
+    "index"
+  ],
+  "task_keywords": [
+    "index google drive files into a supabase vector store with openai embeddings",
+    "default data loader",
+    "embeddings openai",
+    "google drive",
+    "supabase",
+    "edit fields (set)",
+    "character text splitter",
+    "summarize",
+    "supabase vector store",
+    "loop over items (split in batches)",
+    "postgres",
+    "google drive trigger"
+  ],
+  "required_services": [
+    "Default Data Loader",
+    "Embeddings OpenAI",
+    "Google Drive",
+    "Supabase",
+    "Edit Fields (Set)",
+    "Character Text Splitter",
+    "Summarize",
+    "Supabase Vector Store",
+    "Loop Over Items (Split in Batches)",
+    "Postgres"
+  ],
+  "triggers": [
+    "Google Drive Trigger",
+    "Chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "eb4ca5ac-5ec2-447e-b903-df92db68346d",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2656,
+          1536
+        ],
+        "parameters": {
+          "width": 480,
+          "height": 976,
+          "content": "## RAG\n\n### How it works\n\n1. A one-time setup flow (triggered by a chat message) creates the required Postgres/Supabase database tables and match function.\n2. Google Drive triggers fire whenever a file is created or updated, feeding a batch loop that processes each file one at a time.\n3. Old document records and vector rows are deleted from Supabase/Postgres before re-processing begins.\n4. Document metadata is upserted into Postgres and the file is downloaded from Google Drive.\n5. A switch routes each file to the appropriate extractor (PDF, Word/Doc, Excel, or CSV); tabular data is also stored as raw rows in Postgres.\n6. Extracted text is embedded with OpenAI and inserted into the Supabase vector store, while tabular summaries update the document metadata schema.\n\n### Setup steps\n\n- - [ ] Configure Google Drive OAuth2 credentials for the 'File Created' and 'File Updated' triggers and the 'Download File' node.\n- - [ ] Configure Supabase credentials for the 'Delete Old Doc Rows', 'Delete Old Data Rows', and 'Insert into Supabase Vectorstore' nodes.\n- - [ ] Configure Postgres credentials for all Postgres nodes (table creation, metadata upsert, schema update, row insert).\n- - [ ] Set your OpenAI API key in the 'Embeddings OpenAI1' node.\n- - [ ] Run the setup flow once via the chat trigger to create the required database tables and vector-match function.\n- - [ ] Configure the Google Drive folder ID(s) to watch in the trigger nodes.\n- - [ ] Tune the Character Text Splitter chunk size and overlap to match your document sizes.\n\n### Customization\n\nYou can adjust the text splitter chunk size and overlap to improve retrieval quality. The Switch node can be extended with additional file-type branches. The Summarize node logic can be modified to change how tabular content is condensed before vectorisation."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d8cc6d5f-f050-4381-826e-b22bca043be5",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3216,
+          1536
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 816,
+          "height": 320,
+          "content": "## One-time database setup\n\nTriggered by a chat message, this cluster runs SQL queries to create the documents vector table, match function, document metadata table, and tabular data rows table in Postgres/Supabase."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8caf1911-051e-4d32-892c-012b891cc885",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3216,
+          1952
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 560,
+          "content": "## Google Drive file triggers\n\nTwo Google Drive triggers detect newly created or updated files and feed them into the batch loop for processing."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "323c81bc-09d9-4a2e-9c10-bd54f34f6063",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3552,
+          2016
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 400,
+          "content": "## Batch loop entry point\n\nSplits the list of detected files into individual items so each file is processed sequentially. Also receives the completion signal from the vector store to advance to the next item."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a95966ea-5bf9-4859-8059-df91f17d12cb",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3824,
+          2080
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 544,
+          "height": 496,
+          "content": "## Set file identity and clean old data\n\nSets key file metadata fields (ID, type, title, URL), then deletes the file's existing document rows and vector data rows from Supabase so stale content is removed before re-ingestion."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "438dcd38-b6ed-415d-8821-e5c11c1a8962",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          4400,
+          2112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 496,
+          "height": 320,
+          "content": "## Upsert metadata and download file\n\nUpserts the document metadata record into Postgres, then downloads the actual file binary from Google Drive ready for text extraction."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6139a026-2aad-46d8-978f-cf4fabc2077e",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          4928,
+          2032
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 432,
+          "content": "## Route file by type\n\nInspects the file type and routes it to the correct extraction branch: PDF, Office document, Excel spreadsheet, or CSV."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "428555eb-5882-45c5-9eb6-c279d4a32791",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          5216,
+          1744
+        ],
+        "parameters": {
+          "color": 7,
+          "height": 880,
+          "content": "## Extract text from PDF and documents\n\nExtracts plain text from PDF files and from generic office/word documents, producing text ready for direct vectorisation."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "de9e0754-f10f-4c16-8e73-1c7730c068cb",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          5488,
+          2016
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 832,
+          "height": 544,
+          "content": "## Extract and store tabular data\n\nExtracts rows from Excel and CSV files, inserts raw row data into a Postgres table, then aggregates all rows and summarises them for downstream vectorisation."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "7a567ab6-749b-4ea8-ac85-02704a434353",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          6832,
+          1888
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 544,
+          "height": 720,
+          "content": "## Embed and store in vector store\n\nUses OpenAI embeddings and a character text splitter to chunk and embed extracted text, then inserts the resulting vectors into the Supabase vector store. Sub-nodes (embeddings model, data loader, text splitter) configure how documents are split and encoded."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9075b294-9e8b-488b-b062-31e732635572",
+        "name": "Load Document Data",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          7120,
+          2320
+        ],
+        "parameters": {
+          "options": {
+            "metadata": {
+              "metadataValues": [
+                {
+                  "name": "=file_id",
+                  "value": "={{ $('Set File Metadata Fields').first().json.file_id }}"
+                },
+                {
+                  "name": "file_title",
+                  "value": "={{ $('Set File Metadata Fields').first().json.file_title }}"
+                }
+              ]
+            }
+          },
+          "jsonData": "={{ $json.data || $json.text || $json.concatenated_data }}",
+          "jsonMode": "expressionData"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "18713d69-3d8a-4cb3-99ee-59b1b1cd862b",
+        "name": "OpenAI Embeddings",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "position": [
+          6880,
+          2320
+        ],
+        "parameters": {
+          "model": "text-embedding-3-small",
+          "options": {}
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "Wk5dyBYFy6HDwml2",
+            "name": "OpenAi account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "4be45908-ebd7-4c7f-b660-580144afe62f",
+        "name": "Download File from Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          4752,
+          2272
+        ],
+        "parameters": {
+          "fileId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Set File Metadata Fields').item.json.file_id }}"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          },
+          "operation": "download"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "3TalAPza9NdMx3yx",
+            "name": "Hugo Strent"
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 3
+      },
+      {
+        "id": "1f84d55b-6b29-4583-b191-be4e46390091",
+        "name": "When Drive File Created",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          3264,
+          2192
+        ],
+        "parameters": {
+          "event": "fileCreated",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "mode": "url",
+            "value": "https://drive.google.com/drive/u/0/folders/195OWvKSKZjsdyAIXeqoC9z__QKCRHC8i"
+          }
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "3TalAPza9NdMx3yx",
+            "name": "Hugo Strent"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "cde9ebef-1b74-4264-b87f-167d437a2e49",
+        "name": "When Drive File Updated",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          3264,
+          2352
+        ],
+        "parameters": {
+          "event": "fileUpdated",
+          "options": {},
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "mode": "url",
+            "value": "https://drive.google.com/drive/u/0/folders/195OWvKSKZjsdyAIXeqoC9z__QKCRHC8i"
+          }
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "3TalAPza9NdMx3yx",
+            "name": "Hugo Strent"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f1acf69a-aa94-4ad9-b86b-2df94d658071",
+        "name": "Extract Text from Document",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          5264,
+          2464
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "text"
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "23e8180a-f0c1-4bd2-ab1e-b3e065d356e8",
+        "name": "Delete Old Doc Rows in Supabase",
+        "type": "n8n-nodes-base.supabase",
+        "position": [
+          4064,
+          2256
+        ],
+        "parameters": {
+          "tableId": "documents",
+          "operation": "delete",
+          "filterType": "string",
+          "filterString": "=metadata->>file_id=like.*{{ $json.file_id }}*"
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "H0kInY9i7zSLf3eu",
+            "name": "IDR"
+          }
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "58a8e3b9-0c0c-4576-8d70-273e00c2adc6",
+        "name": "Set File Metadata Fields",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          3872,
+          2416
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+                "name": "file_id",
+                "type": "string",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "id": "f4536df5-d0b1-4392-bf17-b8137fb31a44",
+                "name": "file_type",
+                "type": "string",
+                "value": "={{ $json.mimeType }}"
+              },
+              {
+                "id": "77d782de-169d-4a46-8a8e-a3831c04d90f",
+                "name": "file_title",
+                "type": "string",
+                "value": "={{ $json.name }}"
+              },
+              {
+                "id": "9bde4d7f-e4f3-4ebd-9338-dce1350f9eab",
+                "name": "file_url",
+                "type": "string",
+                "value": "={{ $json.webViewLink }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "af85c4ec-8d0e-497b-b984-abcbf1f2f52d",
+        "name": "Extract Text from PDF",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          5264,
+          1984
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "pdf"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3e01040c-982e-4086-aee6-09d197944817",
+        "name": "Aggregate Tabular Data",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          5968,
+          2160
+        ],
+        "parameters": {
+          "options": {},
+          "aggregate": "aggregateAllItemData"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "41c8cc7f-b4b0-4486-9e84-06c446ed2438",
+        "name": "Split Text into Chunks",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+        "position": [
+          7024,
+          2432
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "26195379-8c3d-4374-ac3c-f52dccd858b6",
+        "name": "Summarize Tabular Data",
+        "type": "n8n-nodes-base.summarize",
+        "position": [
+          6176,
+          2160
+        ],
+        "parameters": {
+          "options": {},
+          "fieldsToSummarize": {
+            "values": [
+              {
+                "field": "data",
+                "aggregation": "concatenate"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b653c385-9f0e-4788-8256-5fa151959286",
+        "name": "Route by File Type",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          4976,
+          2240
+        ],
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "version": 1,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $('Set File Metadata Fields').item.json.file_type }}",
+                      "rightValue": "application/pdf"
+                    }
+                  ]
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "version": 1,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "2ae7faa7-a936-4621-a680-60c512163034",
+                      "operator": {
+                        "name": "filter.operator.equals",
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $('Set File Metadata Fields').item.json.file_type }}",
+                      "rightValue": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    }
+                  ]
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "version": 1,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "fc193b06-363b-4699-a97d-e5a850138b0e",
+                      "operator": {
+                        "name": "filter.operator.equals",
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $('Set File Metadata Fields').item.json.file_type }}",
+                      "rightValue": "=application/vnd.google-apps.spreadsheet"
+                    }
+                  ]
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "version": 1,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "b69f5605-0179-4b02-9a32-e34bb085f82d",
+                      "operator": {
+                        "name": "filter.operator.equals",
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $('Set File Metadata Fields').item.json.file_type }}",
+                      "rightValue": "application/vnd.google-apps.document"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": 3
+          }
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "5cb57260-3097-4ea5-a1ef-b85da261147c",
+        "name": "Insert Embeddings to Vectorstore",
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+        "position": [
+          7040,
+          2096
+        ],
+        "parameters": {
+          "mode": "insert",
+          "options": {
+            "queryName": "match_documents"
+          },
+          "tableName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "documents",
+            "cachedResultName": "documents"
+          }
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "H0kInY9i7zSLf3eu",
+            "name": "IDR"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b1cff829-93fa-4ae9-81ec-3bbc837255c2",
+        "name": "Extract Data from Excel",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          5536,
+          2144
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "xlsx"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ac206afa-d0b6-4a92-9b24-d98f775ed203",
+        "name": "Build Schema and Data",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          6400,
+          2144
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "f422e2e0-381c-46ea-8f38-3f58c501d8b9",
+                "name": "schema",
+                "type": "string",
+                "value": "={{ $('Extract Data from Excel').isExecuted ? $('Extract Data from Excel').first().json.keys().toJsonString() : $('Extract Data from CSV').first().json.keys().toJsonString() }}"
+              },
+              {
+                "id": "bb07c71e-5b60-4795-864c-cc3845b6bc46",
+                "name": "data",
+                "type": "string",
+                "value": "={{ $json.concatenated_data }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "1cde953c-8543-4c50-8d13-eb79040a5375",
+        "name": "Extract Data from CSV",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          5536,
+          2304
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "65e1b876-308f-4302-bcfd-28491095a5a1",
+        "name": "Loop Over Drive Files",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          3600,
+          2256
+        ],
+        "parameters": {
+          "options": {
+            "reset": false
+          }
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "2c1f573d-8e64-4528-b550-b67bb7d6795d",
+        "name": "Delete Old Data Rows in Supabase",
+        "type": "n8n-nodes-base.supabase",
+        "position": [
+          4224,
+          2416
+        ],
+        "parameters": {
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "dataset_id",
+                "keyValue": "={{ $('Set File Metadata Fields').item.json.file_id }}",
+                "condition": "eq"
+              }
+            ]
+          },
+          "tableId": "document_rows",
+          "operation": "delete"
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "H0kInY9i7zSLf3eu",
+            "name": "IDR"
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "a056a860-6824-44f8-9b40-71ff9265880f",
+        "name": "Insert Document Metadata to DB",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          4448,
+          2272
+        ],
+        "parameters": {
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "document_metadata",
+            "cachedResultName": "document_metadata"
+          },
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "columns": {
+            "value": {
+              "id": "={{ $('Set File Metadata Fields').item.json.file_id }}",
+              "url": "={{ $('Set File Metadata Fields').item.json.file_url }}",
+              "title": "={{ $('Set File Metadata Fields').item.json.file_title }}"
+            },
+            "schema": [
+              {
+                "id": "id",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": true,
+                "displayName": "id",
+                "defaultMatch": true,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "title",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "title",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "url",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "url",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "created_at",
+                "type": "dateTime",
+                "display": true,
+                "required": false,
+                "displayName": "created_at",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "schema",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "schema",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "id"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "upsert"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "AHpJedehHyZdI0MX",
+            "name": "Postgres account - IDR"
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 2.5
+      },
+      {
+        "id": "3da25fe9-637b-4ca4-a337-8e498543af98",
+        "name": "Insert Table Rows to DB",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          6016,
+          2384
+        ],
+        "parameters": {
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "document_rows",
+            "cachedResultName": "document_rows"
+          },
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "columns": {
+            "value": {
+              "row_data": "={{ $json.toJsonString().replaceAll(/'/g, \"''\") }}",
+              "dataset_id": "={{ $('Set File Metadata Fields').item.json.file_id }}"
+            },
+            "schema": [
+              {
+                "id": "id",
+                "type": "number",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "id",
+                "defaultMatch": true,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "dataset_id",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "dataset_id",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_data",
+                "type": "object",
+                "display": true,
+                "required": false,
+                "displayName": "row_data",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "id"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "credentials": {
+          "postgres": {
+            "id": "AHpJedehHyZdI0MX",
+            "name": "Postgres account - IDR"
+          }
+        },
+        "typeVersion": 2.5
+      },
+      {
+        "id": "809b6222-4b26-4f65-af47-844804024f94",
+        "name": "Update Document Schema in DB",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          6640,
+          2144
+        ],
+        "parameters": {
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "document_metadata",
+            "cachedResultName": "document_metadata"
+          },
+          "schema": {
+            "__rl": true,
+            "mode": "list",
+            "value": "public"
+          },
+          "columns": {
+            "value": {
+              "id": "={{ $('Set File Metadata Fields').item.json.file_id }}",
+              "schema": "={{ $json.schema }}"
+            },
+            "schema": [
+              {
+                "id": "id",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": true,
+                "displayName": "id",
+                "defaultMatch": true,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "title",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "title",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "url",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "url",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "created_at",
+                "type": "dateTime",
+                "display": true,
+                "required": false,
+                "displayName": "created_at",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "schema",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "schema",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "id"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "upsert"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "AHpJedehHyZdI0MX",
+            "name": "Postgres account - IDR"
+          }
+        },
+        "typeVersion": 2.5
+      },
+      {
+        "id": "0ec9c71b-e944-47b7-a081-c060c86b5f3f",
+        "name": "Create Document Metadata Table",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          3696,
+          1696
+        ],
+        "parameters": {
+          "query": "CREATE TABLE {{ $('When Chat Message Received').item.json.chatInput }}_document_metadata (\n    id TEXT PRIMARY KEY,\n    title TEXT,\n    url TEXT,\n    created_at TIMESTAMP DEFAULT NOW(),\n    schema TEXT\n);",
+          "options": {},
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "hPBACn4YwzDXM9a2",
+            "name": "Postgres account - Clients"
+          }
+        },
+        "executeOnce": false,
+        "typeVersion": 2.5,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "d958dd8f-1bf4-4e8b-834c-221bea7d7739",
+        "name": "Create Document Rows Table",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          3888,
+          1696
+        ],
+        "parameters": {
+          "query": "CREATE TABLE {{ $('When Chat Message Received').item.json.chatInput }}_document_rows (\n    id SERIAL PRIMARY KEY,\n    dataset_id TEXT REFERENCES {{ $('When Chat Message Received').item.json.chatInput }}_document_metadata(id),\n    row_data JSONB  -- Store the actual row data\n);",
+          "options": {},
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "hPBACn4YwzDXM9a2",
+            "name": "Postgres account - Clients"
+          }
+        },
+        "typeVersion": 2.5
+      },
+      {
+        "id": "9b05e1cc-cb66-4c17-a048-e8cbfb47ea4d",
+        "name": "Create Docs Table and Match Fn",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          3472,
+          1696
+        ],
+        "parameters": {
+          "query": "-- Create a table to store your documents\nCREATE TABLE {{ $json.chatInput }}_documents (\n  id bigserial primary key,\n  content text, -- corresponds to Document.pageContent\n  metadata jsonb, -- corresponds to Document.metadata\n  embedding vector(1536) -- 1536 works for OpenAI embeddings, change if needed\n);\n\n-- Create an index for better performance\nCREATE INDEX {{ $json.chatInput }}_documents_embedding_idx \nON {{ $json.chatInput }}_documents \nUSING ivfflat (embedding vector_cosine_ops);\n\n-- Create a function to search for documents\nCREATE OR REPLACE FUNCTION match_{{ $json.chatInput }}_documents (\n  query_embedding vector(1536),\n  match_count int DEFAULT 10,\n  filter jsonb DEFAULT '{}'\n)\nRETURNS TABLE (\n  id bigint,\n  content text,\n  metadata jsonb,\n  similarity float\n)\nLANGUAGE plpgsql\nAS $$\nBEGIN\n  RETURN QUERY\n  SELECT\n    doc.id,\n    doc.content,\n    doc.metadata,\n    1 - (doc.embedding <=> query_embedding) as similarity\n  FROM {{ $('Chercher nom dernier client').item.json['Dernier client'] }}_documents doc\n  WHERE \n    CASE \n      WHEN filter != '{}' THEN doc.metadata @> filter\n      ELSE TRUE\n    END\n  ORDER BY doc.embedding <=> query_embedding\n  LIMIT match_count;\nEND;\n$$;\n\n-- Grant permissions\nGRANT EXECUTE ON FUNCTION match_{{ $json.chatInput }}_documents TO authenticated;\nGRANT EXECUTE ON FUNCTION match_{{ $json.chatInput }}_documents TO anon;",
+          "options": {},
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "hPBACn4YwzDXM9a2",
+            "name": "Postgres account - Clients"
+          }
+        },
+        "typeVersion": 2.5
+      },
+      {
+        "id": "bba201fe-1734-40ee-9fc0-05e2b8033b99",
+        "name": "When Chat Message Received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          3264,
+          1696
+        ],
+        "webhookId": "d1a1c40a-f780-45de-82cd-7e1edbc030e2",
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "dce2f1ce-984d-464c-a946-48cac48cd236",
+        "name": "Sticky Note11",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          6352,
+          1984
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 432,
+          "height": 320,
+          "content": "## Update tabular schema metadata\n\nAfter summarisation, sets the schema and data fields and upserts the inferred column schema back into the document metadata table in Postgres."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a0e1b511-1632-42ea-8129-26863852466d",
+        "name": "Sticky Note13",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          4560,
+          1200
+        ],
+        "parameters": {
+          "width": 816,
+          "height": 336,
+          "content": "## Need more advanced automation solutions? Contact us for custom enterprise workflows!\n\n# Growth-AI.fr\n\n## https://www.linkedin.com/in/allanvaccarizi/\n## https://www.linkedin.com/in/hugo-marinier-%F0%9F%A7%B2-6537b633/"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5704ead4-1f7d-47df-b8f9-c5e1128ca0fd",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          5408,
+          1168
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "![Logo Growth AI](https://cdn.prod.website-files.com/6825df5b20329ba581df4914/68d413c43f8729fa336568a6_Logo_horizontal.png)"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "OpenAI Embeddings": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Insert Embeddings to Vectorstore",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Load Document Data": {
+        "ai_document": [
+          [
+            {
+              "node": "Insert Embeddings to Vectorstore",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by File Type": {
+        "main": [
+          [
+            {
+              "node": "Extract Text from PDF",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Extract Data from Excel",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Extract Data from CSV",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Extract Text from Document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Schema and Data": {
+        "main": [
+          [
+            {
+              "node": "Update Document Schema in DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Data from CSV": {
+        "main": [
+          [
+            {
+              "node": "Aggregate Tabular Data",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Insert Table Rows to DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Text from PDF": {
+        "main": [
+          [
+            {
+              "node": "Insert Embeddings to Vectorstore",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Drive Files": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Set File Metadata Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate Tabular Data": {
+        "main": [
+          [
+            {
+              "node": "Summarize Tabular Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Text into Chunks": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Load Document Data",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Summarize Tabular Data": {
+        "main": [
+          [
+            {
+              "node": "Build Schema and Data",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Insert Embeddings to Vectorstore",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Data from Excel": {
+        "main": [
+          [
+            {
+              "node": "Aggregate Tabular Data",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Insert Table Rows to DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Drive File Created": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Drive Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Drive File Updated": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Drive Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download File from Drive": {
+        "main": [
+          [
+            {
+              "node": "Route by File Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set File Metadata Fields": {
+        "main": [
+          [
+            {
+              "node": "Delete Old Doc Rows in Supabase",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Text from Document": {
+        "main": [
+          [
+            {
+              "node": "Insert Embeddings to Vectorstore",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Chat Message Received": {
+        "main": [
+          [
+            {
+              "node": "Create Docs Table and Match Fn",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Docs Table and Match Fn": {
+        "main": [
+          [
+            {
+              "node": "Create Document Metadata Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Document Metadata Table": {
+        "main": [
+          [
+            {
+              "node": "Create Document Rows Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Insert Document Metadata to DB": {
+        "main": [
+          [
+            {
+              "node": "Download File from Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete Old Doc Rows in Supabase": {
+        "main": [
+          [
+            {
+              "node": "Delete Old Data Rows in Supabase",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete Old Data Rows in Supabase": {
+        "main": [
+          [
+            {
+              "node": "Insert Document Metadata to DB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Insert Embeddings to Vectorstore": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Drive Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

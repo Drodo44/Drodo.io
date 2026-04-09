@@ -1,0 +1,342 @@
+{
+  "id": "official-5172",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/5172",
+    "template_id": 5172
+  },
+  "name": "Monitor SSL certificate expiry dates with Google Sheets & Slack alerts",
+  "description": "This n8n workflow illustrates how to monitor and track SSL certificate expiration dates for any domain using the SSL Checker node from customJS.",
+  "category": "AI",
+  "tags": [
+    "SecOps",
+    "Google Sheets",
+    "Slack",
+    "pdf Toolkit",
+    "Schedule Trigger",
+    "monitor",
+    "ssl",
+    "certificate",
+    "expiry",
+    "dates",
+    "google"
+  ],
+  "task_keywords": [
+    "monitor ssl certificate expiry dates with google sheets & slack alerts",
+    "google sheets",
+    "monitor google sheets",
+    "slack",
+    "monitor slack",
+    "pdf toolkit",
+    "monitor pdf toolkit",
+    "schedule trigger",
+    "monitor ssl",
+    "ssl certificate",
+    "certificate expiry",
+    "expiry dates"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Slack",
+    "pdf Toolkit"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "nHaj5PMTnVMoiUXB",
+    "meta": {
+      "instanceId": "9c2acd0acf09f5e348179466c8846104fd5cbd81e3455fc474f626210a535954",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Monitor SSL certificate expiry dates with Google Sheets & Slack alerts",
+    "tags": [
+      "SSL",
+      "Monitoring",
+      "Google Sheets",
+      "Slack",
+      "Alerts",
+      "Security",
+      "Automation"
+    ],
+    "nodes": [
+      {
+        "id": "a2e344e1-c22a-4044-885d-e7dbe2f2fb6d",
+        "name": "Update row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -288,
+          16
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "Website": "={{ $json.output.host }}",
+              "Days Left": "={{ $json.output.daysLeft }}"
+            },
+            "schema": [
+              {
+                "id": "Website",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Website",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Days Left",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "Days Left",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "type": "number",
+                "display": true,
+                "removed": true,
+                "readOnly": true,
+                "required": false,
+                "displayName": "row_number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "Website"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "update",
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI/edit#gid=0",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI/edit?usp=drivesdk",
+            "cachedResultName": "Domains"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "uucSTJJVXezltcfo",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "e3bd4ac4-c03d-47fe-9d5e-0eb1e3fa0748",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          208,
+          0
+        ],
+        "webhookId": "004604bb-8ca7-41ef-beb7-d32204e6da7c",
+        "parameters": {
+          "text": "=⏰ Reminder: SSL certificate of {{ $('Update row in sheet').item.json.Website }} will expire in {{ $json[\"Days Left\"] }} days.",
+          "user": {
+            "__rl": true,
+            "mode": "list",
+            "value": "U05EAUS4JCD",
+            "cachedResultName": "hammadawan0007"
+          },
+          "select": "user",
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "rBzZa67afpGH0sbR",
+            "name": "Slack account"
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "090961cf-0d4f-401f-9c27-5868bee1548e",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -1088,
+          16
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "1f09a04b-4346-43e5-a648-bf3bd551924b",
+        "name": "Check Days Left Threshold",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -48,
+          16
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "3ce0ef67-751d-4a37-959a-08427894f449",
+                "operator": {
+                  "type": "number",
+                  "operation": "lt"
+                },
+                "leftValue": "={{ $json['Days Left'] }}",
+                "rightValue": 8
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "c9deae55-c428-419b-a345-34b9360d2773",
+        "name": "Check SSL",
+        "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+        "position": [
+          -576,
+          16
+        ],
+        "parameters": {
+          "domain": "={{ $json.Website }}",
+          "resource": "web",
+          "operation": "sslCheck"
+        },
+        "credentials": {
+          "customJsApi": {
+            "id": "BFGbk0a71fKWY967",
+            "name": "CustomJS account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "22f6b6c2-f212-40c1-9c5c-0517e712376b",
+        "name": "Get row(s) in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -864,
+          16
+        ],
+        "parameters": {
+          "options": {},
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI/edit#gid=0",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FmbkG1mX7jg6jnAXQRIT-xgNXQ76yYgc62WPIW7rejI/edit?usp=drivesdk",
+            "cachedResultName": "Domains"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "uucSTJJVXezltcfo",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7,
+        "alwaysOutputData": true
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "fce16f52-c041-4ad9-8621-7013ed85286f",
+    "connections": {
+      "Check SSL": {
+        "main": [
+          [
+            {
+              "node": "Update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Check SSL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Check Days Left Threshold",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Days Left Threshold": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

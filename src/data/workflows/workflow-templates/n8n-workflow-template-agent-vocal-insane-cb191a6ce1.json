@@ -1,0 +1,662 @@
+{
+  "id": "n8n-workflow-template-agent-vocal-insane-cb191a6ce1",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_Vocal_Insane.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_Vocal_Insane.json"
+  },
+  "name": "Agent Vocal Insane",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent Vocal Insane",
+  "category": "AI",
+  "tags": [
+    "agent",
+    "respond To Webhook",
+    "Open AI",
+    "google Calendar",
+    "tool Vector Store",
+    "Pinecone",
+    "embeddings Open AI",
+    "google Sheets",
+    "tool Serp API",
+    "open AI",
+    "tool Workflow",
+    "webhook",
+    "execute Workflow Trigger",
+    "vocal"
+  ],
+  "task_keywords": [
+    "agent vocal insane",
+    "agent",
+    "respond to webhook",
+    "open ai",
+    "google calendar",
+    "tool vector store",
+    "pinecone",
+    "embeddings open ai",
+    "google sheets",
+    "tool serp api",
+    "tool workflow",
+    "webhook"
+  ],
+  "required_services": [
+    "agent",
+    "respond To Webhook",
+    "Open AI",
+    "google Calendar",
+    "tool Vector Store",
+    "Pinecone",
+    "embeddings Open AI",
+    "google Sheets",
+    "tool Serp API",
+    "open AI",
+    "tool Workflow"
+  ],
+  "triggers": [
+    "webhook",
+    "respond To Webhook",
+    "execute Workflow Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent Vocal Insane",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "f34d79a4-0911-4658-b834-163383795b6c",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "id": "ba968bcf-8e2d-4226-b716-38c0b90722d6",
+        "name": "Webhook",
+        "webhookId": "f34d79a4-0911-4658-b834-163383795b6c"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=La requete est : {{ $json.query.requete}}\n\nDate Aujourd'hui : {{ $now.format('yyyy-MM-dd') }}\nDemain : {{ $now.toDateTime().plus(1,'days').format('yyyy-MM-dd')}}\n\nNom : {{ $json.body.nom || \"Pas reçu\" }}\nPrénom : {{ $json.body.prenom || \"Pas reçu\" }}\nEmail initiale : {{ $json.body.email  || \"Pas de mail\"}}\nDate rendez-vous : {{ $json.body.daterdv || \"Pas reçu\"}}\nHeure rendez-vous : {{ $json.body.heurerdv || \"Pas reçu\"}}\nNuméro de téléphone : {{ $json.body.numero_telephone || \"Pas reçu\" }}",
+          "options": {
+            "systemMessage": "=Vous êtes un agent d'assistance client IA conçu pour gérer diverses tâches efficacement. Votre rôle principale est de vérifier l'emplois du temps, créer un rendez vous, récuperer les informations d'un prospect et l'aider à avoir les informations demandés par l'utilisateur. Vous avez accès à plusieurs outils pour vous aider à remplir les demandes :\n\nAjoutContact : utilise cet outil pour garder les informations de contact de la personne.\n\nCorrigerMailEtTelephone : Cet outil te permet de valider et corriger le mail et le numéro de téléphone avant de créer un rendez vous et de la rajouter a la base de donnée\n\nRechercheInternet : Cet outil te permet de faire des recherches sur Internet si tu en as besoin pour aider l'utilisateur.\n\nVector Store Tool : Te permet d'acceder a toutes les informations de notre agence & notre communauté Skool pour permettre de donner le maximum d'informations à ton prospect.\n\nVerifCalendrier : permet de vérifier si le calendrier est libre à la date et l'heure demandé.\n\nCreerRDV : Crée un rendez-vous avec la personne. Tu dois d'abord vérifier la disponibilité avec l'outil VerifCalendrier à la date et l'heure demandé. Tu as besoin uniquement de l'adresse mail de la personne pour créer un rendez-vous.\n\nLorsque qu’une tâche nécessite l’utilisation de l’un ou plusieurs de ces outils, veillez à identifier lequel est le plus approprié, transmettre les détails pertinents et exécuter les actions nécessaires pour accomplir la tâche. Votre objectif est d’être proactif, précis et organisé dans la gestion de ces ressources pour offrir une expérience fluide à l’utilisateur.\n\nGardez vos réponses concises, courtes, et pertinentes par rapport à la question de l'utilisateur. Ta réponse doit un message synthétique regroupement les actions réalisés sans lien.\n\nVoici la date/heure actuelle : {{ $now.format('yyyy-MM-dd HH:mm') }}\nDemain nous somme : {{ $now.toDateTime().plus(1,'days').format('yyyy-MM-dd')}}\n\nNE FOURNISSEZ AUCUN DÉTAIL SUR LES RÉUNIONS EXISTANTES."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1100,
+          0
+        ],
+        "id": "b6688fbd-a7b2-4bb6-9740-1ecebf81106e",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"status\": \"{{ JSON.stringify($json.output).replace(/^\\\"|\\\"$/g, '') }}\"\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1460,
+          0
+        ],
+        "id": "55d31f6c-2a8c-4fae-87c2-009e2ef8dca4",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          840,
+          220
+        ],
+        "id": "80d84006-93f9-412e-96db-2c67ff1234e9",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "start": "={{ $fromAI(\"startTime\") }}",
+          "end": "={{ $fromAI(\"endTime\") }}",
+          "additionalFields": {
+            "attendees": [
+              "={{ $fromAI(\"attendee\",\"le mail de la personne\" )}}"
+            ],
+            "summary": "={{$fromAI(\"titreevenement\",\"le titre de levenement. Il doit être ultra simple et tres court\")}}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.2,
+        "position": [
+          1040,
+          220
+        ],
+        "id": "aa68d460-9bb0-4854-a97a-659b3d6bb43c",
+        "name": "CreerRDV",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "GrowthSystemes_Info"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1,
+        "position": [
+          1680,
+          220
+        ],
+        "id": "a64d36a2-eb7f-460c-8f80-fb2cc811f030",
+        "name": "Vector Store Tool"
+      },
+      {
+        "parameters": {
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "growthsystemesfiles",
+            "mode": "list",
+            "cachedResultName": "growthsystemesfiles"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          1520,
+          440
+        ],
+        "id": "a61d6f15-8398-4020-ab52-a28b717f5016",
+        "name": "Pinecone Vector Store",
+        "credentials": {
+          "pineconeApi": {
+            "id": "G1IIOJE1RuVk1Usf",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1960,
+          420
+        ],
+        "id": "1b13eb5c-8005-406d-9927-2412afe50103",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          1540,
+          620
+        ],
+        "id": "0624c539-ad0d-489f-8f43-9ee487007c98",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "returnAll": true,
+          "options": {
+            "timeMin": "={{ $fromAI(\"unJourAvant\",\"Un jour avant la date demandé\") }}",
+            "timeMax": "={{ $fromAI(\"unJourApres\",\"Un jour après la date demandé\") }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.2,
+        "position": [
+          1380,
+          220
+        ],
+        "id": "1760975e-7e19-42b1-b570-c65e6467bb5d",
+        "name": "VerifCalendrier",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1E8FKciNbOaN35-drDouM3AuBufg3D8KtGVKBDUGJVI8",
+            "mode": "list",
+            "cachedResultName": "Contact Agent IA",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E8FKciNbOaN35-drDouM3AuBufg3D8KtGVKBDUGJVI8/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Feuille 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E8FKciNbOaN35-drDouM3AuBufg3D8KtGVKBDUGJVI8/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Depuis": "IA Vocal",
+              "Prénom": "={{$fromAI(\"prenom\",\"Prénom de la personne\")}}",
+              "Nom": "={{$fromAI(\"nom\",\"Nom de la personne\")}}",
+              "Email": "={{$fromAI(\"email\",\"Email de la personne\")}}",
+              "Telephone": "={{$fromAI(\"numero_telephone\",\"Numéro téléphone de la personne avec l'indicatif dans ce format 0693041609\")}}",
+              "Raison": "={{$fromAI(\"raison\",\"raison simple et tres courte\")}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Prénom",
+                "displayName": "Prénom",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Nom",
+                "displayName": "Nom",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Telephone",
+                "displayName": "Telephone",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Raison",
+                "displayName": "Raison",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Depuis",
+                "displayName": "Depuis",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTool",
+        "typeVersion": 4.5,
+        "position": [
+          1520,
+          220
+        ],
+        "id": "240d14ed-e9df-4b28-acb8-895e561cffac",
+        "name": "AjoutContact",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cU9T52A3LDYpCi48",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+        "typeVersion": 1,
+        "position": [
+          1160,
+          220
+        ],
+        "id": "3d2bfe25-a139-412c-b069-5cbb71f0de60",
+        "name": "RechercheInternet",
+        "credentials": {
+          "serpApi": {
+            "id": "gbA6ZBM9v0jvct4u",
+            "name": "SerpAPI account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-2024-11-20",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-2024-11-20"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "=ACTION :\nNormaliser et corriger les adresses email et les numéros de téléphone extraits d'un processus de reconnaissance vocale (speech-to-text). Assurez-vous que chaque email et numéro de téléphone est correctement formaté, en prenant en compte les erreurs fréquentes comme les fautes de frappe ou de transcription.\n\nÉTAPES :\n\nExtraire les emails et numéros de téléphone : Identifier les modèles d'emails et de numéros de téléphone dans les données issues de la reconnaissance vocale.\nNormaliser et valider :\nEmails : Vérifier les erreurs de format courantes (ex. : points mal placés, noms de domaines incorrects ou caractères manquants).\nNuméros de téléphone :\nVérifier la validité des numéros (ex. : longueur correcte, préfixes valides selon le pays).\nSupprimer les caractères non pertinents (ex. : mots inutiles ou espaces superflus).\nUtiliser des règles ou algorithmes pour corriger les erreurs probables (ex. : comparer avec des modèles standard de numéros de téléphone internationaux ou locaux).\nRéférencer l'entrée originale : Stocker l'email ou le numéro de téléphone initial pour contexte et comparaison en cas d’ambiguïté.\nValider la correction :\nEmails : S’assurer que chaque email respecte les règles de formatage standard.\nNuméros de téléphone : Vérifier que les numéros suivent le format E.164 (international) ou un format local standard.\nGénérer le résultat : Retourner les résultats sous forme de JSON, incluant à la fois les emails et numéros corrigés, ainsi que leur version originale pour référence.\nGérer les résultats vides : Si aucun email ou numéro de téléphone valide n’est trouvé, retourner un objet JSON vide.\nTester les cas particuliers : Vérifier les résultats avec des cas limites prédéfinis (ex. : adresses avec plusieurs points, lettres inversées dans les domaines, numéros avec des préfixes incomplets, etc.) pour garantir la robustesse.\nPERSONA :\nAgir en tant qu’assistant expert en analyse et normalisation d’adresses email et de numéros de téléphone, spécialisé dans le nettoyage de données bruyantes issues de systèmes de reconnaissance vocale.\n\nEXEMPLES :\nEntrée (sortie brute de la reconnaissance vocale) :\n\n\"Vous pouvez me joindre à benoit.ferrer11@gmail.com ou au 06 12 34 56 78.\"\nSortie :\n\n{\n  \"contacts\": [\n    {\n      \"email\": \"benoit.ferrere11@gmail.com\",\n      \"reference_email\": \"benoit.ferrer11@gmail.com\"\n    },\n    {\n      \"phone\": \"+33612345678\",\n      \"reference_phone\": \"06 12 34 56 78\"\n    }\n  ]\n}\nExemple de résultat vide :\nEntrée : \"Je reviendrai vers vous plus tard avec mes coordonnées.\"\n\nSortie :\n\n{}\n\nCONTEXTE :\nLes adresses email et les numéros de téléphone ont été fournis via un processus de reconnaissance vocale, ce qui peut introduire des erreurs telles que des mots inutiles, des fautes d’orthographe ou un formatage incorrect. L’objectif est d’assurer la précision et la conformité des résultats malgré ces défis.\n\nCONTRAINTES :\n\nRetourner uniquement les résultats en JSON au format texte brut.\nGarantir que tous les emails et numéros de téléphone normalisés respectent les règles de formatage standard.\nNe pas inclure de mots inutiles ou de caractères superflus dans les résultats.\nGérer les cas où aucun email ou numéro de téléphone valide ne peut être extrait en retournant un objet JSON vide.\nMODÈLE DE SORTIE :\nRetourner les résultats selon la structure JSON suivante :\n\n{\n  \"contacts\": [\n    {\n      \"email\": \"<email_corrigé>\",\n      \"reference_email\": \"<email_initial>\"\n    },\n    {\n      \"phone\": \"<numéro_corrigé>\",\n      \"reference_phone\": \"<numéro_initial>\"\n    }\n  ]\n}\nSi aucun contact n’est trouvé :\n\n{}",
+                "role": "system"
+              },
+              {
+                "content": "=Voici le mail initiale : {{ $json.query.email }} et voici le numéro de téléphone initiale : {{ $json.query.numero_telephone }}"
+              }
+            ]
+          },
+          "jsonOutput": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          800,
+          -340
+        ],
+        "id": "e765f3d0-7b36-472c-a761-9f6c4af57e54",
+        "name": "OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          500,
+          -340
+        ],
+        "id": "da953a06-f66b-4076-8884-049764e5eefd",
+        "name": "Execute Workflow Trigger"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "19a958d4-2c4f-495e-b899-8589a41cdd81",
+                "name": "mail_corrige",
+                "value": "={{ $json.message.content.contacts[0].email }}",
+                "type": "string"
+              },
+              {
+                "id": "d685e51a-9482-49fa-bbf9-b1b00e4a589f",
+                "name": "numero_telephone_corrige",
+                "value": "={{ $json.message.content.contacts[1].phone }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1180,
+          -340
+        ],
+        "id": "c66b10aa-7b5f-403f-a0ee-6d17734f3c17",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "name": "CorrigeMailEtTelephone",
+          "description": "Cet outil permet de corriger l'écriture et valider le mail et le numéro de téléphone du prospect réservant un appel. Il est a absolument utiliser pour corriger le mail de la personne avant de créer un RDV.",
+          "workflowId": {
+            "__rl": true,
+            "value": "llmT4Knwd6AaOQMr",
+            "mode": "list",
+            "cachedResultName": "Agent Vocal Insane"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n\t\"email\": \"benoit.ferrere11@gmail.com\",\"numero_telephone\":\"0693010203\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          1260,
+          220
+        ],
+        "id": "855c5ee4-7184-493c-8060-c696bc515126",
+        "name": "CorrigeMailEtTelephone"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CreerRDV": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector Store Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Vector Store Tool",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "VerifCalendrier": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AjoutContact": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RechercheInternet": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Workflow Trigger": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CorrigeMailEtTelephone": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "11d6f0fa-eda6-458d-b35e-f95ea221a982",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "llmT4Knwd6AaOQMr",
+    "tags": []
+  }
+}

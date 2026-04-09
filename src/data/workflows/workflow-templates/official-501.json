@@ -1,0 +1,89 @@
+{
+  "id": "official-501",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/501",
+    "template_id": 501
+  },
+  "name": "Send a message via AWS SNS",
+  "description": "Companion workflow for AWS SNS node docs",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "manual",
+    "AWS SNS",
+    "Manual Trigger",
+    "send",
+    "message",
+    "via",
+    "aws",
+    "sns",
+    "companion"
+  ],
+  "task_keywords": [
+    "send a message via aws sns",
+    "manual",
+    "send manual",
+    "aws sns",
+    "send aws sns",
+    "manual trigger",
+    "send message",
+    "message via",
+    "via aws",
+    "sns companion",
+    "companion workflow",
+    "workflow aws"
+  ],
+  "required_services": [
+    "manual",
+    "AWS SNS"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS SNS",
+        "type": "n8n-nodes-base.awsSns",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "topic": "n8n-rocks",
+          "message": "This is a test message",
+          "subject": "This is a test subject"
+        },
+        "credentials": {
+          "aws": "aws"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS SNS",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

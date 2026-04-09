@@ -1,0 +1,133 @@
+{
+  "id": "n8n-automation-templates-5000-template-122-115819ca58",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Clearbit/sales_122_webhook_clearbit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Clearbit/sales_122_webhook_clearbit.json"
+  },
+  "name": "Template 122",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 122",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "Clearbit",
+    "clearbit",
+    "slack",
+    "webhook",
+    "template",
+    "122",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 122",
+    "clearbit",
+    "slack",
+    "webhook",
+    "122 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "clearbit",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 122",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-122",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Clearbit",
+        "type": "n8n-nodes-base.clearbit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Clearbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clearbit": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 122
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-127-187ee9b758",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Salesforce/sales_127_cron_salesforce_to_slack.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Salesforce/sales_127_cron_salesforce_to_slack.json"
+  },
+  "name": "Template 127",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 127",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "Salesforce",
+    "cron",
+    "salesforce",
+    "slack",
+    "cron Trigger",
+    "template",
+    "127",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 127",
+    "cron",
+    "salesforce",
+    "slack",
+    "cron trigger",
+    "127 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "cron",
+    "salesforce",
+    "slack"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 127",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/12 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Salesforce",
+        "type": "n8n-nodes-base.salesforce",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Salesforce",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Salesforce": {
+        "main": [
+          [
+            {
+              "node": "Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 127
+  }
+}

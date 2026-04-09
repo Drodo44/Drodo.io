@@ -1,0 +1,107 @@
+{
+  "id": "n8n-workflow-templates-0113-emailsend-googledrive-send-triggered-cceb81d4a9",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0113_Emailsend_GoogleDrive_Send_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0113_Emailsend_GoogleDrive_Send_Triggered.json"
+  },
+  "name": "0113 Emailsend GoogleDrive Send Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0113 Emailsend GoogleDrive Send Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "google Drive",
+    "email Send",
+    "google Drive Trigger",
+    "0113",
+    "emailsend",
+    "googledrive",
+    "send",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0113 emailsend googledrive send triggered",
+    "google drive",
+    "send google drive",
+    "email send",
+    "send email send",
+    "google drive trigger",
+    "0113 emailsend",
+    "emailsend googledrive",
+    "googledrive send",
+    "send triggered",
+    "triggered n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "google Drive",
+    "email Send"
+  ],
+  "triggers": [
+    "google Drive Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google Drive Trigger",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "position": [
+          250,
+          150
+        ],
+        "parameters": {
+          "event": "fileCreated",
+          "options": {},
+          "triggerOn": "specificFolder",
+          "folderToWatch": "1HwOAKkkgveLji8vVpW9Xrg1EsBskwMNb"
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "28",
+            "name": "Google Drive account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          450,
+          150
+        ],
+        "parameters": {
+          "text": "=A file in your Google Drive file folder has been created: {{$json[\"name\"]}}",
+          "options": {},
+          "subject": "File Update",
+          "toEmail": "mutedjam@n8n.io",
+          "fromEmail": "mutedjam@n8n.io"
+        },
+        "credentials": {
+          "smtp": {
+            "id": "14",
+            "name": "SMTP account"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Google Drive Trigger": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

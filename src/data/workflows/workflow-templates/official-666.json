@@ -1,0 +1,90 @@
+{
+  "id": "official-666",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/666",
+    "template_id": 666
+  },
+  "name": "Turn on a light and set its brightness",
+  "description": "Turn on a light and set its brightness",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Philips Hue",
+    "Manual Trigger",
+    "turn",
+    "light",
+    "set",
+    "its",
+    "brightness"
+  ],
+  "task_keywords": [
+    "turn on a light and set its brightness",
+    "manual",
+    "philips hue",
+    "manual trigger",
+    "turn light",
+    "light set",
+    "set its",
+    "its brightness",
+    "brightness turn"
+  ],
+  "required_services": [
+    "manual",
+    "Philips Hue"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "58",
+    "name": "Turn on a light and set its brightness",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          590,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Philips Hue",
+        "type": "n8n-nodes-base.philipsHue",
+        "position": [
+          790,
+          260
+        ],
+        "parameters": {
+          "lightId": "123",
+          "additionalFields": {
+            "bri": 90
+          }
+        },
+        "credentials": {
+          "philipsHueOAuth2Api": "philips-hue"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Philips Hue",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

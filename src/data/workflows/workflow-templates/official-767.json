@@ -1,0 +1,79 @@
+{
+  "id": "official-767",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/767",
+    "template_id": 767
+  },
+  "name": "Create an array of objects",
+  "description": "You can use the Function node to create an array of objects.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "Function",
+    "create",
+    "array",
+    "objects",
+    "you",
+    "can",
+    "function"
+  ],
+  "task_keywords": [
+    "create an array of objects",
+    "function",
+    "create function",
+    "create array",
+    "array objects",
+    "objects you",
+    "you can",
+    "can function",
+    "function node",
+    "node create"
+  ],
+  "required_services": [
+    "Function"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Mock Data",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          802,
+          307
+        ],
+        "parameters": {
+          "functionCode": "return [\n  {\n    json: {\n      id: 1,\n      name: \"Jim\"\n    }\n  },\n  {\n    json: {\n      id: 2,\n      name: \"Stefan\"\n    }\n  },\n  {\n    json: {\n      id: 3,\n      name: \"Hans\"\n    }\n  }\n];"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Create an array of objects",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          1052,
+          307
+        ],
+        "parameters": {
+          "functionCode": "return [\n  {\n    json: {\n      data_object: items.map(item => item.json),\n    },\n  }\n];\n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Mock Data": {
+        "main": [
+          [
+            {
+              "node": "Create an array of objects",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

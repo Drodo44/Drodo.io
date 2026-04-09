@@ -1,0 +1,137 @@
+{
+  "id": "n8n-workflow-templates-create-onfleet-tasks-from-spreadsheets-ad06707829",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0118_Readbinaryfile_Onfleet_Create.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0118_Readbinaryfile_Onfleet_Create.json"
+  },
+  "name": "Create Onfleet tasks from Spreadsheets",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Create Onfleet tasks from Spreadsheets",
+  "category": "Data",
+  "tags": [
+    "workflows",
+    "onfleet",
+    "read Binary File",
+    "spreadsheet File",
+    "create",
+    "tasks",
+    "spreadsheets",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "create onfleet tasks from spreadsheets",
+    "onfleet",
+    "create onfleet",
+    "read binary file",
+    "create read binary file",
+    "spreadsheet file",
+    "create spreadsheet file",
+    "onfleet tasks",
+    "tasks spreadsheets",
+    "spreadsheets n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "onfleet",
+    "read Binary File",
+    "spreadsheet File"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "id": 12,
+    "name": "Create Onfleet tasks from Spreadsheets",
+    "nodes": [
+      {
+        "name": "Onfleet",
+        "type": "n8n-nodes-base.onfleet",
+        "position": [
+          900,
+          280
+        ],
+        "parameters": {
+          "operation": "create",
+          "destination": {
+            "destinationProperties": {
+              "address": "={{$json[\"Address_Line1\"]}}, {{$json[\"Address_Line2\"]}}, {{$json[\"City/Town\"]}} {{$json[\"State/Province\"]}}, {{$json[\"Country\"]}}, {{$json[\"Postal_Code\"]}}",
+              "unparsed": true,
+              "addressNotes": "=",
+              "addressApartment": "={{$json[\"Address_Line2\"]}}"
+            }
+          },
+          "additionalFields": {
+            "notes": "={{$json[\"Task_Details\"]}}",
+            "recipient": {
+              "recipientProperties": {
+                "recipientName": "={{$json[\"Recipient_Name\"]}}",
+                "recipientNotes": "={{$json[\"Recipient_Notes\"]}}",
+                "recipientPhone": "=+1{{$json[\"Recipient_Phone\"]}}"
+              }
+            }
+          }
+        },
+        "credentials": {
+          "onfleetApi": {
+            "id": "2",
+            "name": "Onfleet API Key"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          500,
+          280
+        ],
+        "parameters": {
+          "filePath": "=/Users/jamesli/Downloads/Onfleet Import Google Sheet.xlsx"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Spreadsheet File1",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          700,
+          280
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "Spreadsheet File1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Spreadsheet File1": {
+        "main": [
+          [
+            {
+              "node": "Onfleet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

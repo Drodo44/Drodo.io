@@ -1,0 +1,88 @@
+{
+  "id": "official-519",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/519",
+    "template_id": 519
+  },
+  "name": "Verify email deliverability with Hunter",
+  "description": "Companion workflow for Hunter node docs",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "manual",
+    "Hunter",
+    "Manual Trigger",
+    "verify",
+    "email",
+    "deliverability",
+    "hunter",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "verify email deliverability with hunter",
+    "manual",
+    "hunter",
+    "manual trigger",
+    "verify email",
+    "email deliverability",
+    "deliverability hunter",
+    "hunter companion",
+    "companion workflow",
+    "workflow hunter",
+    "hunter node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Hunter"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Hunter",
+        "type": "n8n-nodes-base.hunter",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "email": "user@example.com",
+          "operation": "emailVerifier"
+        },
+        "credentials": {
+          "hunterApi": "hunter api creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Hunter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "official-654",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/654",
+    "template_id": 654
+  },
+  "name": "Receive updates when an event occurs in Asana",
+  "description": "Receive updates when an event occurs in Asana",
+  "category": "Other",
+  "tags": [
+    "Project Management",
+    "Asana",
+    "Asana Trigger",
+    "receive",
+    "updates",
+    "when",
+    "event",
+    "occurs",
+    "asana"
+  ],
+  "task_keywords": [
+    "receive updates when an event occurs in asana",
+    "asana",
+    "update asana",
+    "asana trigger",
+    "receive updates",
+    "updates when",
+    "when event",
+    "event occurs",
+    "occurs asana",
+    "asana receive"
+  ],
+  "required_services": [
+    "Asana"
+  ],
+  "triggers": [
+    "Asana Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "47",
+    "name": "Receive updates when an event occurs in Asana",
+    "nodes": [
+      {
+        "name": "Asana-Trigger",
+        "type": "n8n-nodes-base.asanaTrigger",
+        "position": [
+          1490,
+          860
+        ],
+        "webhookId": "0de3b493-efb6-472c-9deb-80d28c89d28d",
+        "parameters": {
+          "resource": "Tweets",
+          "workspace": "Engineering"
+        },
+        "credentials": {
+          "asanaApi": "asana"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

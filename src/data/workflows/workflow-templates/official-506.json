@@ -1,0 +1,85 @@
+{
+  "id": "official-506",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/506",
+    "template_id": 506
+  },
+  "name": "Get all the tasks in flow",
+  "description": "Get all the tasks in flow",
+  "category": "Productivity",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Flow",
+    "Manual Trigger",
+    "all",
+    "tasks",
+    "flow"
+  ],
+  "task_keywords": [
+    "get all the tasks in flow",
+    "manual",
+    "flow",
+    "manual trigger",
+    "all tasks",
+    "tasks flow",
+    "flow all"
+  ],
+  "required_services": [
+    "manual",
+    "Flow"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "130",
+    "name": "Get all the tasks in Flow",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Flow",
+        "type": "n8n-nodes-base.flow",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "filters": {},
+          "operation": "getAll",
+          "returnAll": true
+        },
+        "credentials": {
+          "flowApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Flow",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

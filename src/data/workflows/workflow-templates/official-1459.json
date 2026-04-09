@@ -1,0 +1,131 @@
+{
+  "id": "official-1459",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1459",
+    "template_id": 1459
+  },
+  "name": "Notify on Telegram and Twitter when new order is added in WooCommerce",
+  "description": "This workflow uses a WooCommerce trigger that will run a new product has been added, It will then post the product to Telegram and Twitter.",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "X (Formerly Twitter)",
+    "Telegram",
+    "WooCommerce",
+    "WooCommerce Trigger",
+    "notify",
+    "telegram",
+    "twitter",
+    "when",
+    "order",
+    "added"
+  ],
+  "task_keywords": [
+    "notify on telegram and twitter when new order is added in woocommerce",
+    "x (formerly twitter)",
+    "notify x (formerly twitter)",
+    "telegram",
+    "notify telegram",
+    "woocommerce",
+    "notify woocommerce",
+    "woocommerce trigger",
+    "telegram twitter",
+    "twitter when",
+    "when order",
+    "order added"
+  ],
+  "required_services": [
+    "X (Formerly Twitter)",
+    "Telegram",
+    "WooCommerce"
+  ],
+  "triggers": [
+    "WooCommerce Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 85,
+    "name": "New WooCommerce Product to Twitter and Telegram",
+    "nodes": [
+      {
+        "name": "Twitter",
+        "type": "n8n-nodes-base.twitter",
+        "position": [
+          720,
+          300
+        ],
+        "parameters": {
+          "text": "=✨ New Product Announcement ✨\nWe have just added {{$json[\"name\"]}}, Head to {{$json[\"permalink\"]}} to find out more.",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "twitterOAuth1Api": {
+            "id": "credential-id",
+            "name": "twitterOAuth1Api Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          720,
+          500
+        ],
+        "parameters": {
+          "text": "=✨ New Product Announcement ✨\nWe have just added {{$json[\"name\"]}}, Head to {{$json[\"permalink\"]}} to find out more.",
+          "chatId": "123456",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "WooCommerce Trigger",
+        "type": "n8n-nodes-base.wooCommerceTrigger",
+        "position": [
+          540,
+          400
+        ],
+        "webhookId": "ab7b134b-9b2d-4e0d-b496-1aee30db0808",
+        "parameters": {
+          "event": "product.created"
+        },
+        "credentials": {
+          "wooCommerceApi": {
+            "id": "credential-id",
+            "name": "wooCommerceApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "WooCommerce Trigger": {
+        "main": [
+          [
+            {
+              "node": "Twitter",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

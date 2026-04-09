@@ -1,0 +1,88 @@
+{
+  "id": "official-437",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/437",
+    "template_id": 437
+  },
+  "name": "Perform speech-to-text on recorded audio clips using Wit.ai",
+  "description": "This workflow performs speech to text on recorded audio clips using Wit.ai.",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "Read Binary File",
+    "perform",
+    "speech",
+    "text",
+    "recorded",
+    "audio",
+    "clips"
+  ],
+  "task_keywords": [
+    "perform speech-to-text on recorded audio clips using wit.ai",
+    "read binary file",
+    "perform speech",
+    "speech text",
+    "text recorded",
+    "recorded audio",
+    "audio clips",
+    "clips wit",
+    "wit workflow",
+    "workflow performs",
+    "performs speech"
+  ],
+  "required_services": [
+    "Read Binary File"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Read Binary File",
+        "type": "n8n-nodes-base.readBinaryFile",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "filePath": "/data/demo1.wav"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "url": "https://api.wit.ai/speech?v=20200513",
+          "options": {
+            "bodyContentType": "raw"
+          },
+          "requestMethod": "POST",
+          "jsonParameters": true,
+          "sendBinaryData": true,
+          "headerParametersJson": "={{JSON.parse('{\"Authorization\":\"Bearer {your_token_goes_here}\", \"Content-Type\":\"audio/wav\"}')}}"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Read Binary File": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "official-648",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/648",
+    "template_id": 648
+  },
+  "name": "Receive updates for support in Zendesk",
+  "description": "Receive updates for support in Zendesk",
+  "category": "Support",
+  "tags": [
+    "Ticket Management",
+    "Zendesk",
+    "Zendesk Trigger",
+    "receive",
+    "updates",
+    "support",
+    "zendesk"
+  ],
+  "task_keywords": [
+    "receive updates for support in zendesk",
+    "zendesk",
+    "update zendesk",
+    "zendesk trigger",
+    "receive updates",
+    "updates support",
+    "support zendesk",
+    "zendesk receive"
+  ],
+  "required_services": [
+    "Zendesk"
+  ],
+  "triggers": [
+    "Zendesk Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "33",
+    "name": "Receive updates for support in Zendesk",
+    "nodes": [
+      {
+        "name": "Zendesk Trigger",
+        "type": "n8n-nodes-base.zendeskTrigger",
+        "position": [
+          690,
+          300
+        ],
+        "webhookId": "7d01a119-83c7-43b7-8668-a2f26b95d225",
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "all": [
+              {}
+            ]
+          }
+        },
+        "credentials": {
+          "zendeskApi": "zendesk-YOUR_OPENAI_KEY_HERE"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

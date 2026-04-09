@@ -1,0 +1,527 @@
+{
+  "id": "official-8016",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8016",
+    "template_id": 8016
+  },
+  "name": "Protect Telegram groups with math CAPTCHA verification and Google Sheets",
+  "description": "Why this template rocks 🚀 Lightning fast setup Deploy in under 5 minutes 💡 Zero AI costs Uses simple math instead of expensive LLM calls 🛡️ 99% spam blocking Mathematical CAPTCHAs stop bots instantly ⚡ Ultra efficient Runs on minimal resources, scales to thousands of users 🎯 Plug and play Just add your bot token...",
+  "category": "AI",
+  "tags": [
+    "Support Chatbot",
+    "Telegram",
+    "Google Sheets",
+    "Edit Fields (Set)",
+    "Telegram Trigger",
+    "protect",
+    "telegram",
+    "groups",
+    "math",
+    "captcha",
+    "verification"
+  ],
+  "task_keywords": [
+    "protect telegram groups with math captcha verification and google sheets",
+    "telegram",
+    "google sheets",
+    "edit fields (set)",
+    "telegram trigger",
+    "protect telegram",
+    "telegram groups",
+    "groups math",
+    "math captcha",
+    "captcha verification",
+    "verification google",
+    "sheets why"
+  ],
+  "required_services": [
+    "Telegram",
+    "Google Sheets",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Telegram Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "FAcGmhcUXdRo9wXG",
+    "meta": {
+      "instanceId": "YOUR_N8N_INSTANCE_ID",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "NahornyiMainActive",
+    "tags": [
+      {
+        "id": "reI5hAhYO3fQUm7X",
+        "name": "Develop",
+        "createdAt": "2025-08-05T15:02:04.949Z",
+        "updatedAt": "2025-08-05T15:02:04.949Z"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "39bd8e27-b1f0-49db-b9a8-ce39b3de84a1",
+        "name": "📱 Telegram Trigger",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          -832,
+          1584
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "6586948d-a6d9-43d5-b9ee-732a5ce5e650",
+        "name": "🔍 Check New Member",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -240,
+          1584
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "79711fa2-bc10-4726-9c2c-3a1c0be98e2c",
+        "name": "🎲 Generate CAPTCHA Question",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          32,
+          1568
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "a44702e7-5b0b-4179-bb60-f52e033b628b",
+        "name": "💾 Store User Answer",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          976,
+          1568
+        ],
+        "parameters": {},
+        "typeVersion": 4.7
+      },
+      {
+        "id": "8ef6f964-eb9a-4e7a-9cf4-3719454c4e27",
+        "name": "❓ Send CAPTCHA Question",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          384,
+          1568
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "e08af060-3440-4d2b-b923-4320bf870723",
+        "name": "🚫 Ban User (Failed CAPTCHA)",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1120,
+          2736
+        ],
+        "parameters": {},
+        "typeVersion": 4.2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "720132cf-0360-4835-a0c0-731aa7b7721b",
+        "name": "✅ Verify Answer",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          464,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "8a438f77-69f6-49e0-86ae-a54f1037b67a",
+        "name": "🎉 Welcome New Member",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          912,
+          2160
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "d7a8b01c-07e7-4e98-a0f5-923c3df11dd1",
+        "name": "🗑️ Clean User Data (Success)",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1520,
+          2160
+        ],
+        "parameters": {},
+        "typeVersion": 4.7
+      },
+      {
+        "id": "c6801550-2d59-4d69-a25f-18068f53582d",
+        "name": "🗑️ Delete Join Message",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          704,
+          1568
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "7999e2ba-9006-47b2-86b7-95ce7f5520ca",
+        "name": "🗑️ Delete CAPTCHA Question (Success)",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          208,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "9f2f2aed-2c87-4eb2-bbca-31fe44e0ab03",
+        "name": "📋 Find Pending CAPTCHA",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -32,
+          2176
+        ],
+        "parameters": {},
+        "typeVersion": 4.7,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "6184cdad-3150-4121-b5af-ad4fbbff0a3b",
+        "name": "🗑️ Delete User Message",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1328,
+          2160
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "7833a78b-1fa9-43dd-be67-50150bd3d2c9",
+        "name": "⚙️ Bot Configuration",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -592,
+          1584
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "1f5ef6ae-75d3-4596-9d4a-b41083e6c313",
+        "name": "📋 Template Description",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1424,
+          1152
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a9725ae0-2bbf-4f83-9b5a-afc4abd8efa4",
+        "name": "📝 Step 1 Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -352,
+          1136
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ab484e4a-a231-49aa-8d2d-f717c22a6c22",
+        "name": "📝 Step 2 Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -16,
+          1136
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3f34fb20-1704-4dfd-997d-020b371688de",
+        "name": "📝 Step 3 Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          288,
+          1136
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "269b30f6-a972-46b8-8c12-3c08ce523947",
+        "name": "📝 Step 4 Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          416,
+          1808
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "63feef23-1375-452c-b687-5d7fe111aa88",
+        "name": "✅ Success Path Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          800,
+          1808
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "409acb7f-45db-404b-9925-6ca8505f7655",
+        "name": "🚫 Failure Path Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          832,
+          2448
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3f505a85-c348-496f-87c8-89df5c9193c0",
+        "name": "🧹 Cleanup Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1264,
+          1808
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b8c22f69-87f4-4f85-afed-c638cf9eb3ae",
+        "name": "⚙️ Config Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -672,
+          1136
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "18ced02a-4fb3-46a5-a124-66be22b5041b",
+        "name": "📊 Sheets Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          896,
+          1120
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5a3802ea-46fe-4edc-befb-a50d5a892369",
+        "name": "Create URL for banrequest",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          848,
+          2736
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "a613992c-d92d-433b-9445-6141cdb87c41",
+    "connections": {
+      "✅ Verify Answer": {
+        "main": [
+          [
+            {
+              "node": "🎉 Welcome New Member",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Create URL for banrequest",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📱 Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "⚙️ Bot Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔍 Check New Member": {
+        "main": [
+          [
+            {
+              "node": "🎲 Generate CAPTCHA Question",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "📋 Find Pending CAPTCHA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎉 Welcome New Member": {
+        "main": [
+          [
+            {
+              "node": "🗑️ Delete User Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⚙️ Bot Configuration": {
+        "main": [
+          [
+            {
+              "node": "🔍 Check New Member",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create URL for banrequest": {
+        "main": [
+          [
+            {
+              "node": "🚫 Ban User (Failed CAPTCHA)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "❓ Send CAPTCHA Question": {
+        "main": [
+          [
+            {
+              "node": "🗑️ Delete Join Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📋 Find Pending CAPTCHA": {
+        "main": [
+          [
+            {
+              "node": "🗑️ Delete CAPTCHA Question (Success)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🗑️ Delete Join Message": {
+        "main": [
+          [
+            {
+              "node": "💾 Store User Answer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🗑️ Delete User Message": {
+        "main": [
+          [
+            {
+              "node": "🗑️ Clean User Data (Success)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎲 Generate CAPTCHA Question": {
+        "main": [
+          [
+            {
+              "node": "❓ Send CAPTCHA Question",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🚫 Ban User (Failed CAPTCHA)": {
+        "main": [
+          [
+            {
+              "node": "🗑️ Delete User Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🗑️ Delete CAPTCHA Question (Success)": {
+        "main": [
+          [
+            {
+              "node": "✅ Verify Answer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

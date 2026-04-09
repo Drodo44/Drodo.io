@@ -1,0 +1,90 @@
+{
+  "id": "official-474",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/474",
+    "template_id": 474
+  },
+  "name": "Create a new contact in Agile CRM",
+  "description": "Create a new contact in Agile CRM",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Agile CRM",
+    "Manual Trigger",
+    "create",
+    "contact",
+    "agile",
+    "crm"
+  ],
+  "task_keywords": [
+    "create a new contact in agile crm",
+    "manual",
+    "create manual",
+    "agile crm",
+    "create agile crm",
+    "manual trigger",
+    "create contact",
+    "contact agile",
+    "crm create"
+  ],
+  "required_services": [
+    "manual",
+    "Agile CRM"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "96",
+    "name": "Create a new contact in Agile CRM",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AgileCRM",
+        "type": "n8n-nodes-base.agileCrm",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "operation": "create",
+          "additionalFields": {
+            "lastName": "",
+            "firstName": ""
+          }
+        },
+        "credentials": {
+          "agileCrmApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AgileCRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

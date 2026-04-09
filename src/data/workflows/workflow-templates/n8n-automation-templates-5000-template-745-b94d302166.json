@@ -1,0 +1,111 @@
+{
+  "id": "n8n-automation-templates-5000-template-745-b94d302166",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Stripe/ecommerce_745_cron_stripe.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Stripe/ecommerce_745_cron_stripe.json"
+  },
+  "name": "Template 745",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 745",
+  "category": "E-commerce",
+  "tags": [
+    "Templates based on paltforms",
+    "Stripe",
+    "cron",
+    "stripe",
+    "cron Trigger",
+    "template",
+    "745",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 745",
+    "cron",
+    "stripe",
+    "cron trigger",
+    "745 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "cron",
+    "stripe"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 745",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/30 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Stripe",
+        "type": "n8n-nodes-base.stripe",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Stripe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 745
+  }
+}

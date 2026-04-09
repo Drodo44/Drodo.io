@@ -1,0 +1,157 @@
+{
+  "id": "n8n-automation-templates-5000-template-235-50b6af4400",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/PagerDuty/it_operations_235_cron_pagerduty_to_aws_lambda.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/PagerDuty/it_operations_235_cron_pagerduty_to_aws_lambda.json"
+  },
+  "name": "Template 235",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 235",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "PagerDuty",
+    "cron",
+    "pagerduty",
+    "awslambda",
+    "transcriptionapi",
+    "cron Trigger",
+    "template",
+    "235",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 235",
+    "cron",
+    "pagerduty",
+    "awslambda",
+    "transcriptionapi",
+    "cron trigger",
+    "235 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "cron",
+    "pagerduty",
+    "awslambda",
+    "transcriptionapi"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 235",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/30 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS Lambda",
+        "type": "n8n-nodes-base.awslambda",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Transcription API",
+        "type": "n8n-nodes-base.transcriptionapi",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "AWS Lambda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS Lambda": {
+        "main": [
+          [
+            {
+              "node": "Transcription API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 235
+  }
+}

@@ -1,0 +1,1334 @@
+{
+  "id": "official-14768",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/14768",
+    "template_id": 14768
+  },
+  "name": "Auto-post trending X tweets with Gemini AI images, FLUX and Buffer",
+  "description": "This n8n workflow automatically scrapes X (Twitter) trending topics for any country, generates a pidgin style tweet and a matching AI image for each trend, then schedules and posts them to X via Buffer — all on a custom schedule.",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Multimodal AI",
+    "Google Gemini",
+    "Data table",
+    "Loop Over Items (Split in Batches)",
+    "No Operation, do nothing",
+    "apify",
+    "Dropbox",
+    "MCP Client",
+    "Edit Fields (Set)",
+    "Schedule Trigger",
+    "auto",
+    "post",
+    "trending"
+  ],
+  "task_keywords": [
+    "auto-post trending x tweets with gemini ai images, flux and buffer",
+    "google gemini",
+    "data table",
+    "loop over items (split in batches)",
+    "no operation, do nothing",
+    "apify",
+    "dropbox",
+    "mcp client",
+    "edit fields (set)",
+    "schedule trigger",
+    "auto post",
+    "post trending"
+  ],
+  "required_services": [
+    "Google Gemini",
+    "Data table",
+    "Loop Over Items (Split in Batches)",
+    "No Operation, do nothing",
+    "apify",
+    "Dropbox",
+    "MCP Client",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "0cuzFC47AFJslSZu",
+    "meta": {
+      "instanceId": "c47530286da43337d05c81b6b3a48affed05b1ae8339bb54632729a1da5f1641",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Auto-Post Trending Tweets with AI Images using Gemini, FLUX & Buffer",
+    "tags": [
+      {
+        "id": "8SQ9sFZ86SUKssJ9",
+        "name": "Tweets",
+        "createdAt": "2026-04-04T18:41:46.655Z",
+        "updatedAt": "2026-04-04T18:41:46.655Z"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "bca2d0e0-f0cd-45d4-8ed4-808706124b76",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          928,
+          512
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "30 8,12,16 * * *"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "888b0b6a-0356-441a-b2af-67fbbf355204",
+        "name": "Get Daily x trends",
+        "type": "@n8n/n8n-nodes-langchain.googleGemini",
+        "onError": "continueRegularOutput",
+        "position": [
+          2928,
+          656
+        ],
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "models/gemini-2.5-flash",
+            "cachedResultName": "models/gemini-2.5-flash"
+          },
+          "options": {},
+          "messages": {
+            "values": [
+              {
+                "content": "pull Nigeria specific trends right now from https://x.com/explore base According to various trend tracking sites. Only output the trend words or phrases themselves, one per line. \n- Do NOT include descriptions, explanations, hashtags about other things, or any extra text. \n- Include both hashtags and plain words if trending. \n- Output format example:\n\nTrend1\nTrend2\nTrend3\n..."
+              }
+            ]
+          },
+          "builtInTools": {
+            "urlContext": false,
+            "googleSearch": true
+          }
+        },
+        "credentials": {
+          "googlePalmApi": {
+            "id": "tBYdgG6WSU3D7RKn",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        },
+        "typeVersion": 1.1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "14c8f37b-557f-45ec-aeb2-05d321509be8",
+        "name": "Create a data table",
+        "type": "n8n-nodes-base.dataTable",
+        "onError": "continueRegularOutput",
+        "disabled": true,
+        "position": [
+          3792,
+          624
+        ],
+        "parameters": {
+          "columns": {
+            "column": [
+              {
+                "name": "trend"
+              },
+              {
+                "name": "date"
+              }
+            ]
+          },
+          "options": {},
+          "resource": "table",
+          "operation": "create",
+          "tableName": "table_name"
+        },
+        "executeOnce": false,
+        "typeVersion": 1.1
+      },
+      {
+        "id": "c41b2681-cd32-4e50-b498-60b338ecf6f5",
+        "name": "Filter Last 24h",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          4288,
+          624
+        ],
+        "parameters": {
+          "jsCode": "// Get all trends from \"Split Trend\"\nconst allTrends = $input.all();\n\n// Get used trends from Data Table (may be empty)\nlet usedTrendsItems = [];\ntry {\n  usedTrendsItems = $node[\"Get Used Trends\"].all();\n} catch (e) {\n  usedTrendsItems = [];\n}\n\nconst oneDay = 24 * 60 * 60 * 1000;\nconst now = new Date();\n\n// Map used trends to only last 24h\nconst recentUsed = usedTrendsItems\n  .filter(item => item.json.date && (now - new Date(item.json.date)) < oneDay)\n  .map(item => item.json.trend);\n\n// Filter out used trends\nconst availableTrends = allTrends.filter(item => !recentUsed.includes(item.json.trend));\n\n// ALWAYS return array, even if empty\nreturn availableTrends.map(item => ({ json: { trend: item.json.trend } }));"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "901657e4-a5db-484a-b3d1-531a54718db4",
+        "name": "Remove Used Trends",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          4784,
+          432
+        ],
+        "parameters": {
+          "jsCode": "// Filter out trends used in the last 24h (from Apify path 1)\nconst used = $input.all().map(i => i.json.trend || '');\nconst current = $('Split Trend1').all();\nconst filtered = current.filter(item => !used.includes(item.json.trend));\nreturn filtered.length > 0 ? filtered : [];"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "b6f359e4-0c51-4d54-b559-72d336a9a301",
+        "name": "Pick Trend",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          5104,
+          592
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\n// Fisher-Yates shuffle (more uniform than .sort(() => 0.5 - Math.random()))\nfor (let i = items.length - 1; i > 0; i--) {\n  const j = Math.floor(Math.random() * (i + 1));\n  [items[i], items[j]] = [items[j], items[i]];\n}\n\n// Pick up to 2 unique trends\nconst picked = items.slice(0, 2);\n\nreturn picked.map(item => ({\n  json: {\n    trend: item.json.trend?.json?.trend || item.json.trend\n  }\n}));"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "519c3100-0a0e-41e5-80cf-cc3c31f6d3f3",
+        "name": "Get Used Trends",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          4048,
+          624
+        ],
+        "parameters": {
+          "operation": "get",
+          "returnAll": true,
+          "dataTableId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "yJnzJvRdKazvvCuY",
+            "cachedResultUrl": "/projects/vXqhDNlXbSeCxe2L/datatables/yJnzJvRdKazvvCuY",
+            "cachedResultName": "trend_table"
+          }
+        },
+        "typeVersion": 1.1,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "3a3c66a6-acd4-4325-96ed-bba7259ea853",
+        "name": "Split Trend",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          3440,
+          656
+        ],
+        "parameters": {
+          "jsCode": "const trends = $json.trends;\n\nreturn trends.map(trend => ({\n  json: { trend }\n}));"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "0fd47766-a692-407e-bdf1-d56077862df5",
+        "name": "Prepare Trend Record",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          7328,
+          464
+        ],
+        "parameters": {
+          "jsCode": "// Build the record to save in the trend table\nconst trend = $('Loop Over Items').item.json.trend;\nconst tweetText = $input.item.json?.content?.[0]?.text?.text \n  || $input.item.json?.content?.parts?.[0]?.text \n  || '';\n\nif (!trend) throw new Error('No trend found from Loop Over Items');\n\nreturn [{\n  json: {\n    trend: trend,\n    tweet: tweetText,\n    usedAt: new Date().toISOString()\n  }\n}];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "36a0d2ce-321b-4a50-b0b0-b9da9f292679",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          5584,
+          592
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "1a742970-c005-49b8-b1e2-073c1d471ea1",
+        "name": "Loop Done (End of Batch)",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          5856,
+          672
+        ],
+        "parameters": {},
+        "placeholder": true,
+        "typeVersion": 1
+      },
+      {
+        "id": "bdb2f6ba-25f1-48e2-904e-69ff63d510fc",
+        "name": "Run an Actor and get dataset",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "onError": "continueRegularOutput",
+        "position": [
+          1168,
+          512
+        ],
+        "parameters": {
+          "actorId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "VPeCKacMZL2Lgem5t",
+            "cachedResultUrl": "https://console.apify.com/actors/VPeCKacMZL2Lgem5t/input",
+            "cachedResultName": "Twitter Trending Topics Scraper 🌎 (easyapi/twitter-trending-topics-scraper)"
+          },
+          "operation": "Run actor and get dataset",
+          "customBody": "{\n    \"country\": \"nigeria\",\n    \"proxyConfiguration\": {\n        \"useApifyProxy\": false\n    }\n}"
+        },
+        "credentials": {
+          "apifyApi": {
+            "id": "5mPqLIba3K0Vs2Xh",
+            "name": "Apify account 3"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d84fc9ee-f66a-4c5e-8307-d7e0df92e31b",
+        "name": "Extract Trends1",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          1408,
+          512
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nconst firstItem = items[0]?.json;\nif (!firstItem || firstItem.error) {\n  return [{ json: { success: false, error: firstItem?.error || \"No data received\" } }];\n}\n\nconst seen = new Set();\nconst trends = items.flatMap(item => {\n  const data = item.json;\n  const records = Array.isArray(data) ? data : [data];\n  return records\n    .map(record => record.title?.trim())\n    .filter(title => {\n      if (!title || seen.has(title)) return false;\n      seen.add(title);\n      return true;\n    })\n    .map(title => ({ json: { trend: title } }));\n});\n\nif (trends.length === 0) {\n  return [{ json: { success: false, error: \"No valid trend data found\" } }];\n}\n\nreturn [{ json: { success: true, trends } }];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "f80fde5b-1fed-4ecb-ac69-107e5541addb",
+        "name": "Split Trend1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          2880,
+          96
+        ],
+        "parameters": {
+          "jsCode": "const trends = $json.trends;\n\nreturn trends.map(trend => ({\n  json: { trend }\n}));"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "e1f3dd33-a6c3-4f26-92ce-8aab60ff360c",
+        "name": "Apify Success? (Primary)",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1696,
+          512
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "163328ab-270c-4abe-a261-1c5acce7acb8",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.success }}",
+                "rightValue": 0
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "e326ea94-0ee1-4741-979e-2c655f573f49",
+        "name": "Extract Trends",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          3232,
+          656
+        ],
+        "parameters": {
+          "jsCode": "// Get the text from AI node\nconst text = $json[\"content\"]?.parts?.[0]?.text;\n\nif (!text) {\n    throw new Error(\"AI output not found. Check the node name or output structure.\");\n}\n\n// Split by newlines, trim each line, and remove empty lines\nconst trends = text\n    .split('\\n')\n    .map(t => t.trim())\n    .filter(Boolean);\n\n// Return as a single item\nreturn [{ json: { trends } }];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "bc58e1f9-da24-49dd-a681-be316db4a10d",
+        "name": "Generate Image with FLUX",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          6176,
+          464
+        ],
+        "parameters": {
+          "url": "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+          "method": "POST",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file"
+              }
+            }
+          },
+          "jsonBody": "={\n  \"inputs\": \"photorealistic image of {{ $json.content.parts[0].text }}, ultra realistic, cinematic lighting, 8k, highly detailed, professional photography, few or no text\"\n}",
+          "sendBody": true,
+          "sendHeaders": true,
+          "specifyBody": "json",
+          "authentication": "predefinedCredentialType",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Accept",
+                "value": "image/png"
+              }
+            ]
+          },
+          "nodeCredentialType": "huggingFaceApi"
+        },
+        "credentials": {
+          "huggingFaceApi": {
+            "id": "9ixjdsYqosOzq49g",
+            "name": "Hugging Face account"
+          }
+        },
+        "typeVersion": 4.4
+      },
+      {
+        "id": "ea337eae-5756-4d34-81d4-cba64ce2fd51",
+        "name": "Upload a file",
+        "type": "n8n-nodes-base.dropbox",
+        "position": [
+          6464,
+          464
+        ],
+        "parameters": {
+          "path": "=/n8n/{{ $('Loop Over Items').item.json.trend }}_{{ $itemIndex + 1 }}.png",
+          "binaryData": true,
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "dropboxOAuth2Api": {
+            "id": "Mi7pzowvMAhatwYT",
+            "name": "Upload Dropbox API"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "579a69e6-54a3-48e5-a070-586f5fb3a78d",
+        "name": "Generate Tweet with Gemini",
+        "type": "@n8n/n8n-nodes-langchain.googleGemini",
+        "position": [
+          5808,
+          464
+        ],
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "models/gemini-2.5-flash",
+            "cachedResultName": "models/gemini-2.5-flash"
+          },
+          "options": {},
+          "messages": {
+            "values": [
+              {
+                "content": "= generate a short tweet base on this x.com trend: {{ $json.trend }} . The generated tweet must be base on live events, react to the contextuse pidgin + casual tone. only one otion, no **\\n, maximum of 275 characters."
+              }
+            ]
+          },
+          "builtInTools": {
+            "googleSearch": true
+          }
+        },
+        "credentials": {
+          "googlePalmApi": {
+            "id": "tBYdgG6WSU3D7RKn",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "0d377def-5692-4282-a740-68cd63ea53af",
+        "name": "Post to X via Buffer",
+        "type": "@n8n/n8n-nodes-langchain.mcpClient",
+        "notes": "Twiiter Auto post",
+        "position": [
+          7120,
+          464
+        ],
+        "parameters": {
+          "tool": {
+            "__rl": true,
+            "mode": "list",
+            "value": "create_post",
+            "cachedResultName": "create_post"
+          },
+          "options": {},
+          "parameters": {
+            "value": {
+              "text": "={{ $('Generate Tweet with Gemini').item.json.content.parts[0].text }}",
+              "assets": "={\n    \"images\": [\n    {\n      \"url\": \"{{ $json.file_url }}\",\n      \"thumbnailUrl\": \"{{ $json.file_url }}\",\n      \"metadata\": {\n        \"altText\": \"{{ $('Generate Tweet with Gemini').item.json.content.parts[0].text }}\",\n        \"animatedThumbnail\": \"string\",\n        \"userTags\": [\n          {\n            \"handle\": \"string\",\n            \"x\": 0,\n            \"y\": 0\n          }\n        ],\n        \"dimensions\": {\n          \"width\": 0,\n          \"height\": 0\n        }\n      }\n    }\n  ]\n\n} ",
+              "channelId": "69ce9bddaf47dacb6980757d",
+              "schedulingType": "automatic"
+            },
+            "schema": [
+              {
+                "id": "channelId",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": true,
+                "displayName": "channelId",
+                "defaultMatch": false
+              },
+              {
+                "id": "schedulingType",
+                "type": "options",
+                "display": true,
+                "options": [
+                  {
+                    "name": "notification",
+                    "value": "notification"
+                  },
+                  {
+                    "name": "automatic",
+                    "value": "automatic"
+                  }
+                ],
+                "removed": false,
+                "required": true,
+                "displayName": "schedulingType",
+                "defaultMatch": false
+              },
+              {
+                "id": "mode",
+                "type": "options",
+                "display": true,
+                "options": [
+                  {
+                    "name": "addToQueue",
+                    "value": "addToQueue"
+                  },
+                  {
+                    "name": "shareNow",
+                    "value": "shareNow"
+                  },
+                  {
+                    "name": "shareNext",
+                    "value": "shareNext"
+                  },
+                  {
+                    "name": "customScheduled",
+                    "value": "customScheduled"
+                  },
+                  {
+                    "name": "recommendedTime",
+                    "value": "recommendedTime"
+                  }
+                ],
+                "removed": true,
+                "required": false,
+                "displayName": "mode",
+                "defaultMatch": false
+              },
+              {
+                "id": "text",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "text",
+                "defaultMatch": false
+              },
+              {
+                "id": "dueAt",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "dueAt",
+                "defaultMatch": false
+              },
+              {
+                "id": "tagIds",
+                "type": "array",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "tagIds",
+                "defaultMatch": false,
+                "defaultValue": "[\n  \"string\"\n]"
+              },
+              {
+                "id": "assets",
+                "type": "object",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "assets",
+                "defaultMatch": false,
+                "defaultValue": "{\n  \"images\": [\n    {\n      \"url\": \"string\",\n      \"thumbnailUrl\": \"string\",\n      \"metadata\": {\n        \"altText\": \"string\",\n        \"animatedThumbnail\": \"string\",\n        \"userTags\": [\n          {\n            \"handle\": \"string\",\n            \"x\": 0,\n            \"y\": 0\n          }\n        ],\n        \"dimensions\": {\n          \"width\": 0,\n          \"height\": 0\n        }\n      }\n    }\n  ],\n  \"videos\": [\n    {\n      \"url\": \"string\",\n      \"thumbnailUrl\": \"string\",\n      \"metadata\": {\n        \"thumbnailOffset\": 0,\n        \"title\": \"string\"\n      }\n    }\n  ],\n  \"documents\": [\n    {\n      \"url\": \"string\",\n      \"title\": \"string\",\n      \"thumbnailUrl\": \"string\"\n    }\n  ],\n  \"link\": {\n    \"url\": \"string\",\n    \"title\": \"string\",\n    \"description\": \"string\",\n    \"thumbnailUrl\": \"string\"\n  }\n}"
+              },
+              {
+                "id": "metadata",
+                "type": "object",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "metadata",
+                "defaultMatch": false,
+                "defaultValue": "{\n  \"instagram\": {\n    \"type\": \"story\",\n    \"link\": \"string\",\n    \"geolocation\": {\n      \"id\": \"string\",\n      \"text\": \"string\"\n    },\n    \"shouldShareToFeed\": false,\n    \"stickerFields\": {\n      \"text\": \"string\"\n    }\n  },\n  \"facebook\": {\n    \"type\": \"post\",\n    \"annotations\": [\n      {\n        \"content\": \"string\",\n        \"indices\": [\n          0\n        ],\n        \"text\": \"string\",\n        \"url\": \"string\"\n      }\n    ],\n    \"linkAttachment\": {\n      \"url\": \"string\"\n    }\n  },\n  \"linkedin\": {\n    \"annotations\": [\n      {\n        \"id\": \"string\",\n        \"link\": \"string\",\n        \"entity\": \"string\",\n        \"vanityName\": \"string\",\n        \"localizedName\": \"string\",\n        \"start\": 0,\n        \"length\": 0\n      }\n    ],\n    \"linkAttachment\": {\n      \"url\": \"string\"\n    }\n  },\n  \"twitter\": {\n    \"retweet\": {\n      \"id\": \"string\"\n    },\n    \"thread\": [\n      {\n        \"text\": \"string\",\n        \"assets\": {\n          \"images\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"altText\": \"string\",\n                \"animatedThumbnail\": \"string\",\n                \"userTags\": [\n                  {\n                    \"handle\": \"string\",\n                    \"x\": 0,\n                    \"y\": 0\n                  }\n                ],\n                \"dimensions\": {\n                  \"width\": 0,\n                  \"height\": 0\n                }\n              }\n            }\n          ],\n          \"videos\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"thumbnailOffset\": 0,\n                \"title\": \"string\"\n              }\n            }\n          ],\n          \"documents\": [\n            {\n              \"url\": \"string\",\n              \"title\": \"string\",\n              \"thumbnailUrl\": \"string\"\n            }\n          ],\n          \"link\": {\n            \"url\": \"string\",\n            \"title\": \"string\",\n            \"description\": \"string\",\n            \"thumbnailUrl\": \"string\"\n          }\n        }\n      }\n    ]\n  },\n  \"pinterest\": {\n    \"title\": \"string\",\n    \"url\": \"string\",\n    \"boardServiceId\": \"string\"\n  },\n  \"google\": {\n    \"type\": \"event\",\n    \"title\": \"string\",\n    \"detailsOffer\": {\n      \"title\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"code\": \"string\",\n      \"link\": \"string\",\n      \"terms\": \"string\"\n    },\n    \"detailsEvent\": {\n      \"title\": \"string\",\n      \"startDate\": \"string\",\n      \"endDate\": \"string\",\n      \"isFullDayEvent\": false,\n      \"button\": \"none\",\n      \"link\": \"string\"\n    },\n    \"detailsWhatsNew\": {\n      \"button\": \"none\",\n      \"link\": \"string\"\n    }\n  },\n  \"youtube\": {\n    \"title\": \"string\",\n    \"categoryId\": \"string\",\n    \"privacy\": \"public\",\n    \"license\": \"youtube\",\n    \"notifySubscribers\": false,\n    \"embeddable\": false,\n    \"madeForKids\": false\n  },\n  \"mastodon\": {\n    \"thread\": [\n      {\n        \"text\": \"string\",\n        \"assets\": {\n          \"images\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"altText\": \"string\",\n                \"animatedThumbnail\": \"string\",\n                \"userTags\": [\n                  {\n                    \"handle\": \"string\",\n                    \"x\": 0,\n                    \"y\": 0\n                  }\n                ],\n                \"dimensions\": {\n                  \"width\": 0,\n                  \"height\": 0\n                }\n              }\n            }\n          ],\n          \"videos\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"thumbnailOffset\": 0,\n                \"title\": \"string\"\n              }\n            }\n          ],\n          \"documents\": [\n            {\n              \"url\": \"string\",\n              \"title\": \"string\",\n              \"thumbnailUrl\": \"string\"\n            }\n          ],\n          \"link\": {\n            \"url\": \"string\",\n            \"title\": \"string\",\n            \"description\": \"string\",\n            \"thumbnailUrl\": \"string\"\n          }\n        }\n      }\n    ],\n    \"spoilerText\": \"string\"\n  },\n  \"startPage\": {\n    \"link\": \"string\"\n  },\n  \"threads\": {\n    \"type\": \"post\",\n    \"thread\": [\n      {\n        \"text\": \"string\",\n        \"assets\": {\n          \"images\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"altText\": \"string\",\n                \"animatedThumbnail\": \"string\",\n                \"userTags\": [\n                  {\n                    \"handle\": \"string\",\n                    \"x\": 0,\n                    \"y\": 0\n                  }\n                ],\n                \"dimensions\": {\n                  \"width\": 0,\n                  \"height\": 0\n                }\n              }\n            }\n          ],\n          \"videos\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"thumbnailOffset\": 0,\n                \"title\": \"string\"\n              }\n            }\n          ],\n          \"documents\": [\n            {\n              \"url\": \"string\",\n              \"title\": \"string\",\n              \"thumbnailUrl\": \"string\"\n            }\n          ],\n          \"link\": {\n            \"url\": \"string\",\n            \"title\": \"string\",\n            \"description\": \"string\",\n            \"thumbnailUrl\": \"string\"\n          }\n        }\n      }\n    ],\n    \"linkAttachment\": {\n      \"url\": \"string\"\n    },\n    \"topic\": \"string\",\n    \"locationId\": \"string\",\n    \"locationName\": \"string\"\n  },\n  \"bluesky\": {\n    \"thread\": [\n      {\n        \"text\": \"string\",\n        \"assets\": {\n          \"images\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"altText\": \"string\",\n                \"animatedThumbnail\": \"string\",\n                \"userTags\": [\n                  {\n                    \"handle\": \"string\",\n                    \"x\": 0,\n                    \"y\": 0\n                  }\n                ],\n                \"dimensions\": {\n                  \"width\": 0,\n                  \"height\": 0\n                }\n              }\n            }\n          ],\n          \"videos\": [\n            {\n              \"url\": \"string\",\n              \"thumbnailUrl\": \"string\",\n              \"metadata\": {\n                \"thumbnailOffset\": 0,\n                \"title\": \"string\"\n              }\n            }\n          ],\n          \"documents\": [\n            {\n              \"url\": \"string\",\n              \"title\": \"string\",\n              \"thumbnailUrl\": \"string\"\n            }\n          ],\n          \"link\": {\n            \"url\": \"string\",\n            \"title\": \"string\",\n            \"description\": \"string\",\n            \"thumbnailUrl\": \"string\"\n          }\n        }\n      }\n    ],\n    \"linkAttachment\": {\n      \"url\": \"string\"\n    }\n  },\n  \"tiktok\": {\n    \"title\": \"string\"\n  }\n}"
+              },
+              {
+                "id": "saveToDraft",
+                "type": "boolean",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "saveToDraft",
+                "defaultMatch": false
+              },
+              {
+                "id": "ideaId",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "ideaId",
+                "defaultMatch": false
+              },
+              {
+                "id": "draftId",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "draftId",
+                "defaultMatch": false
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "endpointUrl": "https://mcp.buffer.com/mcp",
+          "authentication": "bearerAuth"
+        },
+        "credentials": {
+          "httpBearerAuth": {
+            "id": "jpdnaeYntKF86KmB",
+            "name": "Bearer Auth account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2a872398-48a3-427e-bd4f-cf56979bdf6f",
+        "name": "Generate Download link",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          6672,
+          464
+        ],
+        "parameters": {
+          "url": "https://api.dropboxapi.com/2/files/get_temporary_link",
+          "method": "POST",
+          "options": {},
+          "jsonBody": "={\n  \"path\": \"{{ $json.path_lower }}\"\n}",
+          "sendBody": true,
+          "specifyBody": "json",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "dropboxOAuth2Api"
+        },
+        "credentials": {
+          "dropboxOAuth2Api": {
+            "id": "tMUVPpR79QRc1swi",
+            "name": "DROPBOX KEY"
+          }
+        },
+        "typeVersion": 4.4
+      },
+      {
+        "id": "7b2f1164-9cfa-4e8a-a669-9c7b76b726f3",
+        "name": "Extract Download Link",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          6880,
+          464
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "a13822d5-0089-4a9d-8417-5076c6262420",
+                "name": "file_url",
+                "type": "string",
+                "value": "={{ $json.link }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "65a9ef4e-4d6a-44d2-b3fe-de7b79466712",
+        "name": "Has Apify or Fallback Trends?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          4480,
+          624
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "or",
+            "conditions": [
+              {
+                "id": "dd78b171-99c5-44a3-a2a7-646160000fd5",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $if($('Extract Trends1').isExecuted, $('Extract Trends1').first().json.success, false) }}",
+                "rightValue": ""
+              },
+              {
+                "id": "737c5280-34c0-4710-a0eb-8e83d8a0cc53",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $if($('Extract Trends2').isExecuted, $('Extract Trends2').first().json.success, false) }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "a5dfb170-b8f4-4c79-addd-8cc746a7e52e",
+        "name": "Remove Used Trends2",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          4784,
+          816
+        ],
+        "parameters": {
+          "jsCode": "// Filter out trends used in the last 24h (from Gemini fallback path)\nconst used = $input.all().map(i => i.json.trend || '');\nconst current = $('Split Trend').all();\nconst filtered = current.filter(item => !used.includes(item.json.trend));\nreturn filtered.length > 0 ? filtered : [];"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "37011045-6dfd-4a4e-b180-a0d85fec6a4e",
+        "name": "Extract Trends2",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          2480,
+          336
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nconst firstItem = items[0]?.json;\nif (!firstItem || firstItem.error) {\n  return [{ json: { success: false, error: firstItem?.error || \"No data received\" } }];\n}\n\nconst seen = new Set();\nconst trends = items.flatMap(item => {\n  const data = item.json;\n  const records = Array.isArray(data) ? data : [data];\n  return records\n    .map(record => record.title?.trim())\n    .filter(title => {\n      if (!title || seen.has(title)) return false;\n      seen.add(title);\n      return true;\n    })\n    .map(title => ({ json: { trend: title } }));\n});\n\nif (trends.length === 0) {\n  return [{ json: { success: false, error: \"No valid trend data found\" } }];\n}\n\nreturn [{ json: { success: true, trends } }];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "6402772c-99b2-4735-849d-4d775946ecd9",
+        "name": "Run an Actor and get dataset1",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "onError": "continueRegularOutput",
+        "position": [
+          2368,
+          528
+        ],
+        "parameters": {
+          "actorId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "VPeCKacMZL2Lgem5t",
+            "cachedResultUrl": "https://console.apify.com/actors/VPeCKacMZL2Lgem5t/input",
+            "cachedResultName": "Twitter Trending Topics Scraper 🌎 (easyapi/twitter-trending-topics-scraper)"
+          },
+          "operation": "Run actor and get dataset",
+          "customBody": "{\n    \"country\": \"nigeria\",\n    \"proxyConfiguration\": {\n        \"useApifyProxy\": false\n    }\n}"
+        },
+        "credentials": {
+          "apifyApi": {
+            "id": "HwpTvldAFe6deOyO",
+            "name": "DEMO"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0cdd61fd-ae46-42c0-a989-a2c0b4c734d6",
+        "name": "Apify Success? (Fallback)",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          2640,
+          240
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "163328ab-270c-4abe-a261-1c5acce7acb8",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.success }}",
+                "rightValue": 0
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "794500e0-c259-4192-bbec-e169eee2a623",
+        "name": "Save Used Trend",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          7536,
+          464
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "date": "={{ $json.usedAt }}",
+              "trend": "={{ $json.trend }}"
+            },
+            "schema": [
+              {
+                "id": "trend",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "trend",
+                "defaultMatch": false
+              },
+              {
+                "id": "date",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "date",
+                "defaultMatch": false
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "dataTableId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "yJnzJvRdKazvvCuY",
+            "cachedResultUrl": "/projects/vXqhDNlXbSeCxe2L/datatables/yJnzJvRdKazvvCuY",
+            "cachedResultName": "trend_table"
+          }
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "026ef29b-eaae-4a6e-a5b2-6c26e673827f",
+        "name": "📋 Workflow Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -48,
+          -32
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 780,
+          "height": 1000,
+          "content": "## 🐦Generate & Post AI Tweets with Images from X Trending Topics (Gemini + FLUX + Buffer)\n\n**What this workflow does:**\nEvery day at 8:30am, 12:30pm, and 4:30pm it:\n1. Scrapes Nigeria's trending X topics via Apify\n2. Falls back to Gemini AI search if Apify fails\n3. Filters out trends used in the last 24h (deduplication)\n4. Picks 2 random unused trends\n5. Generates a pidgin-language tweet per trend using Gemini 2.5 Flash\n6. Generates a matching image using FLUX.1-schnell on HuggingFace\n7. Uploads image to Dropbox → gets a public link\n8. Posts tweet + image to X via Buffer MCP\n\n---\n### 🔧 Setup Required\n- **Apify** – Connect your Apify API credential\n- **Google Gemini** – Connect your Google AI (Gemini) credential\n- **HuggingFace** – Create an HTTP Bearer Token credential with your HF token\n- **Dropbox** – Connect your Dropbox OAuth2 credential\n- **Buffer** – Connect your Buffer Bearer Token credential and set your Channel ID in the `Post to X via Buffer` node\n- **Data Table** – The `trend_table` Data Table must exist in your n8n project (run `Create a data table` once manually, then disable it)\n\n---\n### ⚙️ Customization\n- Change the `country` in the Apify nodes to scrape trends for a different country\n- Edit the tweet prompt in `Generate Tweet with Gemini` to change tone/language/style\n- Edit the FLUX prompt in `Generate Image with FLUX` to change image style\n- Adjust the schedule in `Schedule Trigger` (currently 3x/day)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f7b97b69-cdf4-4445-9575-3c3f4bdcdd3c",
+        "name": "Section: Trend Fetching",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          896,
+          -32
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 2672,
+          "height": 988,
+          "content": "### 1️⃣ Fetch Nigeria Trends\nApify scrapes X trending topics for Nigeria.\nIf Apify fails or returns no data, falls back to Gemini AI search.\nBoth paths merge at `Has Apify or Fallback Trends?`"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3d13704f-de10-4c13-8756-f2fc1d0291d8",
+        "name": "Section: Deduplication",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3664,
+          -32
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 1580,
+          "height": 996,
+          "content": "### 2️⃣ Deduplication\nReads already-used trends from the `trend_table` Data Table.\nFilters out any trend used in the **last 24 hours**.\nThen picks 2 random trends from what's left."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "25acc8af-5728-4890-942d-48a5f4a20fe7",
+        "name": "Section: Generation & Posting",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          5440,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 2324,
+          "height": 1012,
+          "content": "### 3️⃣ Generate Tweet & Image (loops per trend)\nFor each picked trend:\n- Gemini generates a pidgin-English tweet (≤275 chars)\n- FLUX.1-schnell generates a matching photorealistic image\n- Image uploaded to Dropbox → temporary public URL extracted\n- Tweet + image posted to X via Buffer MCP\n- Trend saved to `trend_table` to prevent reuse"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6c127db9-4574-4b34-93fa-f44a58496b1f",
+        "name": "⚠️ HuggingFace Setup",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          6096,
+          -32
+        ],
+        "parameters": {
+          "color": 3,
+          "width": 400,
+          "content": "⚠️ **HuggingFace Credential Required**\nCreate a new **HTTP Bearer Token** credential in n8n with your HuggingFace API token and select it in this node.\nDo NOT paste the token directly in node parameters."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "eb0e49c4-b361-4083-a8d8-4cdd2742f8be",
+        "name": "⚠️ Buffer Channel ID",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          7040,
+          -32
+        ],
+        "parameters": {
+          "color": 3,
+          "width": 400,
+          "content": "📌 **Buffer Setup**\nReplace `YOUR_BUFFER_CHANNEL_ID` in this node with your actual Buffer channel ID for your X (Twitter) account.\nFind it in your Buffer dashboard → Channel Settings."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "daa07a50-caec-41ba-8620-db673e725bf8",
+        "name": "Data Table Setup Tip",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3680,
+          160
+        ],
+        "parameters": {
+          "color": 5,
+          "width": 380,
+          "height": 140,
+          "content": "🛠️ **One-time setup:**\nRun `Create a data table` manually once to create the `trend_table`.\nThen **disable** that node — it only needs to run once."
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": true,
+    "pinData": {},
+    "settings": {
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "executionOrder": "v1"
+    },
+    "versionId": "8e974687-0938-468f-86fa-4388db0a2f77",
+    "connections": {
+      "Pick Trend": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Trend": {
+        "main": [
+          [
+            {
+              "node": "Create a data table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Trend1": {
+        "main": [
+          [
+            {
+              "node": "Create a data table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload a file": {
+        "main": [
+          [
+            {
+              "node": "Generate Download link",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Trends": {
+        "main": [
+          [
+            {
+              "node": "Split Trend",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Trends1": {
+        "main": [
+          [
+            {
+              "node": "Apify Success? (Primary)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Trends2": {
+        "main": [
+          [
+            {
+              "node": "Apify Success? (Fallback)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Last 24h": {
+        "main": [
+          [
+            {
+              "node": "Has Apify or Fallback Trends?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Used Trends": {
+        "main": [
+          [
+            {
+              "node": "Filter Last 24h",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [
+            {
+              "node": "Generate Tweet with Gemini",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Loop Done (End of Batch)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Run an Actor and get dataset",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Daily x trends": {
+        "main": [
+          [
+            {
+              "node": "Extract Trends",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Remove Used Trends": {
+        "main": [
+          [
+            {
+              "node": "Pick Trend",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a data table": {
+        "main": [
+          [
+            {
+              "node": "Get Used Trends",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Remove Used Trends2": {
+        "main": [
+          [
+            {
+              "node": "Pick Trend",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Post to X via Buffer": {
+        "main": [
+          [
+            {
+              "node": "Prepare Trend Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Trend Record": {
+        "main": [
+          [
+            {
+              "node": "Save Used Trend",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Download Link": {
+        "main": [
+          [
+            {
+              "node": "Post to X via Buffer",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Download link": {
+        "main": [
+          [
+            {
+              "node": "Extract Download Link",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Apify Success? (Primary)": {
+        "main": [
+          [
+            {
+              "node": "Split Trend1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Run an Actor and get dataset1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Image with FLUX": {
+        "main": [
+          [
+            {
+              "node": "Upload a file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Done (End of Batch)": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Apify Success? (Fallback)": {
+        "main": [
+          [
+            {
+              "node": "Split Trend1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get Daily x trends",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Tweet with Gemini": {
+        "main": [
+          [
+            {
+              "node": "Generate Image with FLUX",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run an Actor and get dataset": {
+        "main": [
+          [
+            {
+              "node": "Extract Trends1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Apify or Fallback Trends?": {
+        "main": [
+          [
+            {
+              "node": "Remove Used Trends",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Remove Used Trends2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run an Actor and get dataset1": {
+        "main": [
+          [
+            {
+              "node": "Extract Trends2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

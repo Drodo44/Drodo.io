@@ -1,0 +1,89 @@
+{
+  "id": "official-565",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/565",
+    "template_id": 565
+  },
+  "name": "Create a folder in Onedrive",
+  "description": "Companion workflow for Onedrive node docs",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "manual",
+    "Microsoft OneDrive",
+    "Manual Trigger",
+    "create",
+    "folder",
+    "onedrive",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "create a folder in onedrive",
+    "manual",
+    "create manual",
+    "microsoft onedrive",
+    "create microsoft onedrive",
+    "manual trigger",
+    "create folder",
+    "folder onedrive",
+    "onedrive companion",
+    "companion workflow",
+    "workflow onedrive",
+    "onedrive node"
+  ],
+  "required_services": [
+    "manual",
+    "Microsoft OneDrive"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft OneDrive",
+        "type": "n8n-nodes-base.microsoftOneDrive",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "name": "n8n-rocks",
+          "options": {},
+          "resource": "folder",
+          "operation": "create"
+        },
+        "credentials": {
+          "microsoftOneDriveOAuth2Api": "n8n-docs-creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Microsoft OneDrive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

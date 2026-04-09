@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-approve-expense-from-expense-report-and-send-to-email-8b38e1c4b8",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/approve-expense-expense-report-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/approve-expense-expense-report-email.json"
+  },
+  "name": "Approve expense from Expense report and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Approve expense from Expense report and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "approve",
+    "expense",
+    "report",
+    "send",
+    "email"
+  ],
+  "task_keywords": [
+    "approve expense from expense report and send to email",
+    "slack",
+    "send slack",
+    "webhook",
+    "approve expense",
+    "expense expense",
+    "expense report",
+    "report send",
+    "send email",
+    "email n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Approve expense from Expense report and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-expense-report",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          129600
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "approve-expense-from-expense-report-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-expense-report",
+        "name": "Fetch data from Expense report",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          129600
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/expense-report",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          129600
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-129600",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          129600
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Expense report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Expense report": {
+        "main": [
+          {
+            "node": "Send to Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

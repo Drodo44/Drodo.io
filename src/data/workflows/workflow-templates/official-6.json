@@ -1,0 +1,137 @@
+{
+  "id": "official-6",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/6",
+    "template_id": 6
+  },
+  "name": "Sync data between multiple Google Spreadsheets",
+  "description": "1.",
+  "category": "Data",
+  "tags": [
+    "File Management",
+    "Google Sheets",
+    "Cron",
+    "Cron Trigger",
+    "sync",
+    "data",
+    "between",
+    "multiple",
+    "google",
+    "spreadsheets"
+  ],
+  "task_keywords": [
+    "sync data between multiple google spreadsheets",
+    "google sheets",
+    "sync google sheets",
+    "cron",
+    "sync cron",
+    "cron trigger",
+    "sync data",
+    "data between",
+    "between multiple",
+    "multiple google",
+    "google spreadsheets"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Cron"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Read Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          700,
+          300
+        ],
+        "parameters": {
+          "range": "Data!A:G",
+          "rawData": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          500,
+          300
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "custom",
+                "cronExpression": "0 */2 * * * *"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Write Sheet 2",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          900,
+          400
+        ],
+        "parameters": {
+          "range": "={{$node[\"Read Sheet\"].parameter[\"range\"]}}",
+          "rawData": true,
+          "operation": "update"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Write Sheet 1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          900,
+          200
+        ],
+        "parameters": {
+          "range": "={{$node[\"Read Sheet\"].parameter[\"range\"]}}",
+          "rawData": true,
+          "operation": "update"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Read Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Sheet": {
+        "main": [
+          [
+            {
+              "node": "Write Sheet 2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Write Sheet 1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "official-6955",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/6955",
+    "template_id": 6955
+  },
+  "name": "Sync new Shopify products to Odoo",
+  "description": "Seamlessly sync newly created Shopify products into Odoo with this smart, no code n8n workflow.",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Start",
+    "Shopify",
+    "Odoo",
+    "No Operation, do nothing",
+    "Shopify Trigger",
+    "sync",
+    "shopify",
+    "products",
+    "odoo",
+    "seamlessly"
+  ],
+  "task_keywords": [
+    "sync new shopify products to odoo",
+    "start",
+    "sync start",
+    "create start",
+    "shopify",
+    "sync shopify",
+    "create shopify",
+    "odoo",
+    "sync odoo",
+    "create odoo",
+    "no operation, do nothing",
+    "sync no operation, do nothing"
+  ],
+  "required_services": [
+    "Start",
+    "Shopify",
+    "Odoo",
+    "No Operation, do nothing"
+  ],
+  "triggers": [
+    "Shopify Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Sync New Shopify Products to Odoo",
+    "nodes": [
+      {
+        "name": "Start",
+        "type": "n8n-nodes-base.start",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Shopify Trigger",
+        "type": "n8n-nodes-base.shopifyTrigger",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Search for Existing Product in Odoo",
+        "type": "n8n-nodes-base.odoo",
+        "position": [
+          700,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Is Product Found?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          920,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Create Odoo Product",
+        "type": "n8n-nodes-base.odoo",
+        "position": [
+          1140,
+          200
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Stop - Duplicate Found",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          1140,
+          400
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Start": {
+        "main": [
+          [
+            {
+              "node": "Shopify Trigger",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Shopify Trigger": {
+        "main": [
+          [
+            {
+              "node": "Search for Existing Product in Odoo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is Product Found?": {
+        "main": [
+          [
+            {
+              "node": "Create Odoo Product",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Stop - Duplicate Found",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Search for Existing Product in Odoo": {
+        "main": [
+          [
+            {
+              "node": "Is Product Found?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

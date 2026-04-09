@@ -1,0 +1,133 @@
+{
+  "id": "n8n-workflow-templates-add-a-subscriber-to-a-list-and-create-and-send-a-campaign-ba98a57fcb",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0175_Manual_Sendy_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0175_Manual_Sendy_Create_Triggered.json"
+  },
+  "name": "Add a subscriber to a list and create and send a campaign",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Add a subscriber to a list and create and send a campaign",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "manual",
+    "sendy",
+    "Manual Trigger",
+    "add",
+    "subscriber",
+    "list",
+    "create",
+    "send",
+    "campaign"
+  ],
+  "task_keywords": [
+    "add a subscriber to a list and create and send a campaign",
+    "manual",
+    "send manual",
+    "create manual",
+    "sendy",
+    "send sendy",
+    "create sendy",
+    "manual trigger",
+    "add subscriber",
+    "subscriber list",
+    "list create",
+    "create send"
+  ],
+  "required_services": [
+    "manual",
+    "sendy"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "14",
+    "name": "Add a subscriber to a list and create and send a campaign",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Sendy",
+        "type": "n8n-nodes-base.sendy",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "email": "harshil@n8n.io",
+          "listId": "2",
+          "additionalFields": {
+            "name": "Harshil"
+          }
+        },
+        "credentials": {
+          "sendyApi": "sendy"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Sendy1",
+        "type": "n8n-nodes-base.sendy",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "title": "Welcome to n8n",
+          "replyTo": "docs@n8n.io",
+          "subject": "Welcome to n8n",
+          "fromName": "n8n",
+          "htmlText": "<body>\n  <p>Hey!</p>\n  <p>Welcome to n8n!</p>\n</body>",
+          "resource": "campaign",
+          "fromEmail": "docs@n8n.io",
+          "sendCampaign": true,
+          "additionalFields": {
+            "listIds": "2"
+          }
+        },
+        "credentials": {
+          "sendyApi": "sendy"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Sendy": {
+        "main": [
+          [
+            {
+              "node": "Sendy1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Sendy",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

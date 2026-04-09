@@ -1,0 +1,239 @@
+{
+  "id": "n8n-workflow-template-document-upload-vectordatabase-pinecone-b7d2095cce",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Document_Upload_VectorDatabase___Pinecone.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Document_Upload_VectorDatabase___Pinecone.json"
+  },
+  "name": "Document Upload VectorDatabase - Pinecone",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Document Upload VectorDatabase - Pinecone",
+  "category": "AI",
+  "tags": [
+    "manual",
+    "google Drive",
+    "Pinecone",
+    "embeddings Open AI",
+    "document Default Data Loader",
+    "text Splitter Recursive Character Text Splitter",
+    "Manual Trigger",
+    "document",
+    "upload",
+    "vectordatabase",
+    "pinecone",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "document upload vectordatabase - pinecone",
+    "manual",
+    "google drive",
+    "pinecone",
+    "embeddings open ai",
+    "document default data loader",
+    "text splitter recursive character text splitter",
+    "manual trigger",
+    "document upload",
+    "upload vectordatabase",
+    "vectordatabase pinecone",
+    "pinecone n8n"
+  ],
+  "required_services": [
+    "manual",
+    "google Drive",
+    "Pinecone",
+    "embeddings Open AI",
+    "document Default Data Loader",
+    "text Splitter Recursive Character Text Splitter"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Document Upload VectorDatabase - Pinecone",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "eead1f14-9818-4f81-9a1c-3f1bf2de8d92",
+        "name": "When clicking ‘Test workflow’"
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "1wEvf_ZLKTF0LQjHMVtcl_G7VwKkkzVSn",
+            "mode": "list",
+            "cachedResultName": "GrowthSystemes - Informations.pdf",
+            "cachedResultUrl": "https://drive.google.com/file/d/1wEvf_ZLKTF0LQjHMVtcl_G7VwKkkzVSn/view?usp=drivesdk"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          220,
+          0
+        ],
+        "id": "080e71ab-bea4-415c-83f5-52d045774683",
+        "name": "Google Drive",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "growthsystemesfiles",
+            "mode": "list",
+            "cachedResultName": "growthsystemesfiles"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          440,
+          0
+        ],
+        "id": "e94893d8-759d-4531-91f8-6105d8bf4ff5",
+        "name": "Pinecone Vector Store",
+        "credentials": {
+          "pineconeApi": {
+            "id": "G1IIOJE1RuVk1Usf",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          320,
+          220
+        ],
+        "id": "733120ed-65c6-4bee-b3de-870b1973b34f",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "dataType": "binary",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "typeVersion": 1,
+        "position": [
+          580,
+          220
+        ],
+        "id": "3c32e608-9850-41f3-8449-f357c1955fca",
+        "name": "Default Data Loader"
+      },
+      {
+        "parameters": {
+          "chunkSize": 3000,
+          "chunkOverlap": 200,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          660,
+          400
+        ],
+        "id": "bd652497-6e4e-4ac4-b98f-09ff2ccd892b",
+        "name": "Recursive Character Text Splitter"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "0ce85136-c336-47f6-913b-0fbb60fc8431",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "VqI9xgE61dZGnVlu",
+    "tags": []
+  }
+}

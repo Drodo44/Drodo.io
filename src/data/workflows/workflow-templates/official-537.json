@@ -1,0 +1,65 @@
+{
+  "id": "official-537",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/537",
+    "template_id": 537
+  },
+  "name": "Receive updates on a new project created in Copper",
+  "description": "Companion workflow for Copper Trigger node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Copper",
+    "Copper Trigger",
+    "receive",
+    "updates",
+    "project",
+    "created",
+    "copper",
+    "companion"
+  ],
+  "task_keywords": [
+    "receive updates on a new project created in copper",
+    "copper",
+    "create copper",
+    "update copper",
+    "copper trigger",
+    "receive updates",
+    "updates project",
+    "project created",
+    "created copper",
+    "copper companion",
+    "companion workflow",
+    "workflow copper"
+  ],
+  "required_services": [
+    "Copper"
+  ],
+  "triggers": [
+    "Copper Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Copper Trigger",
+        "type": "n8n-nodes-base.copperTrigger",
+        "position": [
+          890,
+          400
+        ],
+        "webhookId": "493ce79a-6a08-4062-86d9-7f4618b6c1ea",
+        "parameters": {
+          "event": "new",
+          "resource": "project"
+        },
+        "credentials": {
+          "copperApi": "copper_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

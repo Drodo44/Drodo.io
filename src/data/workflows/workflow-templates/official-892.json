@@ -1,0 +1,185 @@
+{
+  "id": "official-892",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/892",
+    "template_id": 892
+  },
+  "name": "Transfer Google Analytics data to Airtable database",
+  "description": "This workflow allows you to get analytics of a website and store it Airtable.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "manual",
+    "Google Analytics",
+    "Edit Fields (Set)",
+    "Airtable",
+    "Manual Trigger",
+    "transfer",
+    "google",
+    "analytics",
+    "data",
+    "airtable",
+    "database"
+  ],
+  "task_keywords": [
+    "transfer google analytics data to airtable database",
+    "manual",
+    "google analytics",
+    "edit fields (set)",
+    "airtable",
+    "manual trigger",
+    "transfer google",
+    "analytics data",
+    "data airtable",
+    "airtable database",
+    "database workflow",
+    "workflow allows"
+  ],
+  "required_services": [
+    "manual",
+    "Google Analytics",
+    "Edit Fields (Set)",
+    "Airtable"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "205",
+    "name": "Get analytics of a website and store it Airtable",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Google Analytics",
+        "type": "n8n-nodes-base.googleAnalytics",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "viewId": "",
+          "additionalFields": {
+            "metricsUi": {
+              "metricValues": [
+                {
+                  "alias": "Sessions",
+                  "expression": "ga:sessions"
+                }
+              ]
+            },
+            "dimensionUi": {
+              "dimensionValues": [
+                {
+                  "name": "ga:country"
+                }
+              ]
+            },
+            "dateRangesUi": {
+              "dateRanges": {
+                "endDate": "2020-08-30T18:30:00.000Z",
+                "startDate": "2019-12-31T18:30:00.000Z"
+              }
+            }
+          }
+        },
+        "credentials": {
+          "googleAnalyticsOAuth2": "analytics-dev"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "Metric",
+                "value": "={{$json[\"total\"]}}"
+              }
+            ],
+            "string": [
+              {
+                "name": "Country",
+                "value": "={{$json[\"ga:country\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Airtable",
+        "type": "n8n-nodes-base.airtable",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "table": "Table 1",
+          "options": {},
+          "operation": "append",
+          "application": ""
+        },
+        "credentials": {
+          "airtableApi": "Airtable Credentials n8n"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Airtable",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Analytics": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Google Analytics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

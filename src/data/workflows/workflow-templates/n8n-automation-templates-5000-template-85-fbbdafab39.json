@@ -1,0 +1,111 @@
+{
+  "id": "n8n-automation-templates-5000-template-85-fbbdafab39",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Clearbit/sales_85_cron_clearbit.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Clearbit/sales_85_cron_clearbit.json"
+  },
+  "name": "Template 85",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 85",
+  "category": "Sales",
+  "tags": [
+    "Templates based on paltforms",
+    "Clearbit",
+    "cron",
+    "clearbit",
+    "cron Trigger",
+    "template",
+    "n8n",
+    "workflow",
+    "ritik",
+    "prog"
+  ],
+  "task_keywords": [
+    "template 85",
+    "cron",
+    "clearbit",
+    "cron trigger",
+    "template n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "cron",
+    "clearbit"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 85",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/30 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Clearbit",
+        "type": "n8n-nodes-base.clearbit",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Clearbit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 85
+  }
+}

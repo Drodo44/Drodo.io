@@ -1,0 +1,173 @@
+{
+  "id": "official-1021",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1021",
+    "template_id": 1021
+  },
+  "name": "Create, update, and get a person from Copper",
+  "description": "This workflow allows you to create, update, and get a person from Copper.",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Copper",
+    "Manual Trigger",
+    "create",
+    "update",
+    "person",
+    "copper",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "create, update, and get a person from copper",
+    "manual",
+    "create manual",
+    "update manual",
+    "copper",
+    "create copper",
+    "update copper",
+    "manual trigger",
+    "create update",
+    "update person",
+    "person copper",
+    "copper workflow"
+  ],
+  "required_services": [
+    "manual",
+    "Copper"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Copper",
+        "type": "n8n-nodes-base.copper",
+        "position": [
+          450,
+          320
+        ],
+        "parameters": {
+          "name": "Harshil",
+          "resource": "person",
+          "additionalFields": {
+            "emails": {
+              "emailFields": [
+                {
+                  "email": "user@example.com",
+                  "category": "work"
+                }
+              ]
+            }
+          }
+        },
+        "credentials": {
+          "copperApi": {
+            "id": "credential-id",
+            "name": "copperApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Copper1",
+        "type": "n8n-nodes-base.copper",
+        "position": [
+          650,
+          320
+        ],
+        "parameters": {
+          "personId": "={{$json[\"id\"]}}",
+          "resource": "person",
+          "operation": "update",
+          "updateFields": {
+            "phone_numbers": {
+              "phoneFields": [
+                {
+                  "number": "1234567890",
+                  "category": "work"
+                }
+              ]
+            }
+          }
+        },
+        "credentials": {
+          "copperApi": {
+            "id": "credential-id",
+            "name": "copperApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Copper2",
+        "type": "n8n-nodes-base.copper",
+        "position": [
+          850,
+          320
+        ],
+        "parameters": {
+          "personId": "={{$json[\"id\"]}}",
+          "resource": "person",
+          "operation": "get"
+        },
+        "credentials": {
+          "copperApi": {
+            "id": "credential-id",
+            "name": "copperApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Copper": {
+        "main": [
+          [
+            {
+              "node": "Copper1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Copper1": {
+        "main": [
+          [
+            {
+              "node": "Copper2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Copper",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

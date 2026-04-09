@@ -1,0 +1,86 @@
+{
+  "id": "official-479",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/479",
+    "template_id": 479
+  },
+  "name": "Execute an SQL query in Microsoft SQL",
+  "description": "Execute an SQL query in Microsoft SQL",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Microsoft SQL",
+    "Manual Trigger",
+    "execute",
+    "sql",
+    "query",
+    "microsoft"
+  ],
+  "task_keywords": [
+    "execute an sql query in microsoft sql",
+    "manual",
+    "microsoft sql",
+    "manual trigger",
+    "execute sql",
+    "sql query",
+    "query microsoft",
+    "sql execute"
+  ],
+  "required_services": [
+    "manual",
+    "Microsoft SQL"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "99",
+    "name": "Execute an SQL query in Microsoft SQL",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft SQL",
+        "type": "n8n-nodes-base.microsoftSql",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "query": "",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "microsoftSql": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Microsoft SQL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

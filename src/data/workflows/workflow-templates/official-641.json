@@ -1,0 +1,92 @@
+{
+  "id": "official-641",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/641",
+    "template_id": 641
+  },
+  "name": "Get list of completed sale orders with Unleashed Software",
+  "description": "Get list of completed sale orders with Unleashed Software",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Unleashed Software",
+    "Manual Trigger",
+    "list",
+    "completed",
+    "sale",
+    "orders",
+    "unleashed",
+    "software"
+  ],
+  "task_keywords": [
+    "get list of completed sale orders with unleashed software",
+    "manual",
+    "unleashed software",
+    "manual trigger",
+    "list completed",
+    "completed sale",
+    "sale orders",
+    "orders unleashed",
+    "software list"
+  ],
+  "required_services": [
+    "manual",
+    "Unleashed Software"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          390,
+          220
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Unleashed Software",
+        "type": "n8n-nodes-base.unleashedSoftware",
+        "position": [
+          600,
+          220
+        ],
+        "parameters": {
+          "filters": {
+            "orderStatus": [
+              "Completed"
+            ]
+          },
+          "returnAll": true
+        },
+        "credentials": {
+          "unleashedSoftwareApi": "unleashed"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Unleashed Software",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

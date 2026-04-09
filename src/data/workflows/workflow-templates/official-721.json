@@ -1,0 +1,101 @@
+{
+  "id": "official-721",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/721",
+    "template_id": 721
+  },
+  "name": "Receive updates on form submission in Mautic and send SMS notification",
+  "description": "Receive updates on form submission in Mautic and send SMS notification",
+  "category": "Communication",
+  "tags": [
+    "Lead Generation",
+    "Mautic",
+    "Twilio",
+    "Mautic Trigger",
+    "receive",
+    "updates",
+    "form",
+    "submission",
+    "mautic",
+    "send"
+  ],
+  "task_keywords": [
+    "receive updates on form submission in mautic and send sms notification",
+    "mautic",
+    "send mautic",
+    "update mautic",
+    "twilio",
+    "send twilio",
+    "update twilio",
+    "mautic trigger",
+    "receive updates",
+    "updates form",
+    "form submission",
+    "submission mautic"
+  ],
+  "required_services": [
+    "Mautic",
+    "Twilio"
+  ],
+  "triggers": [
+    "Mautic Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "13",
+    "name": "Receive updates when a form is submitted in Mautic, and send a confirmation SMS",
+    "nodes": [
+      {
+        "name": "Mautic Trigger",
+        "type": "n8n-nodes-base.mauticTrigger",
+        "position": [
+          510,
+          300
+        ],
+        "webhookId": "9dce2b84-33fe-4816-ae4b-301c208b5384",
+        "parameters": {
+          "events": [
+            "mautic.form_on_submit"
+          ]
+        },
+        "credentials": {
+          "mauticApi": "mautic"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "position": [
+          710,
+          300
+        ],
+        "parameters": {
+          "to": "={{$node[\"Mautic Trigger\"].json[\"mautic.form_on_submit\"][0][\"submission\"][\"results\"][\"phone_number\"]}}",
+          "from": "1234",
+          "message": "=Hey, {{$node[\"Mautic Trigger\"].json[\"mautic.form_on_submit\"][0][\"submission\"][\"results\"][\"first_name\"]}} 👋\nThank you for signing up for the Webinar - Getting Started with n8n. The webinar will start at 1800 CEST on 31st October 2020.\nSee you there!"
+        },
+        "credentials": {
+          "twilioApi": "twilio"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Mautic Trigger": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "official-540",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/540",
+    "template_id": 540
+  },
+  "name": "Receive updates for Calendly events",
+  "description": "Companion workflow for Calendly Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "Calendly",
+    "Calendly Trigger",
+    "receive",
+    "updates",
+    "calendly",
+    "events",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for calendly events",
+    "calendly",
+    "update calendly",
+    "calendly trigger",
+    "receive updates",
+    "updates calendly",
+    "calendly events",
+    "events companion",
+    "companion workflow",
+    "workflow calendly",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "Calendly"
+  ],
+  "triggers": [
+    "Calendly Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Calendly Trigger",
+        "type": "n8n-nodes-base.calendlyTrigger",
+        "position": [
+          880,
+          400
+        ],
+        "webhookId": "9d13bcea-781a-4462-a9af-44bfb1fb6891",
+        "parameters": {
+          "events": [
+            "invitee.created",
+            "invitee.canceled"
+          ]
+        },
+        "credentials": {
+          "calendlyApi": "calendly_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

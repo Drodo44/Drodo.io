@@ -1,0 +1,499 @@
+{
+  "id": "official-14005",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/14005",
+    "template_id": 14005
+  },
+  "name": "Archive Outlook email attachments to DATEV DMS and notify Slack",
+  "description": "This workflow watches your Outlook inbox for new emails with attachments and archives those attachments in DATEV DMS.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "document Management",
+    "Slack",
+    "Microsoft Outlook",
+    "identity And Access Management",
+    "master Data",
+    "Microsoft Outlook Trigger",
+    "archive",
+    "outlook",
+    "email",
+    "attachments",
+    "datev",
+    "dms"
+  ],
+  "task_keywords": [
+    "archive outlook email attachments to datev dms and notify slack",
+    "document management",
+    "notify document management",
+    "slack",
+    "notify slack",
+    "microsoft outlook",
+    "notify microsoft outlook",
+    "identity and access management",
+    "notify identity and access management",
+    "master data",
+    "notify master data",
+    "microsoft outlook trigger"
+  ],
+  "required_services": [
+    "document Management",
+    "Slack",
+    "Microsoft Outlook",
+    "identity And Access Management",
+    "master Data"
+  ],
+  "triggers": [
+    "Microsoft Outlook Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "DYvIXHVexbnFmCwD",
+    "meta": {
+      "instanceId": "f142c6036d44ac3d470df04b80e3aba6df62de1c89cff1474135fc823f6a94e3",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Klardaten Email to DMS",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "b85ccd6c-e2ee-4616-a1f2-328b619b7fa2",
+        "name": "Upload a document file",
+        "type": "@klardaten/n8n-nodes-datevconnect.documentManagement",
+        "position": [
+          864,
+          288
+        ],
+        "parameters": {
+          "resource": "documentFile",
+          "operation": "upload",
+          "binaryData": "data"
+        },
+        "credentials": {
+          "datevConnectApi": {
+            "id": "",
+            "name": "DATEVconnect account"
+          }
+        },
+        "executeOnce": false,
+        "typeVersion": 1
+      },
+      {
+        "id": "3debd2f0-ecdb-4406-86b6-f9cc701facc5",
+        "name": "Create a document",
+        "type": "@klardaten/n8n-nodes-datevconnect.documentManagement",
+        "position": [
+          1520,
+          -16
+        ],
+        "parameters": {
+          "operation": "create",
+          "documentData": "={\n  \"extension\": \"{{ $binary.data.fileExtension }}\",\n  \"description\": \"{{ $binary.data.fileName }}\",\n  \"class\": {\n    \"name\": \"Dokument\",\n    \"id\": \"1\"\n  },\n  \"correspondence_partner_guid\":\"{{ $('Client lookup').item.json.id }}\",\n  \"user\": {\n    \"id\": \"{{ $('Get DATEV user').item.json.id }}\"\n  },\n  \"domain\": {\n    \"name\": \"Mandanten\",\n    \"id\": \"1\"\n  },\n  \"folder\": {\n    \"id\": \"2\",\n    \"name\": \"<Keine Angabe>\"\n  },\n  \"year\": {{ new Date().getFullYear() }},\n  \"month\": {{ new Date().getMonth() + 1 }},\n  \"structure_items\": [\n    {\n      \"counter\": 1,\n      \"type\": 1,\n      \"document_file_id\": \"{{ $json.id }}\",\n      \"name\": \"{{ $binary.data.fileName }}\",\n      \"parent_counter\": 0,\n      \"creation_date\": \"{{ new Date().toISOString() }}\",\n      \"last_modification_date\": \"{{ new Date().toISOString() }}\"\n    }\n  ]\n}\n"
+        },
+        "credentials": {
+          "datevConnectApi": {
+            "id": "",
+            "name": "DATEVconnect account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8538af21-5d11-4586-8273-c8ab7abf97f0",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.slack",
+        "onError": "continueRegularOutput",
+        "position": [
+          1840,
+          -16
+        ],
+        "webhookId": "24d4c883-282d-4f66-97ff-79461d596760",
+        "parameters": {
+          "text": "=Created a document {{ $json.description  }} from client {{ $('New Outlook emal trigger').item.json.from }} in DATEV DMS. Email subject was {{ $('New Outlook emal trigger').item.json.subject }}",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "C0ALMCGQVMW",
+            "cachedResultName": "test-n8n"
+          },
+          "otherOptions": {},
+          "authentication": "oAuth2"
+        },
+        "credentials": {
+          "slackOAuth2Api": {
+            "id": "",
+            "name": "Slack OAuth2 API"
+          }
+        },
+        "typeVersion": 2.4
+      },
+      {
+        "id": "3a5d3d5a-4bfe-4a33-9d33-67d1f992fa29",
+        "name": "Merge",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          1216,
+          -32
+        ],
+        "parameters": {
+          "mode": "combine",
+          "options": {},
+          "combineBy": "combineByPosition",
+          "numberInputs": 3
+        },
+        "typeVersion": 3.2
+      },
+      {
+        "id": "b11eea6a-7e91-4b8a-9c54-342375c7d95d",
+        "name": "If we have attachments",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "78053b9d-028b-4a30-b762-c51143bbf7ad",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.hasAttachments }}",
+                "rightValue": false
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "99549ee5-4c78-4261-a841-443618878c79",
+        "name": "Update a message",
+        "type": "n8n-nodes-base.microsoftOutlook",
+        "onError": "continueRegularOutput",
+        "position": [
+          2112,
+          -16
+        ],
+        "webhookId": "e5a517ab-b488-42b2-a4c6-07054a105fbb",
+        "parameters": {
+          "messageId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('New Outlook emal trigger').item.json.id }}"
+          },
+          "operation": "update",
+          "updateFields": {
+            "categories": [
+              "REQUEST DMS ARCHIVE"
+            ]
+          }
+        },
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "",
+            "name": "Microsoft Outlook OAuth2 API"
+          }
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "fe603922-6a2f-453d-9530-6a2515859a67",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -304,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 480,
+          "height": 320,
+          "content": "## Trigger and filter emails with attachments"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f817e765-fb03-4f35-9d33-3ab5a3177298",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          720,
+          -256
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 960,
+          "height": 720,
+          "content": "## DATEV DMS upload"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ff4e8d99-9438-4995-9736-15eb71c2719f",
+        "name": "Get DATEV user",
+        "type": "@klardaten/n8n-nodes-datevconnect.identityAndAccessManagement",
+        "position": [
+          864,
+          -176
+        ],
+        "parameters": {
+          "resource": "currentUser"
+        },
+        "credentials": {
+          "datevConnectApi": {
+            "id": "",
+            "name": "DATEVconnect account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "25b4c4cf-d9de-4dd5-93f8-b6a5c0b95644",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1760,
+          -96
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 496,
+          "height": 256,
+          "content": "## Optional notifications & mailbox update"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "675525b3-17f6-4267-b9d7-c57a3e01328f",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -304,
+          -704
+        ],
+        "parameters": {
+          "color": "#FBEC8E",
+          "width": 992,
+          "height": 544,
+          "content": "## Automatically archive Outlook email attachments to DATEV DMS\nThis workflow watches your Outlook inbox for new emails with attachments and archives those attachments in DATEV DMS. It skips emails without attachments, looks up a related DATEV client, processes each attachment separately, uploads the file to DATEV DMS, creates the matching document entry, optionally sends a Slack notification, and then marks the email as archived in Outlook.\n\n### How it works\n1.\tThe workflow starts when a new email arrives in Outlook.\n2.\tWe skip emails without attachments.\n3.\tA DATEV client is retrieved for the email.\n4.\tWe process attachments one by one.\n5.\tEach file is uploaded to DATEV DMS and linked to a document.\n6.\tA Slack message can be sent after a successful upload.\n7.\tThe Outlook email is then marked as archived.\n\n### Setup steps\n1.\tConnect your Microsoft Outlook OAuth2 credentials.\n2.\tConnect your DATEVconnect credentials.\n3.\tOptionally connect Slack credentials.\n4.\tReplace the demo client lookup with your own client matching logic.\n5.\tAdjust the folder, registry, and metadata fields in the document creation step .\n6.\tUpdate the Outlook archive action to match your process."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2024098c-b8b1-4952-a4f2-c1ac7df66755",
+        "name": "Client lookup",
+        "type": "@klardaten/n8n-nodes-datevconnect.masterData",
+        "position": [
+          272,
+          -16
+        ],
+        "parameters": {
+          "top": 1,
+          "filter": "status eq active"
+        },
+        "credentials": {
+          "datevConnectApi": {
+            "id": "",
+            "name": "DATEVconnect account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3656dd7d-524a-45d9-8181-38d0b09ef1ca",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          224,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 198,
+          "height": 320,
+          "content": "## Client lookup\nDemo setup selects the first active client"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "463fded9-2aa4-4f79-bbf6-4c6fbb48f521",
+        "name": "Split attachments",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          528,
+          -16
+        ],
+        "parameters": {
+          "jsCode": "\nreturn $(\"New Outlook emal trigger\").all().flatMap(item => {\n  const binaries = item.binary ?? {};\n\n  return Object.keys(binaries).map(key => ({\n    json: {\n      ...item.json,\n    },\n    binary: {\n      data: binaries[key],\n    },\n  }));\n});"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "dcc12ffc-978e-4c92-88e3-630cade3622f",
+        "name": "New Outlook emal trigger",
+        "type": "n8n-nodes-base.microsoftOutlookTrigger",
+        "position": [
+          -240,
+          0
+        ],
+        "parameters": {
+          "filters": {
+            "hasAttachments": false
+          },
+          "options": {
+            "attachmentsPrefix": "attachment_",
+            "downloadAttachments": true
+          },
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          }
+        },
+        "credentials": {
+          "microsoftOutlookOAuth2Api": {
+            "id": "",
+            "name": "Microsoft Outlook OAuth2 API"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "binaryMode": "separate",
+      "availableInMCP": false,
+      "executionOrder": "v1"
+    },
+    "versionId": "03b8e372-dceb-4e52-8c0a-d26d3a3ef297",
+    "connections": {
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Create a document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Client lookup": {
+        "main": [
+          [
+            {
+              "node": "Split attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get DATEV user": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Update a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a document": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split attachments": {
+        "main": [
+          [
+            {
+              "node": "Upload a document file",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            },
+            {
+              "node": "Get DATEV user",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If we have attachments": {
+        "main": [
+          [
+            {
+              "node": "Client lookup",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload a document file": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "New Outlook emal trigger": {
+        "main": [
+          [
+            {
+              "node": "If we have attachments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

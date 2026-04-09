@@ -1,0 +1,91 @@
+{
+  "id": "official-665",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/665",
+    "template_id": 665
+  },
+  "name": "Send an SMS when a workflow fails",
+  "description": "Send an SMS when a workflow fails",
+  "category": "AI",
+  "tags": [
+    "DevOps",
+    "Error",
+    "Twilio",
+    "Error Trigger",
+    "send",
+    "sms",
+    "when",
+    "workflow",
+    "fails"
+  ],
+  "task_keywords": [
+    "send an sms when a workflow fails",
+    "error",
+    "send error",
+    "twilio",
+    "send twilio",
+    "error trigger",
+    "send sms",
+    "sms when",
+    "when workflow",
+    "workflow fails",
+    "fails send"
+  ],
+  "required_services": [
+    "Error",
+    "Twilio"
+  ],
+  "triggers": [
+    "Error Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "56",
+    "name": "Send an SMS when a workflow fails",
+    "nodes": [
+      {
+        "name": "Error Trigger",
+        "type": "n8n-nodes-base.errorTrigger",
+        "position": [
+          550,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Twilio",
+        "type": "n8n-nodes-base.twilio",
+        "position": [
+          750,
+          260
+        ],
+        "parameters": {
+          "to": "",
+          "from": "",
+          "message": "=Your workflow with ID: {{$node[\"Error Trigger\"].json[\"workflow\"][\"id\"]}} and name: {{$node[\"Error Trigger\"].json[\"workflow\"][\"name\"]}} failed to execute."
+        },
+        "credentials": {
+          "twilioApi": "twilio-credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Error Trigger": {
+        "main": [
+          [
+            {
+              "node": "Twilio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

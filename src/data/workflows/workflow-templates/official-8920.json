@@ -1,0 +1,1010 @@
+{
+  "id": "official-8920",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8920",
+    "template_id": 8920
+  },
+  "name": "WhatsApp personal AI assistant with voice, image, and PDF support",
+  "description": "📺 Full walkthrough video: https://youtu.be/ kpt0BwjKls Who it's for This workflow is for professionals and power users who want a personal AI assistant accessible directly via WhatsApp, capable of managing their emails, calendar, files, and online searches through natural conversation — including voice messages.",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "AI Chatbot",
+    "OpenAI",
+    "WhatsApp Business Cloud",
+    "Edit Fields (Set)",
+    "SerpApi (Google Search)",
+    "Anthropic Chat Model",
+    "airtable",
+    "google Drive",
+    "google Calendar",
+    "gmail",
+    "discord",
+    "Calculator",
+    "WhatsApp"
+  ],
+  "task_keywords": [
+    "whatsapp personal ai assistant with voice, image, and pdf support",
+    "openai",
+    "whatsapp business cloud",
+    "edit fields (set)",
+    "serpapi (google search)",
+    "anthropic chat model",
+    "airtable",
+    "google drive",
+    "google calendar",
+    "gmail",
+    "discord",
+    "calculator"
+  ],
+  "required_services": [
+    "OpenAI",
+    "WhatsApp Business Cloud",
+    "Edit Fields (Set)",
+    "SerpApi (Google Search)",
+    "Anthropic Chat Model",
+    "airtable",
+    "google Drive",
+    "google Calendar",
+    "gmail",
+    "discord",
+    "Calculator",
+    "WhatsApp",
+    "AI Agent",
+    "Simple Memory"
+  ],
+  "triggers": [
+    "WhatsApp Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "49a6bb72-e83b-41f3-b0d2-0dac4b3df0f7",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          256,
+          -576
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f8eb725e-1152-4ab8-8e0f-0c22863edc94",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          816,
+          -288
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8778b680-8557-4b32-a506-906a691eba33",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1872,
+          -288
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "fbee9c0f-1680-46fe-b226-d58ee1543b7e",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1872,
+          48
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "aa5146e8-e9a4-41f9-b59a-734a9e201d21",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1680,
+          384
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "35ee8f17-bc01-4d3e-b6ee-5f8ed6845f39",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2464,
+          -576
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "95f470b2-0440-48c1-916f-f8531bf64617",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2912,
+          -512
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2aed7ee2-f716-429b-af29-919622c5a6d3",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3024,
+          240
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "03c08544-3f2c-4c7d-8310-e714d62e6cb3",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3776,
+          560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "75d5dab9-a647-4830-8476-a414116719d7",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          4416,
+          -528
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0609bddd-db95-4b66-826f-59d2ce779f39",
+        "name": "Fetch Image from URL",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2112,
+          176
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "fb808a8c-c685-4364-8926-c87548962124",
+        "name": "OpenAI Analyze Image",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          2288,
+          176
+        ],
+        "parameters": {},
+        "typeVersion": 1.8
+      },
+      {
+        "id": "33ba8ec2-062a-4b70-852b-51215c10d161",
+        "name": "Fetch Audio from URL",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2112,
+          -160
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "74b2d734-e9ff-458f-8f7a-d3d335c2b8a7",
+        "name": "OpenAI Transcribe Audio",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          2288,
+          -160
+        ],
+        "parameters": {},
+        "typeVersion": 1.8
+      },
+      {
+        "id": "ec2549c1-1535-4f54-bfe0-f407dd988e58",
+        "name": "Fetch PDF File from URL",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2112,
+          512
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "080c5c68-ed13-40b0-a0e4-5ca2268e62a3",
+        "name": "Extract Text from PDF",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          2288,
+          512
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "22b63f42-0c19-4bca-a52c-8e5bb68c93dc",
+        "name": "Get WhatsApp File URL",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          1920,
+          512
+        ],
+        "webhookId": "280bd5de-32d7-4d8f-93d2-e91e3b0bc161",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "96c72126-9c35-409e-8186-866ba679c532",
+        "name": "If Message is PDF Document",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1728,
+          512
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "2420c972-f232-4212-a3f6-aef7fb3b5463",
+        "name": "Fix Audio MIME Type",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          4944,
+          -400
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "f845f614-0511-4ba5-aacd-76f71c2b1396",
+        "name": "Send Audio via WhatsApp",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          5120,
+          -400
+        ],
+        "webhookId": "d18b2c98-84e4-43cf-a532-0c47d5161684",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "b2898f53-596e-400b-98f6-35200bf255e8",
+        "name": "Send Incorrect Format Error",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          1920,
+          672
+        ],
+        "webhookId": "23834751-5066-48ba-8e19-549680df2b27",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "4226e3c7-dc2b-4072-82ed-8bf63865db0e",
+        "name": "Set Text Input",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2512,
+          -288
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "a0351e85-18d8-4a03-b4b5-085223297d23",
+        "name": "Set Audio Transcript Text",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2512,
+          -160
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "7b27d02c-e26f-4d0b-91b4-bf020994ec6b",
+        "name": "Set Image Analysis Text",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2512,
+          32
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "0364a019-2e99-41af-ae16-575c3cd1eba6",
+        "name": "Set File Content Text",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2512,
+          192
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "a01aec5a-561e-4384-931c-a9b9644dd494",
+        "name": "Get WhatsApp Image URL",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          1920,
+          176
+        ],
+        "webhookId": "280bd5de-32d7-4d8f-93d2-e91e3b0bc161",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "94038bd4-815b-41ee-b804-63b11cf206d9",
+        "name": "Get WhatsApp Audio URL",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          1920,
+          -160
+        ],
+        "webhookId": "87caa300-7204-47b5-959a-94f4a8fbf8cf",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "2fa36015-8f92-447f-b550-d06112408321",
+        "name": "OpenAI Generate Audio Reply",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          4752,
+          -400
+        ],
+        "parameters": {},
+        "typeVersion": 1.8
+      },
+      {
+        "id": "a4cea651-73cf-4d0d-aeaf-910c53b7d4a4",
+        "name": "If Reply Should Be Audio",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          4464,
+          -400
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "e3df048b-7197-4cb7-bfd1-8dfd8e6cabab",
+        "name": "Route by Input Type",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          1072,
+          -112
+        ],
+        "parameters": {},
+        "typeVersion": 3.2
+      },
+      {
+        "id": "f3fae863-b44c-49fe-ae61-b98b5ead7fff",
+        "name": "SerpAPI Web Search Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+        "position": [
+          3072,
+          368
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "f89105a8-1013-4fd9-ab45-a82ed0477a81",
+        "name": "Claude Sonnet Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          2976,
+          -176
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "14541a9c-8d43-4693-acfc-2d08f0c3ae7a",
+        "name": "Airtable Email Database",
+        "type": "n8n-nodes-base.airtableTool",
+        "position": [
+          3824,
+          720
+        ],
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "3b3800ee-a6c7-4d67-9518-9dda1256dfc3",
+        "name": "Add Email to Airtable",
+        "type": "n8n-nodes-base.airtableTool",
+        "position": [
+          3952,
+          720
+        ],
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "db646aec-f299-4e1a-882d-0a38c281d50a",
+        "name": "Search Google Drive",
+        "type": "n8n-nodes-base.googleDriveTool",
+        "position": [
+          3712,
+          368
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "d3d9cee0-d0d6-4b7a-83af-527cdb79943e",
+        "name": "Create Google Calendar Event",
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "position": [
+          3184,
+          368
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "c71f83be-ab61-4067-9b46-f6ebb92674bd",
+        "name": "Send Email via Gmail",
+        "type": "n8n-nodes-base.gmailTool",
+        "position": [
+          3584,
+          368
+        ],
+        "webhookId": "246b45ea-faa1-4748-8be5-49d1cdc8dec3",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "98f511f8-3453-4434-9402-b337dbce36a4",
+        "name": "Send Discord Message",
+        "type": "n8n-nodes-base.discordTool",
+        "position": [
+          4080,
+          720
+        ],
+        "webhookId": "d675b1fa-f5bf-4eed-9c76-bac2b931ddc3",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "e8b80ce9-a6ef-4cff-9128-52c9509c8b29",
+        "name": "Search Gmail Emails",
+        "type": "n8n-nodes-base.gmailTool",
+        "position": [
+          3472,
+          368
+        ],
+        "webhookId": "2b4ab66c-5a9b-400d-8d66-59c41d1ef0e1",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "d4cb370e-0f2f-44bf-b94a-2c101646db52",
+        "name": "Get Google Calendar Events",
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "position": [
+          3344,
+          368
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "be5cbf1b-e408-40d9-9cd6-c846cac770d3",
+        "name": "Calculator Tool",
+        "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+        "position": [
+          4176,
+          368
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "40ad4b70-e2ed-426a-a065-fee594eb1d99",
+        "name": "When WhatsApp Message Received",
+        "type": "n8n-nodes-base.whatsAppTrigger",
+        "position": [
+          864,
+          -64
+        ],
+        "webhookId": "df8e6c0f-f0f6-4206-8391-57f9f8d088a0",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "ee04fa70-7b43-451c-bee0-20e38b954c47",
+        "name": "Personal Assistant Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          3520,
+          -400
+        ],
+        "parameters": {},
+        "typeVersion": 1.7
+      },
+      {
+        "id": "fd985562-7325-48f3-8f29-0dbbd440a481",
+        "name": "Send Text Reply via WhatsApp",
+        "type": "n8n-nodes-base.whatsApp",
+        "position": [
+          4816,
+          -208
+        ],
+        "webhookId": "6a2a5af1-f065-4261-8bc3-d6a381ae4bc6",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "9adfdc12-d39d-437b-a28f-7c83914eb032",
+        "name": "Conversation Memory Buffer",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "position": [
+          2960,
+          64
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "5e5a59ef-e262-4a79-8e06-d9edb2255fd0",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3248,
+          -1104
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b4fe0a4d-383a-41b3-a87d-e71018c10430",
+        "name": "Sticky Note14",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2400,
+          -1072
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Set Text Input": {
+        "main": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculator Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude Sonnet Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fix Audio MIME Type": {
+        "main": [
+          [
+            {
+              "node": "Send Audio via WhatsApp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by Input Type": {
+        "main": [
+          [
+            {
+              "node": "Set Text Input",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get WhatsApp Audio URL",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Get WhatsApp Image URL",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "If Message is PDF Document",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Gmail Emails": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Google Drive": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Audio from URL": {
+        "main": [
+          [
+            {
+              "node": "OpenAI Transcribe Audio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Image from URL": {
+        "main": [
+          [
+            {
+              "node": "OpenAI Analyze Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Analyze Image": {
+        "main": [
+          [
+            {
+              "node": "Set Image Analysis Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Discord Message": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Email via Gmail": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Email to Airtable": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Text from PDF": {
+        "main": [
+          [
+            {
+              "node": "Set File Content Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get WhatsApp File URL": {
+        "main": [
+          [
+            {
+              "node": "Fetch PDF File from URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set File Content Text": {
+        "main": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get WhatsApp Audio URL": {
+        "main": [
+          [
+            {
+              "node": "Fetch Audio from URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get WhatsApp Image URL": {
+        "main": [
+          [
+            {
+              "node": "Fetch Image from URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Airtable Email Database": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch PDF File from URL": {
+        "main": [
+          [
+            {
+              "node": "Extract Text from PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Transcribe Audio": {
+        "main": [
+          [
+            {
+              "node": "Set Audio Transcript Text",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SerpAPI Web Search Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Image Analysis Text": {
+        "main": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If Reply Should Be Audio": {
+        "main": [
+          [
+            {
+              "node": "OpenAI Generate Audio Reply",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send Text Reply via WhatsApp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Personal Assistant Agent": {
+        "main": [
+          [
+            {
+              "node": "If Reply Should Be Audio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Audio Transcript Text": {
+        "main": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Conversation Memory Buffer": {
+        "ai_memory": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Google Calendar Events": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If Message is PDF Document": {
+        "main": [
+          [
+            {
+              "node": "Get WhatsApp File URL",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send Incorrect Format Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Generate Audio Reply": {
+        "main": [
+          [
+            {
+              "node": "Fix Audio MIME Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Google Calendar Event": {
+        "ai_tool": [
+          [
+            {
+              "node": "Personal Assistant Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When WhatsApp Message Received": {
+        "main": [
+          [
+            {
+              "node": "Route by Input Type",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

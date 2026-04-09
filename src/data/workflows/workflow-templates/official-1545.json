@@ -1,0 +1,94 @@
+{
+  "id": "official-1545",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1545",
+    "template_id": 1545
+  },
+  "name": "Update Shopify order tags when a Onfleet event happens",
+  "description": "Summary Onfleet is a last mile delivery software that provides end to end route planning, dispatch, communication, and analytics to handle the heavy lifting while you can focus on your customers.",
+  "category": "Communication",
+  "tags": [
+    "CRM",
+    "Onfleet",
+    "Shopify",
+    "Onfleet Trigger",
+    "update",
+    "shopify",
+    "order",
+    "tags",
+    "when",
+    "onfleet"
+  ],
+  "task_keywords": [
+    "update shopify order tags when a onfleet event happens",
+    "onfleet",
+    "update onfleet",
+    "shopify",
+    "update shopify",
+    "onfleet trigger",
+    "shopify order",
+    "order tags",
+    "tags when",
+    "when onfleet",
+    "onfleet event",
+    "event happens"
+  ],
+  "required_services": [
+    "Onfleet",
+    "Shopify"
+  ],
+  "triggers": [
+    "Onfleet Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Updating Shopify tags on Onfleet events",
+    "nodes": [
+      {
+        "name": "Onfleet Trigger",
+        "type": "n8n-nodes-base.onfleetTrigger",
+        "position": [
+          460,
+          300
+        ],
+        "webhookId": "6d6a2bee-f83e-4ebd-a1d5-8708c34393dc",
+        "parameters": {
+          "triggerOn": "taskDelayed",
+          "additionalFields": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Shopify",
+        "type": "n8n-nodes-base.shopify",
+        "position": [
+          680,
+          300
+        ],
+        "parameters": {
+          "operation": "update",
+          "updateFields": {
+            "tags": ""
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Onfleet Trigger": {
+        "main": [
+          [
+            {
+              "node": "Shopify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

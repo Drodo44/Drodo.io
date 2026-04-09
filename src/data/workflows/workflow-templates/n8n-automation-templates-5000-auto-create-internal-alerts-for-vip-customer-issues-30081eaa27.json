@@ -1,0 +1,191 @@
+{
+  "id": "n8n-automation-templates-5000-auto-create-internal-alerts-for-vip-customer-issues-30081eaa27",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n advance/auto-create-internal-alerts-for-vip-customer-issues.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n advance/auto-create-internal-alerts-for-vip-customer-issues.json"
+  },
+  "name": "auto-create-internal-alerts-for-vip-customer-issues",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: auto-create-internal-alerts-for-vip-customer-issues",
+  "category": "Communication",
+  "tags": [
+    "n8n advance",
+    "function",
+    "slack",
+    "webhook",
+    "auto",
+    "create",
+    "internal",
+    "alerts",
+    "vip",
+    "customer"
+  ],
+  "task_keywords": [
+    "auto-create-internal-alerts-for-vip-customer-issues",
+    "function",
+    "create function",
+    "slack",
+    "create slack",
+    "webhook",
+    "auto create",
+    "create internal",
+    "internal alerts",
+    "alerts vip",
+    "vip customer",
+    "customer issues"
+  ],
+  "required_services": [
+    "function",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "auto-create-internal-alerts-for-vip-customer-issues",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "ticket-created"
+        },
+        "id": "vip1",
+        "name": "New Ticket Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          100,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "functionCode": "const b=$json.body||$json; const vip=(b.accountTier||'').toLowerCase()==='vip'; return [{json:{id:b.id,subject:b.subject||'',vip,account:b.account||b.domain||'',owner:b.assigneeEmail||''}}];"
+        },
+        "id": "vip2",
+        "name": "Normalize",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          320,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{$json.vip}}"
+              }
+            ]
+          }
+        },
+        "id": "vip3",
+        "name": "IF VIP",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          540,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "channel": "#vip-alerts",
+          "text": "💎 VIP ticket {{$json.id}} from {{$json.account}} — {{$json.subject}}. Owner {{$json.owner}}"
+        },
+        "id": "vip4",
+        "name": "Slack VIP Alert",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          760,
+          260
+        ]
+      },
+      {
+        "parameters": {
+          "url": "https://api.pagerduty.com/incidents",
+          "authentication": "none",
+          "options": {
+            "headersUi": {
+              "parameter": [
+                {
+                  "name": "Authorization",
+                  "value": "Token token={{$credentials.pagerdutyToken}}"
+                },
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          },
+          "jsonParameters": true,
+          "options_json": {
+            "title": "={{'VIP ticket '+$json.id}}",
+            "service": {
+              "id": "={{$credentials.pagerDutyServiceId}}",
+              "type": "service_reference"
+            },
+            "urgency": "high"
+          }
+        },
+        "id": "vip5",
+        "name": "Create PagerDuty Incident (placeholder)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          760,
+          360
+        ]
+      }
+    ],
+    "connections": {
+      "New Ticket Webhook": {
+        "main": [
+          [
+            {
+              "node": "Normalize",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize": {
+        "main": [
+          [
+            {
+              "node": "IF VIP",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF VIP": {
+        "main": [
+          [
+            {
+              "node": "Slack VIP Alert",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Create PagerDuty Incident (placeholder)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    },
+    "active": false
+  }
+}

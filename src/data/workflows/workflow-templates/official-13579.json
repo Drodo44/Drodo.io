@@ -1,0 +1,426 @@
+{
+  "id": "official-13579",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/13579",
+    "template_id": 13579
+  },
+  "name": "Schedule client meetings via web forms with Google Calendar, Zoom",
+  "description": "Who it's for This n8n workflow is designed for businesses, consultants, and service providers who want to automate their meeting scheduling process.",
+  "category": "AI",
+  "tags": [
+    "Support Chatbot",
+    "Microsoft Teams",
+    "Discord",
+    "Edit Fields (Set)",
+    "Date & Time",
+    "Gmail",
+    "rapiwa",
+    "Google Calendar",
+    "Zoom",
+    "Webhook",
+    "schedule",
+    "client",
+    "meetings",
+    "via"
+  ],
+  "task_keywords": [
+    "schedule client meetings via web forms with google calendar, zoom",
+    "microsoft teams",
+    "discord",
+    "edit fields (set)",
+    "date & time",
+    "gmail",
+    "rapiwa",
+    "google calendar",
+    "zoom",
+    "webhook",
+    "schedule client",
+    "client meetings"
+  ],
+  "required_services": [
+    "Microsoft Teams",
+    "Discord",
+    "Edit Fields (Set)",
+    "Date & Time",
+    "Gmail",
+    "rapiwa",
+    "Google Calendar",
+    "Zoom"
+  ],
+  "triggers": [
+    "Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "ryzC3hIrv0ur68Hu",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Automated Client Meeting Scheduling & Instant Notifications",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "79c5a462-2dae-40eb-b16a-dee23c67509f",
+        "name": "Web Contact Form",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -2288,
+          1648
+        ],
+        "webhookId": "93a81ced-e52c-4d31-96d2-c91a20bd7453",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "cbb25eb9-3c3b-4be7-9a53-aeb83604c707",
+        "name": "Create chat message",
+        "type": "n8n-nodes-base.microsoftTeams",
+        "position": [
+          -112,
+          1408
+        ],
+        "webhookId": "cff57660-3326-404f-8e1d-a5e72899f5c3",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "a505a5b2-b2eb-4950-9273-dc7b7f350e8b",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -112,
+          1888
+        ],
+        "webhookId": "302121b8-3595-4b48-b8ba-adb41978d17f",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "8cc1f34d-a839-4ee4-8c5a-721644dec91b",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -144,
+          1360
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "70088ae4-ffcb-4db2-9861-6f409ac4aa9a",
+        "name": "Add Event name, Duration, Password",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          -1840,
+          1648
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "9b64a44a-f789-4bcc-94a5-a48eb86f010d",
+        "name": "Check Meeting Slot Availability",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -1168,
+          1648
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "d75704bb-41b5-499a-b39a-8edd3efc1003",
+        "name": "Format Date & Time",
+        "type": "n8n-nodes-base.dateTime",
+        "position": [
+          -2064,
+          1648
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "226d34b8-6b36-4ac4-9c6e-4d1681c50b52",
+        "name": "Send Notice for Unavailable Slot",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          -944,
+          1744
+        ],
+        "webhookId": "98dd0319-284e-4b12-a655-a57577571800",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "cbc31c02-6bf6-48ce-9cc5-67ab9d69bac7",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2816,
+          1344
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "aa1944aa-70a9-43cf-ae4c-4c8658692540",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2320,
+          1520
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2ace18c5-5c9f-4ae9-8077-ebfab9516db2",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1008,
+          1424
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "05e21105-7546-46ee-aacb-11cd967408ca",
+        "name": "Code (Configure Meeting Information)",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          -1616,
+          1648
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "97a24283-1ca5-4ceb-aba1-f5a71ed3e48a",
+        "name": "Send a Email",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          -112,
+          1568
+        ],
+        "webhookId": "04f6ce37-404a-4982-ae2d-dbbaed6b2e90",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "fe583038-56fd-49d6-ac6a-0eecb9df04bb",
+        "name": "Rapiwa ()WhatsApp Message",
+        "type": "n8n-nodes-rapiwa.rapiwa",
+        "position": [
+          -112,
+          1728
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "3dc72378-5fed-4a0d-b72a-cd32f5deb8ab",
+        "name": "Checks Google Calendar to see if the requested time slot is free",
+        "type": "n8n-nodes-base.googleCalendar",
+        "position": [
+          -1392,
+          1648
+        ],
+        "parameters": {},
+        "typeVersion": 1.3,
+        "alwaysOutputData": true
+      },
+      {
+        "id": "e06e4755-3136-42af-9ea9-dc9acab95ade",
+        "name": "Notify team via Microsoft Teams",
+        "type": "n8n-nodes-base.microsoftTeams",
+        "position": [
+          -432,
+          1440
+        ],
+        "webhookId": "cff57660-3326-404f-8e1d-a5e72899f5c3",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "d0e09ab9-9ef5-4761-a4d5-bd0e88baaaf9",
+        "name": "Send confirmation email to client",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          -432,
+          1648
+        ],
+        "webhookId": "f28b9459-360b-4cad-9f2e-0d69654e795b",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "7078a0c9-ae58-40a8-9473-240dcc6fadf0",
+        "name": "Create Zoom meeting with client info",
+        "type": "n8n-nodes-base.zoom",
+        "position": [
+          -720,
+          1552
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "23c8a4b0-18b4-4427-b52c-cf0cca73767f",
+        "name": "Create Event Using Web Submission Form (Add booking to Google Calendar with details & reminders)",
+        "type": "n8n-nodes-base.googleCalendar",
+        "position": [
+          -944,
+          1552
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "availableInMCP": false,
+      "executionOrder": "v1"
+    },
+    "versionId": "3eb2fea1-59a3-4d0a-a1ea-978ee2cfc164",
+    "connections": {
+      "Web Contact Form": {
+        "main": [
+          [
+            {
+              "node": "Format Date & Time",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Date & Time": {
+        "main": [
+          [
+            {
+              "node": "Add Event name, Duration, Password",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Meeting Slot Availability": {
+        "main": [
+          [
+            {
+              "node": "Create Event Using Web Submission Form (Add booking to Google Calendar with details & reminders)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send Notice for Unavailable Slot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send confirmation email to client": {
+        "main": [
+          [
+            {
+              "node": "Create chat message",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send a Email",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Rapiwa ()WhatsApp Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Add Event name, Duration, Password": {
+        "main": [
+          [
+            {
+              "node": "Code (Configure Meeting Information)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code (Configure Meeting Information)": {
+        "main": [
+          [
+            {
+              "node": "Checks Google Calendar to see if the requested time slot is free",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Zoom meeting with client info": {
+        "main": [
+          [
+            {
+              "node": "Send confirmation email to client",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Notify team via Microsoft Teams",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Checks Google Calendar to see if the requested time slot is free": {
+        "main": [
+          [
+            {
+              "node": "Check Meeting Slot Availability",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Event Using Web Submission Form (Add booking to Google Calendar with details & reminders)": {
+        "main": [
+          [
+            {
+              "node": "Create Zoom meeting with client info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

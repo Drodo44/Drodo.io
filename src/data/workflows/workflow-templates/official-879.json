@@ -1,0 +1,91 @@
+{
+  "id": "official-879",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/879",
+    "template_id": 879
+  },
+  "name": "Access data from bubble application",
+  "description": "This is a proof of concept workflow showing how you would connect n8n to a Bubble data collection.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Manual Trigger",
+    "access",
+    "data",
+    "bubble",
+    "application",
+    "proof",
+    "concept"
+  ],
+  "task_keywords": [
+    "access data from bubble application",
+    "manual",
+    "manual trigger",
+    "access data",
+    "data bubble",
+    "bubble application",
+    "application proof",
+    "proof concept",
+    "concept workflow",
+    "workflow showing",
+    "showing you",
+    "you would"
+  ],
+  "required_services": [
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "15",
+    "name": "Bubble Data Access",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "url": "https://n8n-lessons.bubbleapps.io/version-test/api/1.1/obj/user",
+          "options": {},
+          "authentication": "headerAuth"
+        },
+        "credentials": {
+          "httpHeaderAuth": "Bubble n8n Lessons Token"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

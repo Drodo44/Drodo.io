@@ -1,0 +1,84 @@
+{
+  "id": "official-640",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/640",
+    "template_id": 640
+  },
+  "name": "Get all the entries from Contentful",
+  "description": "Get all the entries from Contentful",
+  "category": "Productivity",
+  "tags": [
+    "Document Extraction",
+    "manual",
+    "Contentful",
+    "Manual Trigger",
+    "all",
+    "entries",
+    "contentful"
+  ],
+  "task_keywords": [
+    "get all the entries from contentful",
+    "manual",
+    "contentful",
+    "manual trigger",
+    "all entries",
+    "entries contentful",
+    "contentful all"
+  ],
+  "required_services": [
+    "manual",
+    "Contentful"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          150,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Contentful",
+        "type": "n8n-nodes-base.contentful",
+        "position": [
+          350,
+          300
+        ],
+        "parameters": {
+          "operation": "getAll",
+          "returnAll": true,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "contentfulApi": "contentful"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Contentful",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

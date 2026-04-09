@@ -1,0 +1,2912 @@
+{
+  "id": "n8n-workflow-template-agent-ia-projet-client-ed85e57366",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_IA_Projet_Client.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_IA_Projet_Client.json"
+  },
+  "name": "Agent IA Projet Client",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent IA Projet Client",
+  "category": "AI",
+  "tags": [
+    "[object Object]",
+    "Open AI",
+    "tool Workflow",
+    "Qdrant",
+    "embeddings Open AI",
+    "telegram",
+    "open AI",
+    "output Parser Structured",
+    "agent",
+    "gmail",
+    "google Calendar",
+    "google Drive",
+    "document Default Data Loader",
+    "text Splitter Recursive Character Text Splitter"
+  ],
+  "task_keywords": [
+    "agent ia projet client",
+    "open ai",
+    "tool workflow",
+    "qdrant",
+    "embeddings open ai",
+    "telegram",
+    "output parser structured",
+    "agent",
+    "gmail",
+    "google calendar",
+    "google drive",
+    "document default data loader"
+  ],
+  "required_services": [
+    "Open AI",
+    "tool Workflow",
+    "Qdrant",
+    "embeddings Open AI",
+    "telegram",
+    "open AI",
+    "output Parser Structured",
+    "agent",
+    "gmail",
+    "google Calendar",
+    "google Drive",
+    "document Default Data Loader",
+    "text Splitter Recursive Character Text Splitter"
+  ],
+  "triggers": [
+    "execute Workflow Trigger",
+    "telegram Trigger",
+    "gmail Trigger",
+    "google Drive Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent IA Projet Client",
+    "nodes": [
+      {
+        "parameters": {
+          "inputSource": "jsonExample",
+          "jsonExample": "{\n  \"contexte\": {},\n  \"contenu\": {}\n}"
+        },
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          740,
+          -300
+        ],
+        "id": "bb10eea0-8185-4b74-b1ba-7d098c764a8a",
+        "name": "Workflow Input Trigger"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          -80
+        ],
+        "id": "3a138e65-f736-42fc-b8ac-779434050f98",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "Agent_Email",
+          "description": "Cet Agent permet de gerer tous ce qui est lié au mail.",
+          "workflowId": {
+            "__rl": true,
+            "value": "MP7KJlj42dhEcAtw",
+            "mode": "list",
+            "cachedResultName": "Agent Email Projet Client"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "contexte": "={{$fromAI(\"contexte\")}}",
+              "email_metadata": "={{$fromAI(\"email_metadata\",\"email_metadata au format JSON\")}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "contexte",
+                "displayName": "contexte",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string"
+              },
+              {
+                "id": "email_metadata",
+                "displayName": "email_metadata",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2,
+        "position": [
+          1600,
+          -40
+        ],
+        "id": "3002b086-86c5-4f80-888b-4d22677ae5d2",
+        "name": "Email Agent"
+      },
+      {
+        "parameters": {
+          "mode": "retrieve-as-tool",
+          "toolName": "bases_de_connaissances_entreprise",
+          "toolDescription": "Cet base de données comporte des informations sur l'entreprise concernant toutes l'entreprise : \n- Réponses aux mails",
+          "qdrantCollection": {
+            "__rl": true,
+            "value": "rag_test_video",
+            "mode": "list",
+            "cachedResultName": "rag_test_video"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "typeVersion": 1,
+        "position": [
+          1160,
+          -60
+        ],
+        "id": "0b183905-64c1-4e07-ab89-fdf60f68c131",
+        "name": "Qdrant Vector Store",
+        "credentials": {
+          "qdrantApi": {
+            "id": "9JqTObX6NgZUQVRP",
+            "name": "QdrantApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          1160,
+          80
+        ],
+        "id": "c61c09f3-0c3d-4b0a-ba70-a95c6845c562",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "name": "calcul_distance_temps",
+          "description": "Cet outil te permet de calculer le temps pour arriver à une destination d'intervention précise.",
+          "workflowId": {
+            "__rl": true,
+            "value": "OP6u1SPfJSawxCvm",
+            "mode": "list",
+            "cachedResultName": "Calcul Distance Temps"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "point_B": "={{$fromAI(\"lieu_intervention\",\"destination de l'intervention à calculer le temps le temps de déplacement. Exemple : 23 Rue Victor Hugo,33000 Bordeaux\")}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "point_A",
+                "displayName": "point_A",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              },
+              {
+                "id": "point_B",
+                "displayName": "point_B",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2,
+        "position": [
+          1500,
+          100
+        ],
+        "id": "6036dfe2-1879-46c5-9e57-f42494534adc",
+        "name": "Calcul Distance Temps"
+      },
+      {
+        "parameters": {
+          "name": "agen_calendrier",
+          "description": "Cet agent gère tout ce qui est relié aux calendrier (création,supression,modification d'évenement, vérifier la disponibilité pour se déplacer, etc)",
+          "workflowId": {
+            "__rl": true,
+            "value": "GcCKZhb3s4aRl1W7",
+            "mode": "list",
+            "cachedResultName": "Agent Calendrier Projet Client"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "action": "={{$fromAI(\"action\",\"détaillé le plus possible avec toutes les actions à réaliser\")}}",
+              "contexte": "={{$fromAI(\"action\",\"détaillé le plus possible avec tout le contexte nécessaire\")}}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "action",
+                "displayName": "action",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string"
+              },
+              {
+                "id": "contexte",
+                "displayName": "contexte",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string"
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2,
+        "position": [
+          1760,
+          -40
+        ],
+        "id": "c3c618b7-b99f-4798-89ba-0dd5f25e037a",
+        "name": "Agent Calendrier"
+      },
+      {
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          440,
+          -40
+        ],
+        "id": "8ec28d9a-e2fa-43c2-b59b-27f506e81b30",
+        "name": "Telegram Trigger",
+        "webhookId": "eb5ec07d-0059-4ca8-9380-1cf911f977b3",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "audio",
+          "operation": "transcribe",
+          "options": {
+            "language": "fr"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          880,
+          -160
+        ],
+        "id": "1460f85b-9d59-4d1c-927b-b3f344ecb16a",
+        "name": "OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "fileId": "={{ $json.message.voice.file_id }}"
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          740,
+          -160
+        ],
+        "id": "81cfaad1-2dd3-40e0-ae2b-046f8fd3dae8",
+        "name": "Telegram",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.message.voice }}",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "object",
+                        "operation": "exists",
+                        "singleValue": true
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Audio"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "6ce13df7-74d1-46dc-a051-a99a13b9d2e8",
+                      "leftValue": "={{ $json.message.text }}",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "exists",
+                        "singleValue": true
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Texte"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          600,
+          -40
+        ],
+        "id": "4defecdd-b352-4955-ab9a-4a23d86f6fb1",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "f33b9884-736e-4ed8-8823-2c3d98d8c21f",
+                "leftValue": "={{ $('Telegram Trigger').isExecuted}}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "false",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1500,
+          -260
+        ],
+        "id": "0bb99661-0ff6-460a-9f33-8fdd7a994d6a",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"status\": {\n\t\t\t\"type\": \"string\",\n          \"description\":\"succes ou echec\"\n\t\t},\n\t\t\"message\": {\n\t\t\t\"type\": \"string\",\n\t\t\t\"description\":\"le message de réponse\"\n\t\t}\n\t}\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          1940,
+          -40
+        ],
+        "id": "a72f0523-96b8-4d8e-9ff6-7e551859195f",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id}}",
+          "text": "={{ $json.output.message }}",
+          "additionalFields": {
+            "appendAttribution": false,
+            "reply_to_message_id": "={{ $('Telegram Trigger').first().json.message.message_id}}"
+          }
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          1900,
+          -220
+        ],
+        "id": "7c20d25d-a26d-427f-a399-69766fc04fac",
+        "name": "Envois Message Telegram",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Message Telegram reçu : \n\n{{ $('Telegram Trigger').isExecuted ? ($('OpenAI').isExecuted ? $('OpenAI').first().json.text : $json.message.text) : \"Pas de message Telegram reçu\" }}\n\nInformations sur le mail recu : \n{{ $('Workflow Input Trigger').isExecuted ? $json.contenu?.toJsonString():\"Pas d'informations sur le mail recu Message Telegram\"}}\n\nContexte : \n{{ $('Workflow Input Trigger').isExecuted ?$json.contexte?.toJsonString() :\"Message Telegram\" }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=SYSTEME\nTu es l'assistant personnel de Benoit. Ton objectif est de gérer la totalité des emails, le calendrier et le calcul du temps de trajet pour les interventions. Tu disposes de toutes les informations et autorisations de l'entreprise pour répondre aux mails des clients, gérer les disponibilités, créer ou modifier des événements dans le calendrier et envoyer des emails directement à partir des demandes reçues par email ou Telegram.\n\nCas Email : Suis la procédure classique incluant l'analyse, la vérification et la création d'un brouillon ou l'envoi d'un email définitif selon les règles en place.\nCas Telegram : Pour les demandes issues de Telegram, tu peux directement :\nEnvoyer un email à n'importe quel destinataire sans passer par la création d'un brouillon.\nCréer un événement dans le calendrier aux dates et heures indiquées.\nModifier un événement existant ou d'autres éléments (selon la demande) sans vérification supplémentaire.\nETAPES\n\nAnalyse de la Demande et Détermination de la Source\n\nIdentifier la source de la demande : email ou message Telegram.\nPour une demande par email :\nIdentifier la localisation (vérifier si une adresse précise est mentionnée).\nRelever les informations complémentaires et les éventuelles demandes spécifiques.\nDéterminer si la demande concerne des disponibilités (dans ce cas, utiliser l’Agent Calendrier).\nPour une demande par Telegram :\nExtraire directement les informations pertinentes (destinataire, contenu de l’email, date, heure, description, etc.) nécessaires pour l’action demandée (envoi d'email, création ou modification d’événement).\nUtilisation de l'Outil Calcul Distance Temps (Cas Email uniquement)\n\nSi une adresse précise est fournie dans le mail, utiliser l’outil pour calculer le temps de trajet.\nSi l’adresse est floue ou absente, ne pas déclencher cet outil et poursuivre l’analyse.\nRécupération des Informations\n\nExtraire les données pertinentes dans la base de données pour répondre correctement à la demande, en fonction de la source (email ou Telegram).\nValidation et Traitement de l’Intervention\n\nPour une demande Email :\nVérifier que l’intervention respecte les conditions définies :\nSi le temps de trajet dépasse 15 minutes, envoyer un mail spécifique préconfiguré (via la base de données).\nPour toute demande de disponibilité, vérifier le calendrier avec l’Agent Calendrier.\nPour une demande Telegram :\nLa demande est considérée comme validée automatiquement, et tu exécutes directement l'action demandée sans vérification supplémentaire.\nSelon la demande, procéder à l’envoi immédiat de l’email, à la création d’un nouvel événement ou à la modification d’un événement existant.\nValidation de la Date et de l’Heure de l’Intervention (Cas Email)\n\nDès que le client a validé la date et l’heure de l’intervention dans le cadre d’un email, effectuer les actions suivantes :\nCréation d’un brouillon de réponse : Générer et envoyer un brouillon de réponse par email en confirmant la date, l’heure validées et toutes les informations nécessaires.\nCréation d’un événement dans le calendrier : Utiliser l’Agent Calendrier pour créer un événement correspondant à l’intervention.\nSOUS AGENTS IA À TA DISPOSITION\n\nAgent Email : Accède à l'ensemble des mails de Bruce et réalise toutes les actions sur son compte Google Mail (création, modification, suppression, tri, etc.).\nAgent Calendrier : Accède à l’ensemble du calendrier de Bruce et effectue toutes les actions possibles sur son calendrier Google (vérification de disponibilité, création, modification, suppression d’évènements).\nOUTILS\n\nCalcul Distance Temps : Permet de calculer le temps de trajet nécessaire pour l’intervention, utilisé uniquement lorsque l’adresse est suffisamment précise dans le mail.\nCONTRAINTES\n\nPour les trajets dont la durée est supérieure à 15 minutes dans les demandes par email, renvoyer un mail spécifique préconfiguré dans la base de données.\nLes actions et le contexte fournis aux outils doivent être précis et regrouper toutes les informations nécessaires pour réaliser les actions demandées.\nUtilise l’outil Calcul Distance Temps uniquement lorsqu'une adresse précise est indiquée dans le mail. Si l’adresse est floue ou absente, ne pas déclencher cet outil.\nPour toute demande concernant les disponibilités par email, fais systématiquement appel à l’Agent Calendrier.\nLors de la validation de la date et de l’heure par le client dans le cadre d’un email, assure-toi de créer simultanément un brouillon de réponse et un événement dans le calendrier.\nPour les demandes issues de Telegram, les actions demandées (envoi d'email, création ou modification d’événement) se font automatiquement et directement sans vérification intermédiaire."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1140,
+          -260
+        ],
+        "id": "fccdf097-b6f7-43a4-b476-d2a3abff4658",
+        "name": "Agent IA"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          940,
+          -580
+        ],
+        "id": "e9fb4658-bbd7-43ef-8857-43927178a730",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          60,
+          -880
+        ],
+        "id": "ad55c6dc-7868-41f6-9dbb-cf9dabd9829f",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "operation": "markAsRead",
+          "messageId": "={{ $json.id }}"
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          -500,
+          -700
+        ],
+        "id": "958601c2-2e5c-4865-bf7e-6891fbde7161",
+        "name": "Mark as Read",
+        "webhookId": "4e4ef859-097b-4569-88e3-9222f129e393",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "thread",
+          "operation": "get",
+          "threadId": "={{ $json.threadId }}",
+          "simple": false,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          -60,
+          -580
+        ],
+        "id": "1b4c182a-fb85-4923-be33-232be15b2bfe",
+        "name": "Get Thread",
+        "webhookId": "20daa38d-4451-4a9b-a06c-e3ba66c8db58",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "44d3d98f-ae45-4539-b298-d5209314b25e",
+                "name": "from",
+                "value": "={{ $json.headers.from }}",
+                "type": "string"
+              },
+              {
+                "id": "c1c20f0a-4900-41d2-a028-92c66b2c3a5a",
+                "name": "date",
+                "value": "={{ $json.headers.date }}",
+                "type": "string"
+              },
+              {
+                "id": "3dbf83e9-d29c-4831-bd4a-0c7131811295",
+                "name": "to",
+                "value": "={{ $json.headers.to }}",
+                "type": "string"
+              },
+              {
+                "id": "50019a41-f699-4093-a47a-68c6487990fb",
+                "name": "cc",
+                "value": "={{$json.headers.cc}}",
+                "type": "string"
+              },
+              {
+                "id": "167482f2-bc00-4c6b-b893-8dad367601af",
+                "name": "text",
+                "value": "={{\n$json.html }}",
+                "type": "string"
+              },
+              {
+                "id": "bd9c15d3-a6b7-429f-91fb-13c661441f06",
+                "name": "id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "0ebc5705-fca0-41db-976f-53ec43e0eeb4",
+                "name": "threadId",
+                "value": "={{ $json.threadId }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          780,
+          -580
+        ],
+        "id": "eb8471fc-294c-4b57-9cbb-93a823cc9c51",
+        "name": "Set Values"
+      },
+      {
+        "parameters": {
+          "jsCode": "// On récupère la liste des messages (ici, on s'attend à ce que chaque message possède une propriété \"html\"\n// contenant le message au format HTML. Sinon, on peut utiliser message.text s'il est déjà en HTML.)\nconst messages = $input.first().json.data;\nlet messageHistory = \"\";\n\nmessages.forEach((message, index) => {\n  // Utiliser le contenu HTML si présent, sinon le contenu texte\n  let htmlContent = message.html || message.text;\n  \n  // Suppression de la partie citée souvent encapsulée dans <blockquote>...</blockquote>\n  htmlContent = htmlContent.replace(/<blockquote[\\s\\S]*?<\\/blockquote>/gi, \"\");\n  \n  // Supprimer également les blocs de Gmail (souvent identifiés par la classe \"gmail_quote\")\n  htmlContent = htmlContent.replace(/<div\\s+class=[\"']?gmail_quote[\"']?[\\s\\S]*?<\\/div>/gi, \"\");\n  \n  // Conversion du HTML restant en texte brut en supprimant toutes les balises HTML\n  const plainText = htmlContent.replace(/<[^>]+>/g, '').trim();\n  \n  // Formatage du message\n  messageHistory += `Message ${index}\\n`;\n  messageHistory += `${message.from}\\n`;\n  messageHistory += `${message.date}\\n`;\n  messageHistory += `Contenu : ${plainText}\\n`;\n  messageHistory += `---------------\\n`;\n});\n\nreturn { messageHistory };\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1120,
+          -580
+        ],
+        "id": "aded2c75-efae-4819-9b2e-533f8dc9b65c",
+        "name": "Reformat"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          280,
+          -880
+        ],
+        "id": "a4e4306c-44d5-4917-9f5a-7f2e4eae5813",
+        "name": "Aggregate1"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "PY7gl6KSkLwrekhB",
+            "mode": "list",
+            "cachedResultName": "Agent IA Projet Client"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "contexte": "={{ $json.contexte }}",
+              "contenu": "={{ $json.contenu }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "contexte",
+                "displayName": "contexte",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "object"
+              },
+              {
+                "id": "contenu",
+                "displayName": "contenu",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "object"
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          680,
+          -880
+        ],
+        "id": "398add66-e227-4286-ae21-34cffd4fb667",
+        "name": "Execute Workflow"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "acc8801e-4d39-4a2f-b56c-be6912b3f18f",
+                "name": "threadId",
+                "value": "={{ $json.threadId }}",
+                "type": "string"
+              },
+              {
+                "id": "8cfa4ad3-fe9b-424c-a4ef-b6dd03741372",
+                "name": "messageId",
+                "value": "={{ $('New Mail Trigger').item.json.headers['message-id'] }}",
+                "type": "string"
+              },
+              {
+                "id": "040c0378-00b3-4d0b-9779-280c2128288f",
+                "name": "sujet",
+                "value": "={{ $('New Mail Trigger').item.json.subject }}",
+                "type": "string"
+              },
+              {
+                "id": "5a567866-8986-40a2-9667-097439a485a3",
+                "name": "destinataire",
+                "value": "={{ $('New Mail Trigger').item.json.to.value[0].address }}",
+                "type": "string"
+              },
+              {
+                "id": "56bbe669-4053-4017-a1fa-fd06dfe972fa",
+                "name": "contenu",
+                "value": "={{ $('New Mail Trigger').item.json.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -240,
+          -580
+        ],
+        "id": "e57614ad-c0ce-4455-8173-82491191c1df",
+        "name": "Incoming Values"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "67653682-790c-4967-b373-6e38a11a70f2",
+                "name": "Messages",
+                "value": "={{ $json.messages}}",
+                "type": "array"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          120,
+          -580
+        ],
+        "id": "81a351f0-de7f-482a-8146-3a0861435ab7",
+        "name": "Extraire Thread"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "messageId": "={{ $json.id }}",
+          "simple": false,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          580,
+          -580
+        ],
+        "id": "5663d808-808a-491a-ba15-509bce76efc6",
+        "name": "Get Full Messages",
+        "webhookId": "58c3e2eb-ab69-4f85-978a-8bac7a2f773f",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "Messages",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          340,
+          -580
+        ],
+        "id": "3e3e5574-982c-4b7e-882a-ae862dba8d2e",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "2fb466a8-5d20-45e0-abfd-1d8b6d42eb8b",
+                "name": "contexte.historique_message",
+                "value": "={{ $json.data[1].messageHistory }}",
+                "type": "string"
+              },
+              {
+                "id": "d14f6d03-f0bd-4929-9a94-729a9f91d006",
+                "name": "contenu.threadId",
+                "value": "={{ $json.data[0].threadId }}",
+                "type": "string"
+              },
+              {
+                "id": "52953ff3-0a45-4e3a-9e5d-2044494d1fe2",
+                "name": "contenu.id",
+                "value": "={{ $json.data[0].id }}",
+                "type": "string"
+              },
+              {
+                "id": "cbedcf48-6049-4799-9361-702e0159e09a",
+                "name": "contenu.from",
+                "value": "={{ $json.data[0].from }}",
+                "type": "string"
+              },
+              {
+                "id": "76bad8c7-eeb4-40bf-b4c5-a18788bc79e4",
+                "name": "contenu.sujet",
+                "value": "={{ $json.data[0].sujet }}",
+                "type": "string"
+              },
+              {
+                "id": "66bca498-2fbe-44fa-9c6a-37feaf20204d",
+                "name": "contenu.to",
+                "value": "={{ $json.data[0].to }}",
+                "type": "string"
+              },
+              {
+                "id": "5ed7c750-d33f-481f-af07-ec55fe3123f5",
+                "name": "contenu.cc",
+                "value": "={{ $json.data[0].cc }}",
+                "type": "string"
+              },
+              {
+                "id": "e727ee55-65bc-4ac0-a0e8-5ee3a69b6109",
+                "name": "contenu.text",
+                "value": "={{ $json.data[0].text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          460,
+          -880
+        ],
+        "id": "af03dd65-a3b5-4945-98fa-1a08a2b5f31c",
+        "name": "Contenu et Contexte"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "65cfc032-b46e-49b5-ad25-d6c6ddfbf74a",
+                "name": "from",
+                "value": "={{ $('New Mail Trigger').first().json.headers.from }}",
+                "type": "string"
+              },
+              {
+                "id": "78c55e81-06f5-4042-ac74-a9d3409c00a9",
+                "name": "to",
+                "value": "={{ $('New Mail Trigger').first().json.headers.to }}",
+                "type": "string"
+              },
+              {
+                "id": "e41812ca-2c68-4e01-8ce1-236f9546bfd5",
+                "name": "sujet",
+                "value": "={{ $('New Mail Trigger').first().json.headers.subject }}",
+                "type": "string"
+              },
+              {
+                "id": "c09367f6-e71b-4c87-9a2f-4e0d78b30e1a",
+                "name": "cc",
+                "value": "={{ $('New Mail Trigger').first().json.cc}}",
+                "type": "string"
+              },
+              {
+                "id": "7ed66628-e1db-4edc-9a23-e3a146906994",
+                "name": "text",
+                "value": "={{ $('New Mail Trigger').first().json.text }}",
+                "type": "string"
+              },
+              {
+                "id": "a88eb146-9608-4095-9576-ad702a9cb427",
+                "name": "id",
+                "value": "={{ $('New Mail Trigger').first().json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "d3b71891-6aa5-4791-b0ff-f206dda05815",
+                "name": "threadId",
+                "value": "={{ $('New Mail Trigger').first().json.threadId }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -240,
+          -880
+        ],
+        "id": "614b0c90-67d4-47a2-8012-f1ccaf88b6c1",
+        "name": "Valeurs Nouveau Mail"
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "simple": false,
+          "filters": {
+            "labelIds": [
+              "Label_8539074419482270668"
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -640,
+          -700
+        ],
+        "id": "9587bb44-fe81-45d4-8898-f1e085d772d9",
+        "name": "New Mail Trigger",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=\nAction : {{ $json.action }}\nContexte : {{ $json.contexte }}\nDate d'aujourd'hui : {{ $now.format('yyyy-MM-dd') }}\nDate Demain : {{ $now.plus(1,\"day\").format('yyyy-MM-dd') }}\n\nSYSTEME \n\nTu es expert en gestion de calendrier. Ton unique but est de gérer un calendrier (ajout,modification,supression,vérification disponibitité, récupération d'informations de réunion). Toutes ces taches doivent executés a la perfection en fonction d'un contexte et d'un action demandé. La pertinence et le choix des outils est donc ULTRA IMPORTANT\n\nETAPES\n\n1) Analyser l'action demandé et le contexte de la demande\n2) Récuperer les outils nécessaire pour réaliser la tâche\n3) Utiliser les outils requis\n4) Répondre avec un compte rendu détaillé du succès ou de l’échec de la tâche, en précisant les raisons et les éventuelles solutions.\n\nOUTILS \n\nRecuperer Information Evenement : Cet outil te permet de récuperer les informations sur un evenement précis.\nCreer Evenement : Cet outil te permet de créer un evenement dans le calendrier de Benoit\nModifier Evenement: Cet outil te permet de modifier un evenement déjà créé dans un calendrier\nSupprimer Evenement : Cet outil te permet de supprimer un evenement dans le calendrier\nVerifier Disponibilite : Cet outil te permet de vérifier les disponibilités du calendrier.\nLister Evenements : Cet outil te permet de lister les evenements dans un calendrier dans le but de récuperer l'event ID d'un evenement\n\nCONTRAINTES \n\nBase toi uniquement sur l'action et le contexte n'invente aucune informations\nTa réponse sur le succés et l'échec doivent être détaillé et précise",
+          "hasOutputParser": true,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1860,
+          480
+        ],
+        "id": "c252a7aa-7c49-481f-a9c6-be20fe596821",
+        "name": "Calendrier Agent"
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de créer un evenement dans le calendrier de Benoit",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "start": "={{ $fromAI(\"date_debut\",\"date de debut de l'evénement\") }}",
+          "end": "={{ $fromAI(\"date_fin\",\"date de fin de l'evénement\") }}",
+          "additionalFields": {
+            "attendees": [],
+            "description": "={{$fromAI(\"description\")}}",
+            "summary": "={{$fromAI(\"titre_evenement\")}}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          1960,
+          920
+        ],
+        "id": "425a10e1-e1b6-4a66-a94c-9c1e42c8727b",
+        "name": "Creer Evenement",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de modifier un evenement déjà créé dans un calendrier",
+          "operation": "update",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "eventId": "={{$fromAI(\"event_id\",\"event_id de l'evénement à modifier\")}}",
+          "updateFields": {
+            "attendeesUi": {
+              "values": {
+                "mode": "={{ $fromAI(\"mode_modification_participants\",\"replace ou add\") }}",
+                "attendees": [
+                  "={{ $fromAI(\"nouveau_participants\",\"le mail des participants qui doivent etre ajouté ou remplacer séparés par des virgules. Exemple : nouveau_mail1,nouveau_mail2\") }}"
+                ]
+              }
+            },
+            "description": "={{ $fromAI(\"nouvelle_description_evenement\") }}",
+            "end": "={{ $fromAI(\"nouvelle_date_fin_evenement\") }}",
+            "start": "={{ $fromAI(\"nouvelle_date_debut_evenement\") }}",
+            "summary": "={{ $fromAI(\"nouveau_titre_evenement\") }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          2100,
+          920
+        ],
+        "id": "bb9169d4-737f-4d28-a4fe-e96375a3ad91",
+        "name": "Modifier Evenement",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de supprimer un evenement dans le calendrier",
+          "operation": "delete",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "eventId": "={{$fromAI(\"event_id\",\"l'event_id de l'evénement à supprimer\")}}",
+          "options": {
+            "sendUpdates": "={{ $fromAI(\"envois_update\",\"all,externalOnly ou none\") }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          2240,
+          920
+        ],
+        "id": "db847a68-627c-4ce8-9e27-6bcb6909b635",
+        "name": "Supprimer Evenement",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de vérifier les disponibilités du calendrier.",
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "returnAll": true,
+          "timeMin": "={{ $fromAI(\"date_apres\",\"date de periode pour obtenir tous les evenements après la date mentionné\") }}",
+          "timeMax": "={{ $fromAI(\"date_avant\",\"date de periode pour obtenir tous les evenements avant la date mentionne\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          2100,
+          760
+        ],
+        "id": "85b99dd5-04e4-405f-9597-0b9af6220429",
+        "name": "Verifier Disponibilite",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer les informations sur un evenement précis.",
+          "operation": "get",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "eventId": "={{ $fromAI(\"event_id\",\"l'event ID de l'évenement à récuperer précisement\") }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          2240,
+          760
+        ],
+        "id": "b4c5bbf7-d2be-455e-9afb-3cf86b138ab3",
+        "name": "Recuperer Information Evenement",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de lister les evenements dans un calendrier dans le but de récuperer l'event ID d'un evenement",
+          "operation": "getAll",
+          "calendar": {
+            "__rl": true,
+            "value": "benoit.ferrere11@gmail.com",
+            "mode": "list",
+            "cachedResultName": "benoit.ferrere11@gmail.com"
+          },
+          "returnAll": true,
+          "timeMin": "={{ $fromAI(\"date_debut_liste\",\"la date apres laquelle on liste les evenements\") }}",
+          "timeMax": "={{ $fromAI(\"date_fin_liste\",\"la date de fin ou l'on s'arrete pour lister les evenements\") }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleCalendarTool",
+        "typeVersion": 1.3,
+        "position": [
+          1960,
+          760
+        ],
+        "id": "dfbab229-addc-443b-acd1-f837088c9c9f",
+        "name": "Lister Evenements",
+        "credentials": {
+          "googleCalendarOAuth2Api": {
+            "id": "ynUAehEFztnvBw3f",
+            "name": "Google Calendar account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          1800,
+          760
+        ],
+        "id": "10393650-8ff1-42ef-b1be-7cea1ea95e9c",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"status\": {\n\t\t\t\"type\": \"string\",\n          \"description\":\"succes ou echec\"\n\t\t},\n\t\t\"desc\": {\n\t\t\t\"type\":\"string\",\n          \"description\":\"description détaillé sur l'échec ou le succés de la l'action demandé\"\n\t\t}\n\t}\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2400,
+          760
+        ],
+        "id": "f4f782cd-8e76-42d8-b37b-17a52d837178",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Contexte :\n{{ $json.contexte }}\n\nEmail metadata : \n{{ $json.email_metadata }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=SYSTEME\nL'agent IA agit en tant que gestionnaire centralisé des brouillons de réponses aux emails de l'entreprise. Il dispose d'un accès complet aux outils Gmail via n8n, mais sa fonction se limite à la préparation, la création et l'enregistrement de brouillons de réponses (sans envoi définitif) pour permettre une validation ou une modification avant toute diffusion. L'agent opère en conformité avec les règles de sécurité et de confidentialité de l'entreprise.\n\nOBJECTIFS\n\nCréer et gérer efficacement les brouillons de réponses aux emails de l'entreprise.\nAutomatiser la préparation des réponses tout en laissant la possibilité d'intervention humaine avant envoi définitif.\nGarantir une interface cohérente et séquencée pour l'exécution des tâches, assurant un traitement fiable et sécurisé des demandes.\nCONTEXTE\nL'agent IA intervient dans le cadre de la gestion des communications par email de l'entreprise, se focalisant exclusivement sur la préparation des réponses sous forme de brouillons. Bien qu’il ait accès à l'ensemble des fonctionnalités Gmail (envoi, récupération, suppression, gestion des labels, etc.) via n8n, son action est strictement limitée à la création et la gestion des brouillons, permettant ainsi une vérification préalable par un utilisateur ou un processus de validation interne.\n\nETAPES\n\nRéception et Analyse de la Demande\n\nCollecter le contexte et les métadonnées de l'email ou de la demande (contexte + email_metadata).\nIdentifier que l'action demandée concerne la préparation d’un brouillon de réponse.\nValidation et Sélection de l'Outil Approprié\n\nVérifier les autorisations et la validité de la demande pour la création d’un brouillon.\nSélectionner l’outil Gmail approprié via n8n pour créer ou modifier un brouillon.\nPréparation de la Réponse\n\nStructurer les paramètres requis pour le brouillon (destinataires, contenu de la réponse, labels éventuels, identifiants de thread ou de brouillon, etc.).\nGénérer une commande ou requête conforme aux API de Gmail via n8n pour créer ou mettre à jour le brouillon.\nExécution de l'Action\n\nLancer l’outil sélectionné avec les paramètres préparés afin de créer ou mettre à jour le brouillon de réponse.\nS’assurer que la séquence d’actions respecte l’ordre défini et que le brouillon est enregistré sans être envoyé.\nVérification et Retour d'Information\n\nConfirmer la réussite de la création ou de la mise à jour du brouillon (retour des codes de statut ou des confirmations de succès).\nEn cas d'erreur, identifier le point de défaillance et déclencher un processus de reprise ou d'alerte.\nCommuniquer le résultat de l'action à l'utilisateur ou au système de monitoring interne.\nArchivage et Journalisation\n\nEnregistrer l'ensemble des actions et métadonnées pour une traçabilité complète.\nMettre à jour les logs et les historiques d'actions pour faciliter les audits futurs.\nCONTRAINTES\n\nRespect strict des règles de sécurité et de confidentialité des données de l'entreprise.\nGestion rigoureuse des erreurs et des exceptions afin d’éviter toute perte de données ou dysfonctionnement.\nLimitation des actions aux seules opérations de gestion de brouillons de réponses, même si l’agent a accès aux autres fonctionnalités Gmail.\nSuivi de la séquence d’actions prédéfinie pour garantir l’intégrité du processus (chaque étape dépend des résultats de l'étape précédente).\nOptimisation des performances pour minimiser les délais de traitement tout en assurant la fiabilité des actions."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          620,
+          480
+        ],
+        "id": "773e41e6-1577-4a3c-aefa-f9d9a5ef8941",
+        "name": "Agent EMAIL",
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer plusieurs messages en fonction de paramètres (définit ou pas): \n- Période (début et fin)\n- Mail envoyé d'une personne précise",
+          "operation": "getAll",
+          "filters": {
+            "receivedAfter": "={{ $fromAI(\"recu_apres\",\"récuperation de tous les messages apres cette date\") }}",
+            "receivedBefore": "={{ $fromAI(\"recu_avant\",\"récuperation de tous les messages avant cette date\") }}",
+            "sender": "={{$fromAI(\"mail_envoyeur\",\"récuperation de tous les messages envoyés par ce mail\")}}"
+          }
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1180,
+          720
+        ],
+        "id": "2bdd2f02-ca3b-4003-b811-2f9208903663",
+        "name": "Recuperer Plusieurs Messages",
+        "webhookId": "073bb949-c24b-4da1-ab1b-acdb666ff4b9",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer un mail précis",
+          "operation": "get",
+          "messageId": "={{ $fromAI(\"message_id\",\"message_id de l'email qu'on veut récuperer\") }}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1320,
+          720
+        ],
+        "id": "f61fa1eb-f172-43fe-be0c-bcc04aa8ed55",
+        "name": "Recuperer Message",
+        "webhookId": "12500eca-3f1b-41ce-a460-3eeb9d384cba",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer plusieurs Label afin de pouvoir les utiliser",
+          "resource": "label"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          700,
+          900
+        ],
+        "id": "1e075eb7-c5f5-4655-8736-4b2c5e41b834",
+        "name": "Recuperer Plusieurs Label",
+        "webhookId": "11dbb8d0-de90-4662-8817-863a1cf7e9fb",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer un label précis",
+          "resource": "label",
+          "operation": "get",
+          "labelId": "={{$fromAI(\"label_id\",\"label_id du label à récuperer précisement\")}}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          860,
+          900
+        ],
+        "id": "7c0c0093-36e4-4fa6-8579-9c61afbbec48",
+        "name": "Recuperer Label",
+        "webhookId": "8ef9780f-dc47-450e-9e00-e7577aa2df7a",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de créer un label précis pour les mails",
+          "resource": "label",
+          "operation": "create",
+          "name": "={{$fromAI(\"nom_label\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          980,
+          900
+        ],
+        "id": "d4c4a8ef-2d1c-4bfe-af81-155fda144027",
+        "name": "Creer Label",
+        "webhookId": "cb8f6188-7188-40ec-adf8-ed0add882287",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de suppriemr un label précis",
+          "resource": "label",
+          "operation": "delete",
+          "labelId": "={{$fromAI(\"label_id\",\"label_id du label que tu dois supprimer\")}}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1140,
+          900
+        ],
+        "id": "c5ccf8bf-d12e-4192-acf2-2e436abdc81c",
+        "name": "Supprimer Label",
+        "webhookId": "920ab0b1-355b-4874-9586-97c679d84a97",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de créer un brouillon à envoyer à une personne,répondre à un mail ou un thread",
+          "resource": "draft",
+          "subject": "={{$fromAI(\"titre_brouillon\")}}",
+          "message": "={{$fromAI(\"contenu_brouillon\")}}",
+          "options": {
+            "replyTo": "={{ $fromAI(\"envois_reponse_a\",\"les mails à qui est adressé ce brouillon de réponse séparé par des virgules. Exemple: mail1,mail2\") }}",
+            "threadId": "={{$fromAI(\"thread_id\",\"thread_id du thread auquelle on envoit le brouillon\")}}",
+            "sendTo": "={{$fromAI(\"receveurs_brouillon_email\",\"les mails a qui est adressé ce brouillon séparé par des virgules, Exemple : mail1,mail2\")}}"
+          }
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          700,
+          720
+        ],
+        "id": "2d1f5c3d-5dce-474a-a9d3-e5942cbb1eaf",
+        "name": "Creer Brouillon",
+        "webhookId": "5237a8c8-a688-4ea0-9c6e-13963ec043ed",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer pluieurs brouillons ",
+          "resource": "draft",
+          "operation": "getAll",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1000,
+          720
+        ],
+        "id": "1770f32c-f4cf-4464-8874-dab1d097697d",
+        "name": "Recuperer Plusieurs Brouillons",
+        "webhookId": "7ea7aa55-a409-4e4d-8ede-9148a3d4adac",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer un brouillon précis",
+          "resource": "draft",
+          "operation": "get",
+          "messageId": "={{$fromAI(\"draft_id\",\"draft_id du brouillon à récuperer précisement\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          860,
+          720
+        ],
+        "id": "47bdd813-968a-43c1-bf73-8f13fea08e62",
+        "name": "Recuperer Brouillon",
+        "webhookId": "856a6470-3b2f-4049-90c2-d2561da22f3a",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de supprimer un brouillon précis",
+          "resource": "draft",
+          "operation": "delete",
+          "messageId": "={{$fromAI(\"draft_id\",\"draft_id du brouillon qui doit être supprimer précisement\")}}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1300,
+          900
+        ],
+        "id": "c01965cb-b2ee-4d6a-a72e-ac5dc90df470",
+        "name": "Supprimer Brouillon",
+        "webhookId": "64e56e2f-6cbc-42c8-aec1-424ab3185fb5",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"status\": \"echec\",\n  \"desc\": \"echec de l'agent Email\"\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1200,
+          480
+        ],
+        "id": "5aff5853-f0a9-42fe-97a0-421af4ead76c",
+        "name": "Reponse Erreur"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "54bbc7f7-4acb-4bdd-9071-1a8674efd9bb",
+                "name": "reponse",
+                "value": "={{ $json.output }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1220,
+          340
+        ],
+        "id": "f9cffc9a-4b36-44fe-a2cf-36a94ace0619",
+        "name": "Reponse Succes"
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de supprimer un mail précisement",
+          "operation": "delete",
+          "messageId": "={{ $fromAI(\"message_id\",\"message_id du mail qu'on veut supprimer\") }}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1440,
+          840
+        ],
+        "id": "8c9e0c5a-325a-4502-a07f-d134643013ec",
+        "name": "Supprimer Message",
+        "webhookId": "0bbafd14-faea-470a-a4f8-9c78f2b75666",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet d'ajouter un Label sur un Thread",
+          "resource": "thread",
+          "operation": "addLabels",
+          "threadId": "={{$fromAI(\"thread_id\",\"thread_id du thread sur lequelle le label doit être mis\")}}",
+          "labelIds": "={{ $fromAI(\"liste_labels\",\"liste des labels a mettre sur le thread. La liste doit contenir chaque label_id pertinent pour le thread\") }}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          700,
+          1080
+        ],
+        "id": "2e9415ff-d32e-4273-b763-d48704696508",
+        "name": "Ajouter Label sur Conversation",
+        "webhookId": "617e23b7-6f62-4621-8c2b-292e2649488c",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de supprimer un ou des labels sur un tread",
+          "resource": "thread",
+          "operation": "removeLabels",
+          "threadId": "={{$fromAI(\"thread_id\",\"thread_id du thread ou l'on supprimer l'un ou les labels\")}}",
+          "labelIds": "={{ $fromAI(\"liste_label_a_supprimer\",\"liste des labels à supprimer sur le thread. Doit contenir les labels_id de chaque label à supprimer\")}}"
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          980,
+          1060
+        ],
+        "id": "44cf3eb8-e008-47f4-b27d-22b899bbce8d",
+        "name": "Supprimer Labels sur Conversation",
+        "webhookId": "1a0432ce-3b13-4cb2-a416-07d50128dae7",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de répondre à un Thread",
+          "resource": "thread",
+          "operation": "reply",
+          "threadId": "={{$fromAI(\"thread_id\",\"thread_id du thread qui doit être répondu par le message\")}}",
+          "message": "={{$fromAI(\"contenu_reponse_thread\",\"réponse au thread\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1120,
+          1060
+        ],
+        "id": "0c66cb41-73da-4846-9ead-a241311f0c39",
+        "name": "Repond a une Conversation",
+        "webhookId": "f858c459-71f1-4081-96f7-5a1884de336d",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer plusieurs Threads en fonction de paramatres (défini ou pas) :\n-Période avec une date de début et une date de fin",
+          "resource": "thread",
+          "filters": {
+            "receivedAfter": "={{ $fromAI(\"recu_apres\",\"récuperation de tous les threads apres cette date\") }}",
+            "receivedBefore": "={{ $fromAI(\"recu_avant\",\"récuperation de tous les threads avant cette date\") }}"
+          }
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          1280,
+          1060
+        ],
+        "id": "748676af-f46b-45cf-9f80-6504c54da862",
+        "name": "Recuperer Plusieurs Conversations",
+        "webhookId": "38bfc412-fde8-4b0d-b2d1-0a6b793de1cd",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "descriptionType": "manual",
+          "toolDescription": "Cet outil te permet de récuperer un thread précis",
+          "resource": "thread",
+          "operation": "get",
+          "threadId": "={{$fromAI(\"thread_id\",\"thread_id du thread à récuperer précisement\")}}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmailTool",
+        "typeVersion": 2.1,
+        "position": [
+          840,
+          1060
+        ],
+        "id": "bd912cff-9e5b-4add-b9d7-c389d07a81e4",
+        "name": "Recuperer Conversation",
+        "webhookId": "443030f9-8536-4d73-8529-7252f8961f79",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "YbuvvgEKl3e2vuJZ",
+            "name": "Gmail account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          500,
+          680
+        ],
+        "id": "8d2b97c1-d9d0-4b85-87e0-f5d8af0ccc51",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $('Set File ID').item.json.file_id }}",
+            "mode": "id"
+          },
+          "options": {
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          }
+        },
+        "id": "0407525d-391e-4c13-a94c-e6a22bda72da",
+        "name": "Download File",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          1860,
+          -760
+        ],
+        "executeOnce": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "cGALptZG1l6v2uiM",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1cFcptFoD0RDk9jofB6v5IG_Wlz_witMh",
+            "mode": "list",
+            "cachedResultName": "Projet Client RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1cFcptFoD0RDk9jofB6v5IG_Wlz_witMh"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "id": "83e04a90-5190-4a91-895f-16802a350a5d",
+        "name": "File Created",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          1320,
+          -680
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "cGALptZG1l6v2uiM",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1cFcptFoD0RDk9jofB6v5IG_Wlz_witMh",
+            "mode": "list",
+            "cachedResultName": "Projet Client RAG",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1cFcptFoD0RDk9jofB6v5IG_Wlz_witMh"
+          },
+          "event": "fileUpdated",
+          "options": {}
+        },
+        "id": "c659fe9d-8e01-4637-ab72-2ff775ad1459",
+        "name": "File Updated",
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          1320,
+          -900
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "cGALptZG1l6v2uiM",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+                "name": "file_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "972d1e39-4627-4867-873a-c4dc8885404d",
+        "name": "Set File ID",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1600,
+          -760
+        ]
+      },
+      {
+        "parameters": {
+          "dataType": "binary",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "typeVersion": 1,
+        "position": [
+          2400,
+          -560
+        ],
+        "id": "5d4ea251-f614-465f-9c2c-e5d762b6da00",
+        "name": "Default Data Loader"
+      },
+      {
+        "parameters": {
+          "chunkOverlap": 200,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          2360,
+          -440
+        ],
+        "id": "237eb3fc-8bf0-4d09-9999-23fefbe13922",
+        "name": "Recursive Character Text Splitter"
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "qdrantCollection": {
+            "__rl": true,
+            "value": "rag_test_video",
+            "mode": "list",
+            "cachedResultName": "rag_test_video"
+          },
+          "options": {
+            "collectionConfig": ""
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+        "typeVersion": 1,
+        "position": [
+          2280,
+          -760
+        ],
+        "id": "841469ef-ee6a-481f-a226-9a65d92a2d8d",
+        "name": "Qdrant Vector Store1",
+        "credentials": {
+          "qdrantApi": {
+            "id": "9JqTObX6NgZUQVRP",
+            "name": "QdrantApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          2180,
+          -520
+        ],
+        "id": "5fbf08c7-b923-49c1-b564-08c66aa2218e",
+        "name": "Embeddings OpenAI1",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.distancematrix.ai/maps/api/distancematrix/json",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpQueryAuth",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "mode",
+                "value": "driving"
+              },
+              {
+                "name": "language",
+                "value": "fr"
+              },
+              {
+                "name": "origins",
+                "value": "={{$json.point_A}}"
+              },
+              {
+                "name": "destinations",
+                "value": "={{$json.point_B}}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -300,
+          480
+        ],
+        "id": "c68d512b-354f-482b-88de-9a6b1e45eb81",
+        "name": "HTTP Request",
+        "credentials": {
+          "httpQueryAuth": {
+            "id": "GmhYuEOq8oEuuCLE",
+            "name": "Distance Matrix API"
+          }
+        },
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "let message_calcul = \"\";\n\nconst pt_A = $input.first().json.origin_addresses[0];\n\nconst pt_B = $input.first().json.destination_addresses[0];\n\nconst distance = $input.first().json.rows[0].elements[0].distance.text;\n\nconst duree = $input.first().json.rows[0].elements[0].duration.text;\n\n\n// Formatag\nmessage_calcul+=`:---Analyse---`\nmessage_calcul+=`Départ : ${pt_A}`\nmessage_calcul+=`Arrivée : ${pt_B}`\nmessage_calcul+=`Distance : ${distance}`\nmessage_calcul+=`Durée : ${duree}`\nmessage_calcul+=`-------`\n\nreturn {message_calcul};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -60,
+          420
+        ],
+        "id": "c472d5fd-15a7-4992-b816-b60eb8b06e08",
+        "name": "Formattage"
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "={\n  \"status\": \"succes\",\n  \"desc\": \"L'analyse de la distance a bien était reussis\",\n  \"analyse\":\"{{ $json.message_calcul }}\"\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          160,
+          420
+        ],
+        "id": "ce11ed51-d05a-4af8-8c41-37bfbad8cf27",
+        "name": "Reponse"
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "{\n  \"status\": \"erreur\",\n  \"desc\": \"Erreur lors de l'appel API\"\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          160,
+          620
+        ],
+        "id": "14a925cd-ab68-4c6c-a64e-572535748339",
+        "name": "Reponse Erreur1"
+      },
+      {
+        "parameters": {
+          "content": "## Outil - Calcul Distance Temps",
+          "height": 940,
+          "width": 1120
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -660,
+          300
+        ],
+        "id": "34323df4-7b6f-4dcd-9aa0-13d1dc4a1ead",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "## Agent Email",
+          "height": 940,
+          "width": 1120,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          460,
+          300
+        ],
+        "id": "38190c6b-f4db-46cc-b442-a67461c13393",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "content": "## Agent Calendrier",
+          "height": 940,
+          "width": 1120,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1580,
+          300
+        ],
+        "id": "a520a867-848f-4b95-ae28-11399d482609",
+        "name": "Sticky Note2"
+      },
+      {
+        "parameters": {
+          "content": "## Agent Orchestrateur",
+          "height": 640,
+          "width": 3360,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -660,
+          -320
+        ],
+        "id": "11675ad4-72fd-4e33-b6a1-5e9ae8bb482a",
+        "name": "Sticky Note3"
+      },
+      {
+        "parameters": {
+          "content": "## Systeme Rag Dynamique",
+          "height": 640,
+          "width": 1420,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          1280,
+          -960
+        ],
+        "id": "406e995c-9587-4f71-a575-1955c6601909",
+        "name": "Sticky Note4"
+      },
+      {
+        "parameters": {
+          "content": "## Setup mail",
+          "height": 640,
+          "width": 1940,
+          "color": 6
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -660,
+          -960
+        ],
+        "id": "99f4f7cb-d1cf-47e4-8d8c-76c3c4f5aab1",
+        "name": "Sticky Note5"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "juwEpgI39hyVgrkp",
+            "mode": "list",
+            "cachedResultName": "Outil - Récupération Whatsapp Group - Limite Nbr"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2,
+        "position": [
+          1380,
+          0
+        ],
+        "id": "206967cd-de66-422d-97a0-6ac5f72f66a6",
+        "name": "Call n8n Workflow Tool"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          -520,
+          480
+        ],
+        "id": "32f2bc01-f85e-4493-819c-0313f9c8e5c4",
+        "name": "Execute Workflow1"
+      }
+    ],
+    "pinData": {
+      "Workflow Input Trigger": [
+        {
+          "json": {
+            "contexte": {
+              "historique_message": "Message 0\nFrom: Benoit Ferrere <benoit.ferrere11@gmail.com>\nDate: Wed, 5 Feb 2025 20:41:43 +0100\nContenu : Bonjour,Je souhaite installer une borne de recharge pour mon véhicule électrique à mon domicile. Merci de bien vouloir m’envoyer une proposition de devis et de convenir d’un rendez-vous pour évaluer le chantier.Adresse d’installation :Rue Montbazon, 33000 BordeauxCordialement,Benoit\n---------------\nMessage 1\nFrom: Benoit Ferrere <benoit.ferrere11@gmail.com>\nDate: Wed, 5 Feb 2025 20:49:51 +0100\nContenu : false\n---------------\nMessage 2\nFrom: Benoit Ferrere <benoit.ferrere11@gmail.com>\nDate: Wed, 5 Feb 2025 20:50:28 +0100\nContenu : Oui je suis disponible demain à 11h30 pour l&#39;installation\n---------------\n"
+            },
+            "contenu": {
+              "threadId": "194d79fba1d0d9f3",
+              "id": "194d7a203cc1c7b4",
+              "from": "From: Benoit Ferrere <benoit.ferrere11@gmail.com>",
+              "sujet": "Subject: =?UTF-8?Q?Borne_de_recharge_v=C3=A9hicule?=",
+              "to": "To: Benoit Ferrere <benoit.ferrere11@gmail.com>",
+              "cc": null,
+              "text": "Bonjour,\n\nJe souhaite installer une borne de recharge pour mon véhicule électrique à\nmon domicile. Merci de bien vouloir m’envoyer une proposition de devis et\nde convenir d’un rendez-vous pour évaluer le chantier.\n\nAdresse d’installation :\nRue Montbazon, 33000 Bordeaux\n\nCordialement,\nBenoit\n"
+            }
+          }
+        }
+      ]
+    },
+    "connections": {
+      "Workflow Input Trigger": {
+        "main": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email Agent": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Qdrant Vector Store": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Qdrant Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calcul Distance Temps": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Calendrier": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Agent IA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Envois Message Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent IA": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          [
+            {
+              "node": "Reformat",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Aggregate1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Mark as Read": {
+        "main": [
+          [
+            {
+              "node": "Valeurs Nouveau Mail",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Incoming Values",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Thread": {
+        "main": [
+          [
+            {
+              "node": "Extraire Thread",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Values": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reformat": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Aggregate1": {
+        "main": [
+          [
+            {
+              "node": "Contenu et Contexte",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Incoming Values": {
+        "main": [
+          [
+            {
+              "node": "Get Thread",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extraire Thread": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Full Messages": {
+        "main": [
+          [
+            {
+              "node": "Set Values",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Get Full Messages",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Contenu et Contexte": {
+        "main": [
+          [
+            {
+              "node": "Execute Workflow",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Valeurs Nouveau Mail": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "New Mail Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mark as Read",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Evenement": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Modifier Evenement": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supprimer Evenement": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Verifier Disponibilite": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Information Evenement": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Lister Evenements": {
+        "ai_tool": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Calendrier Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent EMAIL": {
+        "main": [
+          [
+            {
+              "node": "Reponse Succes",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Reponse Erreur",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Plusieurs Messages": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Message": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Plusieurs Label": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Label": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Label": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supprimer Label": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Brouillon": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Plusieurs Brouillons": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Brouillon": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supprimer Brouillon": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supprimer Message": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ajouter Label sur Conversation": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Supprimer Labels sur Conversation": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Repond a une Conversation": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Plusieurs Conversations": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Conversation": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent EMAIL",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download File": {
+        "main": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File Created": {
+        "main": [
+          [
+            {
+              "node": "Set File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "File Updated": {
+        "main": [
+          [
+            {
+              "node": "Set File ID",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set File ID": {
+        "main": [
+          [
+            {
+              "node": "Download File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Qdrant Vector Store1",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Formattage",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Reponse Erreur1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Formattage": {
+        "main": [
+          [
+            {
+              "node": "Reponse",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Call n8n Workflow Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent IA",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Execute Workflow1": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "17ba6634-f7f6-4391-ab2f-a532cb0ccdd4",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "PY7gl6KSkLwrekhB",
+    "tags": [
+      {
+        "createdAt": "2025-02-05T13:32:40.198Z",
+        "updatedAt": "2025-02-05T13:32:40.198Z",
+        "id": "bRbTEVbqVRl9odfJ",
+        "name": "Video"
+      }
+    ]
+  }
+}

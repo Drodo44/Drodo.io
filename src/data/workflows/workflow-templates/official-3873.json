@@ -1,0 +1,234 @@
+{
+  "id": "official-3873",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/3873",
+    "template_id": 3873
+  },
+  "name": "Merge multiple PDF files with CustomJS API",
+  "description": "This n8n template demonstrates how to download multiple PDF files from public URLs and merge them into a single PDF using the PDF Toolkit from www.customjs.space.",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "Read/Write Files from Disk",
+    "pdf Toolkit",
+    "Manual Trigger",
+    "merge",
+    "multiple",
+    "pdf",
+    "files",
+    "customjs",
+    "n8n"
+  ],
+  "task_keywords": [
+    "merge multiple pdf files with customjs api",
+    "read/write files from disk",
+    "pdf toolkit",
+    "manual trigger",
+    "merge multiple",
+    "multiple pdf",
+    "pdf files",
+    "files customjs",
+    "customjs n8n",
+    "n8n template",
+    "template demonstrates",
+    "demonstrates download"
+  ],
+  "required_services": [
+    "Read/Write Files from Disk",
+    "pdf Toolkit"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "0ZgxlAsLyuTYgCGc",
+    "meta": {
+      "instanceId": "9c2acd0acf09f5e348179466c8846104fd5cbd81e3455fc474f626210a535954",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Merge multiple PDF files with CustomJS API",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "4d6f1e0f-c730-4d53-b5c7-b2f7df1d8d7f",
+        "name": "When clicking ‘Test workflow’",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          -224,
+          112
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "f84d01f0-fd9e-49b8-b172-49f8de723148",
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "url": "=https://www.intewa.com/fileadmin/documents/pdf-file.pdf",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "d433b3e9-582c-4ca8-9ca8-266c430f3962",
+        "name": "HTTP Request2",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          0,
+          208
+        ],
+        "parameters": {
+          "url": "=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "options": {}
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "7a8c50e5-3b90-46cd-8f67-5910d2cfb5fc",
+        "name": "Merge",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          224,
+          112
+        ],
+        "parameters": {},
+        "typeVersion": 3.1
+      },
+      {
+        "id": "d1e0f43a-e246-4896-9c91-7e67722ec154",
+        "name": "Read/Write Files from Disk",
+        "type": "n8n-nodes-base.readWriteFile",
+        "position": [
+          832,
+          112
+        ],
+        "parameters": {
+          "options": {},
+          "fileName": "test.pdf",
+          "operation": "write"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9342b052-e1d6-4381-b883-717a31244d04",
+        "name": "Read/Write Files from Disk4",
+        "type": "n8n-nodes-base.readWriteFile",
+        "position": [
+          1088,
+          112
+        ],
+        "parameters": {
+          "options": {},
+          "fileSelector": "test.pdf"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "1f75c078-94de-42bf-911e-ba88b3f71b4c",
+        "name": "Merge PDFs",
+        "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+        "position": [
+          512,
+          112
+        ],
+        "parameters": {
+          "resource": "pdf",
+          "operation": "merge"
+        },
+        "credentials": {
+          "customJsApi": {
+            "id": "xWq5Ih3LjdlnHrFF",
+            "name": "CustomJS account 2"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "c17799ab-00d4-4fc4-b1c9-19f27bbb00a9",
+    "connections": {
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Merge PDFs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge PDFs": {
+        "main": [
+          [
+            {
+              "node": "Read/Write Files from Disk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request2": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Read/Write Files from Disk": {
+        "main": [
+          [
+            {
+              "node": "Read/Write Files from Disk4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "HTTP Request2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

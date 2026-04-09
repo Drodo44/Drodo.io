@@ -1,0 +1,65 @@
+{
+  "id": "official-587",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/587",
+    "template_id": 587
+  },
+  "name": "Receive email updates via IMAP",
+  "description": "Companion workflow for IMAP Email node docs",
+  "category": "AI",
+  "tags": [
+    "Personal Productivity",
+    "Email Trigger (IMAP)",
+    "Email Trigger (IMAP) Trigger",
+    "receive",
+    "email",
+    "updates",
+    "via",
+    "imap",
+    "companion"
+  ],
+  "task_keywords": [
+    "receive email updates via imap",
+    "email trigger (imap)",
+    "update email trigger (imap)",
+    "email trigger (imap) trigger",
+    "receive email",
+    "email updates",
+    "updates via",
+    "via imap",
+    "imap companion",
+    "companion workflow",
+    "workflow imap",
+    "imap email"
+  ],
+  "required_services": [
+    "Email Trigger (IMAP)"
+  ],
+  "triggers": [
+    "Email Trigger (IMAP) Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "IMAP Email",
+        "type": "n8n-nodes-base.emailReadImap",
+        "position": [
+          760,
+          400
+        ],
+        "parameters": {
+          "options": {
+            "allowUnauthorizedCerts": false
+          }
+        },
+        "credentials": {
+          "imap": "imap_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

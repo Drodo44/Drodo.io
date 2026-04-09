@@ -1,0 +1,437 @@
+{
+  "id": "official-5203",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/5203",
+    "template_id": 5203
+  },
+  "name": "Monitor competitor SEO changes with CustomJS Scraper, Sheets & Slack alerts",
+  "description": "This n8n workflow demonstrates how to monitor competitor websites for SEO changes by scraping content and updating a Google Sheet.",
+  "category": "Communication",
+  "tags": [
+    "Market Research",
+    "Google Sheets",
+    "Slack",
+    "pdf Toolkit",
+    "Schedule Trigger",
+    "monitor",
+    "competitor",
+    "seo",
+    "changes",
+    "customjs",
+    "scraper"
+  ],
+  "task_keywords": [
+    "monitor competitor seo changes with customjs scraper, sheets & slack alerts",
+    "google sheets",
+    "monitor google sheets",
+    "slack",
+    "monitor slack",
+    "pdf toolkit",
+    "monitor pdf toolkit",
+    "schedule trigger",
+    "monitor competitor",
+    "competitor seo",
+    "seo changes",
+    "changes customjs"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Slack",
+    "pdf Toolkit"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "xYHWzOasirB8h66T",
+    "meta": {
+      "instanceId": "9c2acd0acf09f5e348179466c8846104fd5cbd81e3455fc474f626210a535954",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Monitor competitor SEO changes with CustomJS Scraper, Sheets & Slack alerts",
+    "tags": [
+      "customjs",
+      "scraper",
+      "seo",
+      "competitor-analysis",
+      "google-sheets",
+      "automation",
+      "monitoring",
+      "slack",
+      "content-tracking",
+      "web-scraping",
+      "alerting",
+      "n8n-community-nodes"
+    ],
+    "nodes": [
+      {
+        "id": "ef41b994-e38a-46ab-9a2b-532e3d82e44b",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          0,
+          0
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "weeks"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "8a854cea-bb9c-447b-b3d8-91fd94edf8a9",
+        "name": "Get row(s) in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          240,
+          0
+        ],
+        "parameters": {
+          "options": {},
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o/edit#gid=0",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o/edit?usp=drivesdk",
+            "cachedResultName": "Competitor SEO Monitor"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "uucSTJJVXezltcfo",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "1e0d59b1-0561-4a29-9bd4-16e5e9a1b5ae",
+        "name": "Update row in sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          496,
+          240
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "H1s": "={{ $json.h1s }}",
+              "H2s": "={{ $json.h2s }}",
+              "Date": "={{ new Date() }}",
+              "Title": "={{ $json.title }}",
+              "Websites": "={{ $('Get row(s) in sheet').item.json.Websites }}",
+              "Meta Description": "={{ $json.metaDescription }}"
+            },
+            "schema": [
+              {
+                "id": "Websites",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Websites",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Date",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "Date",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Title",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "Title",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Meta Description",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "Meta Description",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "H1s",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "H1s",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "H2s",
+                "type": "string",
+                "display": true,
+                "required": false,
+                "displayName": "H2s",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "type": "number",
+                "display": true,
+                "removed": true,
+                "readOnly": true,
+                "required": false,
+                "displayName": "row_number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "Websites"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "update",
+          "sheetName": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gid=0",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o/edit#gid=0",
+            "cachedResultName": "Sheet1"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1sXsJitpuE8LFMKk_1VEL6n9tTKMcPWxgip_gSEG-x-o/edit?usp=drivesdk",
+            "cachedResultName": "Competitor SEO Monitor"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "uucSTJJVXezltcfo",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "8a512c88-90dc-49bb-aa95-3fa29963b27c",
+        "name": "Code – Extract SEO Elements",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          256,
+          240
+        ],
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "const html = $json.output || \"\";\n\n// Extract <title>\nconst title = html.match(/<title[^>]*>([^<]*)<\\/title>/i)?.[1]?.trim() || null;\n\n// Extract meta description\nconst metaDescription = html.match(/<meta\\s+name=[\"']description[\"'][^>]*content=[\"']([^\"']+)[\"']/i)?.[1]?.trim() || null;\n\n// Extract all <h1> headings\nconst h1s = [...html.matchAll(/<h1[^>]*>(.*?)<\\/h1>/gi)].map(m => m[1].trim()).join(\" \");\nconst h2s = [...html.matchAll(/<h2[^>]*>(.*?)<\\/h2>/gi)].map(m => m[1].trim()).join(\" \");\n\nreturn   {\n    json: {\n      title,\n      metaDescription,\n      h1s,\n      h2s\n    }\n  }\n;"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "a73139cb-709b-4457-8c31-c88c17c6318d",
+        "name": "If – Check for SEO Changes",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          720,
+          240
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "or",
+            "conditions": [
+              {
+                "id": "fbf35a1d-0fd6-4b58-a9cb-df5e6ca2df1c",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                },
+                "leftValue": "={{ $('Get row(s) in sheet').item.json.Title }}",
+                "rightValue": "={{ $json.Title }}"
+              },
+              {
+                "id": "dd23caf7-3257-4482-b3f6-57b70ac63a45",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                },
+                "leftValue": "={{ $('Get row(s) in sheet').item.json[\"Meta Description\"] }}",
+                "rightValue": "={{ $json[\"Meta Description\"] }}"
+              },
+              {
+                "id": "2c0160ac-d790-4f8b-990f-848633030898",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                },
+                "leftValue": "={{ $('Get row(s) in sheet').item.json.H1s }}",
+                "rightValue": "={{ $json.H1s }}"
+              },
+              {
+                "id": "f55ca75f-4d60-4fa6-acec-1159858e6604",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                },
+                "leftValue": "={{ $('Get row(s) in sheet').item.json.H2s }}",
+                "rightValue": "={{ $json.H2s }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "31ac6d74-0837-407f-9ffe-537fc1d4b51a",
+        "name": "Slack Notification – Alert on Changes",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          976,
+          224
+        ],
+        "webhookId": "0dd1fff8-40ed-48e4-9218-9d5f1499c6d1",
+        "parameters": {
+          "text": "=:warning: Competitor SEO Change Detected!\\nWebsite: {{ $('Update row in sheet').item.json.Websites }} \\n- Title: {{ $('Get row(s) in sheet').item.json.Title }} → {{ $('Update row in sheet').item.json.Title }} \\n- Meta Description: {{ $('Get row(s) in sheet').item.json['Meta Description'] }} → {{ $('Update row in sheet').item.json['Meta Description'] }} \\n- H1s:  {{ $('Get row(s) in sheet').item.json.H1s }} → {{ $('Update row in sheet').item.json.H1s }} \\n- H2s: {{ $('Get row(s) in sheet').item.json.H2s }} → {{ $('Update row in sheet').item.json.H2s }} \\nDate: {{ $('Update row in sheet').item.json.Date }}",
+          "user": {
+            "__rl": true,
+            "mode": "list",
+            "value": "U05EAUS4JCD",
+            "cachedResultName": "hammadawan0007"
+          },
+          "select": "user",
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "rBzZa67afpGH0sbR",
+            "name": "Slack account"
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "6a588e49-0b7f-4146-a3f0-b757ae3d3cfa",
+        "name": "Scrape Website",
+        "type": "@custom-js/n8n-nodes-pdf-toolkit-v2.pdfToolkit",
+        "position": [
+          48,
+          240
+        ],
+        "parameters": {
+          "url": "={{ $json.Websites }}",
+          "resource": "web"
+        },
+        "credentials": {
+          "customJsApi": {
+            "id": "xWq5Ih3LjdlnHrFF",
+            "name": "CustomJS account 2"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "09c629be-76e7-4f5a-a224-1111a55a56c1",
+    "connections": {
+      "Scrape Website": {
+        "main": [
+          [
+            {
+              "node": "Code – Extract SEO Elements",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Scrape Website",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "If – Check for SEO Changes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If – Check for SEO Changes": {
+        "main": [
+          [
+            {
+              "node": "Slack Notification – Alert on Changes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code – Extract SEO Elements": {
+        "main": [
+          [
+            {
+              "node": "Update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "n8n-workflow-templates-create-update-and-get-a-subscriber-using-the-e-goi-node-ad6e731720",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0300_Manual_Egoi_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0300_Manual_Egoi_Create_Triggered.json"
+  },
+  "name": "Create, update, and get a subscriber using the e-goi node",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Create, update, and get a subscriber using the e-goi node",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "manual",
+    "egoi",
+    "Manual Trigger",
+    "create",
+    "update",
+    "subscriber",
+    "goi",
+    "node",
+    "n8n"
+  ],
+  "task_keywords": [
+    "create, update, and get a subscriber using the e-goi node",
+    "manual",
+    "create manual",
+    "update manual",
+    "egoi",
+    "create egoi",
+    "update egoi",
+    "manual trigger",
+    "create update",
+    "update subscriber",
+    "subscriber goi",
+    "goi node"
+  ],
+  "required_services": [
+    "manual",
+    "egoi"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "189",
+    "name": "Create, update, and get a subscriber using the e-goi node",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "e-goi",
+        "type": "n8n-nodes-base.egoi",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "list": 1,
+          "email": "nathan@testmail.com",
+          "additionalFields": {
+            "first_name": "Nathan"
+          }
+        },
+        "credentials": {
+          "egoiApi": "e-goi Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "e-goi1",
+        "type": "n8n-nodes-base.egoi",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "list": "={{$node[\"e-goi\"].parameter[\"list\"]}}",
+          "contactId": "={{$node[\"e-goi\"].json[\"base\"][\"contact_id\"]}}",
+          "operation": "update",
+          "updateFields": {
+            "first_name": "Nat"
+          }
+        },
+        "credentials": {
+          "egoiApi": "e-goi Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "e-goi2",
+        "type": "n8n-nodes-base.egoi",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "list": "={{$node[\"e-goi\"].parameter[\"list\"]}}",
+          "contactId": "={{$node[\"e-goi1\"].json[\"base\"][\"contact_id\"]}}",
+          "operation": "get"
+        },
+        "credentials": {
+          "egoiApi": "e-goi Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "e-goi": {
+        "main": [
+          [
+            {
+              "node": "e-goi1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "e-goi1": {
+        "main": [
+          [
+            {
+              "node": "e-goi2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "e-goi",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

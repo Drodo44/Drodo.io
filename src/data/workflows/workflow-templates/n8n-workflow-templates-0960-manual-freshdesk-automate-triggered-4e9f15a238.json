@@ -1,0 +1,90 @@
+{
+  "id": "n8n-workflow-templates-0960-manual-freshdesk-automate-triggered-4e9f15a238",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0960_Manual_Freshdesk_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0960_Manual_Freshdesk_Automate_Triggered.json"
+  },
+  "name": "0960 Manual Freshdesk Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0960 Manual Freshdesk Automate Triggered",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "manual",
+    "freshdesk",
+    "Manual Trigger",
+    "0960",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0960 manual freshdesk automate triggered",
+    "manual",
+    "freshdesk",
+    "manual trigger",
+    "0960 manual",
+    "manual freshdesk",
+    "freshdesk automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "manual",
+    "freshdesk"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Freshdesk",
+        "type": "n8n-nodes-base.freshdesk",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "status": "open",
+          "options": {},
+          "requester": "email",
+          "requesterIdentificationValue": "user@example.com"
+        },
+        "credentials": {
+          "freshdeskApi": "freshdesk-api"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Freshdesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

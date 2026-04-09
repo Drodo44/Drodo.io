@@ -1,0 +1,179 @@
+{
+  "id": "official-1049",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1049",
+    "template_id": 1049
+  },
+  "name": "Send location updates of the ISS every minute to a table in Google BigQuery",
+  "description": "This workflow allows you to send position updates of the ISS every minute to a table in Google BigQuery.",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "Google BigQuery",
+    "Edit Fields (Set)",
+    "Cron",
+    "Cron Trigger",
+    "send",
+    "location",
+    "updates",
+    "iss",
+    "every",
+    "minute"
+  ],
+  "task_keywords": [
+    "send location updates of the iss every minute to a table in google bigquery",
+    "google bigquery",
+    "send google bigquery",
+    "update google bigquery",
+    "edit fields (set)",
+    "send edit fields (set)",
+    "update edit fields (set)",
+    "cron",
+    "send cron",
+    "update cron",
+    "cron trigger",
+    "send location"
+  ],
+  "required_services": [
+    "Google BigQuery",
+    "Edit Fields (Set)",
+    "Cron"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Google BigQuery",
+        "type": "n8n-nodes-base.googleBigQuery",
+        "position": [
+          1010,
+          240
+        ],
+        "parameters": {
+          "columns": "name, latitude, longitude, timestamp",
+          "options": {},
+          "tableId": "position",
+          "datasetId": "iss",
+          "projectId": "supple-cabinet-289219"
+        },
+        "credentials": {
+          "googleBigQueryOAuth2Api": "BigQuery Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          810,
+          240
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "latitude",
+                "value": "={{$node[\"HTTP Request\"].json[\"0\"][\"latitude\"]}}"
+              },
+              {
+                "name": "longitude",
+                "value": "={{$node[\"HTTP Request\"].json[\"0\"][\"longitude\"]}}"
+              },
+              {
+                "name": "timestamp",
+                "value": "={{$node[\"HTTP Request\"].json[\"0\"][\"timestamp\"]}}"
+              }
+            ],
+            "string": [
+              {
+                "name": "name",
+                "value": "={{$json[\"0\"][\"name\"]}}"
+              }
+            ]
+          },
+          "options": {},
+          "keepOnlySet": true
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          610,
+          240
+        ],
+        "parameters": {
+          "url": "https://api.wheretheiss.at/v1/satellites/25544/positions",
+          "options": {},
+          "queryParametersUi": {
+            "parameter": [
+              {
+                "name": "timestamps",
+                "value": "={{Date.now();}}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          410,
+          240
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Google BigQuery",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

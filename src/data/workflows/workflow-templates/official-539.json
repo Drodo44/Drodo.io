@@ -1,0 +1,85 @@
+{
+  "id": "official-539",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/539",
+    "template_id": 539
+  },
+  "name": "Execute a job on Rundeck",
+  "description": "Companion workflow for Rundeck node docs",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "manual",
+    "Rundeck",
+    "Manual Trigger",
+    "execute",
+    "job",
+    "rundeck",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "execute a job on rundeck",
+    "manual",
+    "rundeck",
+    "manual trigger",
+    "execute job",
+    "job rundeck",
+    "rundeck companion",
+    "companion workflow",
+    "workflow rundeck",
+    "rundeck node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Rundeck"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Rundeck",
+        "type": "n8n-nodes-base.rundeck",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "jobid": "f02c7661-6f75-4ffe-958c-c0ed5f9bc9e6"
+        },
+        "credentials": {
+          "rundeckApi": "rundeck_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Rundeck",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

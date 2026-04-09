@@ -1,0 +1,158 @@
+{
+  "id": "n8n-automation-templates-5000-template-687-9743151b3d",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/security_687_email_trigger_pagerduty_to_aws_cloudwatch.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/security_687_email_trigger_pagerduty_to_aws_cloudwatch.json"
+  },
+  "name": "Template 687",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 687",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "gmail",
+    "pagerduty",
+    "awscloudwatch",
+    "zendesk",
+    "gmail Trigger",
+    "template",
+    "687",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 687",
+    "gmail",
+    "pagerduty",
+    "awscloudwatch",
+    "zendesk",
+    "gmail trigger",
+    "687 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "gmail",
+    "pagerduty",
+    "awscloudwatch",
+    "zendesk"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 687",
+    "nodes": [
+      {
+        "parameters": {
+          "resource": "message",
+          "operation": "watch"
+        },
+        "name": "Email Trigger",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "AWS CloudWatch",
+        "type": "n8n-nodes-base.awscloudwatch",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Zendesk",
+        "type": "n8n-nodes-base.zendesk",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Email Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "AWS CloudWatch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AWS CloudWatch": {
+        "main": [
+          [
+            {
+              "node": "Zendesk",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 687
+  }
+}

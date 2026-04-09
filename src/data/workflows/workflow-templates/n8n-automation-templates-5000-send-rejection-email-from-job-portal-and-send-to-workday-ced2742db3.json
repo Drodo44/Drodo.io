@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-send-rejection-email-from-job-portal-and-send-to-workday-ced2742db3",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/send-rejection-email-job-portal-workday.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/send-rejection-email-job-portal-workday.json"
+  },
+  "name": "Send rejection email from Job portal and send to Workday",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Send rejection email from Job portal and send to Workday",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "send",
+    "rejection",
+    "email",
+    "job",
+    "portal"
+  ],
+  "task_keywords": [
+    "send rejection email from job portal and send to workday",
+    "slack",
+    "send slack",
+    "webhook",
+    "send rejection",
+    "rejection email",
+    "email job",
+    "job portal",
+    "portal send",
+    "send workday",
+    "workday n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Send rejection email from Job portal and send to Workday",
+    "nodes": [
+      {
+        "id": "trigger-job-portal",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          112500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "send-rejection-email-from-job-portal-and-send-to-workday",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-job-portal",
+        "name": "Fetch data from Job portal",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          112500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/job-portal",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-workday",
+        "name": "Send to Workday",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          112500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/workday",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-112500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          112500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Job portal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Job portal": {
+        "main": [
+          {
+            "node": "Send to Workday",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Workday": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

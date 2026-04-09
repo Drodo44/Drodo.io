@@ -1,0 +1,129 @@
+{
+  "id": "n8n-workflow-templates-daily-journal-reminder-eb064f6046",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0346_Telegram_Cron_Automation_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0346_Telegram_Cron_Automation_Scheduled.json"
+  },
+  "name": "Daily Journal Reminder",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Daily Journal Reminder",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "cron",
+    "function Item",
+    "telegram",
+    "cron Trigger",
+    "daily",
+    "journal",
+    "reminder",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "daily journal reminder",
+    "cron",
+    "function item",
+    "telegram",
+    "cron trigger",
+    "daily journal",
+    "journal reminder",
+    "reminder n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n"
+  ],
+  "required_services": [
+    "cron",
+    "function Item",
+    "telegram"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 1,
+    "name": "Daily Journal Reminder",
+    "nodes": [
+      {
+        "name": "Morning reminder",
+        "type": "n8n-nodes-base.cron",
+        "notes": "Trigger very morning",
+        "position": [
+          220,
+          60
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 6
+              }
+            ]
+          }
+        },
+        "notesInFlow": true,
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "format reminder",
+        "type": "n8n-nodes-base.functionItem",
+        "position": [
+          460,
+          60
+        ],
+        "parameters": {
+          "functionCode": "\n// Creates message with todays date\nconst today = new Date()\nconst yesterday = new Date(today)\n\nyesterday.setDate(yesterday.getDate() - 1)\nconst message = `What did you do: ${yesterday.toISOString().split('T')[0]}`\n\nreturn {message};"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send journal reminder",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          700,
+          60
+        ],
+        "parameters": {
+          "text": "={{$node[\"format reminder\"].json[\"message\"]}}",
+          "chatId": "666884239",
+          "additionalFields": {}
+        },
+        "credentials": {},
+        "typeVersion": 1
+      }
+    ],
+    "active": true,
+    "settings": {},
+    "connections": {
+      "format reminder": {
+        "main": [
+          [
+            {
+              "node": "Send journal reminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Morning reminder": {
+        "main": [
+          [
+            {
+              "node": "format reminder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "id": "official-9552",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/9552",
+    "template_id": 9552
+  },
+  "name": "Automated daily news summaries with OpenRouter AI & Gmail delivery",
+  "description": "Daily AI News Summary & Gmail Delivery This n8n template demonstrates how to build an autonomous AI agent that automatically scours the web for the latest news, intelligently summarizes the top stories, and delivers a professional, formatted news digest directly to your email inbox.",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "AI Summarization",
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "Structured Output Parser",
+    "Gmail",
+    "Schedule Trigger",
+    "automated",
+    "daily",
+    "news",
+    "summaries",
+    "openrouter",
+    "gmail"
+  ],
+  "task_keywords": [
+    "automated daily news summaries with openrouter ai & gmail delivery",
+    "ai agent",
+    "openrouter chat model",
+    "structured output parser",
+    "gmail",
+    "schedule trigger",
+    "automated daily",
+    "daily news",
+    "news summaries",
+    "summaries openrouter",
+    "openrouter gmail",
+    "gmail delivery"
+  ],
+  "required_services": [
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "Structured Output Parser",
+    "Gmail"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "id": "QiL5QGmjTyMdvxHW",
+    "meta": {
+      "instanceId": "15d6057a37b8367f33882dd60593ee5f6cc0c59310ff1dc66b626d726083b48d",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Daily AI News Summary & Gmail Delivery",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          224,
+          304
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "hours",
+                "hoursInterval": 24
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "note1-2345-6789-abcd-ef1234567890",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          208,
+          -16
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 280,
+          "content": "## Daily AI News Summary to Gmail\nThis workflow runs on a schedule to gather the latest news, summarize it using an AI agent, and deliver it as a formatted email via Gmail.\n\n**Required Setup:**\n1. Configure the **Schedule Trigger** to your desired time.\n2. Add your **OpenRouter API** credentials to the \"OpenRouter Chat Model\" node.\n3. Add your **Tavily API Key** in the \"Tavily News Search\" node.\n4. Add your **Gmail OAuth2** credentials to the \"Send a message\" node."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "agent123-4567-8901-2345-678901234567",
+        "name": "AI News Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          704,
+          304
+        ],
+        "parameters": {
+          "text": "={{ $json.query }}",
+          "options": {
+            "systemMessage": "=You are a professional news analyst. Your task is to find the most important news stories for the day on topics like technology, business, world events, and science. Language is must be Japanese.\n\nYou MUST provide your response as a single, valid JSON object. Do not add any text or markdown before or after the JSON. The JSON object must strictly follow this schema:\n\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"Create a compelling title for the daily news summary, like 'Daily News Briefing: [Date]'.\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"A very brief, one-sentence overview of the day's news headlines.\"\n    },\n    \"stories\": {\n      \"type\": \"array\",\n      \"description\": \"An array of 5 to 7 of the most important news stories.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"headline\": {\n            \"type\": \"string\",\n            \"description\": \"The headline of the story.\"\n          },\n          \"summary\": {\n            \"type\": \"string\",\n            \"description\": \"A concise summary of the individual story (2-3 sentences).\"\n          },\n          \"category\": {\n            \"type\": \"string\",\n            \"description\": \"The relevant category (e.g., 'Technology', 'Business', 'World Events', 'Science').\"\n          }\n        },\n        \"required\": [\"headline\", \"summary\", \"category\"]\n      }\n    }\n  },\n  \"required\": [\"title\", \"summary\", \"stories\"]\n}"
+          },
+          "promptType": "define",
+          "hasOutputParser": true
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "model456-7890-1234-5678-901234567890",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          624,
+          512
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "credentials": {
+          "openRouterApi": {
+            "id": "credential-id",
+            "name": "openRouterApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "tavily789-0123-4567-8901-234567890123",
+        "name": "Tavily News Search",
+        "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+        "position": [
+          800,
+          512
+        ],
+        "parameters": {
+          "url": "https://api.tavily.com/search",
+          "method": "POST",
+          "jsonBody": "={\n    \"api_key\": \"your-API\",\n    \"query\": \"{searchTerm}\",\n    \"search_depth\": \"advanced\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 10,\n    \"days\": 1\n}",
+          "sendBody": true,
+          "specifyBody": "json",
+          "toolDescription": "Use this tool to search for the latest news on any topic",
+          "placeholderDefinitions": {
+            "values": [
+              {
+                "name": "searchTerm",
+                "type": "string",
+                "description": "The news topic or query to search for"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "parser012-3456-7890-1234-567890123456",
+        "name": "News Output Parser",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          976,
+          512
+        ],
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"The title for today's news summary\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"The complete formatted news summary with all stories\"\n    },\n    \"stories\": {\n      \"type\": \"array\",\n      \"description\": \"Individual news stories\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"headline\": {\n            \"type\": \"string\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\n          },\n          \"category\": {\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  },\n  \"required\": [\"title\", \"summary\", \"stories\"]\n}"
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "note2-3456-7890-1234-567890123456",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          704,
+          -16
+        ],
+        "parameters": {
+          "width": 368,
+          "height": 240,
+          "content": "## AI News Agent Configuration\nThe core of this workflow is the AI Agent, which is configured to:\n- Search for news across key topics (Tech, Business, World Events, etc.).\n- Use the **Tavily API** for real-time news search.\n- Structure the output into a specific JSON format for easy processing."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "code345-6789-0123-4567-890123456789",
+        "name": "Prepare News Query",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          464,
+          304
+        ],
+        "parameters": {
+          "jsCode": "const today = new Date();\nconst dateString = today.toLocaleDateString('en-US', { \n  weekday: 'long', \n  year: 'numeric', \n  month: 'long', \n  day: 'numeric' \n});\n\nreturn [\n  {\n    json: {\n      query: `Search for today's most important news stories from ${dateString}. Include major headlines from technology, business, politics, science, and world events. Focus on the most significant and impactful stories.`,\n      date: dateString\n    }\n  }\n];"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "note3-4567-8901-2345-678901234567",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1152,
+          -16
+        ],
+        "parameters": {
+          "width": 336,
+          "height": 272,
+          "content": "## Gmail Delivery Setup\n**Required Configuration:**\n1. Add your **Gmail OAuth2 credentials** to the final node.\n2. Set the recipient's email address in the \"Send a message\" node.\n3. The \"Format for Gmail\" node uses JavaScript to create a well-formatted HTML email. You can customize the styling there."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "675a14e9-0472-42f5-8828-6dceb7547dbe",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          1344,
+          304
+        ],
+        "webhookId": "b0128308-fba0-4291-996d-e38ac9edaed4",
+        "parameters": {
+          "sendTo": "user@example.com",
+          "message": "={{ $json.htmlBody }}",
+          "options": {
+            "appendAttribution": false
+          },
+          "subject": "={{ $json.subject }}"
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "credential-id",
+            "name": "gmailOAuth2 Credential"
+          }
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "format901-2345-6789-0123-456789012345",
+        "name": "Format for Gmail",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1088,
+          304
+        ],
+        "parameters": {
+          "jsCode": "const output = $input.first().json.output;\nconst date = $input.first().json.date;\n\n// メールの件名\nconst subject = output.title || \"Daily News Summary\";\n\n// HTMLメールの本文を生成\nlet htmlBody = `\n<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; margin: 0; padding: 0; }\n    .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; }\n    h1 { font-size: 24px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }\n    h3 { font-size: 18px; color: #34495e; margin-bottom: 5px; }\n    p { margin-top: 0; }\n    .story { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee; }\n    .story:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}\n    .category { font-style: italic; color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px; }\n    .date { font-weight: bold; color: #555555; }\n    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #999999; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h1>📰 ${output.title}</h1>\n    <p class=\"date\">${date}</p>\n    <hr style=\"border: 0; border-top: 1px solid #eeeeee; margin: 20px 0;\">\n`;\n\n// 各ニュース記事をHTMLに追加\nif (output.stories && output.stories.length > 0) {\n  output.stories.forEach(story => {\n    htmlBody += `\n      <div class=\"story\">\n        <h3>${story.headline}</h3>\n        <p class=\"category\">${story.category}</p>\n        <p>${story.summary}</p>\n      </div>\n    `;\n  });\n}\n\nhtmlBody += `\n    <div class=\"footer\">\n      <p>Generated by n8n Automation</p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\n// 後続のGmailノードで使えるようにデータを返す\nreturn [\n  {\n    json: {\n      subject: subject,\n      htmlBody: htmlBody\n    }\n  }\n];"
+        },
+        "typeVersion": 2
+      }
+    ],
+    "active": false,
+    "pinData": {
+      "AI News Agent": [
+        {
+          "json": {
+            "output": {
+              "title": "今日のニュースまとめ：2025年10月13日",
+              "stories": [
+                {
+                  "summary": "大手テック企業が参加したグローバルテクノロジー会議で、次世代AIプラットフォームが公開され、産業界におけるAI活用の新たな扉が開かれました。自動化と効率改善に大きな期待が寄せられています。",
+                  "category": "Technology",
+                  "headline": "グローバルテクノロジー会議で新世代AIプラットフォーム発表"
+                },
+                {
+                  "summary": "不安定な世界経済情勢にもかかわらず、大手企業が最新の四半期決算で収益予測を上方修正。新興市場の需要増加と革新的製品の好調な販売が成長の要因と分析されています。",
+                  "category": "Business",
+                  "headline": "世界市場の不確実性の中で主要企業が収益予測を上方修正"
+                },
+                {
+                  "summary": "環境問題が深刻化する中、主要国の首脳が集まり気候変動対策について緊急協議を行いました。再生可能エネルギー導入や炭素排出削減の具体策が議題の中心となりました。",
+                  "category": "Politics",
+                  "headline": "主要国首脳会談で気候変動対策の緊急協議実施"
+                },
+                {
+                  "summary": "最新の医療研究で開発された新型治療法が、複数の癌種に対して高い効果を示し注目を集めています。患者の生存率向上と副作用軽減の両立に成功したことで医療現場の期待が高まっています。",
+                  "category": "Science",
+                  "headline": "新型医療技術が画期的な癌治療法を実現"
+                },
+                {
+                  "summary": "紛争地域で深刻化する人道危機に対し、国際連合が緊急支援強化を発表。食料、医療、避難所の提供を迅速に拡充し、被災者支援の体制を強化しています。",
+                  "category": "World Events",
+                  "headline": "世界的な人道危機に対応し国際支援強化を決定"
+                }
+              ],
+              "summary": "2025年10月13日の重要なニュースをテクノロジー、ビジネス、政治、科学、世界のイベントのカテゴリーから厳選してお届けします。"
+            }
+          }
+        }
+      ],
+      "Format for Gmail": [
+        {
+          "json": {
+            "subject": "今日のニュースまとめ：2025年10月13日",
+            "htmlBody": "\n<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; margin: 0; padding: 0; }\n    .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 8px; }\n    h1 { font-size: 24px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }\n    h3 { font-size: 18px; color: #34495e; margin-bottom: 5px; }\n    p { margin-top: 0; }\n    .story { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee; }\n    .story:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}\n    .category { font-style: italic; color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px; }\n    .date { font-weight: bold; color: #555555; }\n    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #999999; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h1>📰 今日のニュースまとめ：2025年10月13日</h1>\n    <p class=\"date\">undefined</p>\n    <hr style=\"border: 0; border-top: 1px solid #eeeeee; margin: 20px 0;\">\n\n      <div class=\"story\">\n        <h3>グローバルテクノロジー会議で新世代AIプラットフォーム発表</h3>\n        <p class=\"category\">Technology</p>\n        <p>大手テック企業が参加したグローバルテクノロジー会議で、次世代AIプラットフォームが公開され、産業界におけるAI活用の新たな扉が開かれました。自動化と効率改善に大きな期待が寄せられています。</p>\n      </div>\n    \n      <div class=\"story\">\n        <h3>世界市場の不確実性の中で主要企業が収益予測を上方修正</h3>\n        <p class=\"category\">Business</p>\n        <p>不安定な世界経済情勢にもかかわらず、大手企業が最新の四半期決算で収益予測を上方修正。新興市場の需要増加と革新的製品の好調な販売が成長の要因と分析されています。</p>\n      </div>\n    \n      <div class=\"story\">\n        <h3>主要国首脳会談で気候変動対策の緊急協議実施</h3>\n        <p class=\"category\">Politics</p>\n        <p>環境問題が深刻化する中、主要国の首脳が集まり気候変動対策について緊急協議を行いました。再生可能エネルギー導入や炭素排出削減の具体策が議題の中心となりました。</p>\n      </div>\n    \n      <div class=\"story\">\n        <h3>新型医療技術が画期的な癌治療法を実現</h3>\n        <p class=\"category\">Science</p>\n        <p>最新の医療研究で開発された新型治療法が、複数の癌種に対して高い効果を示し注目を集めています。患者の生存率向上と副作用軽減の両立に成功したことで医療現場の期待が高まっています。</p>\n      </div>\n    \n      <div class=\"story\">\n        <h3>世界的な人道危機に対応し国際支援強化を決定</h3>\n        <p class=\"category\">World Events</p>\n        <p>紛争地域で深刻化する人道危機に対し、国際連合が緊急支援強化を発表。食料、医療、避難所の提供を迅速に拡充し、被災者支援の体制を強化しています。</p>\n      </div>\n    \n    <div class=\"footer\">\n      <p>Generated by n8n Automation</p>\n    </div>\n  </div>\n</body>\n</html>\n"
+          }
+        }
+      ],
+      "Schedule Trigger": [
+        {
+          "json": {
+            "Hour": "21",
+            "Year": "2025",
+            "Month": "October",
+            "Minute": "20",
+            "Second": "40",
+            "Timezone": "America/New_York (UTC-04:00)",
+            "timestamp": "2025-10-12T21:20:40.103-04:00",
+            "Day of week": "Sunday",
+            "Day of month": "12",
+            "Readable date": "October 12th 2025, 9:20:40 pm",
+            "Readable time": "9:20:40 pm"
+          }
+        }
+      ],
+      "Prepare News Query": [
+        {
+          "json": {
+            "date": "Monday, October 13, 2025",
+            "query": "Search for today's most important news stories from Monday, October 13, 2025. Include major headlines from technology, business, politics, science, and world events. Focus on the most significant and impactful stories."
+          }
+        }
+      ]
+    },
+    "settings": {
+      "timezone": "America/New_York",
+      "errorWorkflow": "",
+      "executionOrder": "v1",
+      "saveManualExecutions": true,
+      "saveExecutionProgress": true,
+      "saveDataErrorExecution": "all",
+      "saveDataSuccessExecution": "all"
+    },
+    "versionId": "f722d1f3-eeaa-4922-a1da-b2c9abca521b",
+    "connections": {
+      "AI News Agent": {
+        "main": [
+          [
+            {
+              "node": "Format for Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format for Gmail": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Prepare News Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "News Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI News Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare News Query": {
+        "main": [
+          [
+            {
+              "node": "AI News Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Tavily News Search": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI News Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI News Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

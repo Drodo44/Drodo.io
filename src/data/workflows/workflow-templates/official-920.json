@@ -1,0 +1,145 @@
+{
+  "id": "official-920",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/920",
+    "template_id": 920
+  },
+  "name": "Generate, retrieve and download a report using the SecurityScorecard",
+  "description": "This workflow allows you to generate, retrieve and download a report using the SecurityScorecard node.",
+  "category": "Other",
+  "tags": [
+    "SecOps",
+    "manual",
+    "SecurityScorecard",
+    "Manual Trigger",
+    "generate",
+    "retrieve",
+    "download",
+    "report",
+    "securityscorecard",
+    "workflow"
+  ],
+  "task_keywords": [
+    "generate, retrieve and download a report using the securityscorecard",
+    "manual",
+    "securityscorecard",
+    "manual trigger",
+    "generate retrieve",
+    "retrieve download",
+    "download report",
+    "report securityscorecard",
+    "securityscorecard workflow",
+    "workflow allows",
+    "allows you",
+    "you generate"
+  ],
+  "required_services": [
+    "manual",
+    "SecurityScorecard"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "SecurityScorecard",
+        "type": "n8n-nodes-base.securityScorecard",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "report": "full-scorecard-json",
+          "resource": "report",
+          "operation": "generate",
+          "scorecardIdentifier": "n8n.io"
+        },
+        "credentials": {
+          "securityScorecardApi": "SecurityScorecard Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SecurityScorecard1",
+        "type": "n8n-nodes-base.securityScorecard",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {
+          "limit": 1,
+          "resource": "report"
+        },
+        "credentials": {
+          "securityScorecardApi": "SecurityScorecard Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "SecurityScorecard2",
+        "type": "n8n-nodes-base.securityScorecard",
+        "position": [
+          850,
+          300
+        ],
+        "parameters": {
+          "url": "={{$json[\"download_url\"]}}",
+          "resource": "report",
+          "operation": "download"
+        },
+        "credentials": {
+          "securityScorecardApi": "SecurityScorecard Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "SecurityScorecard": {
+        "main": [
+          [
+            {
+              "node": "SecurityScorecard1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SecurityScorecard1": {
+        "main": [
+          [
+            {
+              "node": "SecurityScorecard2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "SecurityScorecard",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "id": "official-460",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/460",
+    "template_id": 460
+  },
+  "name": "Get the current weather data for a city",
+  "description": "Get the current weather data for a city",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "OpenWeatherMap",
+    "Manual Trigger",
+    "current",
+    "weather",
+    "data",
+    "city"
+  ],
+  "task_keywords": [
+    "get the current weather data for a city",
+    "manual",
+    "openweathermap",
+    "manual trigger",
+    "current weather",
+    "weather data",
+    "data city",
+    "city current"
+  ],
+  "required_services": [
+    "manual",
+    "OpenWeatherMap"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "88",
+    "name": "Get the current weather data for a city",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "OpenWeatherMap",
+        "type": "n8n-nodes-base.openWeatherMap",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "cityName": "berlin,de"
+        },
+        "credentials": {
+          "openWeatherMapApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "OpenWeatherMap": {
+        "main": [
+          []
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "OpenWeatherMap",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

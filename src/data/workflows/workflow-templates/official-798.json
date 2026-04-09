@@ -1,0 +1,131 @@
+{
+  "id": "official-798",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/798",
+    "template_id": 798
+  },
+  "name": "Send financial metrics monthly to Mattermos",
+  "description": "Send financial metrics monthly to Mattermos",
+  "category": "Productivity",
+  "tags": [
+    "Document Extraction",
+    "ProfitWell",
+    "Cron",
+    "Mattermost",
+    "Cron Trigger",
+    "send",
+    "financial",
+    "metrics",
+    "monthly",
+    "mattermos"
+  ],
+  "task_keywords": [
+    "send financial metrics monthly to mattermos",
+    "profitwell",
+    "send profitwell",
+    "cron",
+    "send cron",
+    "mattermost",
+    "send mattermost",
+    "cron trigger",
+    "send financial",
+    "financial metrics",
+    "metrics monthly",
+    "monthly mattermos"
+  ],
+  "required_services": [
+    "ProfitWell",
+    "Cron",
+    "Mattermost"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "146",
+    "name": "Send financial metrics monthly to Mattermost",
+    "nodes": [
+      {
+        "name": "ProfitWell",
+        "type": "n8n-nodes-base.profitWell",
+        "position": [
+          730,
+          220
+        ],
+        "parameters": {
+          "type": "monthly",
+          "options": {}
+        },
+        "credentials": {
+          "profitWellApi": "profitwell"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          530,
+          220
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 9,
+                "mode": "everyMonth"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          930,
+          220
+        ],
+        "parameters": {
+          "message": "=Active Customers: {{$node[\"ProfitWell\"].json[\"active_customers\"]}}\nTrailing Customers: {{$node[\"ProfitWell\"].json[\"active_trialing_customers\"]}}\nNew Customers: {{$node[\"ProfitWell\"].json[\"new_customers\"]}}\nGrowth Rate: {{$node[\"ProfitWell\"].json[\"growth_rate\"]}}\nRecurring Revenue: {{$node[\"ProfitWell\"].json[\"recurring_revenue\"]}}",
+          "channelId": "w6rsxrqds3bt9pguxzduowqucy",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "mattermost"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "ProfitWell",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ProfitWell": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

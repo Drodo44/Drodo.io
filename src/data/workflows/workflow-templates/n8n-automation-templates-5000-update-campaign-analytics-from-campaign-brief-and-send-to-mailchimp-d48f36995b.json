@@ -1,0 +1,147 @@
+{
+  "id": "n8n-automation-templates-5000-update-campaign-analytics-from-campaign-brief-and-send-to-mailchimp-d48f36995b",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/update-campaign-analytics-campaign-brief-mailchimp.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/update-campaign-analytics-campaign-brief-mailchimp.json"
+  },
+  "name": "Update campaign analytics from Campaign brief and send to Mailchimp",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Update campaign analytics from Campaign brief and send to Mailchimp",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "update",
+    "campaign",
+    "analytics",
+    "brief",
+    "send"
+  ],
+  "task_keywords": [
+    "update campaign analytics from campaign brief and send to mailchimp",
+    "slack",
+    "send slack",
+    "update slack",
+    "webhook",
+    "update campaign",
+    "campaign analytics",
+    "analytics campaign",
+    "campaign brief",
+    "brief send",
+    "send mailchimp",
+    "mailchimp n8n"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Update campaign analytics from Campaign brief and send to Mailchimp",
+    "nodes": [
+      {
+        "id": "trigger-campaign-brief",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          72200
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "update-campaign-analytics-from-campaign-brief-and-send-to-mailchimp",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-campaign-brief",
+        "name": "Fetch data from Campaign brief",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          72200
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/campaign-brief",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-mailchimp",
+        "name": "Send to Mailchimp",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          72200
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/mailchimp",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-72200",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          72200
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Campaign brief",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Campaign brief": {
+        "main": [
+          {
+            "node": "Send to Mailchimp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Mailchimp": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

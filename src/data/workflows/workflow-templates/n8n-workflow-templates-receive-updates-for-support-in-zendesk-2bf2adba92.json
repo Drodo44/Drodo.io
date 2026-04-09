@@ -1,0 +1,74 @@
+{
+  "id": "n8n-workflow-templates-receive-updates-for-support-in-zendesk-2bf2adba92",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0823_Zendesk_Update_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0823_Zendesk_Update_Triggered.json"
+  },
+  "name": "Receive updates for support in Zendesk",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: Receive updates for support in Zendesk",
+  "category": "Support",
+  "tags": [
+    "workflows",
+    "zendesk",
+    "zendesk Trigger",
+    "receive",
+    "updates",
+    "support",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for support in zendesk",
+    "zendesk",
+    "update zendesk",
+    "zendesk trigger",
+    "receive updates",
+    "updates support",
+    "support zendesk",
+    "zendesk n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n"
+  ],
+  "required_services": [
+    "zendesk"
+  ],
+  "triggers": [
+    "zendesk Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "33",
+    "name": "Receive updates for support in Zendesk",
+    "nodes": [
+      {
+        "name": "Zendesk Trigger",
+        "type": "n8n-nodes-base.zendeskTrigger",
+        "position": [
+          690,
+          300
+        ],
+        "webhookId": "7d01a119-83c7-43b7-8668-a2f26b95d225",
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "all": [
+              {}
+            ]
+          }
+        },
+        "credentials": {
+          "zendeskApi": "zendesk-token"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

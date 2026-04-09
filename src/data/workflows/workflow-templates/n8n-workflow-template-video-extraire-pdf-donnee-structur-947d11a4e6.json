@@ -1,0 +1,391 @@
+{
+  "id": "n8n-workflow-template-video-extraire-pdf-donnee-structur-947d11a4e6",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Video_Extraire_PDF_____Donnee_Structur_.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Video_Extraire_PDF_____Donnee_Structur_.json"
+  },
+  "name": "Video Extraire PDF --> Donnee Structuré",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Video Extraire PDF --> Donnee Structuré",
+  "category": "AI",
+  "tags": [
+    "manual",
+    "google Drive",
+    "information Extractor",
+    "Open AI",
+    "Manual Trigger",
+    "video",
+    "extraire",
+    "pdf",
+    "donnee",
+    "structur",
+    "n8n"
+  ],
+  "task_keywords": [
+    "video extraire pdf --> donnee structuré",
+    "manual",
+    "google drive",
+    "information extractor",
+    "open ai",
+    "manual trigger",
+    "video extraire",
+    "extraire pdf",
+    "pdf donnee",
+    "donnee structur",
+    "structur n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "manual",
+    "google Drive",
+    "information Extractor",
+    "Open AI"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Video Extraire PDF --> Donnee Structuré",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "840f2573-a102-4311-aceb-d46c74c0b519",
+        "name": "When clicking ‘Test workflow’"
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "1xt8ft1nIxecI9-fhh5Qm6u6uHT8S1LlgthXnXVoTAmA",
+            "mode": "list",
+            "cachedResultName": "Document Video Parsing",
+            "cachedResultUrl": "https://docs.google.com/document/d/1xt8ft1nIxecI9-fhh5Qm6u6uHT8S1LlgthXnXVoTAmA/edit?usp=drivesdk"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          220,
+          0
+        ],
+        "id": "8262b75e-c32e-4fbb-819f-b5d007804ad9",
+        "name": "Google Drive",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "cGALptZG1l6v2uiM",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{$json.id}}/result/markdown",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1340,
+          -20
+        ],
+        "id": "6569ebbf-7b36-4b59-90a8-07c2d995dff5",
+        "name": "Recuperer Markdown",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "7ir5PIWghdvvozmR",
+            "name": "LlamaCloud"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.cloud.llamaindex.ai/api/parsing/upload",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "multipart-form-data",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "parameterType": "formBinaryData",
+                "name": "file",
+                "inputDataFieldName": "data"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          440,
+          0
+        ],
+        "id": "1e86b491-63c1-4fb4-acb0-2c9849a2907b",
+        "name": "Envoyer Fichier LlamaParse",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "7ir5PIWghdvvozmR",
+            "name": "LlamaCloud"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 30
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          660,
+          0
+        ],
+        "id": "51fa6bc6-4d63-46ee-94c8-0d5f5a4ad005",
+        "name": "Wait",
+        "webhookId": "19868ead-0ae1-49a2-b4f0-bb2d03575b85"
+      },
+      {
+        "parameters": {
+          "url": "=https://api.cloud.llamaindex.ai/api/parsing/job/{{$json.id}}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          840,
+          0
+        ],
+        "id": "5c4fcfcd-d290-4cde-b597-bfcd27c2a1a3",
+        "name": "Check Status",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "7ir5PIWghdvvozmR",
+            "name": "LlamaCloud"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "ad706450-abe7-444b-a061-63142863940b",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": "SUCCESS",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1060,
+          0
+        ],
+        "id": "7a0dab8e-1d70-4856-88fb-23f040b1e72c",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "text": "={{ $json.markdown }}",
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"NEO_CAP\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Fiscal_2021\": { \"type\": \"number\" },\n        \"Fiscal_2022\": { \"type\": \"number\" },\n        \"Fiscal_2023\": { \"type\": \"number\" }\n      },\n      \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n    },\n    \"TSR\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Fiscal_2021\": { \"type\": \"number\" },\n        \"Fiscal_2022\": { \"type\": \"number\" },\n        \"Fiscal_2023\": { \"type\": \"number\" }\n      },\n      \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n    },\n    \"NEO_CAP_vs_TSR\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"CEO_CAP\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"Other_NEOs_Average_CAP\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"NVIDIA_TSR\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"Nasdaq100_Index_TSR\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        }\n      },\n      \"required\": [\"CEO_CAP\", \"Other_NEOs_Average_CAP\", \"NVIDIA_TSR\", \"Nasdaq100_Index_TSR\"]\n    },\n    \"NEO_CAP_vs_Net_Income_and_NonGAAP_Operating_Income\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"CEO_CAP\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"Other_NEOs_Average_CAP\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"Net_Income\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        },\n        \"Non_GAAP_Operating_Income\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"Fiscal_2021\": { \"type\": \"number\" },\n            \"Fiscal_2022\": { \"type\": \"number\" },\n            \"Fiscal_2023\": { \"type\": \"number\" }\n          },\n          \"required\": [\"Fiscal_2021\", \"Fiscal_2022\", \"Fiscal_2023\"]\n        }\n      },\n      \"required\": [\"CEO_CAP\", \"Other_NEOs_Average_CAP\", \"Net_Income\", \"Non_GAAP_Operating_Income\"]\n    }\n  },\n  \"required\": [\"NEO_CAP\", \"TSR\", \"NEO_CAP_vs_TSR\", \"NEO_CAP_vs_Net_Income_and_NonGAAP_Operating_Income\"]\n}\n",
+          "options": {
+            "systemPromptTemplate": "Vous êtes un algorithme expert en extraction.\nN'extrayez que les informations pertinentes du texte.\nSi vous ne connaissez pas la valeur d'un attribut à extraire, vous pouvez omettre la valeur de l'attribut.\nCe texte peut contenir une liste de propriétés. Assurez-vous de toutes les extraire."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+        "typeVersion": 1,
+        "position": [
+          1560,
+          -20
+        ],
+        "id": "89207827-47a5-4a0d-a1d8-898647480f63",
+        "name": "Information Extractor"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.1,
+        "position": [
+          1500,
+          180
+        ],
+        "id": "98ad3ae3-1895-4c47-bcfe-f8697e7712d0",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Envoyer Fichier LlamaParse",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Envoyer Fichier LlamaParse": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Check Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Status": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Recuperer Markdown",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recuperer Markdown": {
+        "main": [
+          [
+            {
+              "node": "Information Extractor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Information Extractor",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "37c4cc19-6255-4822-a5aa-991c0a2a0dc3",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "18j1w6DJKBf9bBSI",
+    "tags": []
+  }
+}

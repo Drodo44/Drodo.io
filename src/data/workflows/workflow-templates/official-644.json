@@ -1,0 +1,65 @@
+{
+  "id": "official-644",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/644",
+    "template_id": 644
+  },
+  "name": "Receive updates on a subscriber added in ConvertKit",
+  "description": "Receive updates on a subscriber added in ConvertKit",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "ConvertKit",
+    "ConvertKit Trigger",
+    "receive",
+    "updates",
+    "subscriber",
+    "added",
+    "convertkit"
+  ],
+  "task_keywords": [
+    "receive updates on a subscriber added in convertkit",
+    "convertkit",
+    "update convertkit",
+    "convertkit trigger",
+    "receive updates",
+    "updates subscriber",
+    "subscriber added",
+    "added convertkit",
+    "convertkit receive"
+  ],
+  "required_services": [
+    "ConvertKit"
+  ],
+  "triggers": [
+    "ConvertKit Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "28",
+    "name": "Receive updates when a subscriber is added through a form in ConvertKit",
+    "nodes": [
+      {
+        "name": "ConvertKit Trigger",
+        "type": "n8n-nodes-base.convertKitTrigger",
+        "position": [
+          690,
+          260
+        ],
+        "webhookId": "55336480-7be1-4432-8fc8-d860572c1c18",
+        "parameters": {
+          "event": "formSubscribe",
+          "formId": 1657198
+        },
+        "credentials": {
+          "convertKitApi": "convertkit"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

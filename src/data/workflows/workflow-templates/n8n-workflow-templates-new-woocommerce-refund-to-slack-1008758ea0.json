@@ -1,0 +1,176 @@
+{
+  "id": "n8n-workflow-templates-new-woocommerce-refund-to-slack-1008758ea0",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1155_Woocommerce_Slack_Create_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1155_Woocommerce_Slack_Create_Triggered.json"
+  },
+  "name": "New WooCommerce refund to Slack",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: New WooCommerce refund to Slack",
+  "category": "Communication",
+  "tags": [
+    "workflows",
+    "woo Commerce",
+    "slack",
+    "woo Commerce Trigger",
+    "woocommerce",
+    "refund",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "new woocommerce refund to slack",
+    "woo commerce",
+    "slack",
+    "woo commerce trigger",
+    "woocommerce refund",
+    "refund slack",
+    "slack n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun",
+    "danitilahun n8n",
+    "workflow templates"
+  ],
+  "required_services": [
+    "woo Commerce",
+    "slack"
+  ],
+  "triggers": [
+    "woo Commerce Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": 82,
+    "name": "New WooCommerce refund to Slack",
+    "nodes": [
+      {
+        "name": "Order Updated",
+        "type": "n8n-nodes-base.wooCommerceTrigger",
+        "position": [
+          320,
+          500
+        ],
+        "webhookId": "f7736be3-e978-4a17-b936-7ce9f8ccdb72",
+        "parameters": {
+          "event": "order.updated"
+        },
+        "credentials": {
+          "wooCommerceApi": {
+            "id": "48",
+            "name": "WooCommerce account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "If Refund and Over 100",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          540,
+          500
+        ],
+        "parameters": {
+          "conditions": {
+            "number": [
+              {
+                "value1": "={{$json[\"total\"]}}",
+                "value2": 100,
+                "operation": "largerEqual"
+              }
+            ],
+            "string": [
+              {
+                "value1": "={{$json[\"status\"]}}",
+                "value2": "refunded"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Send to Slack",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          780,
+          480
+        ],
+        "parameters": {
+          "text": ":x: A refund has been issued :x:",
+          "channel": "woo-commerce",
+          "blocksUi": {
+            "blocksValues": []
+          },
+          "attachments": [
+            {
+              "color": "#FF0000",
+              "fields": {
+                "item": [
+                  {
+                    "short": true,
+                    "title": "Order ID",
+                    "value": "={{$json[\"id\"]}}"
+                  },
+                  {
+                    "short": true,
+                    "title": "Status",
+                    "value": "={{$json[\"status\"]}}"
+                  },
+                  {
+                    "short": true,
+                    "title": "Total",
+                    "value": "={{$json[\"currency_symbol\"]}}{{$json[\"total\"]}}"
+                  }
+                ]
+              },
+              "footer": "=*Order updated:* {{$json[\"date_modified\"]}}"
+            }
+          ],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "53",
+            "name": "Slack Access Token"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {
+      "saveManualExecutions": true,
+      "saveExecutionProgress": true,
+      "saveDataSuccessExecution": "all"
+    },
+    "connections": {
+      "Order Updated": {
+        "main": [
+          [
+            {
+              "node": "If Refund and Over 100",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If Refund and Over 100": {
+        "main": [
+          [
+            {
+              "node": "Send to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-49-b6a3d92133",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/marketing_49_cron_gmail_to_google_sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/marketing_49_cron_gmail_to_google_sheets.json"
+  },
+  "name": "Template 49",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 49",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "cron",
+    "gmail",
+    "googlesheets",
+    "cron Trigger",
+    "template",
+    "n8n",
+    "workflow",
+    "ritik",
+    "prog"
+  ],
+  "task_keywords": [
+    "template 49",
+    "cron",
+    "gmail",
+    "googlesheets",
+    "cron trigger",
+    "template n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "cron",
+    "gmail",
+    "googlesheets"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 49",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/24 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 49
+  }
+}

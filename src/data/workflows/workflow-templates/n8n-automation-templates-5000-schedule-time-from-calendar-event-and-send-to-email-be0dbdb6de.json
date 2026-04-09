@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-schedule-time-from-calendar-event-and-send-to-email-be0dbdb6de",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/schedule-time-calendar-event-email.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/schedule-time-calendar-event-email.json"
+  },
+  "name": "Schedule time from Calendar event and send to Email",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Schedule time from Calendar event and send to Email",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "schedule",
+    "time",
+    "calendar",
+    "event",
+    "send",
+    "email"
+  ],
+  "task_keywords": [
+    "schedule time from calendar event and send to email",
+    "slack",
+    "send slack",
+    "webhook",
+    "schedule time",
+    "time calendar",
+    "calendar event",
+    "event send",
+    "send email",
+    "email n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Schedule time from Calendar event and send to Email",
+    "nodes": [
+      {
+        "id": "trigger-calendar-event",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          184100
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "schedule-time-from-calendar-event-and-send-to-email",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-calendar-event",
+        "name": "Fetch data from Calendar event",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          184100
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/calendar-event",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-email",
+        "name": "Send to Email",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          184100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/email",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-184100",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          184100
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Calendar event",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Calendar event": {
+        "main": [
+          {
+            "node": "Send to Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

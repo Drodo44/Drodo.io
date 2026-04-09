@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-restart-service-from-jenkins-build-and-send-to-opsgenie-22dda4d907",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/restart-service-jenkins-build-opsgenie.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/restart-service-jenkins-build-opsgenie.json"
+  },
+  "name": "Restart service from Jenkins build and send to Opsgenie",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Restart service from Jenkins build and send to Opsgenie",
+  "category": "Communication",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "restart",
+    "service",
+    "jenkins",
+    "send",
+    "opsgenie",
+    "n8n"
+  ],
+  "task_keywords": [
+    "restart service from jenkins build and send to opsgenie",
+    "slack",
+    "send slack",
+    "webhook",
+    "restart service",
+    "service jenkins",
+    "jenkins send",
+    "send opsgenie",
+    "opsgenie n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Restart service from Jenkins build and send to Opsgenie",
+    "nodes": [
+      {
+        "id": "trigger-jenkins-build",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          147500
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "restart-service-from-jenkins-build-and-send-to-opsgenie",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-jenkins-build",
+        "name": "Fetch data from Jenkins build",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          147500
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/jenkins-build",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-opsgenie",
+        "name": "Send to Opsgenie",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          147500
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/opsgenie",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-147500",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          147500
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Jenkins build",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Jenkins build": {
+        "main": [
+          {
+            "node": "Send to Opsgenie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Opsgenie": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

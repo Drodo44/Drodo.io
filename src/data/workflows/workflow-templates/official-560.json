@@ -1,0 +1,68 @@
+{
+  "id": "official-560",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/560",
+    "template_id": 560
+  },
+  "name": "Receive updates for events in Box",
+  "description": "Companion workflow for Box Trigger node docs",
+  "category": "Productivity",
+  "tags": [
+    "File Management",
+    "Box",
+    "Box Trigger",
+    "receive",
+    "updates",
+    "events",
+    "box",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "receive updates for events in box",
+    "update box",
+    "box trigger",
+    "receive updates",
+    "updates events",
+    "events box",
+    "box companion",
+    "companion workflow",
+    "workflow box",
+    "trigger node",
+    "node docs"
+  ],
+  "required_services": [
+    "Box"
+  ],
+  "triggers": [
+    "Box Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Box Trigger",
+        "type": "n8n-nodes-base.boxTrigger",
+        "position": [
+          1027,
+          368
+        ],
+        "webhookId": "0e56bb0c-8e81-42de-a902-c0ab31834bd8",
+        "parameters": {
+          "events": [
+            "FOLDER.MOVED",
+            "FOLDER.DOWNLOADED"
+          ],
+          "targetId": "118847708963",
+          "targetType": "file"
+        },
+        "credentials": {
+          "boxOAuth2Api": "box_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {}
+  }
+}

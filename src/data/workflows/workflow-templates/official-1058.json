@@ -1,0 +1,93 @@
+{
+  "id": "official-1058",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1058",
+    "template_id": 1058
+  },
+  "name": "Send message on Mattermost when your n8n instance starts",
+  "description": "This workflow allows you to receive a message on Mattermost when your n8n instance starts.",
+  "category": "DevOps",
+  "tags": [
+    "DevOps",
+    "n8n",
+    "Mattermost",
+    "n8n Trigger",
+    "send",
+    "message",
+    "mattermost",
+    "when",
+    "instance"
+  ],
+  "task_keywords": [
+    "send message on mattermost when your n8n instance starts",
+    "send n8n",
+    "mattermost",
+    "send mattermost",
+    "n8n trigger",
+    "send message",
+    "message mattermost",
+    "mattermost when",
+    "when n8n",
+    "n8n instance",
+    "instance starts",
+    "starts workflow"
+  ],
+  "required_services": [
+    "n8n",
+    "Mattermost"
+  ],
+  "triggers": [
+    "n8n Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "n8n Trigger",
+        "type": "n8n-nodes-base.n8nTrigger",
+        "position": [
+          450,
+          200
+        ],
+        "parameters": {
+          "events": [
+            "init"
+          ]
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Mattermost",
+        "type": "n8n-nodes-base.mattermost",
+        "position": [
+          650,
+          200
+        ],
+        "parameters": {
+          "message": "=Your n8n instance started at {{$json[\"timestamp\"]}}",
+          "channelId": "toyi3uoycf8rirtm7d5jm15sso",
+          "attachments": [],
+          "otherOptions": {}
+        },
+        "credentials": {
+          "mattermostApi": "Mattermost Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "n8n Trigger": {
+        "main": [
+          [
+            {
+              "node": "Mattermost",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

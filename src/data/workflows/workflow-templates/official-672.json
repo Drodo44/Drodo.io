@@ -1,0 +1,69 @@
+{
+  "id": "official-672",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/672",
+    "template_id": 672
+  },
+  "name": "Receive updates when a new list is created in Affinity",
+  "description": "Receive updates when a new list is created in Affinity",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "Affinity",
+    "Affinity Trigger",
+    "receive",
+    "updates",
+    "when",
+    "list",
+    "created",
+    "affinity"
+  ],
+  "task_keywords": [
+    "receive updates when a new list is created in affinity",
+    "affinity",
+    "create affinity",
+    "update affinity",
+    "affinity trigger",
+    "receive updates",
+    "updates when",
+    "when list",
+    "list created",
+    "created affinity",
+    "affinity receive"
+  ],
+  "required_services": [
+    "Affinity"
+  ],
+  "triggers": [
+    "Affinity Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "63",
+    "name": "Receive updates when a new list is created in Affinity",
+    "nodes": [
+      {
+        "name": "Affinity-Trigger",
+        "type": "n8n-nodes-base.affinityTrigger",
+        "position": [
+          690,
+          260
+        ],
+        "webhookId": "e9d2b8f0-9fa9-43c2-b45d-dc96c869bd20",
+        "parameters": {
+          "events": [
+            "list.created"
+          ]
+        },
+        "credentials": {
+          "affinityApi": "affinity"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

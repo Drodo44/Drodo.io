@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-1117-5061f47c15",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Workday/hr_1117_cron_workday_to_bamboohr.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Workday/hr_1117_cron_workday_to_bamboohr.json"
+  },
+  "name": "Template 1117",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1117",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Workday",
+    "cron",
+    "workday",
+    "bamboohr",
+    "cron Trigger",
+    "template",
+    "1117",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1117",
+    "cron",
+    "workday",
+    "bamboohr",
+    "cron trigger",
+    "1117 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "cron",
+    "workday",
+    "bamboohr"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1117",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/12 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Workday",
+        "type": "n8n-nodes-base.workday",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "BambooHR",
+        "type": "n8n-nodes-base.bamboohr",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Workday",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workday": {
+        "main": [
+          [
+            {
+              "node": "BambooHR",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1117
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "n8n-automation-templates-5000-template-631-e026df1551",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Stripe/ai_agents_631_cron_openai_to_vector_db.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Stripe/ai_agents_631_cron_openai_to_vector_db.json"
+  },
+  "name": "Template 631",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 631",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Stripe",
+    "cron",
+    "openai",
+    "vectordb",
+    "stripe",
+    "cron Trigger",
+    "template",
+    "631",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 631",
+    "cron",
+    "openai",
+    "vectordb",
+    "stripe",
+    "cron trigger",
+    "631 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "cron",
+    "openai",
+    "vectordb",
+    "stripe"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Template 631",
+    "nodes": [
+      {
+        "parameters": {
+          "cronExpression": "*/6 * * * *"
+        },
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Vector DB",
+        "type": "n8n-nodes-base.vectordb",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Process a payment using Stripe based on extracted billing details."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Stripe",
+        "type": "n8n-nodes-base.stripe",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Vector DB",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Stripe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Vector DB": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 631
+  }
+}

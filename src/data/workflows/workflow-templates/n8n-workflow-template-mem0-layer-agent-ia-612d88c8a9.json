@@ -1,0 +1,311 @@
+{
+  "id": "n8n-workflow-template-mem0-layer-agent-ia-612d88c8a9",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "mem0_layer_Agent_IA.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/mem0_layer_Agent_IA.json"
+  },
+  "name": "mem0 layer Agent IA",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: mem0 layer Agent IA",
+  "category": "AI",
+  "tags": [
+    "chat",
+    "Open AI",
+    "tool Http Request",
+    "agent",
+    "chat Trigger",
+    "mem0",
+    "layer",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "mem0 layer agent ia",
+    "chat",
+    "open ai",
+    "tool http request",
+    "agent",
+    "chat trigger",
+    "mem0 layer",
+    "layer agent",
+    "agent n8n",
+    "n8n workflow",
+    "workflow template",
+    "template stirito"
+  ],
+  "required_services": [
+    "chat",
+    "Open AI",
+    "tool Http Request",
+    "agent"
+  ],
+  "triggers": [
+    "chat Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "mem0 layer Agent IA",
+    "nodes": [
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -240,
+          0
+        ],
+        "id": "f30c0574-dc37-43c0-b596-279ac82dcb0a",
+        "name": "When chat message received",
+        "webhookId": "c63e2c1f-f54a-4313-860f-d7635f883396"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4.1-mini",
+            "mode": "list",
+            "cachedResultName": "gpt-4.1-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          -140,
+          220
+        ],
+        "id": "a18eac74-25c8-4762-bad9-7ee80be7cbb5",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "raw",
+          "jsonOutput": "={\n\"message\":[{\n  \"role\": \"user\",\n  \"content\": {{ $('When chat message received').item.json.chatInput.toJsonString() }}\n},\n{\n  \"role\": \"assistant\",\n  \"content\": {{ $json.output.toJsonString() }}\n}\n]\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          320,
+          0
+        ],
+        "id": "afe7edc0-b2a0-4206-ac25-19eed42f0382",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.mem0.ai/v1/memories/",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Token TON API KEY"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ $json.message[0].content.toJsonString() }}\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": {{ $json.message[1].content.toJsonString() }}\n    }\n  ],\n  \"agent_id\":\"agent_default\",\n  \"user_id\":\"user_default\",\n  \"infer\": true,\n  \"version\": \"v2\"\n}\n",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          580,
+          0
+        ],
+        "id": "c9017639-9d1b-46b0-8072-0d05d2874903",
+        "name": "Add Memory"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.mem0.ai/v2/memories/search/",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Token TON API KEY"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n  \"query\": \"Quelles sont mes hobbies ?\",\n  \"filters\": {\n    \"AND\":[\n      {\"user_id\":\"user_default\"},\n      {\"agent_id\":{\"in\":[\"agent_default\"]}}\n    ]\n    \n  },\n  \"top_k\": 3,\n  \"rerank\": true\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -260,
+          460
+        ],
+        "id": "cedceba9-883d-44eb-afc9-15c217d0a3cc",
+        "name": "Search Memory"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          -40,
+          460
+        ],
+        "id": "bd40c487-af2f-4ec0-a600-f15c6ad87720",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {
+          "toolDescription": "Cet outil te permet de chercher dans ta mémoire à partir d'une requête les informations contextuelle relatifs pour répondre au mieux a une demande.",
+          "method": "POST",
+          "url": "https://api.mem0.ai/v2/memories/search/",
+          "sendHeaders": true,
+          "parametersHeaders": {
+            "values": [
+              {
+                "name": "Authorization",
+                "valueProvider": "fieldValue",
+                "value": "Token TON API KEY"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"query\": \"{query}\",\n  \"filters\": {\n    \"AND\":[\n      {\"user_id\":\"user_default\"},\n      {\"agent_id\":{\"in\":[\"agent_default\"]}}\n    ]\n    \n  },\n  \"top_k\": 3,\n  \"rerank\": true\n}",
+          "placeholderDefinitions": {
+            "values": [
+              {
+                "name": "query",
+                "description": "La requete a recherche dans la mémoire.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+        "typeVersion": 1.1,
+        "position": [
+          220,
+          220
+        ],
+        "id": "969dcbba-aec9-4282-b3f8-6276b7e6e8d4",
+        "name": "SearchMemoryInMem0"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.8,
+        "position": [
+          -40,
+          0
+        ],
+        "id": "1986274f-a075-45ab-a930-3ac584798e63",
+        "name": "Agent Personnel"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Agent Personnel",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Personnel",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Add Memory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search Memory": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          []
+        ]
+      },
+      "SearchMemoryInMem0": {
+        "ai_tool": [
+          [
+            {
+              "node": "Agent Personnel",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Personnel": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "6bb9e526-52cf-481a-8232-0d8a4cded094",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "VkfuWsui77Vx0fn8",
+    "tags": []
+  }
+}

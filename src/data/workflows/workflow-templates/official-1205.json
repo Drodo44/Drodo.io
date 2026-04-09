@@ -1,0 +1,118 @@
+{
+  "id": "official-1205",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1205",
+    "template_id": 1205
+  },
+  "name": "Promote new Shopify products on Twitter and Telegram",
+  "description": "This workflow automatically promotes your new Shopify products on Twitter and Telegram.",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "X (Formerly Twitter)",
+    "Telegram",
+    "Shopify",
+    "Shopify Trigger",
+    "promote",
+    "shopify",
+    "products",
+    "twitter",
+    "telegram",
+    "workflow"
+  ],
+  "task_keywords": [
+    "promote new shopify products on twitter and telegram",
+    "x (formerly twitter)",
+    "telegram",
+    "shopify",
+    "shopify trigger",
+    "promote shopify",
+    "shopify products",
+    "products twitter",
+    "twitter telegram",
+    "telegram workflow",
+    "workflow automatically",
+    "automatically promotes"
+  ],
+  "required_services": [
+    "X (Formerly Twitter)",
+    "Telegram",
+    "Shopify"
+  ],
+  "triggers": [
+    "Shopify Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Twitter",
+        "type": "n8n-nodes-base.twitter",
+        "position": [
+          720,
+          -220
+        ],
+        "parameters": {
+          "text": "=Hey there, my design is now on a new product ✨\nVisit my {{$json[\"vendor\"]}} shop to get this cool{{$json[\"title\"]}} (and check out more {{$json[\"product_type\"]}}) 🛍️",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "twitterOAuth1Api": "twitter"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          720,
+          -20
+        ],
+        "parameters": {
+          "text": "=Hey there, my design is now on a new product!\nVisit my {{$json[\"vendor\"]}} shop to get this cool{{$json[\"title\"]}} (and check out more {{$json[\"product_type\"]}})",
+          "chatId": "123456",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": "telegram_habot"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "product created",
+        "type": "n8n-nodes-base.shopifyTrigger",
+        "position": [
+          540,
+          -110
+        ],
+        "webhookId": "2a7e0e50-8f09-4a2b-bf54-a849a6ac4fe0",
+        "parameters": {
+          "topic": "products/create"
+        },
+        "credentials": {
+          "shopifyApi": "shopify_nodeqa"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "product created": {
+        "main": [
+          [
+            {
+              "node": "Twitter",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

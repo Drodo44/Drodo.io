@@ -1,0 +1,159 @@
+{
+  "id": "n8n-automation-templates-5000-template-238-a9b7fa0d58",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Google/it_operations_238_calendar_event_trigger_pagerduty_to_jira.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Google/it_operations_238_calendar_event_trigger_pagerduty_to_jira.json"
+  },
+  "name": "Template 238",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 238",
+  "category": "Operations",
+  "tags": [
+    "Templates based on paltforms",
+    "Google",
+    "google Calendar",
+    "pagerduty",
+    "jira",
+    "shopify",
+    "google Calendar Trigger",
+    "template",
+    "238",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 238",
+    "google calendar",
+    "pagerduty",
+    "jira",
+    "shopify",
+    "google calendar trigger",
+    "238 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "google Calendar",
+    "pagerduty",
+    "jira",
+    "shopify"
+  ],
+  "triggers": [
+    "google Calendar Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 238",
+    "nodes": [
+      {
+        "parameters": {
+          "calendar": "primary",
+          "resource": "event",
+          "operation": "watch"
+        },
+        "name": "Calendar Event Trigger",
+        "type": "n8n-nodes-base.googleCalendarTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "PagerDuty",
+        "type": "n8n-nodes-base.pagerduty",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Jira",
+        "type": "n8n-nodes-base.jira",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Shopify",
+        "type": "n8n-nodes-base.shopify",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Calendar Event Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "PagerDuty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PagerDuty": {
+        "main": [
+          [
+            {
+              "node": "Jira",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Jira": {
+        "main": [
+          [
+            {
+              "node": "Shopify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 238
+  }
+}

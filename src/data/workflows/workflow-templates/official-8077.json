@@ -1,0 +1,316 @@
+{
+  "id": "official-8077",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8077",
+    "template_id": 8077
+  },
+  "name": "Service scheduling & route planner for deliveries with Notion, Telegram and Maps",
+  "description": "This workflow contains community nodes that are only compatible with the self hosted version of n8n.",
+  "category": "AI",
+  "tags": [
+    "Project Management",
+    "AI Chatbot",
+    "Function",
+    "Telegram",
+    "Send Email",
+    "Respond to Webhook",
+    "Webhook",
+    "service",
+    "scheduling",
+    "route",
+    "planner",
+    "deliveries",
+    "notion"
+  ],
+  "task_keywords": [
+    "service scheduling & route planner for deliveries with notion, telegram and maps",
+    "function",
+    "telegram",
+    "send email",
+    "respond to webhook",
+    "webhook",
+    "service scheduling",
+    "scheduling route",
+    "route planner",
+    "planner deliveries",
+    "deliveries notion",
+    "notion telegram"
+  ],
+  "required_services": [
+    "Function",
+    "Telegram",
+    "Send Email",
+    "Respond to Webhook"
+  ],
+  "triggers": [
+    "Webhook",
+    "Respond to Webhook"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Graceful Deliveries – Service Scheduling & Route Planner (Notion/Sheets-Ready)",
+    "nodes": [
+      {
+        "name": "📝 Description (Read Me First)",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          20,
+          -20
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "🧰 Setup & Credentials",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          20,
+          440
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "📦 Notion / Sheets Schema",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          820,
+          -20
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "🧭 Data Mapper (Sample Payload)",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          820,
+          380
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Webhook (Bookings)",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          20,
+          920
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Parse Booking",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          300,
+          920
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "name": "Geocode (OSM Nominatim)",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          560,
+          860
+        ],
+        "parameters": {},
+        "typeVersion": 4
+      },
+      {
+        "name": "Format Geocode",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          800,
+          860
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "name": "Merge Data",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          1040,
+          920
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "name": "Build Summary & Links",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          1260,
+          920
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "name": "Telegram → Owner Alert",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          1500,
+          800
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Wait until 1h before",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1500,
+          1040
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Email → Client (Pre-arrival)",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          1740,
+          1040
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1740,
+          800
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "✨ Optional Add-Ons",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2060,
+          760
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {},
+    "staticData": {},
+    "connections": {
+      "Merge Data": {
+        "main": [
+          [
+            {
+              "node": "Build Summary & Links",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Booking": {
+        "main": [
+          [
+            {
+              "node": "Geocode (OSM Nominatim)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Merge Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Geocode": {
+        "main": [
+          [
+            {
+              "node": "Merge Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook (Bookings)": {
+        "main": [
+          [
+            {
+              "node": "Parse Booking",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait until 1h before": {
+        "main": [
+          [
+            {
+              "node": "Email → Client (Pre-arrival)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Summary & Links": {
+        "main": [
+          [
+            {
+              "node": "Telegram → Owner Alert",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Wait until 1h before",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Geocode (OSM Nominatim)": {
+        "main": [
+          [
+            {
+              "node": "Format Geocode",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

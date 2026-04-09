@@ -1,0 +1,65 @@
+{
+  "id": "official-487",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/487",
+    "template_id": 487
+  },
+  "name": "Receive updates for events in ClickUp",
+  "description": "Receive updates for events in ClickUp",
+  "category": "Other",
+  "tags": [
+    "Project Management",
+    "ClickUp",
+    "ClickUp Trigger",
+    "receive",
+    "updates",
+    "events",
+    "clickup"
+  ],
+  "task_keywords": [
+    "receive updates for events in clickup",
+    "clickup",
+    "update clickup",
+    "clickup trigger",
+    "receive updates",
+    "updates events",
+    "events clickup",
+    "clickup receive"
+  ],
+  "required_services": [
+    "ClickUp"
+  ],
+  "triggers": [
+    "ClickUp Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "110",
+    "name": "Receive updates for events in ClickUp",
+    "nodes": [
+      {
+        "name": "ClickUp Trigger",
+        "type": "n8n-nodes-base.clickUpTrigger",
+        "position": [
+          700,
+          250
+        ],
+        "parameters": {
+          "team": "",
+          "events": [
+            "*"
+          ],
+          "filters": {}
+        },
+        "credentials": {
+          "clickUpApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {}
+  }
+}

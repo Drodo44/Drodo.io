@@ -1,0 +1,121 @@
+{
+  "id": "n8n-workflow-templates-0112-manual-awstextract-automate-triggered-a6c04f94e0",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0112_Manual_Awstextract_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0112_Manual_Awstextract_Automate_Triggered.json"
+  },
+  "name": "0112 Manual Awstextract Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0112 Manual Awstextract Automate Triggered",
+  "category": "DevOps",
+  "tags": [
+    "workflows",
+    "manual",
+    "aws Textract",
+    "aws S3",
+    "Manual Trigger",
+    "0112",
+    "awstextract",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0112 manual awstextract automate triggered",
+    "manual",
+    "aws textract",
+    "aws s3",
+    "manual trigger",
+    "0112 manual",
+    "manual awstextract",
+    "awstextract automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "manual",
+    "aws Textract",
+    "aws S3"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS Textract",
+        "type": "n8n-nodes-base.awsTextract",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {},
+        "credentials": {
+          "aws": {
+            "id": "12",
+            "name": "AWS account"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "fileKey": "Rechnung.jpg",
+          "bucketName": "textract-demodata"
+        },
+        "credentials": {
+          "aws": {
+            "id": "12",
+            "name": "AWS account"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "AWS S3": {
+        "main": [
+          [
+            {
+              "node": "AWS Textract",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS S3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

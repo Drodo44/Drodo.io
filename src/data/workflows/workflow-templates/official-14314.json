@@ -1,0 +1,277 @@
+{
+  "id": "official-14314",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/14314",
+    "template_id": 14314
+  },
+  "name": "Classify documents with easybits Extractor via web form",
+  "description": "What This Workflow Does Upload a document (PDF, PNG, or JPEG) via a hosted web form and let easybits Extractor classify it into one of your defined categories.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "AI Summarization",
+    "n8n Form",
+    "Edit Fields (Set)",
+    "n8n Form Trigger",
+    "classify",
+    "documents",
+    "easybits",
+    "extractor",
+    "via",
+    "web"
+  ],
+  "task_keywords": [
+    "classify documents with easybits extractor via web form",
+    "n8n form",
+    "edit fields (set)",
+    "n8n form trigger",
+    "classify documents",
+    "documents easybits",
+    "easybits extractor",
+    "extractor via",
+    "via web",
+    "web form",
+    "form what",
+    "what workflow"
+  ],
+  "required_services": [
+    "n8n Form",
+    "Edit Fields (Set)"
+  ],
+  "triggers": [
+    "n8n Form Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "instanceId": "",
+      "templateCredsSetupCompleted": false
+    },
+    "name": "easybits' Extractor Classification Workflow",
+    "tags": [
+      {
+        "name": "AI Classification"
+      },
+      {
+        "name": "AI"
+      },
+      {
+        "name": "Document Processing"
+      },
+      {
+        "name": "easybits"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "3d2cbf06-949a-451d-adca-51f53dfe22b5",
+        "name": "Extract from File",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          224,
+          16
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "image"
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "bcc48497-e7c3-417a-a5f6-af8dd4e783a4",
+        "name": "On form submission",
+        "type": "n8n-nodes-base.formTrigger",
+        "position": [
+          -64,
+          16
+        ],
+        "webhookId": "84421bc8-bdd1-4dc5-be28-f53fd5b474c7",
+        "parameters": {
+          "options": {},
+          "formTitle": "Image Upload",
+          "formFields": {
+            "values": [
+              {
+                "fieldType": "file",
+                "fieldLabel": "image"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.5
+      },
+      {
+        "id": "3cf93bc1-f3d5-4ccc-946c-d22f4df05ef3",
+        "name": "Edit Fields",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          512,
+          16
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "540141e7-42d3-4011-b681-8335d9105044",
+                "name": "data",
+                "type": "string",
+                "value": "=data:{{ $('On form submission').first().binary.image.mimeType }};base64,{{ $json.data }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "2b527430-c39d-41cc-9491-4fd6b2609af1",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -144,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 256,
+          "height": 368,
+          "content": "## 📋 Form Upload\nAccepts a file upload via a **web form**. Supports **PDF, PNG, and JPEG**."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "820b5a61-15bb-4263-b19a-f36070473e6a",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          144,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 256,
+          "height": 368,
+          "content": "## 📄 Extract to Base64\nConverts the uploaded **binary file** into a base64-encoded string stored in `data`."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f400bb96-a3cd-4529-8aef-f3462b232e8b",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          432,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 256,
+          "height": 368,
+          "content": "## 🔗 Build Data URI\nDynamically reads the **MIME type** from the uploaded file and prepends it as a base64 data URI."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a20f3462-32a1-40db-a288-8c08518e4549",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -832,
+          -496
+        ],
+        "parameters": {
+          "width": 656,
+          "height": 1088,
+          "content": "# 📄 easybits' Document Classification\n\n## What This Workflow Does\nUpload a document (PDF, PNG, or JPEG) via a hosted web form and let **easybits Extractor** classify it into one of your defined categories. This workflow handles the upload, file conversion, and API call – you just define the categories.\n\n## How It Works\n1. **Form Upload** – A user uploads a file through the n8n web form\n2. **Base64 Conversion** – The binary file is extracted and converted to a base64 string\n3. **Build Data URI** – The correct MIME type is read from the original upload and prepended to create a proper data URI\n4. **Classification via easybits** – The data URI is POSTed to the easybits Extractor API, which analyzes the document and returns a `document_class` label (e.g. `medical_invoice`, `hotel_invoice`, or `null` if uncertain)\n\nFrom here, you can extend the workflow however you like – route files to Google Drive folders, send Slack alerts for unrecognized documents, log results to a spreadsheet, etc.\n\n---\n\n## Setup Guide\n\n### 1. Create Your easybits Extractor Pipeline\n1. Go to **extractor.easybits.tech** and create a new pipeline\n2. Add a single field to the mapping called **`document_class`**\n3. In that field's description, paste a classification prompt that tells the model which categories exist and how to identify each one (see the \"📊 Document Classification\" sticky note in this workflow for a full example prompt you can copy and adapt)\n4. The prompt should instruct the model to return **exactly one category label** – or `null` if the document doesn't match any category. No explanations, no extra text.\n5. Adjust the categories to fit your use case. The example uses `medical_invoice`, `restaurant_invoice`, and `hotel_invoice` – but you can define whatever classes you need.\n6. Copy your **Pipeline ID** and **API Key**\n\n### 2. Connect the Nodes in n8n\n1. In the **easybits Extractor (Classification)** HTTP node, replace the pipeline URL with your own: `https://extractor.easybits.tech/api/pipelines/YOUR_PIPELINE_ID`\n2. Create a **Bearer Auth** credential using your easybits API Key and assign it to that node\n\n### 3. Activate & Test\n1. Click **Active** in the top-right corner of n8n\n2. Open the form URL and upload a test document\n3. Check the execution output – you should see your `document_class` label in the response"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "36fde793-1174-4c35-9b54-659691be5cd4",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          720,
+          -160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 256,
+          "height": 368,
+          "content": "## 🚀 Send to easybits\nPOSTs the data URI to the **easybits Extractor API** for classifcation."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e8ff79f8-6a47-4d66-b321-1be874e8694d",
+        "name": "easybits Extractor for Classification",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          800,
+          16
+        ],
+        "parameters": {
+          "url": "https://extractor.easybits.tech/api/pipelines/YOUR_PIPELINE_ID",
+          "method": "POST",
+          "options": {},
+          "jsonBody": "={\n  \"files\": [\n    \"{{ $json.data }}\"\n  ]\n} ",
+          "sendBody": true,
+          "specifyBody": "json",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "httpBearerAuth"
+        },
+        "typeVersion": 4.3
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "callerPolicy": "workflowsFromSameOwner",
+      "timeSavedMode": "fixed",
+      "availableInMCP": false,
+      "executionOrder": "v1"
+    },
+    "connections": {
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "easybits Extractor for Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On form submission": {
+        "main": [
+          [
+            {
+              "node": "Extract from File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "easybits Extractor for Classification": {
+        "main": [
+          []
+        ]
+      }
+    }
+  }
+}

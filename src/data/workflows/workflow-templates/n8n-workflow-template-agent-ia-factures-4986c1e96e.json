@@ -1,0 +1,1509 @@
+{
+  "id": "n8n-workflow-template-agent-ia-factures-4986c1e96e",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_IA_Factures.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_IA_Factures.json"
+  },
+  "name": "Agent IA Factures",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent IA Factures",
+  "category": "AI",
+  "tags": [
+    "telegram",
+    "Open AI",
+    "agent",
+    "airtable",
+    "gmail",
+    "google Drive",
+    "open AI",
+    "output Parser Structured",
+    "chain Summarization",
+    "memory Buffer Window",
+    "telegram Trigger",
+    "gmail Trigger",
+    "factures",
+    "n8n"
+  ],
+  "task_keywords": [
+    "agent ia factures",
+    "telegram",
+    "open ai",
+    "agent",
+    "airtable",
+    "gmail",
+    "google drive",
+    "output parser structured",
+    "chain summarization",
+    "memory buffer window",
+    "telegram trigger",
+    "gmail trigger"
+  ],
+  "required_services": [
+    "telegram",
+    "Open AI",
+    "agent",
+    "airtable",
+    "gmail",
+    "google Drive",
+    "open AI",
+    "output Parser Structured",
+    "chain Summarization",
+    "memory Buffer Window"
+  ],
+  "triggers": [
+    "telegram Trigger",
+    "gmail Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent IA Factures",
+    "nodes": [
+      {
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {
+            "download": true,
+            "imageSize": "large"
+          }
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          -760,
+          -60
+        ],
+        "id": "4284859a-e18d-4b28-8195-dd262cbf9b9e",
+        "name": "Telegram Trigger",
+        "webhookId": "0ee2c0da-0501-4e86-81fb-1bfa6aaaecf1",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1220,
+          220
+        ],
+        "id": "70501b7d-0345-4a6c-a5e0-8caead0b7a9b",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=requete : {{ $('Synthese Requete').isExecuted ? $json.synthese_requete : \"Envois images Factures\"}}\nProvenance : {{ $json.provenance }}\nURL Google Drive : {{ $('Google Drive2').isExecuted ? $('Google Drive2').item.json.webViewLink:\"Pas nécessaire\" }}\nURL Image : {{$('Google Drive2').isExecuted ? $('Google Drive2').item.json.webContentLink : \"Pas nécessaire\"}}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=CONTEXTE\n\nTu es un assistant personnel spécialisé dans la gestion comptable d'une entreprise, notamment pour la gestion des factures via Airtable. Tu reçois des requêtes relatives à la récupération de factures ou à l'envoi et l'analyse d'images/PDF de factures. Si la demande ne concerne pas les factures, réponds poliment que tu ne traites pas ce type de demande.\n\nOBJECTIFS\n\nEn fonction de la requête, tes actions sont les suivantes :\n\nRécupération d'une facture : retrouver une facture dans la base de données.\nEnvoi d'une facture : analyser une ou plusieurs images/PDF de factures pour en extraire précisément les informations sur chaque objet acheté et les Taxes, puis les ajouter dans la base de données Airtable.\nL'analyse doit être précise, sans modification des informations extraites.\n\nÉTAPES\n\nAnalyser la requête (récupération de facture, envoi de facture, autre).\n\nSi autre demande :\n\nRéponds avec un message simple et poli indiquant que tu ne traites pas ce type de demande.\n\nSi récupération de facture :\n\nRécupère les informations fournies par l'utilisateur pour identifier la facture à chercher dans la base de données. NE REDEMANDE PAS D'INFORMATIONS SUPPLÉMENTAIRES.\n\nUtilise l'outil Chercher Facture pour récupérer la facture demandée.\n\nEnvoie un message à l'utilisateur avec les détails de la ou des factures trouvées.\n\nExemple de message :\n\nVoici vos factures associées à LDLC :\n\n1. Ticket de caisse LDLC\n   - Montant : 15,96€\n   - Type : Autres Dépenses\n   - Notes : Achat de connecteurs HDMI\n\n2. LDLC Ticket TK33032400001887\n   - Montant : 16,96€\n   - Type : Outils\n   - Notes : Adaptateur HDMI et divers frais\n\nSi envoi de facture :\n\nRécupère l'image ou le PDF de la facture.\nAnalyse précisément le document pour en extraire tous les éléments nécessaires, y compris les informations sur chaque objet et les taxes.\nUtilise l'outil Creer Facture pour créer la facture dans Airtable avec les informations analysées.\nVérifie que la facture a bien été créée.\nRécupère l'ID Airtable de la facture créée (par exemple, \"rec41914dad419\").\nUtilise l'outil Creer Objets pour créer les objets liés à cette facture dans Airtable, en transmettant l'ID Airtable obtenu.\nAprès la création des objets, utilise l'outil Creer Taxes pour créer les taxes associées à la facture dans Airtable, toujours en utilisant l'ID Airtable approprié.\n\nOUTILS\n\nCreer Facture : Crée une facture dans Airtable à partir d'une image/PDF.\nCreer Objets : Crée les objets liés à une facture dans Airtable. Nécessite l'ID Airtable de la facture.\nCreer Taxes : Crée les entrées de taxes associées à une facture dans Airtable. Nécessite l'ID Airtable de la facture.\nChercher Facture : Recherche et récupère des factures dans la base de données Airtable.\nCONTRAINTES\n\nSi aucune information précise n'est donnée sur la facture à récupérer, réfère-toi à l'historique de conversation pour identifier la dernière facture mentionnée.\nObligation : Utilise impérativement Creer Facture avant Creer Objets pour éviter toute erreur.\nAprès avoir créé les objets avec Creer Objets, utilise Creer Taxes pour ajouter les taxes en tant qu'entrées distinctes.\nL'ID transmis aux outils Creer Objets et Creer Taxe doit être celui obtenu via Creer Facture.\nToutes les requêtes provenant d'emails concernent forcément des envois de facture.\nL'url de l'image récuperer par l'outil Chercher Facture dans les Piéces jointes doit être fournis dans la variable url_image en plus du message quand tu la requete est une récuperation de facture\nQuand on tenvoie des factures tu n'as pas de valeur a mettre dans url_image de ta réponse. Tu dois cependant fournir url d'image pour ajouter la facture à Airtable",
+            "passthroughBinaryImages": true
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1440,
+          -60
+        ],
+        "id": "7dab7ba0-1847-4a3c-9ceb-a1043b0e1dcc",
+        "name": "AI Agent Factures"
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "base": {
+            "__rl": true,
+            "value": "appkAqp82iD30BcQ9",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblYdEy057op7jhgj",
+            "mode": "list",
+            "cachedResultName": "Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9/tblYdEy057op7jhgj"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Montant": "={{ $fromAI(\"montant_facture\",\"le montant de la facture en euros sans €\",\"number\") }}",
+              "Nom Facture": "={{$fromAI(\"nom_facture\",\"rester simple et tres court\")}}",
+              "Notes": "={{$fromAI(\"notes_factures\",\"description breve de ce qu'il y a dans la facture\")}}",
+              "Depuis": "={{ $fromAI(\"provenance_facture\",\"valeur possible uniquement : Telegram ou Email\") }}",
+              "Type": "={{ $fromAI(\"type_facture\",\"valeur unique possible : Outils,Autres Dépenses,Abonnement\") }}",
+              "URL Google Drive": "={{ $fromAI(\"URL_GoogleDrive\",\"L'url Google Drive de la facture\") }}",
+              "Piece jonte": "=[{\"url\":\"{{ $fromAI(\"url_image\",\"l'url de l'image pour la télécharger\")}}\"}]"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Facture ID",
+                "displayName": "Facture ID",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": true,
+                "removed": true
+              },
+              {
+                "id": "Nom Facture",
+                "displayName": "Nom Facture",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Notes",
+                "displayName": "Notes",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Piece jonte",
+                "displayName": "Piece jonte",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "array",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "URL Google Drive",
+                "displayName": "URL Google Drive",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Montant",
+                "displayName": "Montant",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Depuis",
+                "displayName": "Depuis",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "options",
+                "options": [
+                  {
+                    "name": "Telegram",
+                    "value": "Telegram"
+                  },
+                  {
+                    "name": "Email",
+                    "value": "Email"
+                  }
+                ],
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Type",
+                "displayName": "Type",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "options",
+                "options": [
+                  {
+                    "name": "Autres Dépenses",
+                    "value": "Autres Dépenses"
+                  },
+                  {
+                    "name": "Outils",
+                    "value": "Outils"
+                  },
+                  {
+                    "name": "Abonnement",
+                    "value": "Abonnement"
+                  }
+                ],
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Objets",
+                "displayName": "Objets",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "array",
+                "readOnly": false,
+                "removed": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1660,
+          220
+        ],
+        "id": "aa24c5b2-d05f-401e-9b1d-cf9ad9074123",
+        "name": "Creer Facture",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "base": {
+            "__rl": true,
+            "value": "appkAqp82iD30BcQ9",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblrLPJIHFmWCCL6r",
+            "mode": "list",
+            "cachedResultName": "Objets",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9/tblrLPJIHFmWCCL6r"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Nom Objet": "={{$fromAI(\"nom_item\",\"Le nom de l'item\")}}",
+              "Prix": "={{$fromAI(\"prix_item\",\"Prix de l'item\",\"number\")}}",
+              "Factures": "=[\"{{$fromAI(\"airtable_id\",\"l'ID Airtable de la facture créé par l'outil Creer Facture. Exemple : recRbZpFXB3tmkVkZ\")}}\"]"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Nom Objet",
+                "displayName": "Nom Objet",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Prix",
+                "displayName": "Prix",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Factures",
+                "displayName": "Factures",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "array",
+                "readOnly": false,
+                "removed": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1800,
+          220
+        ],
+        "id": "062c0aa3-3c2a-4e98-a473-aa497f49080b",
+        "name": "Creer Objets",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "search",
+          "base": {
+            "__rl": true,
+            "value": "appkAqp82iD30BcQ9",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblYdEy057op7jhgj",
+            "mode": "list",
+            "cachedResultName": "Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9/tblYdEy057op7jhgj"
+          },
+          "options": {
+            "fields": [
+              "Piece jonte",
+              "Nom Facture",
+              "Montant",
+              "Notes"
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1500,
+          220
+        ],
+        "id": "38b2aeee-fd52-4406-8020-a6cfaf9199f1",
+        "name": "Chercher Facture",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "6c282c63-4467-44c4-bec3-23cf3429f2d3",
+                "name": "provenance",
+                "value": "={{ $('Gmail Trigger').isExecuted ? \"Email\" : \"Telegram\" }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1120,
+          -60
+        ],
+        "id": "fdb7d438-d8f4-46e7-b187-847b63dfd03d",
+        "name": "Provenance"
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "simple": false,
+          "filters": {},
+          "options": {
+            "downloadAttachments": true
+          }
+        },
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -760,
+          240
+        ],
+        "id": "5fb3c08a-a24e-46ab-9639-2a72144cd40b",
+        "name": "Gmail Trigger",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "19p4iXYoKKybt47N",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "7f491e4c-4647-42fb-a3d0-afb31e66c397",
+                "leftValue": "={{$('Gmail Trigger').item.binary}}",
+                "rightValue": "",
+                "operator": {
+                  "type": "object",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.2,
+        "position": [
+          -580,
+          240
+        ],
+        "id": "72a73a30-275e-4804-9e8c-289cfc99bb0d",
+        "name": "Filter"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "5b87c7fc-fbec-47e9-9a2d-83c4263d2a34",
+                "name": "attachments",
+                "value": "={{$('Gmail Trigger').item.binary.keys()}}",
+                "type": "array"
+              },
+              {
+                "id": "4f545496-f660-4e95-b2a8-f38a1b779770",
+                "name": "message_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "includeOtherFields": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -360,
+          240
+        ],
+        "id": "adea206b-b861-41ca-81b8-1e62eee23a47",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "attachments",
+          "include": "allOtherFields",
+          "options": {
+            "includeBinary": true
+          }
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          -140,
+          240
+        ],
+        "id": "f4b59ee4-bad3-4b34-8208-6139a38eb798",
+        "name": "Split Out"
+      },
+      {
+        "parameters": {
+          "inputDataFieldName": "={{ $json.attachments }}",
+          "name": "={{$('Gmail Trigger').item.json.subject}}_{{ $json.attachments }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1ykNNH_2QedSs6vle3oOFxdEIoZdNwwKC",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1ykNNH_2QedSs6vle3oOFxdEIoZdNwwKC"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          40,
+          240
+        ],
+        "id": "86db4e0e-5c1b-49e0-966e-48ee9920c658",
+        "name": "Google Drive",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "include": "specifiedFields",
+          "fieldsToInclude": "webContentLink,webViewLink",
+          "options": {
+            "includeBinaries": true
+          }
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          720,
+          240
+        ],
+        "id": "23bf531d-4c23-407f-b45d-7360cf79a528",
+        "name": "Aggregate"
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          400,
+          240
+        ],
+        "id": "735dbcfb-0541-4d55-844b-b58597d92978",
+        "name": "Google Drive1",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "audio",
+          "operation": "transcribe",
+          "options": {
+            "language": "fr"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          -80,
+          -240
+        ],
+        "id": "65e5410e-0d36-4499-ae71-6efccfa38752",
+        "name": "OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "dddb9d8e-81ad-4fa8-9559-bae70e071a22",
+                "name": "requete",
+                "value": "={{ $json.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          180,
+          -240
+        ],
+        "id": "9bab65fa-f9e8-402e-92be-cd5319f1f0a5",
+        "name": "Requete Audio"
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "fileId": "={{ $json.message.voice.file_id }}"
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          -300,
+          -240
+        ],
+        "id": "c78308c4-eb85-4c9b-ad14-7721c504d543",
+        "name": "Telegram",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"message\":\"Le message à lui envoyer\",\n    \"is_recuperation_facture\":true,\n    \"url_image\":\"Si c'est un récuperation de facture alors l'url de limage pas celle de Google Drive sinon vide\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          2100,
+          220
+        ],
+        "id": "022b91c9-2c3a-4ded-8710-40e92c480860",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "838a4d06-0066-459f-8fc2-536e82dc9f94",
+                "leftValue": "={{ $json.output.is_recuperation_facture }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "e0baa580-4c9e-4930-b686-42556fa05eab",
+                "leftValue": "={{ $json.output.url_image }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "exists",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1900,
+          -20
+        ],
+        "id": "ce211533-36c8-45ff-ba14-0bc1865e9376",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.message.voice }}",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "object",
+                        "operation": "exists",
+                        "singleValue": true
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Audio"
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "6ce13df7-74d1-46dc-a051-a99a13b9d2e8",
+                      "leftValue": "={{ $json.message.text }}",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "exists",
+                        "singleValue": true
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 2
+                  },
+                  "conditions": [
+                    {
+                      "id": "d7116342-c3e6-4ae3-9ffa-f8b03122f766",
+                      "leftValue": "={{ $json.message.photo }}",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "array",
+                        "operation": "exists",
+                        "singleValue": true
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                },
+                "renameOutput": true,
+                "outputKey": "Image"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.2,
+        "position": [
+          -540,
+          -60
+        ],
+        "id": "53aa0088-8077-4c57-8c44-df51c0d9e13d",
+        "name": "Switch"
+      },
+      {
+        "parameters": {
+          "options": {
+            "summarizationMethodAndPrompts": {
+              "values": {
+                "combineMapPrompt": "=Ecrit la requete suivante de manière concise \n\n{{ $('Requete Audio').isExecuted ? $('Requete Audio').item.json.requete : $json.message.text }}\n\nSYNTHESE CONCISE:",
+                "prompt": "=Ecrit la requete suivante de manière concise \n\n{{ $('Requete Audio').isExecuted ? $('Requete Audio').item.json.requete : $json.message.text }}\n\nSYNTHESE CONCISE:"
+              }
+            }
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+        "typeVersion": 2,
+        "position": [
+          400,
+          -240
+        ],
+        "id": "4be16df2-e5e6-41c9-9853-2443fbdd133e",
+        "name": "Summarization Chain"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          500,
+          -100
+        ],
+        "id": "107d7f0b-a310-485a-be19-78a82f43e31b",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "test2.00"
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1360,
+          220
+        ],
+        "id": "9d8c6ad9-3837-4d2d-bdbd-3774ed7e259d",
+        "name": "Window Buffer Memory"
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "text": "={{ $('AI Agent Factures').item.json.output.message }}",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          2500,
+          20
+        ],
+        "id": "208ab473-1053-4150-a027-ee4b2a6300bc",
+        "name": "Telegram1",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "aa071b84-83d1-4f8a-becc-2770e72c92ac",
+                "name": "synthese_requete",
+                "value": "={{ $json.response.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          780,
+          -240
+        ],
+        "id": "e711a948-6b5c-44a7-881f-357a1bd6af59",
+        "name": "Synthese Requete"
+      },
+      {
+        "parameters": {
+          "operation": "sendPhoto",
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "binaryData": true,
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          2280,
+          -140
+        ],
+        "id": "89f22a08-5b20-48d9-8a81-758395fd0223",
+        "name": "Telegram2",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "={{ $('AI Agent Factures').item.json.output.url_image }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2100,
+          -140
+        ],
+        "id": "561742ee-9c5c-4d54-8bd6-46ae1e838f1d",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "inputDataFieldName": "=data",
+          "name": "=Facture_{{ $json.message.message_id }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1ykNNH_2QedSs6vle3oOFxdEIoZdNwwKC",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1ykNNH_2QedSs6vle3oOFxdEIoZdNwwKC"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          -40,
+          -20
+        ],
+        "id": "a6204b0f-4c52-4e70-b10d-54e5bcb4e622",
+        "name": "Google Drive2",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $('Google Drive2').item.json.id }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          420,
+          -20
+        ],
+        "id": "2bba1f9d-f808-4ed8-9832-2909e3526124",
+        "name": "Google Drive3",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "share",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "permissionsUi": {
+            "permissionsValues": {
+              "role": "writer",
+              "type": "anyone",
+              "allowFileDiscovery": true
+            }
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          180,
+          -20
+        ],
+        "id": "a19cc9af-5d78-470b-8615-1e207d7b375b",
+        "name": "Google Drive4",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "txcpIDm2vhVCK3M8",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "create",
+          "base": {
+            "__rl": true,
+            "value": "appkAqp82iD30BcQ9",
+            "mode": "list",
+            "cachedResultName": "Agent IA Factures",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9"
+          },
+          "table": {
+            "__rl": true,
+            "value": "tblrLPJIHFmWCCL6r",
+            "mode": "list",
+            "cachedResultName": "Objets",
+            "cachedResultUrl": "https://airtable.com/appkAqp82iD30BcQ9/tblrLPJIHFmWCCL6r"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Nom Objet": "Taxe",
+              "Prix": "={{$fromAI(\"prix_taxe\",\"Prix de la taxe \",\"number\")}}",
+              "Factures": "=[\"{{$fromAI(\"airtable_id\",\"l'ID Airtable de la facture créé par l'outil Creer Facture. Exemple : recRbZpFXB3tmkVkZ\")}}\"]"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Nom Objet",
+                "displayName": "Nom Objet",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "string",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Prix",
+                "displayName": "Prix",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "number",
+                "readOnly": false,
+                "removed": false
+              },
+              {
+                "id": "Factures",
+                "displayName": "Factures",
+                "required": false,
+                "defaultMatch": false,
+                "canBeUsedToMatch": true,
+                "display": true,
+                "type": "array",
+                "readOnly": false,
+                "removed": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.airtableTool",
+        "typeVersion": 2.1,
+        "position": [
+          1920,
+          220
+        ],
+        "id": "60022480-a763-4349-8765-1bec5c6c040b",
+        "name": "Creer Taxes",
+        "credentials": {
+          "airtableTokenApi": {
+            "id": "M6mGFCugOJPvkFUB",
+            "name": "Airtable Benoit"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Facture": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Objets": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Chercher Facture": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Provenance": {
+        "main": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail Trigger": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "Split Out",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Out": {
+        "main": [
+          [
+            {
+              "node": "Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Google Drive1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate": {
+        "main": [
+          [
+            {
+              "node": "Provenance",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive1": {
+        "main": [
+          [
+            {
+              "node": "Aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Requete Audio",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Requete Audio": {
+        "main": [
+          [
+            {
+              "node": "Summarization Chain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent Factures": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Summarization Chain",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Google Drive2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Summarization Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Summarization Chain": {
+        "main": [
+          [
+            {
+              "node": "Synthese Requete",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Window Buffer Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Synthese Requete": {
+        "main": [
+          [
+            {
+              "node": "Provenance",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram2": {
+        "main": [
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Telegram2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive2": {
+        "main": [
+          [
+            {
+              "node": "Google Drive4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive3": {
+        "main": [
+          [
+            {
+              "node": "Provenance",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive4": {
+        "main": [
+          [
+            {
+              "node": "Google Drive3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Creer Taxes": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent Factures",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "36408dbe-8902-40af-8901-ba2a192a3ebd",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "uYvExnwcindYTO2y",
+    "tags": []
+  }
+}

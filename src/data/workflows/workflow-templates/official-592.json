@@ -1,0 +1,157 @@
+{
+  "id": "official-592",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/592",
+    "template_id": 592
+  },
+  "name": "Create a table in Quest DB and insert data",
+  "description": "Create a table in Quest DB and insert data",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Edit Fields (Set)",
+    "QuestDB",
+    "Manual Trigger",
+    "create",
+    "table",
+    "quest",
+    "insert",
+    "data"
+  ],
+  "task_keywords": [
+    "create a table in quest db and insert data",
+    "manual",
+    "create manual",
+    "edit fields (set)",
+    "create edit fields (set)",
+    "questdb",
+    "create questdb",
+    "manual trigger",
+    "create table",
+    "table quest",
+    "quest insert",
+    "insert data"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Fields (Set)",
+    "QuestDB"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "161",
+    "name": "Create a table and insert data into it",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          440,
+          460
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          840,
+          460
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "id"
+              }
+            ],
+            "string": [
+              {
+                "name": "name",
+                "value": "Tanay"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "QuestDB",
+        "type": "n8n-nodes-base.questDb",
+        "position": [
+          640,
+          460
+        ],
+        "parameters": {
+          "query": "CREATE TABLE test (id INT, name STRING);",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "questDb": "QuestDB"
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "QuestDB1",
+        "type": "n8n-nodes-base.questDb",
+        "position": [
+          1040,
+          460
+        ],
+        "parameters": {
+          "table": "test",
+          "columns": "id, name"
+        },
+        "credentials": {
+          "questDb": "QuestDB"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "QuestDB1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "QuestDB": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "QuestDB",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

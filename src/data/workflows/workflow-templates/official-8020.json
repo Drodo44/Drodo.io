@@ -1,0 +1,399 @@
+{
+  "id": "official-8020",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8020",
+    "template_id": 8020
+  },
+  "name": "Client nurture & testimonial auto-pilot for Gumroad with Notion and Email",
+  "description": "✨ Client Nurture & Testimonial Auto Pilot (Gumroad → Notion → Email) TL;DR Every Gumroad sale becomes a gentle, on brand experience: instant delivery 💌, a Day 3 check in 🌷, and a Day 7 1 click testimonial ⭐ — all saved to Notion for your “Wall of Love.” Install in \\ 15 minutes.",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "Lead Nurturing",
+    "Function",
+    "Notion",
+    "Send Email",
+    "Respond to Webhook",
+    "Error",
+    "Webhook",
+    "Error Trigger",
+    "client",
+    "nurture",
+    "testimonial",
+    "auto",
+    "pilot"
+  ],
+  "task_keywords": [
+    "client nurture & testimonial auto-pilot for gumroad with notion and email",
+    "function",
+    "notion",
+    "send email",
+    "respond to webhook",
+    "error",
+    "webhook",
+    "error trigger",
+    "client nurture",
+    "nurture testimonial",
+    "testimonial auto",
+    "auto pilot"
+  ],
+  "required_services": [
+    "Function",
+    "Notion",
+    "Send Email",
+    "Respond to Webhook",
+    "Error"
+  ],
+  "triggers": [
+    "Webhook",
+    "Respond to Webhook",
+    "Error Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {},
+    "name": "Client Nurture & Testimonial Auto-Pilot (Gumroad → Notion → Email)",
+    "nodes": [
+      {
+        "id": "StickyOverview",
+        "name": "📌 Sticky — Overview & Setup",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -200,
+          -120
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "WebhookSale",
+        "name": "Gumroad Sale (Webhook)",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          80,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "FnMap",
+        "name": "Map Sale → Client",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          340,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "NotionCreateClient",
+        "name": "Notion — Create Client",
+        "type": "n8n-nodes-base.notion",
+        "position": [
+          600,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "EmailDelivery",
+        "name": "Email — Delivery (Immediate)",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          860,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "Wait3d",
+        "name": "Wait — 3 days",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1060,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "EmailTips",
+        "name": "Email — Tips (Day 3)",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          1260,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "Wait7d",
+        "name": "Wait — 7 days",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1460,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "FnTestimonialLink",
+        "name": "Build Testimonial Link",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          1660,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "EmailAsk",
+        "name": "Email — Testimonial Ask (Day 7)",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          1860,
+          -120
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "WebhookTestimonial",
+        "name": "Testimonial (Webhook)",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          80,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "FnMapT",
+        "name": "Map Testimonial",
+        "type": "n8n-nodes-base.function",
+        "position": [
+          340,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "NotionCreateT",
+        "name": "Notion — Create Testimonial",
+        "type": "n8n-nodes-base.notion",
+        "position": [
+          600,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "EmailOwner",
+        "name": "Email — Owner Notify",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          860,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "RespondOK",
+        "name": "Respond — Thank You",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          1060,
+          260
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "ErrorTrig",
+        "name": "On Error",
+        "type": "n8n-nodes-base.errorTrigger",
+        "position": [
+          80,
+          520
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "EmailError",
+        "name": "Email — Error Alert",
+        "type": "n8n-nodes-base.emailSend",
+        "position": [
+          340,
+          520
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      }
+    ],
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1",
+      "saveExecutionProgress": true
+    },
+    "connections": {
+      "On Error": {
+        "main": [
+          [
+            {
+              "node": "Email — Error Alert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map Testimonial": {
+        "main": [
+          [
+            {
+              "node": "Notion — Create Testimonial",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait — 3 days": {
+        "main": [
+          [
+            {
+              "node": "Email — Tips (Day 3)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait — 7 days": {
+        "main": [
+          [
+            {
+              "node": "Build Testimonial Link",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map Sale → Client": {
+        "main": [
+          [
+            {
+              "node": "Notion — Create Client",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Testimonial (Webhook)": {
+        "main": [
+          [
+            {
+              "node": "Map Testimonial",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Testimonial Link": {
+        "main": [
+          [
+            {
+              "node": "Email — Testimonial Ask (Day 7)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email — Owner Notify": {
+        "main": [
+          [
+            {
+              "node": "Respond — Thank You",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email — Tips (Day 3)": {
+        "main": [
+          [
+            {
+              "node": "Wait — 7 days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gumroad Sale (Webhook)": {
+        "main": [
+          [
+            {
+              "node": "Map Sale → Client",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion — Create Client": {
+        "main": [
+          [
+            {
+              "node": "Email — Delivery (Immediate)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion — Create Testimonial": {
+        "main": [
+          [
+            {
+              "node": "Email — Owner Notify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email — Delivery (Immediate)": {
+        "main": [
+          [
+            {
+              "node": "Wait — 3 days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

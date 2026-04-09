@@ -1,0 +1,198 @@
+{
+  "id": "n8n-workflow-templates-0130-hubspot-cron-automate-scheduled-5d938df33c",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0130_HubSpot_Cron_Automate_Scheduled.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0130_HubSpot_Cron_Automate_Scheduled.json"
+  },
+  "name": "0130 HubSpot Cron Automate Scheduled",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0130 HubSpot Cron Automate Scheduled",
+  "category": "Sales",
+  "tags": [
+    "workflows",
+    "hubspot",
+    "pipedrive",
+    "cron",
+    "cron Trigger",
+    "0130",
+    "automate",
+    "scheduled",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0130 hubspot cron automate scheduled",
+    "hubspot",
+    "pipedrive",
+    "cron",
+    "cron trigger",
+    "0130 hubspot",
+    "hubspot cron",
+    "cron automate",
+    "automate scheduled",
+    "scheduled n8n",
+    "n8n workflow",
+    "workflow template"
+  ],
+  "required_services": [
+    "hubspot",
+    "pipedrive",
+    "cron"
+  ],
+  "triggers": [
+    "cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Hubspot",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          750,
+          900
+        ],
+        "parameters": {
+          "resource": "contact",
+          "operation": "getAll",
+          "returnAll": true,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "hubspotApi": {
+            "id": "21",
+            "name": "hubspot_nodeqa"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Pipedrive",
+        "type": "n8n-nodes-base.pipedrive",
+        "position": [
+          750,
+          710
+        ],
+        "parameters": {
+          "resource": "person",
+          "operation": "getAll",
+          "returnAll": true,
+          "additionalFields": {}
+        },
+        "credentials": {
+          "pipedriveApi": {
+            "id": "15",
+            "name": "asasas"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Merge",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          950,
+          800
+        ],
+        "parameters": {
+          "mode": "removeKeyMatches",
+          "propertyName1": "email[0].value",
+          "propertyName2": "identity-profiles[0].identities[0].value"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HubSpot2",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          1150,
+          800
+        ],
+        "parameters": {
+          "email": "={{$json[\"email\"][0][\"value\"]}}",
+          "resource": "contact",
+          "additionalFields": {
+            "firstName": "={{$json[\"first_name\"]}}"
+          }
+        },
+        "credentials": {
+          "hubspotApi": {
+            "id": "21",
+            "name": "hubspot_nodeqa"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          550,
+          800
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "Pipedrive",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Hubspot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "HubSpot2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Hubspot": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Pipedrive": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

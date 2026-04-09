@@ -1,0 +1,441 @@
+{
+  "id": "official-14407",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/14407",
+    "template_id": 14407
+  },
+  "name": "Generate YouTube shorts using WayinVideo AI and upload clips to Google Drive",
+  "description": "Description Paste any video URL in chat — YouTube, podcast, webinar, anything — and this n8n workflow automatically finds the best short clips using WayinVideo AI, adds captions, reframes to 9:16 vertical format, and uploads everything directly to your Google Drive.",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "Google Drive",
+    "generate",
+    "youtube",
+    "shorts",
+    "wayinvideo",
+    "upload",
+    "clips"
+  ],
+  "task_keywords": [
+    "generate youtube shorts using wayinvideo ai and upload clips to google drive",
+    "google drive",
+    "generate youtube",
+    "youtube shorts",
+    "shorts wayinvideo",
+    "wayinvideo upload",
+    "upload clips",
+    "clips google",
+    "drive description",
+    "description paste",
+    "paste any",
+    "any video"
+  ],
+  "required_services": [
+    "Google Drive"
+  ],
+  "triggers": [],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "bc8ca75c203589705ae2e446cad7181d6f2a7cc1766f958ef9f34810e53b8cb2",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "e5946662-78f4-4051-ba5c-65328551140a",
+        "name": "📋 Setup Guide",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1776,
+          -320
+        ],
+        "parameters": {
+          "width": 476,
+          "height": 968,
+          "content": "## 🎬 Video → AI Clips → Google Drive\n\n**What it does:**\nUser pastes a video URL in chat (YouTube, etc). WayinVideo AI automatically finds the best short clips, adds captions, reframes to 9:16, and uploads them to Google Drive.\n\n**How it works:**\n1. 💬 User sends a video URL via chat\n2. 🎬 Video is submitted to WayinVideo API for clip generation\n3. ⏳ Waits 30s, then polls until clips are ready\n4. 🔄 If not ready → waits 30s again (loop)\n5. ⚙️ Extracts clip title, download link, score & tags\n6. ⬇️ Downloads each clip file\n7. ☁️ Uploads each clip to your Google Drive folder\n\n---\n\n**🔑 Credentials to Add:**\n- Google Drive → Connect OAuth2 credential\n\n**🔧 Placeholders to Fill:**\n\n`YOUR_WAYINVIDEO_API_KEY`\n→ Your WayinVideo API Bearer token\n  Get it from: wayinvideo.com/dashboard/api\n\n`YOUR_GOOGLE_DRIVE_FOLDER_ID`\n→ The folder ID from Google Drive URL\n  e.g. drive.google.com/drive/folders/**THIS_PART**\n\n---\n\n**⚙️ Customise (in Submit node):**\n- `target_duration` → DURATION_30_60 (change clip length)\n- `limit` → 3 (how many clips to generate)\n- `resolution` → HD_720 or FULL_HD_1080\n- `ratio` → RATIO_9_16 (vertical) or RATIO_16_9\n- `project_name` → Change naming convention\n\n---\n\n**⚠️ Note:**\nIf video is long, processing may take >30s.\nThe workflow auto-retries every 30s until clips are ready."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0d68a3dc-c481-408d-87cd-b7870fc4d195",
+        "name": "🎬 Submit Video to WayinVideo API",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -1168,
+          160
+        ],
+        "parameters": {
+          "url": "https://wayinvideo-api.wayin.ai/api/v2/clips",
+          "method": "POST",
+          "options": {},
+          "sendBody": true,
+          "sendHeaders": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "video_url",
+                "value": "={{ $json.chatInput }}"
+              },
+              {
+                "name": "project_name",
+                "value": "=Podcast Clips - {{ new Date().toISOString().split('T')[0] }}"
+              },
+              {
+                "name": "target_duration",
+                "value": "DURATION_30_60"
+              },
+              {
+                "name": "limit",
+                "value": 3
+              },
+              {
+                "name": "enable_export",
+                "value": true
+              },
+              {
+                "name": "resolution",
+                "value": "HD_720"
+              },
+              {
+                "name": "enable_caption",
+                "value": true
+              },
+              {
+                "name": "caption_display",
+                "value": "original"
+              },
+              {
+                "name": "cc_style_tpl",
+                "value": "temp-7"
+              },
+              {
+                "name": "enable_ai_reframe",
+                "value": true
+              },
+              {
+                "name": "ratio",
+                "value": "RATIO_9_16"
+              }
+            ]
+          },
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "x-wayinvideo-api-version",
+                "value": "v2"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "1fdc4b1c-e744-4419-9a26-bdff9a748b2a",
+        "name": "⏳ Wait 30 Seconds",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          -848,
+          160
+        ],
+        "webhookId": "acf07ef6-fdd4-450e-afbd-345051673c85",
+        "parameters": {
+          "unit": "seconds",
+          "amount": 30
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "cd70538d-78a0-43e2-9211-fffbed248d9d",
+        "name": "🔄 Poll for Clip Results",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          -560,
+          160
+        ],
+        "parameters": {
+          "url": "=https://wayinvideo-api.wayin.ai/api/v2/clips/results/{{ $('🎬 Submit Video to WayinVideo API').item.json.data.id }}",
+          "options": {},
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "x-wayinvideo-api-version",
+                "value": "v2"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.2
+      },
+      {
+        "id": "8abd5935-8293-45d0-8b8f-ec81f2c5e9eb",
+        "name": "✅ Clips Ready?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -320,
+          160
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "d25403b5-efc7-4262-8f7d-3e6ed7a47caf",
+                "operator": {
+                  "type": "array",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.data.clips }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "547a364c-7c59-45ba-bce5-23c2db7b2619",
+        "name": "⚙️ Extract Clip Details",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          128,
+          144
+        ],
+        "parameters": {
+          "jsCode": "const clips = $json.data.clips;\n\nreturn clips.map(clip => ({\n  json: {\n    title: clip.title,\n    export_link: clip.export_link,\n    score: clip.score,\n    tags: clip.tags,\n    desc: clip.desc,\n    begin_ms: clip.begin_ms,\n    end_ms: clip.end_ms\n  }\n}));"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "0ea44c90-35ca-41e9-93b0-b11b6e554179",
+        "name": "⬇️ Download Clip File",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          464,
+          144
+        ],
+        "parameters": {
+          "url": "={{ $json.export_link }}",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file"
+              }
+            }
+          }
+        },
+        "typeVersion": 4.4
+      },
+      {
+        "id": "c7042cb0-d32e-45cd-b708-f5e1ce493be7",
+        "name": "☁️ Upload Clip to Google Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "position": [
+          736,
+          144
+        ],
+        "parameters": {
+          "name": "={{ $('⚙️ Extract Clip Details').item.json.title }}",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "options": {},
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "YOUR_GOOGLE_DRIVE_FOLDER_ID",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_GOOGLE_DRIVE_FOLDER_ID",
+            "cachedResultName": "Your Clips Folder"
+          },
+          "inputDataFieldName": "=data"
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "f06f33ce-dbf1-4244-b8f8-12f30cf90a3f",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1280,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 336,
+          "height": 256,
+          "content": "## 🎬 Submit Video for Processing\n\n• Sends video URL to WayinVideo API\n• Starts AI clip generation process\n• Applies settings (duration, captions, format)\n\n👉 This is where clip creation begins"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8e92fc58-457c-4faa-82c8-99ab7add9750",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -848,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 384,
+          "height": 256,
+          "content": "## ⏳ Wait & Check Processing Status\n\n• Waits 30 seconds before checking\n• Requests API to check if clips are ready\n• Uses job ID to fetch results\n\n👉 Prevents instant API calls & allows processing time"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "fa48d725-e2b4-4901-a122-67c64be8643a",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -400,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 336,
+          "height": 256,
+          "content": "## 🔁 Check if Clips are Ready\n\n• Checks if clips data is available\n• If NOT ready → waits again (loop)\n• If ready → moves to next step\n\n👉 Smart loop until clips are generated"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "663307a2-ecd4-4460-a848-90f8d55a997b",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          16,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 336,
+          "height": 240,
+          "content": "## ⚙️ Extract Clip Information\n\n• Loops through all generated clips\n• Extracts title, link, score, tags\n• Prepares clean structured output\n\n👉 Converts API response into usable data"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3d323aa3-5126-41be-aa14-2461a669db84",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          464,
+          -48
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 368,
+          "height": 240,
+          "content": "## 📥 Download & Save Clips\n\n• Downloads clip using export link\n• Uploads file to Google Drive\n• Saves with clip title\n\n👉 Final storage of generated clips"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "✅ Clips Ready?": {
+        "main": [
+          [
+            {
+              "node": "⚙️ Extract Clip Details",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "⏳ Wait 30 Seconds",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⏳ Wait 30 Seconds": {
+        "main": [
+          [
+            {
+              "node": "🔄 Poll for Clip Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⬇️ Download Clip File": {
+        "main": [
+          [
+            {
+              "node": "☁️ Upload Clip to Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔄 Poll for Clip Results": {
+        "main": [
+          [
+            {
+              "node": "✅ Clips Ready?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⚙️ Extract Clip Details": {
+        "main": [
+          [
+            {
+              "node": "⬇️ Download Clip File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎬 Submit Video to WayinVideo API": {
+        "main": [
+          [
+            {
+              "node": "⏳ Wait 30 Seconds",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

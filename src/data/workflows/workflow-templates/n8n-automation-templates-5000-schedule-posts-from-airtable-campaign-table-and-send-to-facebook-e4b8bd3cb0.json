@@ -1,0 +1,148 @@
+{
+  "id": "n8n-automation-templates-5000-schedule-posts-from-airtable-campaign-table-and-send-to-facebook-e4b8bd3cb0",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n_2000_workflows/schedule-posts-airtable-campaign-table-facebook.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n_2000_workflows/schedule-posts-airtable-campaign-table-facebook.json"
+  },
+  "name": "Schedule posts from Airtable campaign table and send to Facebook",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Schedule posts from Airtable campaign table and send to Facebook",
+  "category": "AI",
+  "tags": [
+    "n8n 2000 workflows",
+    "slack",
+    "webhook",
+    "schedule",
+    "posts",
+    "airtable",
+    "campaign",
+    "table",
+    "send"
+  ],
+  "task_keywords": [
+    "schedule posts from airtable campaign table and send to facebook",
+    "slack",
+    "send slack",
+    "webhook",
+    "schedule posts",
+    "posts airtable",
+    "airtable campaign",
+    "campaign table",
+    "table send",
+    "send facebook",
+    "facebook n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Schedule posts from Airtable campaign table and send to Facebook",
+    "nodes": [
+      {
+        "id": "trigger-airtable-campaign-table",
+        "name": "Incoming Trigger",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          75900
+        ],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "schedule-posts-from-airtable-campaign-table-and-send-to-facebook",
+          "responseCode": 200,
+          "responseMode": "onReceived"
+        }
+      },
+      {
+        "id": "fetch-airtable-campaign-table",
+        "name": "Fetch data from Airtable campaign table",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          75900
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.example.com/airtable-campaign-table",
+          "responseFormat": "json"
+        }
+      },
+      {
+        "id": "send-facebook",
+        "name": "Send to Facebook",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          300,
+          75900
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.example.com/facebook",
+          "responseFormat": "json",
+          "options": {}
+        }
+      },
+      {
+        "id": "error-handler-600-75900",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          75900
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#automation-alerts",
+          "text": "={{ $json.get('error_message', 'An error occurred') }}"
+        }
+      }
+    ],
+    "connections": {
+      "Incoming Trigger": {
+        "main": [
+          [
+            {
+              "node": "Fetch data from Airtable campaign table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch data from Airtable campaign table": {
+        "main": [
+          {
+            "node": "Send to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      },
+      "Send to Facebook": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

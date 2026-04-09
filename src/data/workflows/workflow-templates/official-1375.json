@@ -1,0 +1,121 @@
+{
+  "id": "official-1375",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1375",
+    "template_id": 1375
+  },
+  "name": "Create a document in outline for each new GitLab release",
+  "description": "Create a document in Outline for each new GitLab release.",
+  "category": "DevOps",
+  "tags": [
+    "Internal Wiki",
+    "GitLab",
+    "GitLab Trigger",
+    "create",
+    "document",
+    "outline",
+    "each",
+    "gitlab",
+    "release"
+  ],
+  "task_keywords": [
+    "create a document in outline for each new gitlab release",
+    "gitlab",
+    "create gitlab",
+    "gitlab trigger",
+    "create document",
+    "document outline",
+    "outline each",
+    "each gitlab",
+    "gitlab release",
+    "release create"
+  ],
+  "required_services": [
+    "GitLab"
+  ],
+  "triggers": [
+    "GitLab Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Gitlab Trigger",
+        "type": "n8n-nodes-base.gitlabTrigger",
+        "position": [
+          240,
+          140
+        ],
+        "parameters": {
+          "owner": "tennox",
+          "events": [
+            "tag_push"
+          ],
+          "repository": "ci-test"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          820,
+          40
+        ],
+        "parameters": {
+          "url": "https://app.getoutline.com/api/documents.create",
+          "options": {},
+          "requestMethod": "POST",
+          "authentication": "headerAuth",
+          "jsonParameters": true,
+          "bodyParametersJson": "={ \n\"collectionId\": \"PLACEHOLDER\",\n\"parentDocumentId\": \"PLACEHOLDER\",\n\"publish\": true, \n\"title\": {{JSON.stringify(\"Release \" + $json.body.name)}},\n\"text\": {{JSON.stringify($json.body.description + '\\n\\n\\\\\\n[More info](' + $json.body.url + ')')}}\n}"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "IF",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          540,
+          140
+        ],
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{$json.body.object_kind}}",
+                "value2": "release"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "IF": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gitlab Trigger": {
+        "main": [
+          [
+            {
+              "node": "IF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

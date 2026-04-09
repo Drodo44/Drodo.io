@@ -1,0 +1,134 @@
+{
+  "id": "n8n-automation-templates-5000-template-323-10f2c48123",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Stripe/finance_323_schedule_trigger_stripe.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Stripe/finance_323_schedule_trigger_stripe.json"
+  },
+  "name": "Template 323",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 323",
+  "category": "Finance",
+  "tags": [
+    "Templates based on paltforms",
+    "Stripe",
+    "schedule",
+    "stripe",
+    "crm",
+    "schedule Trigger",
+    "template",
+    "323",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 323",
+    "schedule",
+    "stripe",
+    "schedule trigger",
+    "323 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation",
+    "automation templates"
+  ],
+  "required_services": [
+    "schedule",
+    "stripe",
+    "crm"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 323",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 1440
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Stripe",
+        "type": "n8n-nodes-base.stripe",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "CRM",
+        "type": "n8n-nodes-base.crm",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Stripe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Stripe": {
+        "main": [
+          [
+            {
+              "node": "CRM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 323
+  }
+}

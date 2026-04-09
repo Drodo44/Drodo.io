@@ -1,0 +1,155 @@
+{
+  "id": "official-599",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/599",
+    "template_id": 599
+  },
+  "name": "Create a table in Postgres and insert data",
+  "description": "Companion workflow for Postgres node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Edit Fields (Set)",
+    "Postgres",
+    "Manual Trigger",
+    "create",
+    "table",
+    "postgres",
+    "insert",
+    "data",
+    "companion"
+  ],
+  "task_keywords": [
+    "create a table in postgres and insert data",
+    "manual",
+    "create manual",
+    "edit fields (set)",
+    "create edit fields (set)",
+    "postgres",
+    "create postgres",
+    "manual trigger",
+    "create table",
+    "table postgres",
+    "postgres insert",
+    "insert data"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Fields (Set)",
+    "Postgres"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          260,
+          290
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          660,
+          290
+        ],
+        "parameters": {
+          "values": {
+            "number": [
+              {
+                "name": "id"
+              }
+            ],
+            "string": [
+              {
+                "name": "name",
+                "value": "n8n"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": false
+      },
+      {
+        "name": "Postgres",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          460,
+          290
+        ],
+        "parameters": {
+          "query": "CREATE TABLE test (id INT, name VARCHAR(255), PRIMARY KEY (id));",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": "postgres_docker_creds"
+        },
+        "typeVersion": 1,
+        "alwaysOutputData": true
+      },
+      {
+        "name": "Postgres1",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          860,
+          290
+        ],
+        "parameters": {
+          "table": "test",
+          "columns": "id, name"
+        },
+        "credentials": {
+          "postgres": "postgres_docker_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Postgres1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Postgres": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Postgres",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

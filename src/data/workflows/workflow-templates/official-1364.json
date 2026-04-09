@@ -1,0 +1,249 @@
+{
+  "id": "official-1364",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1364",
+    "template_id": 1364
+  },
+  "name": "Cron routines with Telegram",
+  "description": "Executes schedule routines, and triggers alerts via telegram",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Cron",
+    "Telegram",
+    "MySQL",
+    "Manual Trigger",
+    "Cron Trigger",
+    "Webhook",
+    "cron",
+    "routines",
+    "telegram",
+    "executes",
+    "schedule"
+  ],
+  "task_keywords": [
+    "cron routines with telegram",
+    "manual",
+    "cron",
+    "telegram",
+    "mysql",
+    "manual trigger",
+    "cron trigger",
+    "webhook",
+    "cron routines",
+    "routines telegram",
+    "telegram executes",
+    "executes schedule"
+  ],
+  "required_services": [
+    "manual",
+    "Cron",
+    "Telegram",
+    "MySQL"
+  ],
+  "triggers": [
+    "Manual Trigger",
+    "Cron Trigger",
+    "Webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "disabled": true,
+        "position": [
+          70,
+          140
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Cron",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          70,
+          320
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 8
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          620,
+          210
+        ],
+        "parameters": {
+          "text": "LIMPOU PACOTES TRANSPORTE-RECEBIDO PONTO MIX",
+          "chatId": "123456789",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Telegram1",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          620,
+          460
+        ],
+        "parameters": {
+          "text": "LIMPOU PACOTES TRANSPORTE-RECEBIDO OBJETIVA",
+          "chatId": "123456789",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "telegramApi": {
+            "id": "credential-id",
+            "name": "telegramApi Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          70,
+          480
+        ],
+        "webhookId": "7ecb2d2f-5a09-44a5-a7bc-27f188c74e0b",
+        "parameters": {
+          "path": "limparPacotes",
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "limparPacoteCliente1",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          380,
+          470
+        ],
+        "parameters": {
+          "query": "-- LIMPAR ETIQUETAS ANTIGAS \nwith t as (\nselect token from i_objeto where modulo = 'pacoteProduto' and situacao = 'TRANSPORTE-RECEBIDO' and data <= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)\n)\nupdate i_objeto \nset modulo = 'DELETE'\nwhere modulo = 'pacoteProduto' and token in (select token from t)",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "mySql": {
+            "id": "credential-id",
+            "name": "mySql Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "limpaPacoteCliente0",
+        "type": "n8n-nodes-base.mySql",
+        "position": [
+          380,
+          210
+        ],
+        "parameters": {
+          "query": "-- LIMPAR ETIQUETAS ANTIGAS \nwith t as (\nselect token from i_objeto where modulo = 'pacoteProduto' and situacao = 'TRANSPORTE-RECEBIDO' and data <= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)\n)\nupdate i_objeto \nset modulo = 'DELETE'\nwhere modulo = 'pacoteProduto' and token in (select token from t)",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "mySql": {
+            "id": "credential-id",
+            "name": "mySql Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Cron": {
+        "main": [
+          [
+            {
+              "node": "limpaPacoteCliente0",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "limparPacoteCliente1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "limpaPacoteCliente0",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "limparPacoteCliente1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "limpaPacoteCliente0": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "limparPacoteCliente1": {
+        "main": [
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "limpaPacoteCliente0",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "limparPacoteCliente1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

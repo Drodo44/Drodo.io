@@ -1,0 +1,866 @@
+{
+  "id": "official-12516",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/12516",
+    "template_id": 12516
+  },
+  "name": "Manage your WooCommerce store with OpenAI and MCP-powered AI assistant",
+  "description": "Who it's for This n8n workflow is designed for WooCommerce store owners and e commerce managers who want to automate their store operations through an intelligent AI assistant.",
+  "category": "AI",
+  "tags": [
+    "CRM",
+    "AI Chatbot",
+    "Discord",
+    "Telegram",
+    "rapiwa",
+    "OpenAI",
+    "Simple Memory",
+    "AI Agent",
+    "OpenAI Chat Model",
+    "Gmail",
+    "MCP Client Tool",
+    "woo Commerce",
+    "MCP Server",
+    "Calculator"
+  ],
+  "task_keywords": [
+    "manage your woocommerce store with openai and mcp-powered ai assistant",
+    "discord",
+    "telegram",
+    "rapiwa",
+    "openai",
+    "simple memory",
+    "ai agent",
+    "openai chat model",
+    "gmail",
+    "mcp client tool",
+    "woo commerce",
+    "mcp server"
+  ],
+  "required_services": [
+    "Discord",
+    "Telegram",
+    "rapiwa",
+    "OpenAI",
+    "Simple Memory",
+    "AI Agent",
+    "OpenAI Chat Model",
+    "Gmail",
+    "MCP Client Tool",
+    "woo Commerce",
+    "MCP Server",
+    "Calculator"
+  ],
+  "triggers": [
+    "MCP Server Trigger",
+    "Chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "Mm6cUZfJu5gnuEkB",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "AI-Powered WooCommerce Store Management using OpenAI & MCP",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "1f203f42-97ac-4ccc-9cba-073cb9990fb5",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.discord",
+        "position": [
+          -64,
+          80
+        ],
+        "webhookId": "302121b8-3595-4b48-b8ba-adb41978d17f",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "6f95abb4-a40f-4ab3-b8b6-9a027853b528",
+        "name": "Send a text message",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          -64,
+          -240
+        ],
+        "webhookId": "6736383f-dbe1-4154-bf4f-def8aa2bf44b",
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "0779e60e-d091-40af-a572-efbbb212b3de",
+        "name": "Rapiwa",
+        "type": "n8n-nodes-rapiwa.rapiwa",
+        "position": [
+          -64,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "a0c28109-cb0d-40ac-9d65-561c5dfc6d12",
+        "name": "Message a model",
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "position": [
+          -688,
+          -64
+        ],
+        "parameters": {},
+        "typeVersion": 1.8
+      },
+      {
+        "id": "0f7cce23-1826-4056-8260-8493f627d5a9",
+        "name": "Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "position": [
+          -912,
+          80
+        ],
+        "parameters": {},
+        "typeVersion": 1.3
+      },
+      {
+        "id": "cda98e5c-a8fe-4542-b8f5-100e54be6fd4",
+        "name": "AI BOT",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          -1008,
+          -64
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "b8279cdd-0362-44a2-bb64-452e9f631a84",
+        "name": "OpenAI Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -1008,
+          80
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "dcc241ac-ca01-4e8f-ae16-605a18801810",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -96,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "389493e8-b09d-42d7-8c79-738087cf4f3b",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1264,
+          -112
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f8be9c4a-c312-4358-a05b-b454aaf0dddf",
+        "name": "Send a message2",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          -64,
+          -400
+        ],
+        "webhookId": "04f6ce37-404a-4982-ae2d-dbbaed6b2e90",
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "1c51ea3b-0a63-47ea-a8a6-4cc23877877d",
+        "name": "WooCommerce MCP Client",
+        "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+        "position": [
+          -768,
+          80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "4adbace2-ec56-43b2-b7c2-3553e62c8bd4",
+        "name": "Create a customer in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          320,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "b3b51916-99e3-4a3e-9fc3-d94ce88c653d",
+        "name": "Get many customers in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          496,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "89af7188-d484-435f-b82d-4892827c9536",
+        "name": "Get a customer in WooCommerce By ID",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          656,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "20c1ba6b-8320-419e-a466-61d4af404527",
+        "name": "Get customers in WooCommerce By Email",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          320,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "71048e2f-fa32-41db-bda3-f977d675a8d8",
+        "name": "Update a customer in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          480,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "ecb66cfa-450a-4886-83a7-467726807d7c",
+        "name": "Delete a customer in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          640,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "4c74b846-c05a-4b3d-892b-6d4a2622c503",
+        "name": "Create a product in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          880,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "9aa5a91d-8cb0-475b-9b83-b66be5afadb0",
+        "name": "Get a product in WooCommerce By Id",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1200,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "8c922457-7a52-4747-81ed-e2254df25620",
+        "name": "Get many products in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1040,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "adc60e0d-e620-4c61-a0c8-7f6e9c3e4a8c",
+        "name": "Search many products in WooCommerce By Category Name",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          880,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "bd95d35a-d730-4210-97dc-dd0f3f296a62",
+        "name": "Update a product in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1040,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "efa9ad61-f299-4753-9bd5-fd42f3e26601",
+        "name": "Delete a product in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1200,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "7e21d5e2-df56-4e94-be5a-593101205393",
+        "name": "Create an order in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1424,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "c59b9387-0214-4a00-bd01-289e44362bc1",
+        "name": "Get an order in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1696,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "7276e7fe-20cc-41b9-a4aa-2c2a479a4a30",
+        "name": "Get many orders in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1568,
+          -80
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "b40bc08b-6a19-4499-a598-fc1fdaa6c82b",
+        "name": "Get many orders in WooCommerce By Customer",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1424,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "3c4e0c92-aba7-49f6-a813-8fbc5f8bd63b",
+        "name": "Update an order in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1568,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "f7434245-71f6-41d2-83ab-6ec46385b6ac",
+        "name": "Delete an order in WooCommerce",
+        "type": "n8n-nodes-base.wooCommerceTool",
+        "position": [
+          1712,
+          96
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "3476f53a-2341-4988-b36e-4dda5c94d4e8",
+        "name": "WooCommerce MCP Server",
+        "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+        "position": [
+          896,
+          -576
+        ],
+        "webhookId": "61f50ac7-9318-4b24-a682-4e45df349c2e",
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "3b286875-0ab6-4a1a-a87d-a4cd5362d3c7",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "disabled": true,
+        "position": [
+          1376,
+          -144
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "fb499034-7665-4d16-a9d9-99fab1dbef18",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          832,
+          -144
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "7f11c7f0-d719-4493-8f8a-fd164d923ee2",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          272,
+          -144
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "238da99a-c5ee-43e0-8cc4-acd73f2b1fe6",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1760,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "06e95152-2a82-473f-92cd-d2bf45e4b123",
+        "name": "IF (check status for notify)",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          -368,
+          -64
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "e05b4b6e-64cf-4238-996f-66300ef0324a",
+        "name": "Chat message received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          -1216,
+          -64
+        ],
+        "webhookId": "0cba0e38-f794-47b3-bb25-e4b378fa6580",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "a9532d22-aae9-4287-9695-20efca84f8c1",
+        "name": "MCP Client",
+        "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+        "position": [
+          -624,
+          80
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "afcf25de-29e4-40de-a02c-03600f804849",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          272,
+          -624
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "919e79f4-15b1-48e4-9f20-c0a71482c405",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1264,
+          -480
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "666cef45-e706-4e4b-ae6d-1212e331aa9f",
+        "name": "Calculator",
+        "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+        "position": [
+          -544,
+          112
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "62076269-5eff-483b-a31b-21f4f5b4170a",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          272,
+          -576
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "89d13f95-454b-4d03-807d-3f77cb326eac",
+    "connections": {
+      "AI BOT": {
+        "main": [
+          [
+            {
+              "node": "Message a model",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI BOT",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Calculator": {
+        "ai_tool": [
+          [
+            {
+              "node": "Message a model",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "MCP Client": {
+        "ai_tool": [
+          [
+            {
+              "node": "Message a model",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI BOT",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Message a model": {
+        "main": [
+          [
+            {
+              "node": "IF (check status for notify)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Chat message received": {
+        "main": [
+          [
+            {
+              "node": "AI BOT",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "WooCommerce MCP Client": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI BOT",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get an order in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF (check status for notify)": {
+        "main": [
+          [
+            {
+              "node": "Send a message2",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send a text message",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Rapiwa",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create an order in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete an order in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many orders in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update an order in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a product in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a product in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a product in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create a customer in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Delete a customer in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many products in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update a customer in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many customers in WooCommerce": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a product in WooCommerce By Id": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a customer in WooCommerce By ID": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get customers in WooCommerce By Email": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get many orders in WooCommerce By Customer": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search many products in WooCommerce By Category Name": {
+        "ai_tool": [
+          [
+            {
+              "node": "WooCommerce MCP Server",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

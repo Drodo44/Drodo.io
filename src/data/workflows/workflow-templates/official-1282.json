@@ -1,0 +1,121 @@
+{
+  "id": "official-1282",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1282",
+    "template_id": 1282
+  },
+  "name": "Send a file from S3 to AWS Textract",
+  "description": "This workflow shows how to download an image file from S3 and pass it on to Textract for text extraction.",
+  "category": "AI",
+  "tags": [
+    "Document Extraction",
+    "Multimodal AI",
+    "manual",
+    "AWS Textract",
+    "AWS S3",
+    "Manual Trigger",
+    "send",
+    "file",
+    "aws",
+    "textract",
+    "workflow",
+    "shows"
+  ],
+  "task_keywords": [
+    "send a file from s3 to aws textract",
+    "manual",
+    "send manual",
+    "aws textract",
+    "send aws textract",
+    "aws s3",
+    "send aws s3",
+    "manual trigger",
+    "send file",
+    "file aws",
+    "textract workflow",
+    "workflow shows"
+  ],
+  "required_services": [
+    "manual",
+    "AWS Textract",
+    "AWS S3"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS Textract",
+        "type": "n8n-nodes-base.awsTextract",
+        "position": [
+          650,
+          300
+        ],
+        "parameters": {},
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS S3",
+        "type": "n8n-nodes-base.awsS3",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "fileKey": "Rechnung.jpg",
+          "bucketName": "textract-demodata"
+        },
+        "credentials": {
+          "aws": {
+            "id": "credential-id",
+            "name": "aws Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "AWS S3": {
+        "main": [
+          [
+            {
+              "node": "AWS Textract",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS S3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

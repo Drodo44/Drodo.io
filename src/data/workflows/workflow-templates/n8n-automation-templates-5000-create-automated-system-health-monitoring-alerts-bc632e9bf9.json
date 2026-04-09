@@ -1,0 +1,152 @@
+{
+  "id": "n8n-automation-templates-5000-create-automated-system-health-monitoring-alerts-bc632e9bf9",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n advance/create-automated-system-health-monitoring-alerts.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n advance/create-automated-system-health-monitoring-alerts.json"
+  },
+  "name": "create-automated-system-health-monitoring-alerts",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: create-automated-system-health-monitoring-alerts",
+  "category": "Communication",
+  "tags": [
+    "n8n advance",
+    "function",
+    "slack",
+    "webhook",
+    "create",
+    "automated",
+    "system",
+    "health",
+    "monitoring",
+    "alerts"
+  ],
+  "task_keywords": [
+    "create-automated-system-health-monitoring-alerts",
+    "function",
+    "create function",
+    "monitor function",
+    "slack",
+    "create slack",
+    "monitor slack",
+    "webhook",
+    "create automated",
+    "automated system",
+    "system health",
+    "health monitoring"
+  ],
+  "required_services": [
+    "function",
+    "slack"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "create-automated-system-health-monitoring-alerts",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "metrics"
+        },
+        "id": "m1",
+        "name": "Metrics Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          100,
+          280
+        ]
+      },
+      {
+        "parameters": {
+          "functionCode": "\nconst b=$json.body||$json;\nconst metrics=b.metrics||[{name:'cpu',value:0,host:'unknown'}];\nconst thresholds={cpu:85, mem:90, disk:90, latency:300};\nconst alerts=[];\nfor(const m of metrics){\n  const n=(m.name||'').toLowerCase();\n  const v=+m.value;\n  const th=thresholds[n];\n  if(th!==undefined && v>=th) alerts.push({host:m.host||'n/a', metric:n, value:v, threshold:th});\n}\nreturn alerts.length?alerts.map(a=>({json:a})):[{json:{info:'no_alerts'}}];\n"
+        },
+        "id": "m2",
+        "name": "Threshold Check",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          320,
+          280
+        ]
+      },
+      {
+        "parameters": {
+          "channel": "#ops",
+          "text": "⚠️ {{$json.metric.toUpperCase()}} {{$json.value}}% on {{$json.host}} (threshold {{$json.threshold}}%)"
+        },
+        "id": "m3",
+        "name": "Slack Alert",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          540,
+          260
+        ]
+      },
+      {
+        "parameters": {
+          "url": "https://statuspage.example.com/api/v1/incidents",
+          "authentication": "none",
+          "jsonParameters": true,
+          "options": {
+            "headersUi": {
+              "parameter": [
+                {
+                  "name": "Authorization",
+                  "value": "Bearer {{$credentials.statuspageToken}}"
+                }
+              ]
+            }
+          },
+          "options_json": {
+            "name": "={{'Degradation: '+$json.metric+' on '+$json.host}}",
+            "status": "investigating"
+          }
+        },
+        "id": "m4",
+        "name": "Open Statuspage (placeholder)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          540,
+          380
+        ]
+      }
+    ],
+    "connections": {
+      "Metrics Webhook": {
+        "main": [
+          [
+            {
+              "node": "Threshold Check",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Threshold Check": {
+        "main": [
+          [
+            {
+              "node": "Slack Alert",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Open Statuspage (placeholder)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false
+  }
+}

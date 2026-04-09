@@ -1,0 +1,93 @@
+{
+  "id": "official-520",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/520",
+    "template_id": 520
+  },
+  "name": "Send an email using Mailjet",
+  "description": "Companion workflow for Mailjet node docs",
+  "category": "AI",
+  "tags": [
+    "Social Media",
+    "manual",
+    "Mailjet",
+    "Manual Trigger",
+    "send",
+    "email",
+    "mailjet",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "send an email using mailjet",
+    "manual",
+    "send manual",
+    "mailjet",
+    "send mailjet",
+    "manual trigger",
+    "send email",
+    "email mailjet",
+    "mailjet companion",
+    "companion workflow",
+    "workflow mailjet",
+    "mailjet node"
+  ],
+  "required_services": [
+    "manual",
+    "Mailjet"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mailjet",
+        "type": "n8n-nodes-base.mailjet",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "text": "This is a test message",
+          "subject": "Sample Subject",
+          "toEmail": "user@example.com",
+          "fromEmail": "user@example.com",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "mailjetEmailApi": {
+            "id": "credential-id",
+            "name": "mailjetEmailApi Credential"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mailjet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

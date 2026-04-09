@@ -1,0 +1,90 @@
+{
+  "id": "n8n-workflow-templates-0995-manual-mailgun-automate-triggered-bf49d5083e",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0995_Manual_Mailgun_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0995_Manual_Mailgun_Automate_Triggered.json"
+  },
+  "name": "0995 Manual Mailgun Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0995 Manual Mailgun Automate Triggered",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "manual",
+    "mailgun",
+    "Manual Trigger",
+    "0995",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0995 manual mailgun automate triggered",
+    "manual",
+    "mailgun",
+    "manual trigger",
+    "0995 manual",
+    "manual mailgun",
+    "mailgun automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "manual",
+    "mailgun"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Mailgun",
+        "type": "n8n-nodes-base.mailgun",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "text": "This is a test message ",
+          "subject": "This is a Subject",
+          "toEmail": "user2@example.com",
+          "fromEmail": "user@example.com"
+        },
+        "credentials": {
+          "mailgunApi": "mailgun-creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Mailgun",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

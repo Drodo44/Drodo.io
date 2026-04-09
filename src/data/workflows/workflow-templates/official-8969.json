@@ -1,0 +1,357 @@
+{
+  "id": "official-8969",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8969",
+    "template_id": 8969
+  },
+  "name": "HubSpot contact AI enrichment",
+  "description": "This n8n template auto enriches brand new HubSpot contacts with company details.",
+  "category": "AI",
+  "tags": [
+    "Lead Generation",
+    "AI RAG",
+    "HubSpot",
+    "SerpApi (Google Search)",
+    "Google Gemini Chat Model",
+    "AI Agent",
+    "Structured Output Parser",
+    "Schedule Trigger",
+    "hubspot",
+    "contact",
+    "enrichment",
+    "n8n",
+    "template",
+    "auto"
+  ],
+  "task_keywords": [
+    "hubspot contact ai enrichment",
+    "hubspot",
+    "serpapi (google search)",
+    "google gemini chat model",
+    "ai agent",
+    "structured output parser",
+    "schedule trigger",
+    "hubspot contact",
+    "contact enrichment",
+    "enrichment n8n",
+    "n8n template",
+    "template auto"
+  ],
+  "required_services": [
+    "HubSpot",
+    "SerpApi (Google Search)",
+    "Google Gemini Chat Model",
+    "AI Agent",
+    "Structured Output Parser"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "instanceId": "a2eaba9e45ad7aab18b25cf863df1e910fb6dd3b85279bde97d9bae4a72f6862",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "ce6d93b3-7606-4924-b51b-44f38cc6573c",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2016,
+          2384
+        ],
+        "parameters": {
+          "width": 496,
+          "height": 560,
+          "content": "## AI company enrichment for new HubSpot contacts\n\n### How it works\n1. **Daily trigger** finds the most recent HubSpot contacts.\n2. **Filter:** created in last 24h and **not** a `gmail.com` address.\n3. **AI agent (Gemini + SerpAPI):** extracts domain from the contact’s email, researches the company, and returns structured JSON.\n4. **HubSpot update:** writes company name, size, website, LinkedIn, city, and country back to the contact.\n\n### Setup\n* [ ] Connect **HubSpot** OAuth on both HubSpot nodes\n* [ ] Add **Google Gemini** key (Google AI Studio)\n* [ ] Add **SerpAPI** key\n* [ ] Turn on **Run daily** (schedule)\n\n### Customize\n* **Filters:** change the 24h window or allow freemail domains if needed\n* **Fields to update:** add industry/description or map to custom properties\n* **Sources:** swap SerpAPI for another search tool"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ae3afb3e-a3b2-41a9-a186-bfc1f55747fc",
+        "name": "Get recently created/updated contacts1",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          2864,
+          2544
+        ],
+        "parameters": {
+          "limit": 1,
+          "operation": "getRecentlyCreatedUpdated",
+          "authentication": "oAuth2",
+          "additionalFields": {}
+        },
+        "notesInFlow": true,
+        "typeVersion": 2.1
+      },
+      {
+        "id": "092abb1f-2047-43ad-a642-00e30c68240c",
+        "name": "Search the web with SerpAPI1",
+        "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+        "position": [
+          3584,
+          2768
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bc1c88cc-71a4-450c-80e8-3d745eee90ed",
+        "name": "Filter contacts created in the last 24h1",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          3104,
+          2544
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "3f05e8cd-81e1-4495-a5fc-b7e8cadcef75",
+                "operator": {
+                  "type": "dateTime",
+                  "operation": "afterOrEquals"
+                },
+                "leftValue": "={{ $json.properties.createdate.value.toDateTime('ms') }}",
+                "rightValue": "={{ $today.minus(1, 'days') }}"
+              },
+              {
+                "id": "5dc4e198-582a-45e5-9216-ebcbcd455a3e",
+                "operator": {
+                  "type": "string",
+                  "operation": "notContains"
+                },
+                "leftValue": "={{ $json['identity-profiles'][0].identities[0].value }}",
+                "rightValue": "gmail.com"
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "2946bcdb-acef-4bfc-82bd-23ba4f181db1",
+        "name": "Google Gemini Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "position": [
+          3392,
+          2768
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "32d8271b-ef09-48d7-b80e-7dea0b1477ce",
+        "name": "Company Research Agent1",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          3392,
+          2544
+        ],
+        "parameters": {
+          "text": "=You’re an analyst specializing in company profiling. You’ll receive a domain and must return structured data only.\n\nDomain to research (extract it from the email and then search the web from the SerpAPI tool): {{ $json['identity-profiles'][0].identities[0].value }}\n\nReturn only a JSON object with exactly these fields (keep the keys as written):\n\ncompany_name: Full legal or commonly used company name\n\nindustry: Primary industry category\n\nheadquarters_city: City\n\nheadquarters_country: Country\n\nemployee_count: Approximate employee count (number or range)\n\nwebsite: Official site URL\n\nlinkedin: Company LinkedIn URL (if available)\n\ndescription: One or two sentences summarizing what the company does\n\nUse reliable, verifiable sources. No commentary—output JSON only.",
+          "options": {},
+          "promptType": "define",
+          "hasOutputParser": true
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "8b1e5582-3c14-419b-9b0e-c8de39ffc4f0",
+        "name": "Structured Output Parser1",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          3760,
+          2768
+        ],
+        "parameters": {
+          "jsonSchemaExample": "{\n\"company_name\": \"n8n\",\n\"industry\": \"Software Development\",\n\"headquarters_city\": \"Berlin\",\n\"headquarters_country\": \"Germany\",\n\"employee_count\": \"51-200\",\n\"website\": \"https://n8n.io\",\n\"linkedin\": \"https://www.linkedin.com/company/n8n-io\",\n\"description\": \"n8n is a workflow automation tool that integrates AI capabilities with business process automation, enabling users to automate tasks and synchronize data across various applications and services.\"\n}"
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "7a819528-26fe-47bc-96b2-ee60f05217b6",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2592,
+          2464
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 672,
+          "height": 288,
+          "content": "## 1. Get contact(s)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f8c62696-0c9c-403c-b094-62c008083171",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3344,
+          2464
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 544,
+          "height": 496,
+          "content": "## 2. Research company"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "13465959-7cfe-4f4c-ba9f-b6aba5cb86a6",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3968,
+          2464
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 272,
+          "height": 272,
+          "content": "## 3. Update contact"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "52097995-85bc-4fc9-a91a-4fe74cc4e284",
+        "name": "Add company info1",
+        "type": "n8n-nodes-base.hubspot",
+        "position": [
+          4048,
+          2544
+        ],
+        "parameters": {
+          "email": "={{ $('Get recently created/updated contacts1').item.json['identity-profiles'][0].identities[0].value }}",
+          "options": {},
+          "authentication": "oAuth2",
+          "additionalFields": {
+            "city": "={{ $json.output.headquarters_city }}",
+            "country": "={{ $json.output.headquarters_country }}",
+            "websiteUrl": "={{ $json.output.website }}",
+            "companyName": "={{ $json.output.company_name }}",
+            "companySize": "={{ $json.output.employee_count }}",
+            "linkedinUrl": "={{ $json.output.linkedin }}"
+          }
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "0e733577-8216-4ebb-b49c-f8fe363e1619",
+        "name": "Run daily1",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          2656,
+          2544
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Run daily1": {
+        "main": [
+          [
+            {
+              "node": "Get recently created/updated contacts1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Company Research Agent1": {
+        "main": [
+          [
+            {
+              "node": "Add company info1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Company Research Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Company Research Agent1",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Search the web with SerpAPI1": {
+        "ai_tool": [
+          [
+            {
+              "node": "Company Research Agent1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get recently created/updated contacts1": {
+        "main": [
+          [
+            {
+              "node": "Filter contacts created in the last 24h1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter contacts created in the last 24h1": {
+        "main": [
+          [
+            {
+              "node": "Company Research Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

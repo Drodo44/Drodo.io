@@ -1,0 +1,732 @@
+{
+  "id": "n8n-workflow-template-agent-data-analyst-visualisation-8a6c9cd2bb",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Agent_Data_Analyst___Visualisation.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Agent_Data_Analyst___Visualisation.json"
+  },
+  "name": "Agent Data Analyst + Visualisation",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Agent Data Analyst + Visualisation",
+  "category": "AI",
+  "tags": [
+    "noco Db",
+    "Open AI",
+    "output Parser Structured",
+    "tool Workflow",
+    "agent",
+    "Anthropic",
+    "telegram",
+    "open AI",
+    "memory Buffer Window",
+    "execute Workflow Trigger",
+    "telegram Trigger",
+    "data",
+    "analyst",
+    "visualisation"
+  ],
+  "task_keywords": [
+    "agent data analyst + visualisation",
+    "noco db",
+    "open ai",
+    "output parser structured",
+    "tool workflow",
+    "agent",
+    "anthropic",
+    "telegram",
+    "memory buffer window",
+    "execute workflow trigger",
+    "telegram trigger",
+    "agent data"
+  ],
+  "required_services": [
+    "noco Db",
+    "Open AI",
+    "output Parser Structured",
+    "tool Workflow",
+    "agent",
+    "Anthropic",
+    "telegram",
+    "open AI",
+    "memory Buffer Window"
+  ],
+  "triggers": [
+    "execute Workflow Trigger",
+    "telegram Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "Agent Data Analyst + Visualisation",
+    "nodes": [
+      {
+        "parameters": {
+          "authentication": "nocoDbApiToken",
+          "operation": "getAll",
+          "workspaceId": "=wmgy8wyp",
+          "projectId": "py7zm0mlmyatrvb",
+          "table": "={{ $('Edit Fields').item.json.table_id }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.nocoDbTool",
+        "typeVersion": 3,
+        "position": [
+          1220,
+          160
+        ],
+        "id": "4e42dc13-2b5c-4acd-ab7f-066a4d9f36e4",
+        "name": "NocoDB",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "wBQdEqPcyY5UrOmU",
+            "name": "NocoDB Token account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "26eeb641-cb63-46b4-9709-1f08464d45a3",
+                "name": "table_id",
+                "value": "mpyyqb8udddlaax",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1360,
+          -260
+        ],
+        "id": "37516373-a3e0-40ca-9f74-ce1de689f51f",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "url": "=https://app.nocodb.com/api/v2/meta/tables/{{ $json.table_id }}",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "nocoDbApiToken",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          580,
+          -40
+        ],
+        "id": "2760f320-9454-4cae-8b79-3466c476f7e5",
+        "name": "HTTP Request",
+        "credentials": {
+          "nocoDbApiToken": {
+            "id": "wBQdEqPcyY5UrOmU",
+            "name": "NocoDB Token account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b89e97c0-d4fd-425d-9a58-a99b2fcc6bfb",
+                "name": "columns",
+                "value": "={{ $json.columns.map(item => item.title).toJsonString() }}",
+                "type": "array"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          760,
+          -40
+        ],
+        "id": "70599795-e82a-4c99-92b3-b37f8e67c4d9",
+        "name": "Edit Fields1"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          780,
+          380
+        ],
+        "id": "8bd233ae-f6ff-47e3-89e4-04ff8c78bfc6",
+        "name": "Generer Graphique"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          960,
+          580
+        ],
+        "id": "ab7e55c0-2ecf-411b-86a5-065447b7396e",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "KYIz1dzfnrWiqN1K",
+            "name": "N8N VRAI OPENAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"name\": \"chart_configuration\",\n  \"description\": \"Configuration schema for Chart.js charts\",\n  \"strict\": true,\n  \"schema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"type\": {\n        \"type\": \"string\",\n        \"enum\": [\n          \"bar\",\n          \"line\",\n          \"radar\",\n          \"pie\",\n          \"doughnut\",\n          \"polarArea\",\n          \"bubble\",\n          \"scatter\",\n          \"area\"\n        ]\n      },\n      \"data\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"labels\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"datasets\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                \"label\": {\n                  \"type\": [\n                    \"string\",\n                    \"null\"\n                  ]\n                },\n                \"data\": {\n                  \"type\": \"array\",\n                  \"items\": {\n                    \"type\": \"number\"\n                  }\n                },\n                \"backgroundColor\": {\n                  \"type\": [\n                    \"array\",\n                    \"null\"\n                  ],\n                  \"items\": {\n                    \"type\": \"string\"\n                  }\n                },\n                \"borderColor\": {\n                  \"type\": [\n                    \"array\",\n                    \"null\"\n                  ],\n                  \"items\": {\n                    \"type\": \"string\"\n                  }\n                },\n                \"borderWidth\": {\n                  \"type\": [\n                    \"number\",\n                    \"null\"\n                  ]\n                }\n              },\n              \"required\": [\n                \"data\",\n                \"label\",\n                \"backgroundColor\",\n                \"borderColor\",\n                \"borderWidth\"\n              ],\n              \"additionalProperties\": false\n            }\n          }\n        },\n        \"required\": [\n          \"labels\",\n          \"datasets\"\n        ],\n        \"additionalProperties\": false\n      },\n      \"options\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"scales\": {\n            \"type\": [\n              \"object\",\n              \"null\"\n            ],\n            \"properties\": {\n              \"yAxes\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": [\n                    \"object\",\n                    \"null\"\n                  ],\n                  \"properties\": {\n                    \"ticks\": {\n                      \"type\": [\n                        \"object\",\n                        \"null\"\n                      ],\n                      \"properties\": {\n                        \"max\": {\n                          \"type\": [\n                            \"number\",\n                            \"null\"\n                          ]\n                        },\n                        \"min\": {\n                          \"type\": [\n                            \"number\",\n                            \"null\"\n                          ]\n                        },\n                        \"stepSize\": {\n                          \"type\": [\n                            \"number\",\n                            \"null\"\n                          ]\n                        },\n                        \"beginAtZero\": {\n                          \"type\": [\n                            \"boolean\",\n                            \"null\"\n                          ]\n                        }\n                      },\n                      \"required\": [\n                        \"max\",\n                        \"min\",\n                        \"stepSize\",\n                        \"beginAtZero\"\n                      ],\n                      \"additionalProperties\": false\n                    }\n                  }\n                }\n              },\n              \"xAxes\": {\n                \"type\": [\n                  \"object\",\n                  \"null\"\n                ],\n                \"properties\": {\n                  \"stacked\": {\n                    \"type\": [\n                      \"boolean\",\n                      \"null\"\n                    ]\n                  }\n                },\n                \"required\": [\n                  \"stacked\"\n                ],\n                \"additionalProperties\": false\n              }\n            },\n            \"required\": [\n              \"yAxes\",\n              \"xAxes\"\n            ],\n            \"additionalProperties\": false\n          },\n          \"plugins\": {\n            \"type\": [\n              \"object\",\n              \"null\"\n            ],\n            \"properties\": {\n              \"title\": {\n                \"type\": [\n                  \"object\",\n                  \"null\"\n                ],\n                \"properties\": {\n                  \"display\": {\n                    \"type\": [\n                      \"boolean\",\n                      \"null\"\n                    ]\n                  },\n                  \"text\": {\n                    \"type\": [\n                      \"string\",\n                      \"null\"\n                    ]\n                  }\n                },\n                \"required\": [\n                  \"display\",\n                  \"text\"\n                ],\n                \"additionalProperties\": false\n              },\n              \"legend\": {\n                \"type\": [\n                  \"object\",\n                  \"null\"\n                ],\n                \"properties\": {\n                  \"display\": {\n                    \"type\": [\n                      \"boolean\",\n                      \"null\"\n                    ]\n                  },\n                  \"position\": {\n                    \"type\": [\n                      \"string\",\n                      \"null\"\n                    ],\n                    \"enum\": [\n                      \"top\",\n                      \"left\",\n                      \"bottom\",\n                      \"right\",\n                      null\n                    ]\n                  }\n                },\n                \"required\": [\n                  \"display\",\n                  \"position\"\n                ],\n                \"additionalProperties\": false\n              }\n            },\n            \"required\": [\n              \"title\",\n              \"legend\"\n            ],\n            \"additionalProperties\": false\n          }\n        },\n        \"required\": [\n          \"scales\",\n          \"plugins\"\n        ],\n        \"additionalProperties\": false\n      }\n    },\n    \"required\": [\n      \"type\",\n      \"data\",\n      \"options\"\n    ],\n    \"additionalProperties\": false\n  }\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          1240,
+          580
+        ],
+        "id": "ff096d3a-0fe0-47e7-9bc7-7dadb52daad1",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "name": "generer_graphiques",
+          "description": "Appeles cet outi peut importe quand tu as besoin de générer un graphique. Toutes les valeurs string doivent être proprement espacés surtout les multi-line string. Quand tu analyse le output de cet ouil, URLs renvoyés doivent toujours être au format markdown par exemple,![](url)",
+          "workflowId": {
+            "__rl": true,
+            "value": "JmWQ34k3ggrCJ0KT",
+            "mode": "list",
+            "cachedResultName": "Agent Data Analyst + Visualisation"
+          },
+          "specifyInputSchema": true,
+          "jsonSchemaExample": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"query\": {\n      \"type\": \"string\",\n      \"description\": \"Description du graphique à générer au format json\"\n  }\n}\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          1100,
+          160
+        ],
+        "id": "ed00b383-743a-48d5-8732-d7466b585e20",
+        "name": "Générer Graphique"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Données d'entrées : \n\n{{ $json.query.properties.query.description }}\n",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=Je veux que vous agissiez en tant qu'expert en visualisation Chart.js. Votre objectif principal est de générer des objets de configuration Chart.js valides et clairement étiquetés en fonction des demandes des utilisateurs. Ces configurations doivent être directement utilisables dans un environnement Chart.js.\n\nEntrée : Vous recevrez des demandes des utilisateurs décrivant la visualisation souhaitée. Ces demandes peuvent inclure :\n\nType de graphique : (par exemple, barres, lignes, secteurs, nuages de points, radars, bulles, etc.)\nDonnées : Les données à visualiser. Elles peuvent être fournies sous différents formats (CSV, JSON, listes). Clarifiez les formats de données ambigus avec l'utilisateur. Gérez l'extraction des données si nécessaire.\nÉtiquettes : Étiquettes pour les points de données, les axes et d'autres éléments. L'utilisateur doit spécifiquement fournir des titres clairs pour les axes et les unités (si applicable). Posez des questions pour clarifier si ces informations manquent.\nStyle : Options de personnalisation (couleurs, polices, lignes de grille, titres, légendes, infobulles, échelles des axes). Utilisez les paramètres par défaut de Chart.js si aucun style spécifique n'est demandé.\nOptions spécifiques de Chart.js : Les utilisateurs peuvent demander des fonctionnalités spécifiques de Chart.js (échelles logarithmiques, animations, plugins).\nDescriptions en langage naturel : Interprétez des descriptions moins structurées et traduisez-les en configurations Chart.js valides.\nInformations sur les axes : Demandez et attendez des détails clairs sur les étiquettes des axes, y compris :\nTitres des axes : Titres concis pour les axes x et y (par exemple, \"Mois\", \"Ventes (USD)\").\nUnités : Unités de mesure, si pertinentes (par exemple, \"USD\", \"kg\").\nType de données : Le type de données sur chaque axe (catégoriel, numérique, série chronologique).\nFormatage spécifique : Exigences pour les formats de date/numéro, les symboles monétaires, etc.\nSortie : Un objet JSON valide, bien formaté et facilement lisible représentant une configuration Chart.js, prêt à être utilisé dans un constructeur new Chart(). La sortie doit inclure des étiquettes d'axes correctement configurées en fonction des informations fournies. Cela inclut l’ajout de titres et d’unités aux deux axes dans la section options.scales du JSON.\n\nExemple d'entrée (amélioré) :\n\n\"Créez un graphique à barres montrant les ventes mensuelles du premier trimestre 2024. Janvier a généré 10 000 $ de ventes, février 12 000 $, et mars 15 000 $. Utilisez du bleu pour les barres. Le titre du graphique doit être 'Ventes T1 2024'. L'axe des x représente les 'Mois' et l'axe des y représente les 'Ventes (USD)'.\"\n\nExemple de sortie (amélioré) : (Voir la réponse précédente pour le JSON avec les étiquettes d'axes)\n\nConsidérations importantes :\nValidation des données : Effectuez une validation de base et demandez des clarifications si les données sont incohérentes ou incomplètes.\nGestion des erreurs : Gérez les erreurs avec souplesse et informez l'utilisateur si sa demande ne peut pas être satisfaite.\nVersion de Chart.js : Supposons que la version stable la plus récente soit utilisée, sauf indication contraire.\nMeilleures pratiques : Adoptez les meilleures pratiques de Chart.js pour des visualisations efficaces.\nÉtiquettes claires pour les axes : Donnez la priorité à des étiquettes claires et informatives pour les axes dans toutes les configurations Chart.js générées."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1000,
+          380
+        ],
+        "id": "ed8e974b-75c0-4741-8cef-e7bdc525ba8c",
+        "name": "Agent Création Graphique"
+      },
+      {
+        "parameters": {
+          "promptType": "=define",
+          "text": "={{ $('Edit Fields2').item.json.requete }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=Vous êtes un agent d'analyse de données spécialisé dans l'utilisation de la base de données NocoDB. \n\n**GUIDE LINE** \nUtilise uniquement l'outil de création de graphique si l'utilisateur le demande. Quand tu généres le graphique, s'il te plait disply le résultat URL graph en markdown.\n\nVous avez accès à une base de données complète dont voici les colonnes :\n\n-**Contry Code** : Code du pays où le client est situé.\n-**Customer ID** : Identifiant unique du client.\n-**PaperlessDate** : Date à laquelle le client a opté pour la facturation sans papier.\n-**invoiceNumber** : Numéro unique de la facture.\n-**InvoiceDate** : Date d'émission de la facture.\n-**DueDate** : Date d'échéance de la facture.\n-**InvoiceAmount** : Montant total de la facture.\n-**Disputed** : Indique si la facture est contestée (Oui/Non).\n-**SettledDate** : Date à laquelle la facture a été réglée.\n-**PaperlessBill** : Indique si la facture est Électronique ou Papier.\n-**DaysToSettle** : Nombre de jours pris pour régler la facture.\n-**DaysLate** : Nombre de jours de retard dans le règlement de la facture.\n\nVotre rôle est d'aider les utilisateurs à interpréter et analyser ces données pour prendre des décisions éclairées. Vous devez être capable de :\n\n1. **Répondre aux questions spécifiques :** Fournir des réponses précises basées sur les données.\n\n2. **Effectuer des analyses statistiques :** Calculer des moyennes, des médianes, des écarts-types, des corrélations entre différentes variables, etc.\n\n3. **Visualiser les données :** Suggérer ou générer des graphiques pertinents (comme des graphiques en ligne, des histogrammes, des nuages de points) pour illustrer les tendances et les relations dans les données.\n\n\n**Exemples de requêtes utilisateurs :**\n\n- Quel est le délai moyen de paiement des factures non contestées ?\n- Y a-t-il une corrélation entre le montant de la facture et le délai de règlement ?\n- Quels pays présentent les taux de contestation les plus élevés ?\n- Peux-tu visualiser la distribution des montants facturés ?\n- Quelles sont les tendances de paiement au cours des six derniers mois ?\n- Quels clients ont le plus souvent des factures non réglées ?\n- Peux-tu comparer les délais de paiement entre les clients ayant opté pour la facturation sans papier et ceux qui ne l'ont pas fait ?\n\nOUTILS \n\nGenerer Graphique : Cet outil te permet de generer un graphique pour visualiser la requetes de l'utilisateur. \n\nTu dois fournir a cet outils toutes les informations importantes : \n- Type de graphique (histogramme, doughnut, line, etc...)\n- Titre\n- Couleurs\n- Axe X & titre X\n- Axe Y & titre Y\n\nVoici un exemple de ce que tu dois fournir à cet outil : \n\nCréez un histogramme intitulé \"Répartition des jours de retard - Paiements de factures\", avec l'axe des X représentant les \"Jours de retard\" et l'axe des Y le \"Nombre de factures\". Utilisez des barres verticales pour représenter les segments suivants : 0 jours (31 factures, en vert), 2-4 jours (4 factures, en bleu), 5-6 jours (3 factures, en bleu), 7-10 jours (4 factures, en bleu), 11-14 jours (3 factures, en bleu), 15-18 jours (4 factures, en bleu), et 25 jours (1 facture, en bleu). Affichez sous le graphique le nombre total de factures (50), avec des annotations indiquant que 31 factures (62 %) ont été payées à temps, tandis que 19 factures (38 %) ont été payées en retard. Le graphique doit clairement distinguer les factures payées à temps et celles en retard, avec une mise en valeur des proportions et des détails de la répartition.\n\nRépondez de manière informative et analytique, en vous appuyant sur les données disponibles pour fournir des insights pertinents et utiles.\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1000,
+          -40
+        ],
+        "id": "b8acc636-322d-4b7d-aa33-2f764b0e20cc",
+        "name": "Data Analyst"
+      },
+      {
+        "parameters": {
+          "content": "## Agent Visualisation Graphique",
+          "height": 440,
+          "width": 840,
+          "color": 7
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          720,
+          320
+        ],
+        "id": "0d3eb7ae-ce9a-4070-adf1-53c58f3817fa",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "## Agent Data-Analyst",
+          "height": 660,
+          "width": 1520,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          460,
+          -340
+        ],
+        "id": "fed668a9-81eb-4cc7-b786-45bbe6485e87",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.2,
+        "position": [
+          780,
+          160
+        ],
+        "id": "659feaac-f131-43cd-9ec8-f4bae95ad332",
+        "name": "Anthropic Chat Model",
+        "credentials": {
+          "anthropicApi": {
+            "id": "n9bgkqlB720vxs83",
+            "name": "Anthropic account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "57f142a6-8244-4e36-a493-a72dd6bb723f",
+                "name": "reponse",
+                "value": "={{\"https://quickchart.io/chart?width=400&c=\" + encodeURIComponent($json.output.toJsonString()) }}\n",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1380,
+          380
+        ],
+        "id": "96616994-3725-4f0e-ba8b-995d6b3aa072",
+        "name": "Reponse URL"
+      },
+      {
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          600,
+          -260
+        ],
+        "id": "dc9856dc-d6b8-40be-b047-c89fbbbd3639",
+        "name": "Telegram Trigger",
+        "webhookId": "105522ed-2998-4460-aa79-bdd0a6a67f75",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n  \"url_graphique\":\"l'url du graphique\",\n  \"synthese_analyse\":\"la synthese de l'analyse sur la requete de l'utiisateur\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          1380,
+          160
+        ],
+        "id": "fdcae415-4230-4731-8e8b-f2d3ae8c7ceb",
+        "name": "Structured Output Parser1"
+      },
+      {
+        "parameters": {
+          "resource": "audio",
+          "operation": "transcribe",
+          "options": {
+            "language": "fr"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.7,
+        "position": [
+          1000,
+          -260
+        ],
+        "id": "da6efbb3-a96a-4770-850f-396873cfa233",
+        "name": "OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "Vm2aEK1EsphLWx7X",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "file",
+          "fileId": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}"
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          820,
+          -260
+        ],
+        "id": "523615c4-e0b2-404e-aaf9-9ad0474af41d",
+        "name": "Telegram",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71675253-2c48-414a-8666-b515250969bf",
+                "name": "requete",
+                "value": "={{ $json.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1200,
+          -260
+        ],
+        "id": "e5658ac6-5bff-4818-bcef-cb4df4380c9f",
+        "name": "Edit Fields2"
+      },
+      {
+        "parameters": {
+          "url": "={{ $('Data Analyst').item.json.output.url_graphique.extractUrl().slice(0,-1) }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1380,
+          -40
+        ],
+        "id": "727b84c4-f6dd-4039-95a6-3de61b824e33",
+        "name": "HTTP Request1"
+      },
+      {
+        "parameters": {
+          "operation": "sendPhoto",
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "binaryData": true,
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          1580,
+          -40
+        ],
+        "id": "3fc2b6f6-7eb4-4770-8a03-5ee0ddbd4754",
+        "name": "Telegram1",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+          "text": "={{ $('Data Analyst').item.json.output.synthese_analyse }}",
+          "additionalFields": {}
+        },
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          1760,
+          -40
+        ],
+        "id": "d1efe783-2e40-4663-99bd-2fa60953226c",
+        "name": "Telegram2",
+        "credentials": {
+          "telegramApi": {
+            "id": "Lw96YiMSkokvWZwg",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "memoire_2"
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          980,
+          160
+        ],
+        "id": "901226b9-ef3e-407e-901a-53a0b96169ed",
+        "name": "Window Buffer Memory"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "NocoDB": {
+        "ai_tool": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generer Graphique": {
+        "main": [
+          [
+            {
+              "node": "Agent Création Graphique",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Agent Création Graphique",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Agent Création Graphique",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Générer Graphique": {
+        "ai_tool": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Agent Création Graphique": {
+        "main": [
+          [
+            {
+              "node": "Reponse URL",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anthropic Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser1": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Data Analyst": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Telegram",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields2": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "Telegram1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram1": {
+        "main": [
+          [
+            {
+              "node": "Telegram2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram2": {
+        "main": [
+          []
+        ]
+      },
+      "Window Buffer Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "Data Analyst",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "327c031f-305d-49c7-afac-3651d805c311",
+    "meta": {
+      "instanceId": "3c2ea20af5bac13bd16313e89630741b71c0832df524fb17e56957cfeb36ac2a"
+    },
+    "id": "JmWQ34k3ggrCJ0KT",
+    "tags": []
+  }
+}

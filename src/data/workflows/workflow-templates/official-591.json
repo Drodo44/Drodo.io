@@ -1,0 +1,113 @@
+{
+  "id": "official-591",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/591",
+    "template_id": 591
+  },
+  "name": "Add text to a downloaded image",
+  "description": "Add text to a downloaded image",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "manual",
+    "Edit Image",
+    "Manual Trigger",
+    "add",
+    "text",
+    "downloaded",
+    "image"
+  ],
+  "task_keywords": [
+    "add text to a downloaded image",
+    "manual",
+    "edit image",
+    "manual trigger",
+    "add text",
+    "text downloaded",
+    "downloaded image",
+    "image add"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Image"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "1",
+    "name": "Add text to an image downloaded from the internet",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          620,
+          170
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Edit Image",
+        "type": "n8n-nodes-base.editImage",
+        "position": [
+          1020,
+          170
+        ],
+        "parameters": {
+          "text": "This is n8n",
+          "options": {},
+          "fontSize": 100,
+          "operation": "text",
+          "positionX": 300,
+          "positionY": 500
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          820,
+          170
+        ],
+        "parameters": {
+          "url": "https://docs.n8n.io/assets/img/final-workflow.f380b957.png",
+          "options": {},
+          "responseFormat": "file"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Edit Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

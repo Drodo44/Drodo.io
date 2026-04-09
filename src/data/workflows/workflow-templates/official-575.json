@@ -1,0 +1,87 @@
+{
+  "id": "official-575",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/575",
+    "template_id": 575
+  },
+  "name": "Convert a date from one format to another",
+  "description": "Companion workflow for Date & Time node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Date & Time",
+    "Manual Trigger",
+    "convert",
+    "date",
+    "one",
+    "format",
+    "another",
+    "companion"
+  ],
+  "task_keywords": [
+    "convert a date from one format to another",
+    "manual",
+    "date & time",
+    "manual trigger",
+    "convert date",
+    "date one",
+    "one format",
+    "format another",
+    "another companion",
+    "companion workflow",
+    "workflow date",
+    "date time"
+  ],
+  "required_services": [
+    "manual",
+    "Date & Time"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Date & Time",
+        "type": "n8n-nodes-base.dateTime",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "value": "14/02/2020",
+          "options": {
+            "fromFormat": "DD/MM/YYYY"
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Date & Time",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "id": "official-8572",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8572",
+    "template_id": 8572
+  },
+  "name": "Automated WhatsApp welcome messages for sales leads with Google Sheets & Rapiwa",
+  "description": "Automated WhatsApp Welcome Messages for Sales Leads with Google Sheets & Rapiwa Who is this for?",
+  "category": "AI",
+  "tags": [
+    "Lead Nurturing",
+    "Multimodal AI",
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)",
+    "Schedule Trigger",
+    "automated",
+    "whatsapp",
+    "welcome",
+    "messages",
+    "sales",
+    "leads"
+  ],
+  "task_keywords": [
+    "automated whatsapp welcome messages for sales leads with google sheets & rapiwa",
+    "google sheets",
+    "loop over items (split in batches)",
+    "schedule trigger",
+    "automated whatsapp",
+    "whatsapp welcome",
+    "welcome messages",
+    "messages sales",
+    "sales leads",
+    "leads google",
+    "sheets rapiwa",
+    "rapiwa automated"
+  ],
+  "required_services": [
+    "Google Sheets",
+    "Loop Over Items (Split in Batches)"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "wVvNaEO8lG0lIMzU",
+    "meta": {
+      "instanceId": "cb9a1e5321767b6316634728341237e564b2587ab15b74ca0a89eb02a53484d6",
+      "templateCredsSetupCompleted": true
+    },
+    "name": "Automated WhatsApp Welcome Messages for Sales Leads with Google Sheets & Rapiwa",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "0550f462-b916-47d3-bebf-b505da01a7fd",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -2736,
+          -880
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0841f0a0-7042-4049-8642-6d40987fc607",
+        "name": "Fetch All Pending Queries for Messaging1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -1072,
+          -496
+        ],
+        "parameters": {},
+        "notesInFlow": false,
+        "retryOnFail": false,
+        "typeVersion": 4.6
+      },
+      {
+        "id": "27263025-0d11-4e6b-bf84-df8e3269cd24",
+        "name": "Limit1",
+        "type": "n8n-nodes-base.limit",
+        "position": [
+          -656,
+          -496
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "ed57db8c-6127-454f-b7a1-b65a77877e7b",
+        "name": "Clean WhatsApp Number1",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          16,
+          -480
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "7e100ddc-107e-4059-90cb-b4cef3d5c3a7",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -416,
+          -496
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "typeVersion": 3
+      },
+      {
+        "id": "da9deff5-b797-4997-a2e2-5923f09f7c18",
+        "name": "Send Message Using Rapiwa1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          816,
+          -128
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "ae5bfcf0-f1c5-41a5-ad48-2f0cc94faa3c",
+        "name": "Update rows: not sent & unverified1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          816,
+          80
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "fc1b5295-dda0-43ee-a275-32f55b969cb4",
+        "name": "Update rows: sent & verified1",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1040,
+          -128
+        ],
+        "parameters": {},
+        "typeVersion": 4.6
+      },
+      {
+        "id": "524c6411-7826-4ef0-a723-e6fa741758b9",
+        "name": "Wait1",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          1040,
+          80
+        ],
+        "webhookId": "6c474e54-eb3c-4fcd-b455-948322cd0121",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "1f9f9e50-4934-4184-b4dd-b4aa3d2351ac",
+        "name": "Check valid whatsapp number Using Rapiwa1",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          224,
+          -480
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "31c3193f-ac56-4ae8-8221-06ef827f00ee",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1600,
+          -896
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f1ed589d-493c-4a62-9fb3-5bbf0f83b0a5",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1248,
+          -896
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "83a91565-e5b4-4551-a8b7-6407ce030c6b",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -768,
+          -896
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "5f158c59-9cb4-4c43-9705-8cb6843baef8",
+        "name": "Sticky Note10",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -128,
+          -896
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "30aea538-f33c-4e6e-ae4a-8295cc455f0f",
+        "name": "Sticky Note11",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          464,
+          -896
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "20ec8ec0-ef20-40fe-9f97-8f11c201eb71",
+        "name": "Trigger Every 5 Minute1",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          -1504,
+          -496
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "769eb9a9-5afb-42f3-8b79-26dbb824902d",
+        "name": "If",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          560,
+          0
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "40f6da2f-5153-49a9-b19a-c0365573c1ef",
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Send Message Using Rapiwa1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update rows: not sent & unverified1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait1": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Limit1": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Clean WhatsApp Number1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Clean WhatsApp Number1": {
+        "main": [
+          [
+            {
+              "node": "Check valid whatsapp number Using Rapiwa1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Trigger Every 5 Minute1": {
+        "main": [
+          [
+            {
+              "node": "Fetch All Pending Queries for Messaging1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Message Using Rapiwa1": {
+        "main": [
+          [
+            {
+              "node": "Update rows: sent & verified1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update rows: sent & verified1": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update rows: not sent & unverified1": {
+        "main": [
+          [
+            {
+              "node": "Wait1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch All Pending Queries for Messaging1": {
+        "main": [
+          [
+            {
+              "node": "Limit1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check valid whatsapp number Using Rapiwa1": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

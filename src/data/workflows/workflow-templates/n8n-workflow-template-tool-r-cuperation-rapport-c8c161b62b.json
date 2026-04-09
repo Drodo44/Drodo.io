@@ -1,0 +1,297 @@
+{
+  "id": "n8n-workflow-template-tool-r-cuperation-rapport-c8c161b62b",
+  "source": {
+    "type": "github",
+    "repository": "Stirito/N8N_Workflow_Template",
+    "repository_stars": 105,
+    "path": "Tool___R_cuperation_Rapport.json",
+    "url": "https://github.com/Stirito/N8N_Workflow_Template/blob/main/Tool___R_cuperation_Rapport.json"
+  },
+  "name": "Tool - Récuperation Rapport",
+  "description": "n8n workflow template from Stirito/N8N_Workflow_Template: Tool - Récuperation Rapport",
+  "category": "AI",
+  "tags": [
+    "google Drive",
+    "agent",
+    "Open AI",
+    "output Parser Structured",
+    "execute Workflow Trigger",
+    "tool",
+    "cuperation",
+    "rapport",
+    "n8n",
+    "workflow",
+    "template"
+  ],
+  "task_keywords": [
+    "tool - récuperation rapport",
+    "google drive",
+    "agent",
+    "open ai",
+    "output parser structured",
+    "execute workflow trigger",
+    "tool cuperation",
+    "cuperation rapport",
+    "rapport n8n",
+    "n8n workflow",
+    "workflow template",
+    "template stirito"
+  ],
+  "required_services": [
+    "google Drive",
+    "agent",
+    "Open AI",
+    "output Parser Structured"
+  ],
+  "triggers": [
+    "execute Workflow Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Tool - Récuperation Rapport",
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "c055762a-8fe7-4141-a639-df2372f30060",
+        "name": "Execute Workflow Trigger",
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "position": [
+          260,
+          340
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "returnAll": true,
+          "filter": {
+            "folderId": {
+              "__rl": true,
+              "value": "19_GmXpbDUUdMLuguxzYXEqF5ztkMib9-",
+              "mode": "list",
+              "cachedResultName": "Rapports",
+              "cachedResultUrl": "https://drive.google.com/drive/folders/19_GmXpbDUUdMLuguxzYXEqF5ztkMib9-"
+            }
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          520,
+          340
+        ],
+        "id": "905b556d-d321-44d2-9dd4-3a8f05c04af0",
+        "name": "Google Drive1",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "tQbtVtecVIcBzD4Q",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          760,
+          340
+        ],
+        "id": "1cf235e2-ac48-48e5-af04-560fedd3c70d",
+        "name": "Google Drive2",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "tQbtVtecVIcBzD4Q",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Synthétise moi le rapport fournis en image : \n\n {{ $json.text }}",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "=CONTEXTE\n\nTu es un assistant pour une équipe de support client. Ton but est d'augmenter leur productivité. \n\nOBJECTIFS\nTu dois synthétiser un rapport mensuel concernant les performances de ton équipe de support client. Tu dois être synthétique et garder les informations importantes, chiffre clés et pourcentages. Ta réponse doit être au format Markdown\n\nCONTRAITES\n\nTu dois être synthétique et pertinent\n\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          1320,
+          340
+        ],
+        "id": "da2b4822-1ea4-4bd2-a889-d1aacf145879",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1,
+        "position": [
+          1240,
+          540
+        ],
+        "id": "75ef89ed-368f-4150-8fb8-356c11ef0936",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "TdDbYfeNV3XikP1S",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"synthese_rapport\":\"La synthèse du rapport\"\n}"
+        },
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "typeVersion": 1.2,
+        "position": [
+          1580,
+          540
+        ],
+        "id": "8a63c7a1-ef54-439e-b76a-673c6585854b",
+        "name": "Structured Output Parser"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "4fbb7eb5-07bb-4308-9e23-03c8aa687a57",
+                "name": "reponse_synthese_rapport",
+                "value": "={{ $json.output.synthese_rapport }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1900,
+          340
+        ],
+        "id": "77a64015-1a73-4142-a488-92e2dc2dc79c",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "operation": "pdf",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          980,
+          340
+        ],
+        "id": "f6498d08-ed9e-4799-a83b-68f1c05e1023",
+        "name": "Extract from File"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Execute Workflow Trigger": {
+        "main": [
+          [
+            {
+              "node": "Google Drive1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive1": {
+        "main": [
+          [
+            {
+              "node": "Google Drive2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive2": {
+        "main": [
+          [
+            {
+              "node": "Extract from File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structured Output Parser": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "f96cf99b-771b-42ac-a2e3-5cd95bd77a9a",
+    "meta": {
+      "instanceId": "4c252789664afada9907c81c7427745c36d84337e0c009a0e17e3eabfb01f993"
+    },
+    "id": "B3rsE9I5QrraS8M8",
+    "tags": []
+  }
+}

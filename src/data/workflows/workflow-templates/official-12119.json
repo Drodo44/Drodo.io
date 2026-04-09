@@ -1,0 +1,963 @@
+{
+  "id": "official-12119",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/12119",
+    "template_id": 12119
+  },
+  "name": "Create celebrity selfie images and transition videos with GPT-4, SeedDream, and Kling",
+  "description": "Who is this for?",
+  "category": "AI",
+  "tags": [
+    "Content Creation",
+    "Multimodal AI",
+    "n8n Form",
+    "Edit Fields (Set)",
+    "Loop Over Items (Split in Batches)",
+    "OpenAI Chat Model",
+    "Structured Output Parser",
+    "Google Sheets",
+    "n8n Form Trigger",
+    "Manual Trigger",
+    "create",
+    "celebrity",
+    "selfie",
+    "images"
+  ],
+  "task_keywords": [
+    "create celebrity selfie images and transition videos with gpt-4, seeddream, and kling",
+    "n8n form",
+    "create n8n form",
+    "edit fields (set)",
+    "create edit fields (set)",
+    "loop over items (split in batches)",
+    "create loop over items (split in batches)",
+    "openai chat model",
+    "create openai chat model",
+    "structured output parser",
+    "create structured output parser",
+    "google sheets"
+  ],
+  "required_services": [
+    "n8n Form",
+    "Edit Fields (Set)",
+    "Loop Over Items (Split in Batches)",
+    "OpenAI Chat Model",
+    "Structured Output Parser",
+    "Google Sheets"
+  ],
+  "triggers": [
+    "n8n Form Trigger",
+    "Manual Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "id": "6DdDdQptjCUWrSzv",
+    "meta": {
+      "instanceId": "1d871c7857f6a0f6093c24e2cd2fa1fa755b3826859fe85548d66cefd9f0e0ed"
+    },
+    "name": "Create Celebrity Selfie Images and Transition Videos with GPT-4, SeedDream and Kling",
+    "tags": [],
+    "nodes": [
+      {
+        "id": "d749a1de-925e-486f-86ea-e1832115669f",
+        "name": "Workflow Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1552,
+          560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9bacb515-dd40-482b-8d6e-d7639cd192f2",
+        "name": "Image Steps",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3216,
+          560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "4e7aa27e-7bad-4578-bb0c-a077cf0946bd",
+        "name": "Video Steps",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3744,
+          1264
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "904e1558-1d2d-4ad0-8418-f7c48f0221f0",
+        "name": "📝 Form Input",
+        "type": "n8n-nodes-base.formTrigger",
+        "position": [
+          2304,
+          784
+        ],
+        "webhookId": "04e5b465-3e17-476c-bbf9-ce575fa96303",
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "ba176f31-8d43-4e2b-80dd-723da17ce483",
+        "name": "⚙️ Config",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2544,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "95d1f588-f89a-4779-a37f-6b87395baae1",
+        "name": "📥 Process & Split",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          2784,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "934cd518-24ac-464d-a6ea-c3a32295ec5c",
+        "name": "🔄 Loop Each Celebrity",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          3008,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "15aadaf4-48e8-4040-b541-6b2c0f2e6aec",
+        "name": "GPT-4 Language Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          3216,
+          976
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "7fb4033b-0d52-482d-a894-9440f5b82da0",
+        "name": "🤖 AI Generate Prompt",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          3264,
+          640
+        ],
+        "parameters": {},
+        "typeVersion": 1.7
+      },
+      {
+        "id": "6e1024ea-5e04-4ace-95fc-1fd75f4a561b",
+        "name": "Parse Prompt Response",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          3392,
+          976
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "d174b22c-a346-44a1-95a7-ff1842f47f3d",
+        "name": "🔗 Merge Prompt",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          3536,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "1cd7b1d7-44cf-434b-86b4-4a91b411dbe5",
+        "name": "🎨 SeedDream Generate",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          3824,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "053669dd-5458-4af6-a12e-c0edf383269e",
+        "name": "💾 Store Request",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          4064,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "4e7c68e4-3f68-4102-bcbc-b49754224921",
+        "name": "⏳ Wait 45s",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          4304,
+          784
+        ],
+        "webhookId": "460977fd-2b3c-4a07-990b-ae678d593e66",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "e74414d0-1e74-4713-8dab-a412221b4b8b",
+        "name": "📊 Check Status",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          4544,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "8b7bf14c-309f-46d4-8662-040663f3ae73",
+        "name": "🔗 Merge Status",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          4784,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "2fbf5bdf-a5c0-4de2-a98d-5ecf1bbd556d",
+        "name": "✅ Ready?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          5024,
+          784
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "7b8a3313-2c4a-4922-9850-9f923b49ac41",
+        "name": "📥 Get Result",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          5264,
+          704
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "e78a6aca-d171-4f86-b9fd-382f4dd19d14",
+        "name": "📋 Prepare Output",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          5504,
+          704
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "795f18f4-4da1-4353-a7b0-1656cda802c8",
+        "name": "📊 Save to Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          5744,
+          704
+        ],
+        "parameters": {},
+        "typeVersion": 4.5
+      },
+      {
+        "id": "7f4e6740-a981-4c99-a4cd-06d0c0d4c341",
+        "name": "⏳ Retry 20s",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          5024,
+          976
+        ],
+        "webhookId": "b0e437c6-6677-4314-b90a-16836e8f4553",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "10180235-9e09-4fb2-adc8-cab47c63ac73",
+        "name": "🔄 Retry",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          5264,
+          976
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "1a9b48c3-391e-4e52-a088-bb4d17d3138d",
+        "name": "▶️ Start Video Generation",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          2288,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "aab80392-86b3-4e14-aea2-e064427b8ad4",
+        "name": "📊 Read from Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          2768,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 4.5
+      },
+      {
+        "id": "068405c2-978b-412b-81d1-6ced3a7ea85f",
+        "name": "🔍 Filter Ready Rows",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          3008,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "112b9948-5a4c-44da-94f2-57bf837966f9",
+        "name": "🔄 Loop Each Video",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          3248,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "cab2ac47-d082-494f-82f5-1569c8acb3ab",
+        "name": "📝 Build Video Prompt",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          3488,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "11ca917e-10a5-4799-8054-9f8bc1aa0cd7",
+        "name": "🎥 Kling Generate Video",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          3760,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "7289218f-641e-4845-8a81-6d8c4e5fa34a",
+        "name": "⏳ Wait 120s",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          4288,
+          1456
+        ],
+        "webhookId": "wait-kling-v2",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "ee413534-83fa-439f-9687-7a3621c47454",
+        "name": "📥 Get Video Result",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          5248,
+          1376
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "910b0fca-a647-4fdd-abb3-c843b693dccf",
+        "name": "📋 Prepare Update",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          5488,
+          1376
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "edf01631-a7c3-4bdb-9944-a31a7a759546",
+        "name": "📊 Save to CelebrityVideos",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          5728,
+          1376
+        ],
+        "parameters": {},
+        "typeVersion": 4.5
+      },
+      {
+        "id": "2b8fea4f-230b-447f-9c75-5276a67f92f2",
+        "name": "⏳ Retry 60s",
+        "type": "n8n-nodes-base.wait",
+        "position": [
+          5008,
+          1632
+        ],
+        "webhookId": "retry-kling-v2",
+        "parameters": {},
+        "typeVersion": 1.1
+      },
+      {
+        "id": "7f374136-5e4f-4ead-a33c-1c152e0ccffe",
+        "name": "⚙️ Video Config",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2528,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 3.4
+      },
+      {
+        "id": "0334aee8-50f7-4468-a8b2-93dc3a73ec01",
+        "name": "💾 Store Video Request",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          4048,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "49ba413b-f661-4942-99ca-3732813d17b6",
+        "name": "📊 Check Video Status",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          4528,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 4.2
+      },
+      {
+        "id": "95b7d0b9-69ae-432a-985a-e346cbb2055c",
+        "name": "🔗 Merge Video Status",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          4768,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "bb57c077-69d5-44cd-aeb4-04b3130fa83e",
+        "name": "✅ Video Ready?",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          5008,
+          1456
+        ],
+        "parameters": {},
+        "typeVersion": 2.2
+      },
+      {
+        "id": "81f05999-297b-4fab-8092-ceb4f4de8f75",
+        "name": "🔄 Retry Video Check",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          5248,
+          1632
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "4c54727f-39fc-4924-aa66-0b8291895c7f",
+        "name": "Section: Image Generation",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2256,
+          560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "b40264c7-4593-4cef-b0de-de3675e2fa5e",
+        "name": "Section: Video Generation",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2256,
+          1264
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "9f390e7b-495c-4363-807e-e13ac5bf2765",
+        "name": "Status Check",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          4512,
+          560
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "d5976f51-ee78-4589-8db8-0b56a6a9b814",
+    "connections": {
+      "✅ Ready?": {
+        "main": [
+          [
+            {
+              "node": "📥 Get Result",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "⏳ Retry 20s",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔄 Retry": {
+        "main": [
+          [
+            {
+              "node": "📊 Check Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⏳ Wait 45s": {
+        "main": [
+          [
+            {
+              "node": "📊 Check Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⏳ Retry 20s": {
+        "main": [
+          [
+            {
+              "node": "🔄 Retry",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⏳ Retry 60s": {
+        "main": [
+          [
+            {
+              "node": "🔄 Retry Video Check",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⏳ Wait 120s": {
+        "main": [
+          [
+            {
+              "node": "📊 Check Video Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⚙️ Config": {
+        "main": [
+          [
+            {
+              "node": "📥 Process & Split",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📝 Form Input": {
+        "main": [
+          [
+            {
+              "node": "⚙️ Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📥 Get Result": {
+        "main": [
+          [
+            {
+              "node": "📋 Prepare Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "✅ Video Ready?": {
+        "main": [
+          [
+            {
+              "node": "📥 Get Video Result",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "⏳ Retry 60s",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📊 Check Status": {
+        "main": [
+          [
+            {
+              "node": "🔗 Merge Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔗 Merge Prompt": {
+        "main": [
+          [
+            {
+              "node": "🎨 SeedDream Generate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔗 Merge Status": {
+        "main": [
+          [
+            {
+              "node": "✅ Ready?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "💾 Store Request": {
+        "main": [
+          [
+            {
+              "node": "⏳ Wait 45s",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "⚙️ Video Config": {
+        "main": [
+          [
+            {
+              "node": "📊 Read from Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📊 Save to Sheets": {
+        "main": [
+          [
+            {
+              "node": "🔄 Loop Each Celebrity",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📋 Prepare Output": {
+        "main": [
+          [
+            {
+              "node": "📊 Save to Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📋 Prepare Update": {
+        "main": [
+          [
+            {
+              "node": "📊 Save to CelebrityVideos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "GPT-4 Language Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "🤖 AI Generate Prompt",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📥 Process & Split": {
+        "main": [
+          [
+            {
+              "node": "🔄 Loop Each Celebrity",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔄 Loop Each Video": {
+        "main": [
+          [],
+          [
+            {
+              "node": "📝 Build Video Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Prompt Response": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "🤖 AI Generate Prompt",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📊 Read from Sheets": {
+        "main": [
+          [
+            {
+              "node": "🔍 Filter Ready Rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📥 Get Video Result": {
+        "main": [
+          [
+            {
+              "node": "📋 Prepare Update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔄 Retry Video Check": {
+        "main": [
+          [
+            {
+              "node": "📊 Check Video Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔍 Filter Ready Rows": {
+        "main": [
+          [
+            {
+              "node": "🔄 Loop Each Video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎨 SeedDream Generate": {
+        "main": [
+          [
+            {
+              "node": "💾 Store Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📊 Check Video Status": {
+        "main": [
+          [
+            {
+              "node": "🔗 Merge Video Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📝 Build Video Prompt": {
+        "main": [
+          [
+            {
+              "node": "🎥 Kling Generate Video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔗 Merge Video Status": {
+        "main": [
+          [
+            {
+              "node": "✅ Video Ready?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🤖 AI Generate Prompt": {
+        "main": [
+          [
+            {
+              "node": "🔗 Merge Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "💾 Store Video Request": {
+        "main": [
+          [
+            {
+              "node": "⏳ Wait 120s",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🔄 Loop Each Celebrity": {
+        "main": [
+          [],
+          [
+            {
+              "node": "🤖 AI Generate Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "🎥 Kling Generate Video": {
+        "main": [
+          [
+            {
+              "node": "💾 Store Video Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "📊 Save to CelebrityVideos": {
+        "main": [
+          [
+            {
+              "node": "🔄 Loop Each Video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "▶️ Start Video Generation": {
+        "main": [
+          [
+            {
+              "node": "⚙️ Video Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

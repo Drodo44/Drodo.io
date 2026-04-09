@@ -1,0 +1,154 @@
+{
+  "id": "n8n-workflow-templates-1205-manual-tapfiliate-automate-triggered-561d020300",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/1205_Manual_Tapfiliate_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/1205_Manual_Tapfiliate_Automate_Triggered.json"
+  },
+  "name": "1205 Manual Tapfiliate Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 1205 Manual Tapfiliate Automate Triggered",
+  "category": "Other",
+  "tags": [
+    "workflows",
+    "tapfiliate",
+    "manual",
+    "Manual Trigger",
+    "1205",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "1205 manual tapfiliate automate triggered",
+    "tapfiliate",
+    "manual",
+    "manual trigger",
+    "1205 manual",
+    "manual tapfiliate",
+    "tapfiliate automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "tapfiliate",
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Tapfiliate2",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          870,
+          300
+        ],
+        "parameters": {
+          "resource": "programAffiliate",
+          "programId": "testing-program-5",
+          "affiliateId": "={{$node[\"Tapfiliate\"].json[\"id\"]}}",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "tapfiliateApi": "Tapfiliate API credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Tapfiliate1",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          670,
+          300
+        ],
+        "parameters": {
+          "resource": "affiliateMetadata",
+          "metadataUi": {
+            "metadataValues": [
+              {
+                "key": "tag",
+                "value": "n8n"
+              }
+            ]
+          },
+          "affiliateId": "={{$json[\"id\"]}}"
+        },
+        "credentials": {
+          "tapfiliateApi": "Tapfiliate API credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Tapfiliate",
+        "type": "n8n-nodes-base.tapfiliate",
+        "position": [
+          470,
+          300
+        ],
+        "parameters": {
+          "email": "n8ndocsburner@gmail.com",
+          "lastname": "Ryan",
+          "firstname": "Jack",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "tapfiliateApi": "Tapfiliate API credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          270,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Tapfiliate": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Tapfiliate1": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Tapfiliate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

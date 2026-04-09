@@ -1,0 +1,477 @@
+{
+  "id": "official-8450",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8450",
+    "template_id": 8450
+  },
+  "name": "Monitor social media trends across Reddit, Instagram & TikTok with Apify",
+  "description": "📺 Full walkthrough video: https://youtu.be/Me4d4BILvHk What it does This workflow automatically monitors trending content across Reddit, Instagram, and TikTok using keywords you define.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "AI Summarization",
+    "Gmail",
+    "Data table",
+    "Loop Over Items (Split in Batches)",
+    "Schedule Trigger",
+    "monitor",
+    "social",
+    "media",
+    "trends",
+    "across",
+    "reddit"
+  ],
+  "task_keywords": [
+    "monitor social media trends across reddit, instagram & tiktok with apify",
+    "gmail",
+    "monitor gmail",
+    "data table",
+    "monitor data table",
+    "loop over items (split in batches)",
+    "monitor loop over items (split in batches)",
+    "schedule trigger",
+    "monitor social",
+    "social media",
+    "media trends",
+    "trends across"
+  ],
+  "required_services": [
+    "Gmail",
+    "Data table",
+    "Loop Over Items (Split in Batches)"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263"
+    },
+    "nodes": [
+      {
+        "id": "d62e4d2e-1f41-4929-94b3-331e249e2fc5",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          512,
+          864
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "40ecc1bb-f664-4dfb-ae41-6bdb37cf13f6",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          992,
+          816
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "d0efa54d-1a97-4e49-bd99-cf6817ff7018",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1376,
+          544
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "54b19325-c56f-4125-9995-f5d9e21a27f5",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1376,
+          880
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bd8971bb-d1bf-4f88-88d5-ea70ead41aad",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1952,
+          848
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e3372fed-fe15-4256-af65-a9cc9431283c",
+        "name": "Sticky Note7",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2496,
+          656
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "04a7c34e-57b7-4e22-beb8-7da790108c8b",
+        "name": "Send Gmail Report",
+        "type": "n8n-nodes-base.gmail",
+        "notes": "Send dahsboard with top 10 of the most engaging post ",
+        "position": [
+          2544,
+          1040
+        ],
+        "webhookId": "57a6f413-f0fa-4e3b-8576-96fce6d1a87f",
+        "parameters": {},
+        "executeOnce": true,
+        "notesInFlow": true,
+        "typeVersion": 2.1
+      },
+      {
+        "id": "74636cff-3361-4a7f-ab5b-511b14de8b02",
+        "name": "Rank All Platforms",
+        "type": "n8n-nodes-base.code",
+        "notes": "Sorts all posts + give them points depending on their likes + comments",
+        "position": [
+          2224,
+          1040
+        ],
+        "parameters": {},
+        "notesInFlow": true,
+        "typeVersion": 2
+      },
+      {
+        "id": "3bd6590d-fb82-441b-a8b3-367ebc83dc54",
+        "name": "Rank Reddit Posts",
+        "type": "n8n-nodes-base.code",
+        "notes": "Sorts posts",
+        "position": [
+          1664,
+          672
+        ],
+        "parameters": {},
+        "notesInFlow": true,
+        "typeVersion": 2
+      },
+      {
+        "id": "153770fe-e635-404f-a031-88e9598f1552",
+        "name": "Rank TikTok Posts",
+        "type": "n8n-nodes-base.code",
+        "notes": "Sorts posts",
+        "position": [
+          1664,
+          1392
+        ],
+        "parameters": {},
+        "notesInFlow": true,
+        "typeVersion": 2
+      },
+      {
+        "id": "faaa353c-5b28-486a-88cf-43672f8c26a2",
+        "name": "When Schedule Fires",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          560,
+          1024
+        ],
+        "parameters": {},
+        "typeVersion": 1.2
+      },
+      {
+        "id": "3d85e890-63a8-4114-bc8c-d2b859bd072e",
+        "name": "Save Rankings to Table",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          2544,
+          912
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "112d0f9b-40e6-4fea-b856-9201efebd930",
+        "name": "Get Queries from Table",
+        "type": "n8n-nodes-base.dataTable",
+        "position": [
+          768,
+          1024
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "e358a0e7-b3a8-4416-a774-d090c0d5e98e",
+        "name": "Loop Over Queries",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          1040,
+          1024
+        ],
+        "parameters": {},
+        "typeVersion": 3
+      },
+      {
+        "id": "7b62e515-c0a0-4973-bbfe-6bbf4af0efd2",
+        "name": "Fetch TikTok Posts via Apify",
+        "type": "n8n-nodes-base.httpRequest",
+        "notes": "Post the request on apify",
+        "position": [
+          1424,
+          1392
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "notesInFlow": true,
+        "retryOnFail": true,
+        "typeVersion": 4.2
+      },
+      {
+        "id": "4fbf5b80-295c-4633-b23c-ed235e1e06ab",
+        "name": "Fetch Reddit Posts via Apify",
+        "type": "n8n-nodes-base.httpRequest",
+        "notes": "Post the request on apify",
+        "position": [
+          1424,
+          672
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "notesInFlow": true,
+        "retryOnFail": true,
+        "typeVersion": 4.2
+      },
+      {
+        "id": "208c9a90-9464-4d83-aa6a-68554dcdfcc4",
+        "name": "Merge Platform Results",
+        "type": "n8n-nodes-base.merge",
+        "position": [
+          2000,
+          1024
+        ],
+        "parameters": {},
+        "typeVersion": 3.2
+      },
+      {
+        "id": "43dfdbe1-9342-4d5b-a961-28e467f877c6",
+        "name": "Fetch Instagram Posts via Apify",
+        "type": "n8n-nodes-base.httpRequest",
+        "notes": "Post the request on apify",
+        "position": [
+          1424,
+          1040
+        ],
+        "parameters": {},
+        "executeOnce": false,
+        "notesInFlow": true,
+        "retryOnFail": true,
+        "typeVersion": 4.2
+      },
+      {
+        "id": "16e79945-de07-4eb9-af7d-31d7289d6ba3",
+        "name": "Rank Instagram Posts",
+        "type": "n8n-nodes-base.code",
+        "notes": "### What the system does:\nLaunches Instagram hashtag scraping via Apify's Instagram scraper\nSearches recent posts (last 7 days) under specified hashtags\nImplements 30-second processing wait for data collection completion\nRetrieves Instagram post data including likes, comments, and captions\nFilters and processes main posts (excluding carousel items and stories)\nApplies Instagram-specific engagement scoring for content ranking\n\n**Instagram Scoring Formula:**\n- Likes: 1 point each\n- Comments: 2 points each (emphasizing meaningful engagement)\n- Final score = (likes × 1) + (comments × 2)\n\n### Result:\n✅ Top 10 most engaging Instagram posts identified\n✅ Visual content performance metrics captured\n✅ Influencer and brand content engagement measured\n✅ Platform-specific engagement patterns analyzed",
+        "position": [
+          1664,
+          1040
+        ],
+        "parameters": {},
+        "notesInFlow": true,
+        "typeVersion": 2
+      },
+      {
+        "id": "bd1d0460-f3a3-4d66-ac13-a6f34f5129e8",
+        "name": "Sticky Note8",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -48,
+          656
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "0c6430ed-77ec-403b-b2b6-7baecd5f66cb",
+        "name": "Sticky Note9",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1376,
+          1232
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Loop Over Queries": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Fetch Reddit Posts via Apify",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Fetch TikTok Posts via Apify",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Fetch Instagram Posts via Apify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Rank Reddit Posts": {
+        "main": [
+          [
+            {
+              "node": "Merge Platform Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Rank TikTok Posts": {
+        "main": [
+          [
+            {
+              "node": "Merge Platform Results",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Send Gmail Report": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Queries",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Rank All Platforms": {
+        "main": [
+          [
+            {
+              "node": "Send Gmail Report",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Save Rankings to Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Schedule Fires": {
+        "main": [
+          [
+            {
+              "node": "Get Queries from Table",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Rank Instagram Posts": {
+        "main": [
+          [
+            {
+              "node": "Merge Platform Results",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Get Queries from Table": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Queries",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Platform Results": {
+        "main": [
+          [
+            {
+              "node": "Rank All Platforms",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Reddit Posts via Apify": {
+        "main": [
+          [
+            {
+              "node": "Rank Reddit Posts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch TikTok Posts via Apify": {
+        "main": [
+          [
+            {
+              "node": "Rank TikTok Posts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Instagram Posts via Apify": {
+        "main": [
+          [
+            {
+              "node": "Rank Instagram Posts",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

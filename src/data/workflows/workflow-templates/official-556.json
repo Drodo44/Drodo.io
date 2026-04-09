@@ -1,0 +1,86 @@
+{
+  "id": "official-556",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/556",
+    "template_id": 556
+  },
+  "name": "Get a board from monday.com",
+  "description": "Companion workflow for monday.com node docs",
+  "category": "Productivity",
+  "tags": [
+    "Project Management",
+    "manual",
+    "Monday.com",
+    "Manual Trigger",
+    "board",
+    "monday",
+    "com",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get a board from monday.com",
+    "manual",
+    "monday.com",
+    "manual trigger",
+    "board monday",
+    "monday com",
+    "com companion",
+    "companion workflow",
+    "workflow monday",
+    "com node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Monday.com"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Monday.com",
+        "type": "n8n-nodes-base.mondayCom",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "boardId": "663435997",
+          "operation": "get"
+        },
+        "credentials": {
+          "mondayComApi": "monday"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Monday.com",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

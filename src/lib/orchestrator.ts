@@ -1,5 +1,8 @@
 import type { Message, OrchestrationPlan, OrchestrationRun, OrchestrationStep, Provider } from '../types'
 import { completeText, streamCompletion } from './streamChat'
+import { injectSkills } from './skillsInjector'
+import { getAppSettings } from './appSettings'
+import { findWorkflowForTask } from './workflows'
 
 function msg(role: Message['role'], content: string): Message {
   return {
@@ -10,16 +13,90 @@ function msg(role: Message['role'], content: string): Message {
   }
 }
 
+// Fallback model scorer used only when a step has no model field set by the LLM
+function scoreModelForTask(model: string, task: string): number {
+  const m = model.toLowerCase()
+  const t = task.toLowerCase()
+  let score = 0
+
+  const codingTask = /(code|implement|bug|debug|refactor|typescript|javascript|python|test|build)/.test(t)
+  const analysisTask = /(analy|research|review|plan|design|architecture|strategy)/.test(t)
+  const speedTask = /(quick|fast|short|brief|summarize|summary)/.test(t)
+
+  if (codingTask && /(code|coder|sonnet|gpt-4\.1|gpt-5|o1|o3)/.test(m)) score += 6
+  if (analysisTask && /(sonnet|opus|gpt-5|gpt-4|reason)/.test(m)) score += 5
+  if (speedTask && /(mini|haiku|flash|lite|small)/.test(m)) score += 4
+
+  if (/(mini|haiku|flash|lite|small)/.test(m)) score += 1
+  if (/(sonnet|opus|gpt|o1|o3|reason)/.test(m)) score += 2
+
+  return score
+}
+
+function pickBestModel(task: string, savedModels: string[], usedModels: Set<string>): string {
+  const unusedModels = savedModels.filter(model => !usedModels.has(model))
+  const candidates = unusedModels.length > 0 ? unusedModels : savedModels
+
+  let best = candidates[0]
+  let bestScore = Number.NEGATIVE_INFINITY
+  for (const model of candidates) {
+    const score = scoreModelForTask(model, task)
+    if (score > bestScore) {
+      best = model
+      bestScore = score
+    }
+  }
+  usedModels.add(best)
+  return best
+}
+
+// Soft hints passed to the LLM — it makes the final call
+const MODEL_HINT_MAP =
+  'Soft model hints (use your judgment, not a rule): ' +
+  'deepseek→reasoning/math, qwen→coding, gemini→research/multimodal, ' +
+  'mistral→speed, claude-opus→complex analysis, ' +
+  'claude-haiku/flash/mini/small→quick or simple tasks, ' +
+  'gpt-4/o1/o3→complex reasoning, gpt-4-mini/3.5→fast tasks'
+
 export async function buildOrchestrationPlan(
   task: string,
   provider: Provider,
-  availableTemplates: string[]
+  availableTemplates: string[],
+  templateDetails?: Array<{ name: string; category: string; systemPrompt?: string }>,
+  savedModels?: string[],
+  enabledSkills?: string[]
 ): Promise<OrchestrationPlan> {
   const model = provider.model ?? 'claude-sonnet-4-6'
+  const matchedWorkflow = findWorkflowForTask(task)
+  const workflowHintSection = matchedWorkflow && matchedWorkflow.confidence > 0.7
+    ? `\nA pre-built n8n workflow template exists for this task: ${matchedWorkflow.workflow.name}. The agent should use this as the foundation and adapt it rather than building from scratch.\nTemplate category: ${matchedWorkflow.workflow.category}\nRequired services: ${matchedWorkflow.workflow.required_services.join(', ') || 'None listed'}`
+    : ''
+
+  const modelsSection = savedModels && savedModels.length > 0
+    ? `\nAvailable models (use the exact string in the "model" field — pick the best fit per agent):\n${savedModels.join('\n')}\n\n${MODEL_HINT_MAP}`
+    : ''
+
+  const templatesSection = templateDetails && templateDetails.length > 0
+    ? `\nAgent template details by category:\n${templateDetails.map(t => `- ${t.name} [${t.category}]`).join('\n')}`
+    : ''
+
+  const skillsSection = enabledSkills && enabledSkills.length > 0
+    ? `\nEnabled skills: ${enabledSkills.join(', ')}`
+    : ''
+
+  const extendedFields = (savedModels || templateDetails || enabledSkills)
+    ? `
+Extended agent fields to include in each agent object:
+- "systemPrompt": if the template has a known system prompt, copy it here; otherwise omit
+- "skills": array of skill ids most relevant to this agent's role (e.g. researcher → ["web-search","memory"], coder → ["code-execution","file-reader"])
+- "model": choose from the available models list — pick based on task complexity and the soft hints above`
+    : ''
 
   const systemPrompt = `You are an AI orchestration engine. Your job is to analyze a user task and decide which specialist AI agents are needed to complete it optimally. You must respond with ONLY valid JSON, no other text.
 
 Available agent templates: ${availableTemplates.join(', ')}
+${modelsSection}${templatesSection}${skillsSection}
+${workflowHintSection}
 
 Respond with this exact JSON structure:
 {
@@ -29,12 +106,13 @@ Respond with this exact JSON structure:
       "id": "step_1",
       "templateName": "exact template name from available list",
       "templateTask": "the template role description",
-      "model": "${model}",
+      "model": "${savedModels?.[0] ?? model}",
       "specificTask": "specific instruction for this agent for THIS task",
       "outputVar": "step_1_output"
     }
   ]
 }
+${extendedFields}
 
 Rules:
 - Use 2-5 agents maximum. Never more.
@@ -42,7 +120,8 @@ Rules:
 - Each agent should have a focused, specific sub-task
 - Order agents logically — research before writing, writing before editing
 - For simple tasks that only need one agent, return just one agent
-- The specificTask must be concrete and actionable`
+- The specificTask must be concrete and actionable
+- Choose the best model for each agent from the available list independently — use the soft hints as guidance, not hard rules`
 
   try {
     const response = await completeText(provider, [
@@ -62,6 +141,23 @@ Rules:
     }
     // Clamp to 5 agents
     parsed.agents = parsed.agents.slice(0, 5)
+
+    // Only fill in model via fallback scorer if the LLM left it blank or invalid
+    if (savedModels && savedModels.length > 0) {
+      const used = new Set<string>()
+      parsed.agents = parsed.agents.map(agent => {
+        // If LLM picked a valid model, keep it; otherwise use fallback scorer
+        const llmModel = agent.model?.trim()
+        if (llmModel && savedModels.includes(llmModel)) {
+          used.add(llmModel)
+          return agent
+        }
+        return {
+          ...agent,
+          model: pickBestModel(agent.specificTask, savedModels, used),
+        }
+      })
+    }
     return parsed
   } catch {
     // Fallback: single agent using first available template
@@ -72,7 +168,7 @@ Rules:
           id: 'step_1',
           templateName: availableTemplates[0] ?? 'Research Analyst',
           templateTask: `specialist agent`,
-          model,
+          model: savedModels?.[0] ?? model,
           specificTask: task,
           outputVar: 'step_1_output',
         },
@@ -86,6 +182,7 @@ export async function runOrchestration(
   provider: Provider,
   onStepStart: (stepId: string, agentName: string) => void,
   onStepChunk: (stepId: string, chunk: string) => void,
+  onStepReviewing: (stepId: string) => void,
   onStepComplete: (stepId: string, output: string) => void,
   onComplete: (run: OrchestrationRun) => void,
   onError: (error: string) => void,
@@ -111,14 +208,24 @@ export async function runOrchestration(
           : ''
         const context = prevOutput ? `Previous step output:\n${prevOutput}\n\n` : ''
 
-        const messages: Message[] = [
-          msg(
-            'system',
-            `You are a ${step.templateName}. ${step.templateTask}. Focus only on your specific assigned task and produce high quality output.`,
-          ),
+        const systemMsg = step.systemPrompt
+          ? `${step.systemPrompt}\n\nYou must complete the task autonomously. Make reasonable assumptions. Never ask the user for clarification. Deliver finished output only.`
+          : `You are a ${step.templateName}. ${step.templateTask}. Focus only on your specific assigned task and produce high quality output. You must complete the task autonomously. Make reasonable assumptions. Never ask the user for clarification. Deliver finished output only.`
+
+        const stepProvider = resolveProvider?.(step) ?? provider
+
+        const enabledSkillsForStep = Object.fromEntries((step.skills ?? []).map(s => [s, true]))
+        const baseMessages: Message[] = [
+          msg('system', systemMsg),
           msg('user', `${context}Your specific task: ${step.specificTask}`),
         ]
-        const stepProvider = resolveProvider?.(step) ?? provider
+
+        let messages: Message[]
+        try {
+          messages = await injectSkills(baseMessages, step.specificTask, enabledSkillsForStep, getAppSettings())
+        } catch {
+          messages = baseMessages
+        }
 
         let accumulated = ''
 
@@ -132,9 +239,7 @@ export async function runOrchestration(
               onStepChunk(step.id, chunk)
             },
             fullText => {
-              const output = fullText || accumulated
-              run.stepOutputs[step.outputVar] = output
-              onStepComplete(step.id, output)
+              accumulated = fullText || accumulated
               resolve()
             },
             err => reject(err),
@@ -143,6 +248,29 @@ export async function runOrchestration(
         })
 
         currentAbort = null
+
+        if (aborted) return
+
+        // ── Self-review pass ──────────────────────────────────────────────────
+        onStepReviewing(step.id)
+
+        let finalOutput = accumulated
+        try {
+          const reviewMessages: Message[] = [
+            msg('system', 'You are a quality reviewer. Evaluate the following agent response.'),
+            msg(
+              'user',
+              `Task: ${step.specificTask}\n\nResponse to review:\n${accumulated}\n\nIs this response complete, accurate, and fully addressing the task? If yes, respond with exactly "APPROVED". If no, provide an improved version.`,
+            ),
+          ]
+          const reviewResult = await completeText(stepProvider, reviewMessages)
+          finalOutput = reviewResult.trim() === 'APPROVED' ? accumulated : reviewResult
+        } catch {
+          // review failed — use original output
+        }
+
+        run.stepOutputs[step.outputVar] = finalOutput
+        onStepComplete(step.id, finalOutput)
       }
 
       if (!aborted) {

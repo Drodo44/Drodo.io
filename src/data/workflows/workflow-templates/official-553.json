@@ -1,0 +1,87 @@
+{
+  "id": "official-553",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/553",
+    "template_id": 553
+  },
+  "name": "Get all contacts from Keap",
+  "description": "Companion workflow for Keap node docs",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Keap",
+    "Manual Trigger",
+    "all",
+    "contacts",
+    "keap",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "get all contacts from keap",
+    "manual",
+    "keap",
+    "manual trigger",
+    "all contacts",
+    "contacts keap",
+    "keap companion",
+    "companion workflow",
+    "workflow keap",
+    "keap node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Keap"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Keap",
+        "type": "n8n-nodes-base.keap",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "options": {},
+          "resource": "contact",
+          "operation": "getAll"
+        },
+        "credentials": {
+          "keapOAuth2Api": "keap_creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Keap",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

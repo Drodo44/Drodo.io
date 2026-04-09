@@ -1,0 +1,95 @@
+{
+  "id": "n8n-workflow-templates-0983-manual-awsses-automate-triggered-5c1527ea49",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0983_Manual_Awsses_Automate_Triggered.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0983_Manual_Awsses_Automate_Triggered.json"
+  },
+  "name": "0983 Manual Awsses Automate Triggered",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0983 Manual Awsses Automate Triggered",
+  "category": "DevOps",
+  "tags": [
+    "workflows",
+    "manual",
+    "aws Ses",
+    "Manual Trigger",
+    "0983",
+    "awsses",
+    "automate",
+    "triggered",
+    "n8n"
+  ],
+  "task_keywords": [
+    "0983 manual awsses automate triggered",
+    "manual",
+    "aws ses",
+    "manual trigger",
+    "0983 manual",
+    "manual awsses",
+    "awsses automate",
+    "automate triggered",
+    "triggered n8n",
+    "n8n workflow",
+    "workflow template",
+    "template danitilahun"
+  ],
+  "required_services": [
+    "manual",
+    "aws Ses"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "AWS SES",
+        "type": "n8n-nodes-base.awsSes",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "body": "This is a sample message body in an email\n",
+          "subject": "n8n Rocks",
+          "fromEmail": "n8n@n8n.io",
+          "toAddresses": [
+            "user@example.com",
+            "user2@example.com"
+          ],
+          "additionalFields": {}
+        },
+        "credentials": {
+          "aws": "aws"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "AWS SES",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

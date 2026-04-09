@@ -1,0 +1,89 @@
+{
+  "id": "official-595",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/595",
+    "template_id": 595
+  },
+  "name": "Send a message to a channel on Twake",
+  "description": "Send a message to a channel on Twake",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Twake",
+    "Manual Trigger",
+    "send",
+    "message",
+    "channel",
+    "twake"
+  ],
+  "task_keywords": [
+    "send a message to a channel on twake",
+    "manual",
+    "send manual",
+    "twake",
+    "send twake",
+    "manual trigger",
+    "send message",
+    "message channel",
+    "channel twake",
+    "twake send"
+  ],
+  "required_services": [
+    "manual",
+    "Twake"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "1",
+    "name": "Send a message on Twake",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          600,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Twake",
+        "type": "n8n-nodes-base.twake",
+        "position": [
+          800,
+          300
+        ],
+        "parameters": {
+          "content": "",
+          "channelId": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "twakeCloudApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Twake",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

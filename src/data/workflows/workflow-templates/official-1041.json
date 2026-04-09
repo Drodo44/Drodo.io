@@ -1,0 +1,132 @@
+{
+  "id": "official-1041",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1041",
+    "template_id": 1041
+  },
+  "name": "Create, update, and get an object from Bubble",
+  "description": "This workflow allows you to create, update, and get an object from Bubble.",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "Bubble",
+    "create",
+    "update",
+    "object",
+    "bubble",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "create, update, and get an object from bubble",
+    "bubble",
+    "create bubble",
+    "update bubble",
+    "create update",
+    "update object",
+    "object bubble",
+    "bubble workflow",
+    "workflow allows",
+    "allows you",
+    "you create"
+  ],
+  "required_services": [
+    "Bubble"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Bubble",
+        "type": "n8n-nodes-base.bubble",
+        "position": [
+          450,
+          280
+        ],
+        "parameters": {
+          "typeName": "Doc",
+          "operation": "create",
+          "properties": {
+            "property": [
+              {
+                "key": "Name",
+                "value": "Bubble"
+              }
+            ]
+          }
+        },
+        "credentials": {
+          "bubbleApi": "Bubble API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Bubble1",
+        "type": "n8n-nodes-base.bubble",
+        "position": [
+          650,
+          280
+        ],
+        "parameters": {
+          "objectId": "={{$json[\"id\"]}}",
+          "typeName": "={{$node[\"Bubble\"].parameter[\"typeName\"]}}",
+          "operation": "update",
+          "properties": {
+            "property": [
+              {
+                "key": "Name",
+                "value": "Bubble node"
+              }
+            ]
+          }
+        },
+        "credentials": {
+          "bubbleApi": "Bubble API Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Bubble2",
+        "type": "n8n-nodes-base.bubble",
+        "position": [
+          850,
+          280
+        ],
+        "parameters": {
+          "objectId": "={{$node[\"Bubble\"].json[\"id\"]}}",
+          "typeName": "={{$node[\"Bubble\"].parameter[\"typeName\"]}}"
+        },
+        "credentials": {
+          "bubbleApi": "Bubble API Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Bubble": {
+        "main": [
+          [
+            {
+              "node": "Bubble1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Bubble1": {
+        "main": [
+          [
+            {
+              "node": "Bubble2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

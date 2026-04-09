@@ -1,0 +1,156 @@
+{
+  "id": "n8n-automation-templates-5000-template-380-57ff64bdff",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Xero/finance_380_webhook_xero_to_google_sheets.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Xero/finance_380_webhook_xero_to_google_sheets.json"
+  },
+  "name": "Template 380",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 380",
+  "category": "Finance",
+  "tags": [
+    "Templates based on paltforms",
+    "Xero",
+    "xero",
+    "googlesheets",
+    "moodle",
+    "webhook",
+    "template",
+    "380",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 380",
+    "xero",
+    "googlesheets",
+    "moodle",
+    "webhook",
+    "380 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n",
+    "n8n automation"
+  ],
+  "required_services": [
+    "xero",
+    "googlesheets",
+    "moodle"
+  ],
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 380",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "auto-hook-380",
+          "httpMethod": "POST"
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Xero",
+        "type": "n8n-nodes-base.xero",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googlesheets",
+        "typeVersion": 1,
+        "position": [
+          900,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Moodle",
+        "type": "n8n-nodes-base.moodle",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Xero",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Xero": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "Moodle",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 380
+  }
+}

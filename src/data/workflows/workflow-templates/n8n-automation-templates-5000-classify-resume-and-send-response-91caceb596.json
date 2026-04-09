@@ -1,0 +1,230 @@
+{
+  "id": "n8n-automation-templates-5000-classify-resume-and-send-response-91caceb596",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "n8n advance/resume-classification-and-candidate-email-response.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/n8n advance/resume-classification-and-candidate-email-response.json"
+  },
+  "name": "Classify Resume and Send Response",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Classify Resume and Send Response",
+  "category": "AI",
+  "tags": [
+    "n8n advance",
+    "gmail",
+    "open AIApi",
+    "google Sheets",
+    "slack",
+    "gmail Trigger",
+    "classify",
+    "resume",
+    "send",
+    "response",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "classify resume and send response",
+    "gmail",
+    "send gmail",
+    "open aiapi",
+    "send open aiapi",
+    "google sheets",
+    "send google sheets",
+    "slack",
+    "send slack",
+    "gmail trigger",
+    "classify resume",
+    "resume send"
+  ],
+  "required_services": [
+    "gmail",
+    "open AIApi",
+    "google Sheets",
+    "slack"
+  ],
+  "triggers": [
+    "gmail Trigger"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "name": "Classify Resume and Send Response",
+    "nodes": [
+      {
+        "id": "trigger-email",
+        "name": "New Resume Email",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1,
+        "position": [
+          -600,
+          800
+        ],
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyHour"
+              }
+            ]
+          },
+          "filters": {
+            "item": [
+              {
+                "from": "careers@company.com"
+              },
+              {
+                "subject": "Application"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "download-resume",
+        "name": "Download Resume",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          800
+        ],
+        "parameters": {
+          "operation": "getAttachment",
+          "messageId": "={{ $json.id }}"
+        }
+      },
+      {
+        "id": "classify-resume",
+        "name": "Classify Candidate with AI",
+        "type": "n8n-nodes-base.openAIApi",
+        "typeVersion": 1,
+        "position": [
+          0,
+          800
+        ],
+        "parameters": {
+          "model": "gpt-4",
+          "operation": "complete",
+          "prompt": "Classify the following resume for role fit and extract key skills: {{ $binary.data }}. Return a JSON with fields: match (true/false), role, skills, summary.",
+          "temperature": 0
+        }
+      },
+      {
+        "id": "update-sheet",
+        "name": "Update Candidate Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 1,
+        "position": [
+          300,
+          750
+        ],
+        "parameters": {
+          "operation": "append",
+          "sheetId": "={{ $env.CANDIDATE_SHEET_ID }}",
+          "range": "Candidates!A:D",
+          "data": "={{ [$json.name, $json.skills.join(', '), $json.role, $json.match] }}"
+        }
+      },
+      {
+        "id": "send-reply",
+        "name": "Send Candidate Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 1,
+        "position": [
+          300,
+          850
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "send",
+          "to": "={{ $json.email }}",
+          "subject": "Your Application",
+          "message": "={{ $json.match ? 'Thank you for applying. We will be in touch soon.' : 'Thank you for your interest, but we are moving forward with other candidates.' }}"
+        }
+      },
+      {
+        "id": "error-handler-600-800",
+        "name": "Send Error to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 1,
+        "position": [
+          600,
+          800
+        ],
+        "parameters": {
+          "resource": "message",
+          "operation": "post",
+          "channel": "#hr-alerts",
+          "text": "={{ $json[\"error_message\"] || 'Workflow error' }}"
+        }
+      }
+    ],
+    "connections": {
+      "New Resume Email": {
+        "main": [
+          [
+            {
+              "node": "Download Resume",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download Resume": {
+        "main": [
+          [
+            {
+              "node": "Classify Candidate with AI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classify Candidate with AI": {
+        "main": [
+          [
+            {
+              "node": "Update Candidate Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Send Candidate Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Candidate Sheet": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Candidate Email": {
+        "main": [
+          [
+            {
+              "node": "Send Error to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "active": false
+  }
+}

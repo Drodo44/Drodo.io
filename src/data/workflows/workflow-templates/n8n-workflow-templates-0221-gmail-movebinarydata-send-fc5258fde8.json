@@ -1,0 +1,137 @@
+{
+  "id": "n8n-workflow-templates-0221-gmail-movebinarydata-send-fc5258fde8",
+  "source": {
+    "type": "github",
+    "repository": "Danitilahun/n8n-workflow-templates",
+    "repository_stars": 610,
+    "path": "workflows/0221_Gmail_Movebinarydata_Send.json",
+    "url": "https://github.com/Danitilahun/n8n-workflow-templates/blob/main/workflows/0221_Gmail_Movebinarydata_Send.json"
+  },
+  "name": "0221 Gmail Movebinarydata Send",
+  "description": "n8n workflow template from Danitilahun/n8n-workflow-templates: 0221 Gmail Movebinarydata Send",
+  "category": "AI",
+  "tags": [
+    "workflows",
+    "gmail",
+    "spreadsheet File",
+    "move Binary Data",
+    "0221",
+    "movebinarydata",
+    "send",
+    "n8n",
+    "workflow"
+  ],
+  "task_keywords": [
+    "0221 gmail movebinarydata send",
+    "gmail",
+    "send gmail",
+    "spreadsheet file",
+    "send spreadsheet file",
+    "move binary data",
+    "send move binary data",
+    "0221 gmail",
+    "gmail movebinarydata",
+    "movebinarydata send",
+    "send n8n",
+    "n8n workflow"
+  ],
+  "required_services": [
+    "gmail",
+    "spreadsheet File",
+    "move Binary Data"
+  ],
+  "triggers": [],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Gmail",
+        "type": "n8n-nodes-base.gmail",
+        "notes": "Get email with JSON file",
+        "position": [
+          620,
+          140
+        ],
+        "parameters": {
+          "limit": 1,
+          "operation": "getAll",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "16",
+            "name": "gmail"
+          }
+        },
+        "notesInFlow": true,
+        "typeVersion": 1
+      },
+      {
+        "name": "write spreadsheet file",
+        "type": "n8n-nodes-base.spreadsheetFile",
+        "position": [
+          980,
+          140
+        ],
+        "parameters": {
+          "options": {
+            "fileName": "users_spreadsheet.csv"
+          },
+          "operation": "toFile",
+          "fileFormat": "csv"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "move binary data ",
+        "type": "n8n-nodes-base.moveBinaryData",
+        "position": [
+          800,
+          140
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          200,
+          160
+        ],
+        "parameters": {
+          "width": 320,
+          "height": 80,
+          "content": "## JSON file > Sheets"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Gmail": {
+        "main": [
+          [
+            {
+              "node": "move binary data ",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "move binary data ": {
+        "main": [
+          [
+            {
+              "node": "write spreadsheet file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

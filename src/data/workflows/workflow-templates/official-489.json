@@ -1,0 +1,86 @@
+{
+  "id": "official-489",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/489",
+    "template_id": 489
+  },
+  "name": "Create a deal in Pipedrive",
+  "description": "Create a deal in Pipedrive",
+  "category": "Sales",
+  "tags": [
+    "CRM",
+    "manual",
+    "Pipedrive",
+    "Manual Trigger",
+    "create",
+    "deal",
+    "pipedrive"
+  ],
+  "task_keywords": [
+    "create a deal in pipedrive",
+    "manual",
+    "create manual",
+    "pipedrive",
+    "create pipedrive",
+    "manual trigger",
+    "create deal",
+    "deal pipedrive",
+    "pipedrive create"
+  ],
+  "required_services": [
+    "manual",
+    "Pipedrive"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "id": "113",
+    "name": "Create an deal in Pipedrive",
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Pipedrive",
+        "type": "n8n-nodes-base.pipedrive",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "title": "",
+          "additionalFields": {}
+        },
+        "credentials": {
+          "pipedriveApi": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "settings": {},
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Pipedrive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

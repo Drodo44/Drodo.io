@@ -1,0 +1,642 @@
+{
+  "id": "official-11128",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/11128",
+    "template_id": 11128
+  },
+  "name": "Monitor Furusato Nozei market trends with Google News, AI analysis and Slack reporting",
+  "description": "Analyze Furusato Nozei trends from Google News to Slack This workflow acts as a specialized market analyst for Japan's \"Furusato Nozei\" (Hometown Tax) system.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "AI RAG",
+    "Edit Fields (Set)",
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "No Operation, do nothing",
+    "Slack",
+    "Schedule Trigger",
+    "monitor",
+    "furusato",
+    "nozei",
+    "market",
+    "trends",
+    "google"
+  ],
+  "task_keywords": [
+    "monitor furusato nozei market trends with google news, ai analysis and slack reporting",
+    "edit fields (set)",
+    "monitor edit fields (set)",
+    "ai agent",
+    "monitor ai agent",
+    "openrouter chat model",
+    "monitor openrouter chat model",
+    "no operation, do nothing",
+    "monitor no operation, do nothing",
+    "slack",
+    "monitor slack",
+    "schedule trigger"
+  ],
+  "required_services": [
+    "Edit Fields (Set)",
+    "AI Agent",
+    "OpenRouter Chat Model",
+    "No Operation, do nothing",
+    "Slack"
+  ],
+  "triggers": [
+    "Schedule Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "e69afcfd2a52217043c40040db330d2622298f26653bcbbaf0cd35e4c83506e2"
+    },
+    "nodes": [
+      {
+        "id": "6efd2649-b781-4c81-800d-07e3be903acf",
+        "name": "Workflow Configuration",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          2048,
+          272
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "keyword",
+                "type": "string",
+                "value": "={{ $json.parsedData.keyword.trim().replace(/\\\\n/g, '') }}"
+              },
+              {
+                "id": "id-2",
+                "name": "country",
+                "type": "string",
+                "value": "jp"
+              },
+              {
+                "id": "id-3",
+                "name": "language",
+                "type": "string",
+                "value": "ja"
+              }
+            ]
+          },
+          "includeOtherFields": true
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "92f9d875-e505-4a5f-9371-6516f757aae1",
+        "name": "Google Trends API",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          2272,
+          272
+        ],
+        "parameters": {
+          "url": "https://serpapi.com/search",
+          "options": {},
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "engine",
+                "value": "google_trends"
+              },
+              {
+                "name": "q",
+                "value": "={{ $node[\"Workflow Configuration\"].json.keyword }}"
+              },
+              {
+                "name": "data_type",
+                "value": "TIMESERIES"
+              },
+              {
+                "name": "geo",
+                "value": "JP"
+              },
+              {
+                "name": "api_key"
+              }
+            ]
+          }
+        },
+        "typeVersion": 4.3
+      },
+      {
+        "id": "5bbc5b58-14ba-42f8-8839-d4232ad0c27f",
+        "name": "Aggregate Research Data",
+        "type": "n8n-nodes-base.aggregate",
+        "position": [
+          2496,
+          272
+        ],
+        "parameters": {
+          "options": {},
+          "aggregate": "aggregateAllItemData"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6d85659c-5d82-4823-aa44-2c14da8e9859",
+        "name": "Format Final Report",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          3072,
+          272
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "id-1",
+                "name": "report",
+                "type": "string",
+                "value": "={{ $json.output }}"
+              },
+              {
+                "id": "id-2",
+                "name": "keyword",
+                "type": "string",
+                "value": "={{ $('Workflow Configuration').first().json.keyword }}"
+              },
+              {
+                "id": "id-3",
+                "name": "timestamp",
+                "type": "string",
+                "value": "={{ $now.toISO() }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "d263605e-5ac2-4e6a-a991-1f0dc82d2fba",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "position": [
+          576,
+          368
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "triggerAtHour": 9
+              }
+            ]
+          }
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "30a21404-c212-4947-9bb7-9908c71cd08e",
+        "name": "RSS Read",
+        "type": "n8n-nodes-base.rssFeedRead",
+        "position": [
+          800,
+          368
+        ],
+        "parameters": {
+          "url": "https://news.google.com/rss/search?q=%E3%81%B5%E3%82%8B%E3%81%95%E3%81%A8%E7%B4%8D%E7%A8%8E&hl=ja&gl=JP&ceid=JP:ja",
+          "options": {}
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "f6131baa-abaa-4176-967d-5ecef079a012",
+        "name": "AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          1248,
+          368
+        ],
+        "parameters": {
+          "text": "={{ $('ニュース整形').first().json.news_list }}",
+          "options": {
+            "systemMessage": "あなたは優秀なリサーチアナリストです。\n以下のニュース記事リストを分析し、指定されたJSON形式で結果を出力してください。\n\n# 指示\n1. 記事群全体から、最近の「ふるさと納税」に関する最も重要なトレンドや話題を3つに要約してください。\n2. 要約の中から、最も市場調査に適していると思われる単一の検索キーワードを抽出してください。**もし適切なキーワードが抽出できない場合は、代わりに「ふるさと納税」というキーワードを使用してください。**\n3. 以下のJSON形式に厳密に従って、結果のみを出力してください。\n\n# 出力形式\n{\n  \"summary\": \"ここに3つのトレンド要約を箇条書きで記述\",\n  \"keyword\": \"ここに抽出した単一の検索キーワードを記述\"\n}\n# 出力形式 に厳密に従ってください"
+          },
+          "promptType": "define"
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "fbe58b3d-9328-4fed-97f6-8aac734b2b1b",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          1320,
+          592
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e2975c7c-6e3b-41bc-8022-85a79d0ae7a7",
+        "name": "ニュース整形",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1024,
+          368
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8f01d309-8111-45d5-9156-323b1230f0e2",
+                "name": "news_list",
+                "type": "string",
+                "value": "={{ $items().slice(0, 5).map(item => `タイトル：${item.json.title}\\n概要：${item.json.contentSnippet}`).join('\\n\\n---\\n\\n') }}"
+              }
+            ]
+          }
+        },
+        "executeOnce": true,
+        "typeVersion": 3.4
+      },
+      {
+        "id": "eec9bc89-826f-407b-8739-a1d0183c0547",
+        "name": "Code in JavaScript",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          1600,
+          368
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  try {\n    // AIの出力をJSONとして解析する\n    const aiOutput = JSON.parse(item.json.text);\n    \n    // 元のデータに、解析したデータを追加する\n    item.json.parsedData = aiOutput;\n    \n  } catch (error) {\n    // 解析に失敗した場合のエラー処理\n    item.json.error = 'Failed to parse JSON';\n    item.json.parsedData = {}; // 空のオブジェクトを設定\n  }\n  \n  // ★★★ ここからが追加・修正部分 ★★★\n  let keyword = item.json.parsedData.keyword || ''; // keywordを取得し、無ければ空文字\n  \n  // キーワードの前後の空白・改行を削除\n  keyword = keyword.trim().replace(/\\n/g, '');\n  \n  // キーワードが空だった場合、代替キーワードを設定する\n  if (keyword === '') {\n    keyword = 'ふるさと納税'; // ここで強制的にデフォルト値を設定\n  }\n  \n  // 処理後のキーワードを元のデータに反映\n  item.json.parsedData.keyword = keyword;\n  // ★★★ 追加・修正部分ここまで ★★★\n}\n\nreturn items;"
+        },
+        "typeVersion": 2
+      },
+      {
+        "id": "e8234df2-17f0-4b10-a2a7-e459e1083e97",
+        "name": "If",
+        "type": "n8n-nodes-base.if",
+        "position": [
+          1824,
+          368
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "6b4bfc6a-7665-4fb6-bce5-93e704927535",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                },
+                "leftValue": "={{ ($json.parsedData?.keyword ?? '').trim() }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "e3ef31c0-89f3-43c5-86f9-981ae1716048",
+        "name": "No Operation, do nothing",
+        "type": "n8n-nodes-base.noOp",
+        "position": [
+          2048,
+          464
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "6d785ec5-af11-4c9c-b1a6-707ea00911dc",
+        "name": "Send a message",
+        "type": "n8n-nodes-base.slack",
+        "position": [
+          3296,
+          272
+        ],
+        "webhookId": "5d5150c9-c410-4816-a818-7151835b5ba0",
+        "parameters": {
+          "text": "={{ $json.slack_text }}",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "C09V7LVKTGD",
+            "cachedResultName": "ふるさと納税"
+          },
+          "otherOptions": {},
+          "authentication": "oAuth2"
+        },
+        "typeVersion": 2.3
+      },
+      {
+        "id": "414684e8-f068-4827-86b0-797514029ab9",
+        "name": "Report AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          2720,
+          272
+        ],
+        "parameters": {
+          "text": "=",
+          "options": {
+            "systemMessage": "あなたは優秀なリサーチアナリストです。\n入力として提供されたGoogle Trendsのデータ（キーワードと時系列データ）を分析し、以下の形式で簡潔なレポートを作成してください。\n\n# ふるさと納税トレンド分析：{{ $json.keyword }}\n\n## 抽出キーワード\n{{ $json.keyword }}\n\n## 検索ボリュームの動向\n（提供されたデータに基づき、過去の検索ボリュームの傾向、増減の理由などを200字程度で簡潔に要約してください。）\n\n## データソース\nGoogle Trends（過去12ヶ月）\n\n結果のMarkdownテキストのみを出力してください。"
+          },
+          "promptType": "define"
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "95392515-173f-45a1-80f4-7a951a21fb85",
+        "name": "OpenRouter Chat Model1",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          2792,
+          496
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8cf1a87a-c26e-4893-95a7-5fa6bb159557",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          0,
+          176
+        ],
+        "parameters": {
+          "width": 512,
+          "height": 432,
+          "content": "## How it works\nw acts as a specialized market analyst for Japan's \"Furusato Nozei\" (Hometown Tax) system. It automates the process of monitoring related news, validating keyword popularity via search trends, and delivering a concise, strategic report to Slack.\n\nBy combining RSS feeds, AI agents, and real-time search data, this template helps marketers and municipal researchers stay on top of the highly competitive Hometown Tax market without manual searching.\n\n## 🛠️ Requirements\nTo use this workflow, you will need:\n- **n8n** (Version 1.0 or later recommended).\n- **OpenRouter API Key** (or you can swap the model nodes for OpenAI/Anthropic).\n- **SerpApi Key** (Required to fetch Google Trends data programmatically).\n- **Slack Account** (with permissions to post to a channel)."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "95eb64b5-40e5-4259-aedf-8b19956ef31a",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2016,
+          64
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 182,
+          "height": 256,
+          "content": "**Regional Settings:**\n   - The workflow is pre-set for Japan (`jp` / `ja`). If you need to change this, check the `Workflow Configuration` and `Google Trends API` nodes.\n"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a0847bb1-172d-46a6-a0d9-f0f696b38c30",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1248,
+          640
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 256,
+          "content": "\n\n\n\n\n\n**Configure Credentials:**\n   - Add your OpenRouter API key to the Chat Model nodes."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "6cbf02d3-8351-4378-b8a8-7e4d85aad732",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          560,
+          208
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 166,
+          "height": 208,
+          "content": "**Schedule:**\n   - Enable the `Schedule Trigger` node to run at your preferred time (default is 9:00 AM JST)."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "bd1f4d47-05d8-4593-b608-eab70f5030e1",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          768,
+          208
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 176,
+          "height": 192,
+          "content": "**Check the RSS Feed:**\n   - The `RSS Read` node is pre-configured for \"Furusato Nozei\" (ふるさと納税). You can leave this as is."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "2a56c3f6-847e-45f5-8199-08e89ebb3866",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          2240,
+          112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 150,
+          "height": 208,
+          "content": "**Configure Credentials:**\n   - Add your SerpApi key to the `Google Trends API` node."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "dea9c122-e76a-4b3a-8d4f-519bf54c217c",
+        "name": "Sticky Note6",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          3248,
+          160
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 176,
+          "content": "**Configure Credentials:**\n   - Connect your Slack account in the `Send a message` node."
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Workflow Configuration",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RSS Read": {
+        "main": [
+          [
+            {
+              "node": "ニュース整形",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Report AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Format Final Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "RSS Read",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Trends API": {
+        "main": [
+          [
+            {
+              "node": "Aggregate Research Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ニュース整形": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Final Report": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Report AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Workflow Configuration": {
+        "main": [
+          [
+            {
+              "node": "Google Trends API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate Research Data": {
+        "main": [
+          [
+            {
+              "node": "Report AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

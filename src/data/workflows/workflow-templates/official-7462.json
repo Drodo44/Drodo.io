@@ -1,0 +1,225 @@
+{
+  "id": "official-7462",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/7462",
+    "template_id": 7462
+  },
+  "name": "AI-powered mock job interview with voice, assessment & Gmail reporting",
+  "description": "AI Mock Interview System Complete n8n Template Overview This n8n workflow template creates a comprehensive AI powered mock interview system that conducts voice based interviews, provides real time transcription, and generates detailed performance assessments.",
+  "category": "AI",
+  "tags": [
+    "AI Chatbot",
+    "Multimodal AI",
+    "OpenRouter Chat Model",
+    "Respond to Webhook",
+    "Gmail",
+    "Webhook",
+    "powered",
+    "mock",
+    "job",
+    "interview",
+    "voice",
+    "assessment"
+  ],
+  "task_keywords": [
+    "ai-powered mock job interview with voice, assessment & gmail reporting",
+    "openrouter chat model",
+    "create openrouter chat model",
+    "respond to webhook",
+    "create respond to webhook",
+    "gmail",
+    "create gmail",
+    "webhook",
+    "powered mock",
+    "mock job",
+    "job interview",
+    "interview voice"
+  ],
+  "required_services": [
+    "OpenRouter Chat Model",
+    "Respond to Webhook",
+    "Gmail"
+  ],
+  "triggers": [
+    "Webhook",
+    "Respond to Webhook"
+  ],
+  "complexity": "moderate",
+  "workflow": {
+    "meta": {
+      "templateCreatedBy": "n8n-ai-assistant"
+    },
+    "name": "Performance Report Generator",
+    "tags": [
+      "assessment",
+      "report",
+      "ai-analysis",
+      "email"
+    ],
+    "nodes": [
+      {
+        "id": "report-overview",
+        "name": "Report Generator Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -200,
+          100
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "report-webhook",
+        "name": "Receive Interview Data",
+        "type": "n8n-nodes-base.webhook",
+        "position": [
+          -100,
+          300
+        ],
+        "webhookId": "2587540b-3552-4617-82c2-06b0729d1d6c",
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "ai-assessor",
+        "name": "AI Interview Assessor",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          120,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1.7
+      },
+      {
+        "id": "openrouter-model",
+        "name": "OpenRouter Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "position": [
+          120,
+          500
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "id": "process-report",
+        "name": "Process Report Data",
+        "type": "n8n-nodes-base.code",
+        "position": [
+          340,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 2
+      },
+      {
+        "id": "display-report",
+        "name": "Display HTML Report",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "position": [
+          560,
+          200
+        ],
+        "parameters": {},
+        "typeVersion": 1.4
+      },
+      {
+        "id": "email-report",
+        "name": "Email Assessment Report",
+        "type": "n8n-nodes-base.gmail",
+        "position": [
+          560,
+          400
+        ],
+        "parameters": {},
+        "typeVersion": 2.1
+      },
+      {
+        "id": "setup-notes",
+        "name": "Setup Requirements",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          600,
+          600
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "criteria-info",
+        "name": "Assessment Criteria",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -100,
+          600
+        ],
+        "parameters": {
+          "content": ""
+        },
+        "typeVersion": 1
+      }
+    ],
+    "active": false,
+    "pinData": {},
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "connections": {
+      "Process Report Data": {
+        "main": [
+          [
+            {
+              "node": "Display HTML Report",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Email Assessment Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Interview Assessor": {
+        "main": [
+          [
+            {
+              "node": "Process Report Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Interview Assessor",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Receive Interview Data": {
+        "main": [
+          [
+            {
+              "node": "AI Interview Assessor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

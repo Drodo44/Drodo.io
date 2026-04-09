@@ -1,0 +1,659 @@
+{
+  "id": "official-8928",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8928",
+    "template_id": 8928
+  },
+  "name": "Generate SEO anchor text suggestions from URLs with Firecrawl and Claude",
+  "description": "📺 Full walkthrough video: https://youtu.be/XUvPeH5LSVU ⚠️ Self hosted only — This template uses a community node (Firecrawl) and cannot run on n8n Cloud.",
+  "category": "AI",
+  "tags": [
+    "Market Research",
+    "Multimodal AI",
+    "Loop Over Items (Split in Batches)",
+    "AI Agent",
+    "Google Sheets",
+    "firecrawl",
+    "Anthropic Chat Model",
+    "Chat Trigger",
+    "generate",
+    "seo",
+    "anchor",
+    "text",
+    "suggestions",
+    "urls"
+  ],
+  "task_keywords": [
+    "generate seo anchor text suggestions from urls with firecrawl and claude",
+    "loop over items (split in batches)",
+    "ai agent",
+    "google sheets",
+    "firecrawl",
+    "anthropic chat model",
+    "chat trigger",
+    "generate seo",
+    "seo anchor",
+    "anchor text",
+    "text suggestions",
+    "suggestions urls"
+  ],
+  "required_services": [
+    "Loop Over Items (Split in Batches)",
+    "AI Agent",
+    "Google Sheets",
+    "firecrawl",
+    "Anthropic Chat Model"
+  ],
+  "triggers": [
+    "Chat Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "393ca9e36a1f81b0f643c72792946a5fe5e49eb4864181ba4032e5a408278263",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "305cbe41-f65f-4c0e-8a34-01002bc44998",
+        "name": "Sticky Note18",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -544,
+          496
+        ],
+        "parameters": {
+          "color": 4,
+          "width": 1136,
+          "height": 144,
+          "content": "# Google Sheets template \n\n## https://docs.google.com/spreadsheets/d/1VNl8xLYgRrNcKrmN9hCdfov1dMnwD44tAALJZAlagCo"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "f5995a32-6aa6-47da-9c7f-cffd0ab6eb14",
+        "name": "Sticky Note16",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -416,
+          -832
+        ],
+        "parameters": {
+          "width": 1024,
+          "height": 400,
+          "content": "![Logo Growth AI](https://cdn.prod.website-files.com/6825df5b20329ba581df4914/68d413c43f8729fa336568a6_Logo_horizontal.png)"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "dd7a815c-f4e9-4e0d-ace3-9818f66c3cdb",
+        "name": "Sticky Note17",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -416,
+          -400
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 1024,
+          "height": 240,
+          "content": "## Need more advanced automation solutions? Contact us for custom enterprise workflows!\n\n# Growth-AI.fr\n\n## https://www.linkedin.com/in/allanvaccarizi/\n## https://www.linkedin.com/in/hugo-marinier-%F0%9F%A7%B2-6537b633/"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "135d226d-5c7b-49bb-9909-3d6cece064e4",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1632,
+          -416
+        ],
+        "parameters": {
+          "width": 480,
+          "height": 896,
+          "content": "## Anchor generator\n\n### How it works\n\n1. A chat message triggers the workflow, which reads URLs and data from a Google Sheet.\n2. The data is filtered to select only rows that need processing, then fed into a loop.\n3. Each URL is scraped with Firecrawl; a status update is written back to the sheet immediately after scraping.\n4. The scraped content is transformed via a code node, then passed to an AI agent (Claude/Anthropic) that generates anchor text suggestions.\n5. The AI-generated anchors are written back to the Google Sheet, and the loop continues with the next item.\n\n### Setup steps\n\n- - [ ] Configure the **Chat Trigger** node (or leave as default for testing in n8n).\n- - [ ] Connect your **Google Sheets** credentials and set the correct spreadsheet ID and sheet name in both 'Ge sheets', 'Update row in sheet', and 'Update row in sheet1' nodes.\n- - [ ] Add your **Firecrawl API key** in the 'Scrape URL with Firecrawl' node credentials.\n- - [ ] Add your **Anthropic API key** in the 'Anthropic Chat Model' sub-node of the AI agent.\n- - [ ] Review the **Filter** node conditions to ensure only unprocessed rows are selected.\n- - [ ] Review the system prompt in the **Générateur d'ancres** agent to customize anchor text generation behavior.\n\n### Customization\n\nYou can swap the Anthropic model for another LLM in the agent sub-node. The Filter node conditions can be adjusted to target different row statuses. The code in 'Transform Scraped Content' can be modified to pre-process the scraped markdown differently before sending it to the AI."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "c6c6a7d6-6045-411a-b790-ce17a6678819",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1104,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 656,
+          "height": 320,
+          "content": "## Trigger and fetch sheet data\n\nA chat message starts the workflow. The Google Sheets node reads all rows from the spreadsheet, then the Filter node removes rows that don't need processing."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "11c21d88-b836-422a-bd0e-3e9cc6ec9aa9",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -368,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 672,
+          "height": 512,
+          "content": "## Loop and scrape URLs\n\nIterates over each filtered row, scrapes the target URL using Firecrawl, and immediately writes a status update back to the sheet to mark the row as in-progress or scraped."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "3f9d02b9-b802-4c06-b1f7-0687729ee9c2",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          336,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 528,
+          "height": 448,
+          "content": "## Transform content and generate anchors\n\nA code node cleans and transforms the raw scraped content, then passes it to an AI agent powered by Anthropic Claude to generate SEO anchor text suggestions."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ee2d2103-3fac-4a23-914e-6a333794b031",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          912,
+          -112
+        ],
+        "parameters": {
+          "color": 7,
+          "width": 400,
+          "height": 416,
+          "content": "## Write anchors back to sheet\n\nSaves the AI-generated anchor text into the corresponding row in Google Sheets, then returns control to the loop to process the next item."
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "8d73ddcf-2d03-4255-bc41-6c691e460a66",
+        "name": "When Chat Message Received",
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "position": [
+          -1056,
+          48
+        ],
+        "webhookId": "181a1719-6394-4157-98ed-3a7a48b23a0a",
+        "parameters": {
+          "mode": "webhook",
+          "public": true,
+          "options": {
+            "responseMode": "responseNode"
+          }
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "f5dbfdf3-d44b-4b45-bf09-766e3f6fbdce",
+        "name": "Filter Eligible Sheet Rows",
+        "type": "n8n-nodes-base.filter",
+        "position": [
+          -592,
+          48
+        ],
+        "parameters": {
+          "options": {},
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "4aa3c2d2-9383-4b0c-a8ee-8a691dcd8744",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.URL }}",
+                "rightValue": ""
+              },
+              {
+                "id": "81017b55-ffb5-497c-8b05-5d2643e3fecd",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.Anchors }}",
+                "rightValue": ""
+              }
+            ]
+          }
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "73042aee-61b9-492f-9f4f-2c58b7d87a38",
+        "name": "Loop Over Rows in Batches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -320,
+          48
+        ],
+        "parameters": {
+          "options": {}
+        },
+        "typeVersion": 3
+      },
+      {
+        "id": "502a5472-050b-4904-9633-eda9cbcbbc08",
+        "name": "Anchor Generator Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          560,
+          48
+        ],
+        "parameters": {
+          "text": "=Page URL: {{ $('Loop Over Rows in Batches').item.json.URL }}\nPage Name/Title: {{ $('Loop Over Rows in Batches').item.json.Page }}\nPage content : {{ $json.markdown_clean }}",
+          "options": {
+            "systemMessage": "# Context\nYou are an SEO expert specialized in internal linking optimization. Your mission is to create optimized link anchors for natural referencing with all their linguistic variations.\n\n# Task\nBased on the scraped content of the web page provided below, first analyze the page to extract the key SEO signals, then generate 10 different SEO anchors with all linguistic variations that can be used to create internal links to this page from other pages of the site.\n\n# Step 1 — Page Analysis (internal, do not output)\nBefore generating anchors, silently identify:\n- **Main topic**: What is the page fundamentally about?\n- **Primary keyword**: The single most important keyword or phrase\n- **Page title / H1**: If present in the scraped content\n- **Secondary keywords**: Supporting terms that appear repeatedly or prominently\n- **Content to ignore**: Navigation, footer, cookie notices, repeated UI elements, external links, ads\n\n# Step 2 — Anchor Generation\n\n## SEO Criteria to Follow:\n- **Semantic relevance**: The anchor must faithfully reflect the content of the target page\n- **Strategic keywords**: Integrate the main keywords identified in Step 1\n- **Naturalness**: The anchor must integrate naturally into text\n- **Diversity**: Vary formulations to avoid over-optimization\n- **Optimal length**: Between 2 and 6 words for maximum efficiency\n\n## Types of Anchors to Create:\n- **Exact anchors**: Use the exact main keyword (2 variants)\n- **Brand/name anchors**: Use the page or section name (2 variants)\n- **Long-tail anchors**: Longer expressions including secondary keywords (3 variants)\n- **Contextual anchors**: Natural formulations for insertion in a paragraph (2 variants)\n- **Call-to-action anchors**: Encourage action while describing content (1 variant)\n\n## Linguistic Variations to Generate for Each Anchor:\nFor each main anchor, systematically generate:\n- Singular/plural variation (if applicable)\n- Gender variation: masculine/feminine (if applicable)\n- Temporal variation: present/past/future (if applicable)\n- Formal/informal variation: formal/casual register\n- Synonymous variation: use of main synonyms\n- Structural variation: word order inversion, addition/removal of articles\n- Prepositional variation: with/without prepositions (to, of, for, on, etc.)\n\n# Desired Output Format\n\nmain anchor 1\nvariation 1\nvariation 2\nvariation 3\nvariation 4\n\nmain anchor 2\nvariation 1\nvariation 2\n...\n\n*(repeat for all 10 anchors)*\n\n# Additional Constraints\n- Anchors must be based exclusively on the actual content of the page — do not invent topics not present\n- Avoid generic anchors (\"click here\", \"learn more\", \"read more\")\n- Don't repeat exactly the same formulation between main anchors and their variations\n- Adapt the language register to the website's tone as inferred from the scraped content\n- Prioritize added value for the user\n- Ensure balanced distribution between different types of anchors\n- Generate 3–5 relevant variations per anchor (not necessarily 4 if certain variations don't apply)\n- Prioritize quality of variations over quantity\n- Do not make an introduction or conclusion — simply return the list of anchors with their variations\n\n# Scraped Page Content\n[PASTE SCRAPED CONTENT HERE]\n\n---\n\nLes deux changements principaux : l'étape d'analyse silencieuse en amont, et la contrainte explicite de ne générer que depuis le contenu réel de la page (évite les hallucinations si le scraping ramène du contenu partiel ou bruité)."
+          },
+          "promptType": "define"
+        },
+        "typeVersion": 2.2
+      },
+      {
+        "id": "b4f6b019-ad63-4d20-acdb-3185ff76cdd5",
+        "name": "Read URLs from Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          -800,
+          48
+        ],
+        "parameters": {
+          "options": {},
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Anchor"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "url",
+            "value": "={{ $('When Chat Message Received').item.json.chatInput }}"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "wBRLUCktxqXE6DVJ",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "fd260386-41a8-4148-9933-e7407368ffe0",
+        "name": "Scrape URL via Firecrawl",
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "onError": "continueErrorOutput",
+        "position": [
+          -80,
+          48
+        ],
+        "parameters": {
+          "url": "={{ $json.URL }}",
+          "operation": "scrape",
+          "requestOptions": {}
+        },
+        "credentials": {
+          "firecrawlApi": {
+            "id": "E34WDB80ik5VHjiI",
+            "name": "Firecrawl account"
+          }
+        },
+        "retryOnFail": true,
+        "typeVersion": 1
+      },
+      {
+        "id": "a1acb5f7-455d-448f-89c9-8b28e38eb2e5",
+        "name": "Parse Scraped Content",
+        "type": "n8n-nodes-base.code",
+        "onError": "continueRegularOutput",
+        "position": [
+          384,
+          48
+        ],
+        "parameters": {
+          "jsCode": "// Code pour node \"Code\" dans n8n\n// Nettoie le markdown en supprimant les liens, URLs et texte indésirable\n\n// Récupérer le markdown depuis l'item d'entrée\nconst markdown = $input.item.json.data.markdown;\n\n// Fonction pour nettoyer le markdown\nfunction cleanMarkdown(text) {\n  if (!text) return '';\n  \n  let cleaned = text;\n  \n  // 1. Supprimer \"Passer au contenu principal\" et \"Aller au contenu\" (insensible à la casse)\n  cleaned = cleaned.replace(/passer au contenu principal/gi, '');\n  cleaned = cleaned.replace(/aller au contenu/gi, '');\n  \n  // 2. Convertir les liens markdown [texte](url) en texte simple\n  // Garde le texte entre [], supprime les [] et (url)\n  cleaned = cleaned.replace(/\\[([^\\]]+)\\]\\([^\\)]+\\)/g, '$1');\n  \n  // 3. Supprimer les crochets restants [] et garder leur contenu\n  cleaned = cleaned.replace(/\\[([^\\]]+)\\]/g, '$1');\n  \n  // 4. Supprimer les URLs standalone (http://, https://, www.)\n  cleaned = cleaned.replace(/https?:\\/\\/[^\\s)]+/g, '');\n  cleaned = cleaned.replace(/www\\.[^\\s)]+/g, '');\n  \n  // 5. Supprimer les parenthèses qui contiennent des URLs résiduelles\n  cleaned = cleaned.replace(/\\([^)]*(?:http|www)[^)]*\\)/g, '');\n  \n  // 6. Nettoyer les espaces multiples créés par les suppressions\n  cleaned = cleaned.replace(/  +/g, ' ');\n  \n  // 7. Nettoyer les lignes vides multiples\n  cleaned = cleaned.replace(/\\n{3,}/g, '\\n\\n');\n  \n  // 8. Supprimer les espaces en début/fin de lignes\n  cleaned = cleaned.split('\\n').map(line => line.trim()).join('\\n');\n  \n  // 9. Supprimer les espaces en début/fin du texte\n  cleaned = cleaned.trim();\n  \n  return cleaned;\n}\n\n// Appliquer le nettoyage\nconst cleanedMarkdown = cleanMarkdown(markdown);\n\n// IMPORTANT : Retourner un TABLEAU contenant l'item\n// Cela préserve le \"pairing\" avec les items précédents\nreturn [{\n  json: {\n    markdown_clean: cleanedMarkdown,\n  }\n}];"
+        },
+        "typeVersion": 2,
+        "alwaysOutputData": false
+      },
+      {
+        "id": "ecf3cfd5-642c-4ab8-a51f-db3f0f08e994",
+        "name": "Update Scrape Status in Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          160,
+          240
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "Anchors": "Can't scrape the page",
+              "row_number": 0
+            },
+            "schema": [
+              {
+                "id": "Page",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Page",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "URL",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "URL",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Anchors",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Anchors",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": true,
+                "required": false,
+                "displayName": "row_number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "update",
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Anchor"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "url",
+            "value": "={{ $('When Chat Message Received').item.json.chatInput }}"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "wBRLUCktxqXE6DVJ",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "332da064-8104-4af0-af81-0e54cdbba3fe",
+        "name": "Save Anchors to Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          1072,
+          48
+        ],
+        "parameters": {
+          "columns": {
+            "value": {
+              "Anchors": "={{ $json.output }}",
+              "row_number": "={{ $('Loop Over Rows in Batches').item.json.row_number }}"
+            },
+            "schema": [
+              {
+                "id": "Page",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "Page",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "URL",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "required": false,
+                "displayName": "URL",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Anchors",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Anchors",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": true,
+                "required": false,
+                "displayName": "row_number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "row_number"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "update",
+          "sheetName": {
+            "__rl": true,
+            "mode": "name",
+            "value": "Anchor"
+          },
+          "documentId": {
+            "__rl": true,
+            "mode": "url",
+            "value": "={{ $('When Chat Message Received').item.json.chatInput }}"
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "wBRLUCktxqXE6DVJ",
+            "name": "Google Sheets account"
+          }
+        },
+        "typeVersion": 4.7
+      },
+      {
+        "id": "fc1c20c8-9641-4b7b-ab4e-ab7fa12c6056",
+        "name": "Claude Sonnet 4.6 Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "position": [
+          560,
+          208
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "claude-sonnet-4-6",
+            "cachedResultName": "Claude Sonnet 4.6"
+          },
+          "options": {}
+        },
+        "credentials": {
+          "anthropicApi": {
+            "id": "WXQf5QsxCs3AyxlW",
+            "name": "Anthropic account"
+          }
+        },
+        "typeVersion": 1.3
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Parse Scraped Content": {
+        "main": [
+          [
+            {
+              "node": "Anchor Generator Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read URLs from Sheets": {
+        "main": [
+          [
+            {
+              "node": "Filter Eligible Sheet Rows",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Anchor Generator Agent": {
+        "main": [
+          [
+            {
+              "node": "Save Anchors to Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save Anchors to Sheets": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Rows in Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude Sonnet 4.6 Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Anchor Generator Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape URL via Firecrawl": {
+        "main": [
+          [
+            {
+              "node": "Parse Scraped Content",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update Scrape Status in Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Rows in Batches": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Scrape URL via Firecrawl",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Eligible Sheet Rows": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Rows in Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When Chat Message Received": {
+        "main": [
+          [
+            {
+              "node": "Read URLs from Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Scrape Status in Sheets": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Rows in Batches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "id": "official-1376",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1376",
+    "template_id": 1376
+  },
+  "name": "Share jokes on Twitter automatically",
+  "description": "This Workflows share a Jokes on Twitter with DadJokes API or BlaBlagues API for ImageJokes",
+  "category": "Marketing",
+  "tags": [
+    "Social Media",
+    "Cron",
+    "X (Formerly Twitter)",
+    "Cron Trigger",
+    "share",
+    "jokes",
+    "twitter",
+    "automatically",
+    "workflows"
+  ],
+  "task_keywords": [
+    "share jokes on twitter automatically",
+    "cron",
+    "x (formerly twitter)",
+    "cron trigger",
+    "share jokes",
+    "jokes twitter",
+    "twitter automatically",
+    "automatically workflows",
+    "workflows share",
+    "twitter dadjokes",
+    "dadjokes blablagues",
+    "blablagues imagejokes"
+  ],
+  "required_services": [
+    "Cron",
+    "X (Formerly Twitter)"
+  ],
+  "triggers": [
+    "Cron Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "Request blablagues",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          750,
+          250
+        ],
+        "parameters": {
+          "url": "https://api.blablagues.net/?rub=images",
+          "options": {},
+          "responseFormat": "string"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Recup image",
+        "type": "n8n-nodes-base.httpRequest",
+        "position": [
+          1000,
+          250
+        ],
+        "parameters": {
+          "url": "={{$node[\"Request blablagues\"].json[\"data\"][\"data\"][\"content\"][\"media\"]}}",
+          "options": {},
+          "responseFormat": "file"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "At 17H image jokes",
+        "type": "n8n-nodes-base.cron",
+        "position": [
+          500,
+          250
+        ],
+        "parameters": {
+          "triggerTimes": {
+            "item": [
+              {
+                "hour": 17
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Tweet image jokes",
+        "type": "n8n-nodes-base.twitter",
+        "position": [
+          1250,
+          250
+        ],
+        "parameters": {
+          "text": "={{$node[\"Request blablagues\"].json[\"data\"][\"data\"][\"content\"][\"text\"]}}",
+          "additionalFields": {
+            "attachments": "data"
+          }
+        },
+        "credentials": {
+          "twitterOAuth1Api": {
+            "id": "",
+            "name": ""
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Recup image": {
+        "main": [
+          [
+            {
+              "node": "Tweet image jokes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "At 17H image jokes": {
+        "main": [
+          [
+            {
+              "node": "Request blablagues",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Request blablagues": {
+        "main": [
+          [
+            {
+              "node": "Recup image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

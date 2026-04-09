@@ -1,0 +1,99 @@
+{
+  "id": "official-514",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/514",
+    "template_id": 514
+  },
+  "name": "Get first and last names from Facebook Graph API",
+  "description": "Companion workflow for Facebook node docs",
+  "category": "Productivity",
+  "tags": [
+    "Market Research",
+    "manual",
+    "Facebook Graph API",
+    "Manual Trigger",
+    "first",
+    "last",
+    "names",
+    "facebook",
+    "graph",
+    "companion"
+  ],
+  "task_keywords": [
+    "get first and last names from facebook graph api",
+    "manual",
+    "facebook graph api",
+    "manual trigger",
+    "first last",
+    "last names",
+    "names facebook",
+    "facebook graph",
+    "graph companion",
+    "companion workflow",
+    "workflow facebook",
+    "facebook node"
+  ],
+  "required_services": [
+    "manual",
+    "Facebook Graph API"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Facebook Graph API",
+        "type": "n8n-nodes-base.facebookGraphApi",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "node": "me",
+          "options": {
+            "fields": {
+              "field": [
+                {
+                  "name": "last_name"
+                },
+                {
+                  "name": "first_name"
+                }
+              ]
+            }
+          }
+        },
+        "credentials": {
+          "facebookGraphApi": "graph_credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Facebook Graph API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

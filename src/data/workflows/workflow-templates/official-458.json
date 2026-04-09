@@ -1,0 +1,88 @@
+{
+  "id": "official-458",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/458",
+    "template_id": 458
+  },
+  "name": "Run a SQL query on Postgres",
+  "description": "Companion Workflow for Postgres node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Postgres",
+    "Manual Trigger",
+    "run",
+    "sql",
+    "query",
+    "postgres",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "run a sql query on postgres",
+    "manual",
+    "postgres",
+    "manual trigger",
+    "run sql",
+    "sql query",
+    "query postgres",
+    "postgres companion",
+    "companion workflow",
+    "workflow postgres",
+    "postgres node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Postgres"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          300
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Postgres",
+        "type": "n8n-nodes-base.postgres",
+        "position": [
+          450,
+          300
+        ],
+        "parameters": {
+          "query": "SELECT * from sometable;",
+          "operation": "executeQuery"
+        },
+        "credentials": {
+          "postgres": "postgres-creds"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Postgres",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

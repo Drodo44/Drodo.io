@@ -1,0 +1,79 @@
+{
+  "id": "official-588",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/588",
+    "template_id": 588
+  },
+  "name": "Execute another workflow",
+  "description": "Companion workflow for Execute Workflow node docs",
+  "category": "Other",
+  "tags": [
+    "Miscellaneous",
+    "manual",
+    "Manual Trigger",
+    "execute",
+    "another",
+    "workflow",
+    "companion"
+  ],
+  "task_keywords": [
+    "execute another workflow",
+    "manual",
+    "manual trigger",
+    "execute another",
+    "another workflow",
+    "workflow companion",
+    "companion workflow",
+    "workflow execute",
+    "execute workflow",
+    "workflow node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          220,
+          340
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Execute Workflow",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "position": [
+          410,
+          340
+        ],
+        "parameters": {
+          "workflowId": "1"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Execute Workflow",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

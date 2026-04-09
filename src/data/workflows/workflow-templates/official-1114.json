@@ -1,0 +1,150 @@
+{
+  "id": "official-1114",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/1114",
+    "template_id": 1114
+  },
+  "name": "Create, update and get a task in Microsoft To Do",
+  "description": "This workflow allows you to create, update and get a task in Microsoft To Do.",
+  "category": "Productivity",
+  "tags": [
+    "Personal Productivity",
+    "manual",
+    "Microsoft To Do",
+    "Manual Trigger",
+    "create",
+    "update",
+    "task",
+    "microsoft",
+    "workflow",
+    "allows"
+  ],
+  "task_keywords": [
+    "create, update and get a task in microsoft to do",
+    "manual",
+    "create manual",
+    "update manual",
+    "microsoft to do",
+    "create microsoft to do",
+    "update microsoft to do",
+    "manual trigger",
+    "create update",
+    "update task",
+    "task microsoft",
+    "microsoft workflow"
+  ],
+  "required_services": [
+    "manual",
+    "Microsoft To Do"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          200
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft To Do",
+        "type": "n8n-nodes-base.microsoftToDo",
+        "position": [
+          450,
+          200
+        ],
+        "parameters": {
+          "title": "Document Microsoft To Do node",
+          "operation": "create",
+          "taskListId": "AQMkADAwATNiZmYAZC0zOTkAMy02ZWZjLTAwAi0wMAoALgAAA3i1fHMTrftIhQBzhywL64UBAFB0wRiJW1FJmmlvlAkVFQA-AAACARIAAAA=",
+          "additionalFields": {
+            "importance": "high"
+          }
+        },
+        "credentials": {
+          "microsoftToDoOAuth2Api": "Microsoft OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft To Do1",
+        "type": "n8n-nodes-base.microsoftToDo",
+        "position": [
+          650,
+          200
+        ],
+        "parameters": {
+          "taskId": "={{$json[\"id\"]}}",
+          "operation": "update",
+          "taskListId": "={{$node[\"Microsoft To Do\"].parameter[\"taskListId\"]}}",
+          "updateFields": {
+            "status": "inProgress"
+          }
+        },
+        "credentials": {
+          "microsoftToDoOAuth2Api": "Microsoft OAuth Credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Microsoft To Do2",
+        "type": "n8n-nodes-base.microsoftToDo",
+        "position": [
+          850,
+          200
+        ],
+        "parameters": {
+          "taskId": "={{$json[\"id\"]}}",
+          "taskListId": "={{$node[\"Microsoft To Do\"].parameter[\"taskListId\"]}}"
+        },
+        "credentials": {
+          "microsoftToDoOAuth2Api": "Microsoft OAuth Credentials"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Microsoft To Do": {
+        "main": [
+          [
+            {
+              "node": "Microsoft To Do1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Microsoft To Do1": {
+        "main": [
+          [
+            {
+              "node": "Microsoft To Do2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Microsoft To Do",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

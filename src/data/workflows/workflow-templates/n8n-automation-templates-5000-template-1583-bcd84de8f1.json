@@ -1,0 +1,160 @@
+{
+  "id": "n8n-automation-templates-5000-template-1583-bcd84de8f1",
+  "source": {
+    "type": "github",
+    "repository": "ritik-prog/n8n-automation-templates-5000",
+    "repository_stars": 341,
+    "path": "Templates based on paltforms/Moodle/education_1583_schedule_trigger_moodle.json",
+    "url": "https://github.com/ritik-prog/n8n-automation-templates-5000/blob/main/Templates based on paltforms/Moodle/education_1583_schedule_trigger_moodle.json"
+  },
+  "name": "Template 1583",
+  "description": "n8n workflow template from ritik-prog/n8n-automation-templates-5000: Template 1583",
+  "category": "AI",
+  "tags": [
+    "Templates based on paltforms",
+    "Moodle",
+    "schedule",
+    "moodle",
+    "openai",
+    "philipshue",
+    "schedule Trigger",
+    "template",
+    "1583",
+    "n8n",
+    "workflow",
+    "ritik"
+  ],
+  "task_keywords": [
+    "template 1583",
+    "schedule",
+    "moodle",
+    "openai",
+    "philipshue",
+    "schedule trigger",
+    "1583 n8n",
+    "n8n workflow",
+    "workflow template",
+    "template ritik",
+    "ritik prog",
+    "prog n8n"
+  ],
+  "required_services": [
+    "schedule",
+    "moodle",
+    "openai",
+    "philipshue"
+  ],
+  "triggers": [
+    "schedule Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "name": "Template 1583",
+    "nodes": [
+      {
+        "parameters": {
+          "interval": 1440
+        },
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          300,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Moodle",
+        "type": "n8n-nodes-base.moodle",
+        "typeVersion": 1,
+        "position": [
+          600,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-3.5-turbo",
+          "prompt": "Based on sentiment, change Philips Hue light color to set the mood."
+        },
+        "name": "OpenAI",
+        "type": "n8n-nodes-base.openai",
+        "typeVersion": 1,
+        "position": [
+          1200,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "name": "Philips Hue",
+        "type": "n8n-nodes-base.philipshue",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Moodle",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Moodle": {
+        "main": [
+          [
+            {
+              "node": "OpenAI",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI": {
+        "main": [
+          [
+            {
+              "node": "Philips Hue",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {},
+    "id": 1583
+  }
+}

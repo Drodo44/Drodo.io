@@ -1,0 +1,805 @@
+{
+  "id": "official-8396",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/8396",
+    "template_id": 8396
+  },
+  "name": "AI-powered invoice extractor via Telegram to Airtable",
+  "description": "📄 Description This workflow automates the extraction of structured invoice data from PDF files sent via Telegram and stores it in Airtable.",
+  "category": "AI",
+  "tags": [
+    "Invoice Processing",
+    "OpenAI Chat Model",
+    "Simple Memory",
+    "airtable",
+    "Telegram",
+    "Edit Fields (Set)",
+    "AI Agent",
+    "Telegram Trigger",
+    "powered",
+    "invoice",
+    "extractor",
+    "via",
+    "telegram"
+  ],
+  "task_keywords": [
+    "ai-powered invoice extractor via telegram to airtable",
+    "openai chat model",
+    "simple memory",
+    "airtable",
+    "telegram",
+    "edit fields (set)",
+    "ai agent",
+    "telegram trigger",
+    "powered invoice",
+    "invoice extractor",
+    "extractor via",
+    "via telegram"
+  ],
+  "required_services": [
+    "OpenAI Chat Model",
+    "Simple Memory",
+    "airtable",
+    "Telegram",
+    "Edit Fields (Set)",
+    "AI Agent"
+  ],
+  "triggers": [
+    "Telegram Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "meta": {
+      "instanceId": "93492ad7b85fe52ec3ead1e96f0add030f2389fbe9175f2fc6dc08fb0457b641",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "189e5268-10ed-4031-82d0-1b8e3e357b54",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          1552,
+          688
+        ],
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o",
+            "cachedResultName": "gpt-4o"
+          },
+          "options": {}
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "049ecc9f-4b50-4816-85de-de014d5d67bd",
+        "name": "Simple Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "position": [
+          1712,
+          688
+        ],
+        "parameters": {
+          "sessionKey": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+          "sessionIdType": "customKey"
+        },
+        "typeVersion": 1.3
+      },
+      {
+        "id": "a2fc4040-1e46-4dcf-a737-a5daf958b3d3",
+        "name": "Create Line Item1",
+        "type": "n8n-nodes-base.airtableTool",
+        "position": [
+          2032,
+          688
+        ],
+        "parameters": {
+          "base": {
+            "__rl": true,
+            "mode": "list",
+            "value": "appG8Paox9E4p7vMR",
+            "cachedResultUrl": "https://airtable.com/appG8Paox9E4p7vMR",
+            "cachedResultName": "Invoice Tracker Proper"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "tblVqPbTLM5IgTnyW",
+            "cachedResultUrl": "https://airtable.com/appG8Paox9E4p7vMR/tblVqPbTLM5IgTnyW",
+            "cachedResultName": "Line Items"
+          },
+          "columns": {
+            "value": {
+              "Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity', `number only`, 'number') }}",
+              "Sub Total": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sub_Total', `number only`, 'number') }}",
+              "Unit Type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Unit_Type', ``, 'string') }}",
+              "Unit Price": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Unit_Price', `number only`, 'number') }}",
+              "Description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+              "Product Code": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_Code', ``, 'string') }}",
+              "Invoice (linked)": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Invoice__linked_', ``, 'string') }}"
+            },
+            "schema": [
+              {
+                "id": "Product Code",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Product Code",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Invoice Number (from Invoice (linked)) 2",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "readOnly": true,
+                "required": false,
+                "displayName": "Invoice Number (from Invoice (linked)) 2",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Invoice Date (from Invoice (linked))",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "readOnly": true,
+                "required": false,
+                "displayName": "Invoice Date (from Invoice (linked))",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Supplier (from Invoice (linked)) 2",
+                "type": "string",
+                "display": true,
+                "removed": true,
+                "readOnly": true,
+                "required": false,
+                "displayName": "Supplier (from Invoice (linked)) 2",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Description",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Description",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Unit Price",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Unit Price",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Quantity",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Quantity",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Unit Type",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Unit Type",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Sub Total",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Sub Total",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Invoice (linked)",
+                "type": "array",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Invoice (linked)",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "create",
+          "descriptionType": "manual",
+          "toolDescription": "Create line items in Airtable"
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "8b7727e5-d8a6-45c6-ab3a-ca0d9aaad5cf",
+        "name": "Create Invoice1",
+        "type": "n8n-nodes-base.airtableTool",
+        "position": [
+          1872,
+          720
+        ],
+        "parameters": {
+          "base": {
+            "__rl": true,
+            "mode": "list",
+            "value": "appG8Paox9E4p7vMR",
+            "cachedResultUrl": "https://airtable.com/appG8Paox9E4p7vMR",
+            "cachedResultName": "Invoice Tracker Proper"
+          },
+          "table": {
+            "__rl": true,
+            "mode": "list",
+            "value": "tblKpTcfWab8jl8Ru",
+            "cachedResultUrl": "https://airtable.com/appG8Paox9E4p7vMR/tblKpTcfWab8jl8Ru",
+            "cachedResultName": "Invoices"
+          },
+          "columns": {
+            "value": {
+              "Due Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Due_Date', ``, 'string') }}",
+              "Supplier": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Supplier', ``, 'string') }}",
+              "PO Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('PO_Number', ``, 'string') }}",
+              "Total Tax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Total_Tax', ``, 'number') }}",
+              "Invoice Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Invoice_Date', ``, 'string') }}",
+              "Total Amount": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Total_Amount', ``, 'number') }}",
+              "Delivery Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Delivery_Date', ``, 'string') }}",
+              "Receiver Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Receiver_Name', ``, 'string') }}",
+              "Invoice Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Invoice_Number', ``, 'string') }}",
+              "Supplier Tax ID": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Supplier_Tax_ID', ``, 'string') }}",
+              "Receiver Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Receiver_Address', ``, 'string') }}",
+              "Supplier Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Supplier_Address', ``, 'string') }}"
+            },
+            "schema": [
+              {
+                "id": "Invoice Number",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Invoice Number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Invoice Date",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Invoice Date",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Receiver Name",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Receiver Name",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Supplier",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Supplier",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Supplier Address",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Supplier Address",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Supplier Tax ID",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Supplier Tax ID",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "PO Number",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "PO Number",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Receiver Address",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Receiver Address",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Delivery Date",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Delivery Date",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Due Date",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Due Date",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Total Tax",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Total Tax",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Total Amount",
+                "type": "number",
+                "display": true,
+                "removed": false,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Total Amount",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Line Items",
+                "type": "array",
+                "display": true,
+                "removed": true,
+                "readOnly": false,
+                "required": false,
+                "displayName": "Line Items",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {},
+          "operation": "create",
+          "descriptionType": "manual",
+          "toolDescription": "Create a new invoice record in Airtable"
+        },
+        "typeVersion": 2.1
+      },
+      {
+        "id": "891591f1-c49c-4a07-8e31-897c170ca3d3",
+        "name": "Telegram3",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          2208,
+          448
+        ],
+        "webhookId": "3f60f8f1-081d-4ece-b9e9-49ffb0ab02ce",
+        "parameters": {
+          "text": "={{ $json.output }}",
+          "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+          "additionalFields": {}
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "8d8a2f8e-c597-4c1c-b3b5-ef885a34fb58",
+        "name": "Edit Fields1",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          1424,
+          448
+        ],
+        "parameters": {
+          "options": {},
+          "assignments": {
+            "assignments": [
+              {
+                "id": "1fcca79e-3f1a-4f0f-a3c2-1c066ad6fcc3",
+                "name": "Message",
+                "type": "string",
+                "value": "={{ $json.text }} {{ $json.message.text }}"
+              },
+              {
+                "id": "e8adf125-46bd-4579-a4c9-7f2cea533b0f",
+                "name": "memory_id",
+                "type": "string",
+                "value": "={{ $json.message.chat.id }}"
+              }
+            ]
+          }
+        },
+        "typeVersion": 3.4
+      },
+      {
+        "id": "464bf8e2-36b8-4fac-a8f5-aa6534a33ba6",
+        "name": "Telegram2",
+        "type": "n8n-nodes-base.telegram",
+        "position": [
+          976,
+          304
+        ],
+        "webhookId": "2e4d1e34-c4d0-43de-9e4d-609274803532",
+        "parameters": {
+          "fileId": "={{ $json.message.document.file_id }}",
+          "resource": "file",
+          "additionalFields": {}
+        },
+        "typeVersion": 1.2
+      },
+      {
+        "id": "22233cf2-bea7-4e63-99ee-6fb4362ec5a5",
+        "name": "Extract from File1",
+        "type": "n8n-nodes-base.extractFromFile",
+        "position": [
+          1184,
+          288
+        ],
+        "parameters": {
+          "options": {},
+          "operation": "pdf"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "66f8e4dc-87ab-4aef-bbb6-092b9e9c2aa9",
+        "name": "Switch1",
+        "type": "n8n-nodes-base.switch",
+        "position": [
+          768,
+          448
+        ],
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "version": 2,
+                    "leftValue": "",
+                    "caseSensitive": true,
+                    "typeValidation": "strict"
+                  },
+                  "combinator": "and",
+                  "conditions": [
+                    {
+                      "id": "4718cf27-1e39-40f9-b77d-4cdb3032e051",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "leftValue": "={{ $json.message.document.mime_type }}",
+                      "rightValue": "=application/pdf"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "options": {
+            "fallbackOutput": "extra"
+          }
+        },
+        "typeVersion": 3.2
+      },
+      {
+        "id": "9a9456f2-822d-49dc-bef7-c388fa305a25",
+        "name": "Telegram Trigger1",
+        "type": "n8n-nodes-base.telegramTrigger",
+        "position": [
+          544,
+          448
+        ],
+        "webhookId": "9f56f20f-4a13-4826-aac7-c17056341c2b",
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {}
+        },
+        "typeVersion": 1.1
+      },
+      {
+        "id": "dfe45125-5b47-49ac-a554-b711877d9dd0",
+        "name": "AI Agent1",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          1744,
+          448
+        ],
+        "parameters": {
+          "text": "={{ $json.Message }}",
+          "options": {
+            "systemMessage": "=You are a helpful assistant that extracts structured data from invoices and logs it into Airtable.\n\n⸻\n\n🧑‍💼 Step 1: Ask for the Company or Individual Name\n\nBefore we begin, please provide the company or individual name associated with this invoice.\n\nWait for the user’s input and store this as client_name.\n\n⸻\n\n📎 Step 2: Ask for Invoice Upload\n\nNow, please upload the invoice.\n\nOnce uploaded, continue with data extraction.\n\n⸻\n\n📤 Step 3: Extract Invoice-Level Information\n\nFrom the invoice, extract the following fields and prepare to create a record in the Invoices table:\n\t•\tInvoice Number\n\t•\tInvoice Date\n\t•\tSupplier\n\t•\tSupplier Address\n\t•\tSupplier Tax ID\n\t•\tPO Number\n\t•\tDue Date\n\t•\tTotal Tax (as number only, no currency symbols)\n\t•\tTotal Amount (as number only, no currency symbols)\n\t•\tClient Name (use the input from Step 1)\n\nUse the Create Invoice tool and remember the returned record ID.\n\n⸻\n\n🧾 Step 4: Extract Each Line Item\n\nUse the Create Item tool for each item and extract the following data:\n - product code\n - description\n - unit price\n - quantity\n - unit type\n - sub total\nalso use the record id returned from the Create Invoice tool, wrapped in an array: [value]. This should be passed to the Invoice (linked) field as an array to create the relationship.\n\nIgnore zero quantity items.\n\n⸻\n\n⚠️ Important Data Format Rules:\n- Total Tax and Total Amount must be numbers only (no currency symbols)\n- Invoice_linked must be a JSON array string containing the invoice record ID: [\"rec123abc\"]\n- All date fields should be in YYYY-MM-DD format\n- If any field is missing, use \"MISSING\" as the value\n\n⚠️ Critical: When providing the Invoice_linked value, you MUST format it as a JSON array string like this: [\"rec123abc\"] where rec123abc is the actual record ID returned from the Create Invoice tool."
+          },
+          "promptType": "define"
+        },
+        "typeVersion": 1.7
+      },
+      {
+        "id": "b72a51ed-2565-44f5-a604-404b7cce3464",
+        "name": "Setup Requirements",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          176,
+          -144
+        ],
+        "parameters": {
+          "width": 300,
+          "height": 474,
+          "content": "📋 SETUP REQUIREMENTS\n\n🔧 Prerequisites:\n• Telegram Bot Token (from @BotFather)\n• OpenAI API Key (GPT-4o model access)\n• Airtable Account with API access\n\n📊 Airtable Setup:\n• Base: 'Invoice Tracker Proper' (appG8Paox9E4p7vMR)\n• Table 1: 'Invoices' (tblKpTcfWab8jl8Ru)\n• Table 2: 'Line Items' (tblVqPbTLM5IgTnyW)\n• Ensure tables have all required fields as defined in nodes\n\n🔐 Credentials Needed:\n• Telegram Bot credentials\n• OpenAI API credentials\n• Airtable API credentials"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "ea014ffe-0cfc-4b11-9f30-25540383525c",
+        "name": "Workflow Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          496,
+          -144
+        ],
+        "parameters": {
+          "width": 300,
+          "height": 472,
+          "content": "🤖 INVOICE CATEGORISER WORKFLOW\n\n📝 Purpose:\nAutomatically extracts invoice data from PDF files sent via Telegram and stores structured data in Airtable\n\n🔄 Process Flow:\n1. Telegram message received\n2. Check if PDF attachment exists\n3. Extract text from PDF\n4. AI processes and extracts data\n5. Create invoice record in Airtable\n6. Create line items in Airtable\n7. Send confirmation to user\n\n💡 Features:\n• PDF text extraction\n• AI-powered data extraction\n• Structured Airtable storage\n• Conversational memory\n• Error handling"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "e3a61fbb-0fb3-4a5a-baba-a308aa9abac7",
+        "name": "Usage Instructions",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          176,
+          352
+        ],
+        "parameters": {
+          "width": 300,
+          "height": 524,
+          "content": "📱 HOW TO USE\n\n1️⃣ Start Conversation:\n• Send any message to the Telegram bot\n• Bot will ask for company/individual name\n\n2️⃣ Upload Invoice:\n• Send PDF invoice as file attachment\n• Bot will automatically process the document\n\n3️⃣ Data Extraction:\n• AI extracts invoice header information\n• AI extracts all line items\n• Data is automatically saved to Airtable\n\n4️⃣ Confirmation:\n• Bot sends confirmation message\n• Check Airtable for extracted data\n\n⚠️ Important:\n• Only PDF files are supported\n• Ensure invoice is clear and readable\n• Bot remembers conversation context"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "a4a18c9d-f8f3-44a4-b497-c8bd3ead9b53",
+        "name": "Data Structure",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1232,
+          -208
+        ],
+        "parameters": {
+          "width": 280,
+          "height": 440,
+          "content": "📊 AIRTABLE DATA STRUCTURE\n\n📋 Invoices Table Fields:\n• Invoice Number, Date, Supplier\n• Supplier Address, Tax ID\n• PO Number, Due Date\n• Receiver Name, Address\n• Total Tax, Total Amount\n• Delivery Date\n\n📦 Line Items Table Fields:\n• Product Code, Description\n• Unit Price, Quantity, Unit Type\n• Sub Total\n• Invoice (linked to Invoices table)\n\n🔗 Relationships:\n• Line Items linked to parent Invoice\n• One-to-many relationship\n• Automatic record linking via AI"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "00cc68f8-d71e-49fe-9a14-86159a111c7d",
+        "name": "Troubleshooting",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1568,
+          -272
+        ],
+        "parameters": {
+          "width": 280,
+          "height": 590,
+          "content": "🔧 TROUBLESHOOTING\n\n❌ Common Issues:\n\n📄 PDF Not Processing:\n• Check file is actually PDF format\n• Ensure file size is reasonable\n• Verify PDF contains readable text\n\n🤖 AI Not Responding:\n• Check OpenAI API key validity\n• Verify GPT-4o model access\n• Check API usage limits\n\n📊 Airtable Errors:\n• Verify base and table IDs\n• Check field names match exactly\n• Ensure API permissions are correct\n\n💬 Telegram Issues:\n• Verify bot token is active\n• Check webhook configuration\n• Ensure bot has message permissions\n\n🔄 Memory Issues:\n• Each chat has separate memory\n• Memory persists across sessions\n• Clear by restarting workflow"
+        },
+        "typeVersion": 1
+      },
+      {
+        "id": "1c1abbbd-b162-4803-9b90-28e663424a61",
+        "name": "Configuration Notes",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          864,
+          -288
+        ],
+        "parameters": {
+          "width": 300,
+          "height": 544,
+          "content": "⚙️ CONFIGURATION NOTES\n\n🎯 AI Agent Settings:\n• Uses GPT-4o model for accuracy\n• Structured prompts for consistency\n• Memory enabled for context\n• Tools connected for Airtable operations\n\n📋 Data Validation:\n• Numbers extracted without currency symbols\n• Dates in YYYY-MM-DD format\n• Missing fields marked as 'MISSING'\n• Zero quantity items ignored\n\n🔄 Workflow Logic:\n• Switch node filters PDF files only\n• Extract from File handles PDF parsing\n• Edit Fields prepares data for AI\n• AI Agent orchestrates the entire process\n\n⚡ Performance Tips:\n• Keep PDF files under 10MB\n• Use clear, high-quality scans\n• Ensure text is machine-readable"
+        },
+        "typeVersion": 1
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Switch1": {
+        "main": [
+          [
+            {
+              "node": "Telegram2",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent1": {
+        "main": [
+          [
+            {
+              "node": "Telegram3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram2": {
+        "main": [
+          [
+            {
+              "node": "Extract from File1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields1": {
+        "main": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Invoice1": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Line Item1": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Trigger1": {
+        "main": [
+          [
+            {
+              "node": "Switch1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract from File1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

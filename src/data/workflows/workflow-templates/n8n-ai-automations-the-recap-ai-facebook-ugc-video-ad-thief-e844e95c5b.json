@@ -1,0 +1,1353 @@
+{
+  "id": "n8n-ai-automations-the-recap-ai-facebook-ugc-video-ad-thief-e844e95c5b",
+  "source": {
+    "type": "github",
+    "repository": "lucaswalter/n8n-ai-automations",
+    "repository_stars": 1434,
+    "path": "facebook_ugc_video_ad_thief.json",
+    "url": "https://github.com/lucaswalter/n8n-ai-automations/blob/main/facebook_ugc_video_ad_thief.json"
+  },
+  "name": "The Recap AI - Facebook UGC Video Ad Thief",
+  "description": "n8n workflow template from lucaswalter/n8n-ai-automations: The Recap AI - Facebook UGC Video Ad Thief",
+  "category": "AI",
+  "tags": [
+    "form",
+    "firecrawl",
+    "chain Llm",
+    "Google Gemini",
+    "google Docs",
+    "Anthropic",
+    "google Drive",
+    "form Trigger",
+    "recap",
+    "facebook",
+    "ugc",
+    "video",
+    "thief",
+    "n8n"
+  ],
+  "task_keywords": [
+    "the recap ai - facebook ugc video ad thief",
+    "form",
+    "firecrawl",
+    "chain llm",
+    "google gemini",
+    "google docs",
+    "anthropic",
+    "google drive",
+    "form trigger",
+    "recap facebook",
+    "facebook ugc",
+    "ugc video"
+  ],
+  "required_services": [
+    "form",
+    "firecrawl",
+    "chain Llm",
+    "Google Gemini",
+    "google Docs",
+    "Anthropic",
+    "google Drive"
+  ],
+  "triggers": [
+    "form Trigger"
+  ],
+  "complexity": "complex",
+  "workflow": {
+    "name": "The Recap AI - Facebook UGC Video Ad Thief",
+    "nodes": [
+      {
+        "parameters": {
+          "formTitle": "Brand Form",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Brand Website URL",
+                "placeholder": "https://www.greenies.com/",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Google Drive Folder Id",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.3,
+        "position": [
+          192,
+          32
+        ],
+        "id": "dc72390c-3a1d-44fb-b309-46eeb9ea8534",
+        "name": "brand_form_trigger",
+        "webhookId": "3f74485c-07fc-4492-9296-738cf750a2f1"
+      },
+      {
+        "parameters": {
+          "operation": "map",
+          "url": "={{ $json['Brand Website URL'] }}",
+          "additionalFields": {
+            "customProperties": "={\n    \"search\": \"home about company mission how it works membership shop\",\n    \"limit\": 20\n  }"
+          },
+          "useCustomBody": true,
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          480,
+          32
+        ],
+        "id": "49297a93-578c-4a16-b2b1-fd6533858d29",
+        "name": "map_website",
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "fieldToSplitOut": "links",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.splitOut",
+        "typeVersion": 1,
+        "position": [
+          784,
+          32
+        ],
+        "id": "63c42dbd-91c8-4065-b871-200256dd6e26",
+        "name": "split_urls"
+      },
+      {
+        "parameters": {
+          "operation": "scrape",
+          "url": "={{ $json.url }}",
+          "scrapeOptions": {
+            "options": {
+              "formats": {
+                "format": [
+                  {}
+                ]
+              },
+              "headers": {}
+            }
+          },
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          1056,
+          32
+        ],
+        "id": "40924556-8b20-41bb-94cc-8d330fa85641",
+        "name": "scrape_urls",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          1328,
+          32
+        ],
+        "id": "6179a787-798f-46af-8d55-c507980d612e",
+        "name": "aggregate_urls"
+      },
+      {
+        "parameters": {
+          "operation": "scrape",
+          "url": "={{ $node['brand_form_trigger'].json['Brand Website URL'] }}",
+          "scrapeOptions": {
+            "options": {
+              "formats": {
+                "format": [
+                  {}
+                ]
+              },
+              "headers": {}
+            }
+          },
+          "requestOptions": {}
+        },
+        "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+        "typeVersion": 1,
+        "position": [
+          1584,
+          32
+        ],
+        "id": "e34fabc3-1293-4b24-96e3-6beb8621c5de",
+        "name": "scrape_home",
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "bac503ec-3577-43a2-9562-b4e63b3fda14",
+                "name": "prompt",
+                "value": "=# ROLE AND GOAL\nYou are an expert Brand Strategist and Marketing Analyst. Your task is to analyze the provided scraped website content from a company or product and synthesize it into a comprehensive Brand Guidelines document. This document's primary purpose is to serve as the foundational context for an AI-powered advertising system. Therefore, your analysis must be sharp, marketing-focused, and extract actionable insights for creating compelling, on-brand ad copy.\n\n# INSTRUCTIONS\n1.  **Adopt the Persona:** Think like a senior marketer building a briefing document for a creative team. Your focus is on clarity, strategy, and actionable direction.\n2.  **Deep Analysis:** Do not just summarize. Read all the provided text to identify recurring themes, key phrases, value propositions, product details, and the underlying brand philosophy.\n3.  **Infer and Synthesize:** The content may not explicitly state everything. You must infer the target audience, brand voice, and strategic positioning based on the language, features, and benefits presented.\n4.  **Structure is Key:** Your output MUST follow the provided Markdown format precisely. This structure is designed to be easily parsed and used for ad generation.\n5.  **Focus on Actionability:** Every piece of information should be useful for writing an ad. For example, instead of just saying \"the brand is friendly,\" specify *how* it's friendly (e.g., \"Uses conversational language, asks questions, and uses words like 'we' and 'you'\").\n\n# OUTPUT FORMAT (Use this exact Markdown structure AND output the final markdown)\n\n# Brand Guidelines: [Company/Product Name - Infer from content]\n\n## 1. Executive Summary & Brand Essence\n- **Brand Essence (The \"Vibe\"):** In 1-2 sentences, what is the core feeling or identity of the brand? (e.g., \"Innovative and empowering,\" \"Reliable and traditional,\" \"Playful and irreverent\").\n- **One-Liner Pitch:** If you had to describe what this company does and for whom in a single sentence, what would it be?\n\n## 2. Company & Mission\n- **Company Mission/Vision:** What is the stated or implied goal of the company? What future are they trying to create?\n- **Core Values:** What principles seem to guide their business and communication? (e.g., Simplicity, Customer-Obsession, Sustainability).\n- **Brand Story (if available):** Is there an origin story or narrative they use to connect with customers?\n\n## 3. Target Audience Profile (Inferred)\n- **Primary Audience:** Describe the ideal customer. Be specific.\n- **Pain Points Addressed:** What specific problems, frustrations, or needs does the brand solve for this audience?\n- **Desired Outcomes:** What does the customer achieve or feel after using the product/service? (e.g., \"Peace of mind,\" \"Increased productivity,\" \"Sense of belonging\").\n\n## 4. Brand Voice & Tone\n- **Voice Adjectives (Pick 3-5):** (e.g., Confident, Enthusiastic, Professional, Witty, Empathetic, Direct, Technical).\n- **Tone Profile:** Describe the general tone. Is it formal or casual? Serious or humorous? Scientific or simple?\n- **Key Phrases & Slogans:** List any recurring taglines, slogans, or unique phrases used throughout the site.\n- **Vocabulary/Lexicon:** List specific words or jargon the brand frequently uses (e.g., \"synergy,\" \"ecosystem,\" \"seamless,\" \"unlock\"). Also, list words they seem to avoid.\n\n## 5. Core Messaging & Value Propositions\n- **Unique Selling Proposition (USP):** What is the single most compelling thing that differentiates this brand/product from its competitors?\n- **Primary Benefits (The \"Why\"):** List the top 3-5 emotional and functional benefits for the customer. (e.g., \"Save 10 hours per week,\" \"Never worry about data loss again,\" \"Impress your clients\").\n- **Supporting Features (The \"How\"):** List the key features that deliver the benefits above.\n\n## 6. Product/Service Breakdown\n*(Repeat this section for each distinct product or service identified)*\n### Product: [Product/Service Name]\n- **Description:** A concise summary of what it is and what it does.\n- **Target User:** Who is this specific product for?\n- **Primary Use Case:** What is the main job this product is hired to do?\n\n## 7. Strategic Advertising Angles\n- **Calls-to-Action (CTAs):** List the common CTAs found on the site (e.g., \"Start Your Free Trial,\" \"Request a Demo,\" \"Shop Now,\" \"Learn More\").\n- **Emotional Hooks:** What emotions does the brand's messaging tap into? (e.g., Fear of Missing Out (FOMO), Aspiration, Trust, Frustration with the status quo).\n- **Objection Handlers (Inferred):** How does the website preemptively address customer doubts or competitor claims? (e.g., Mentions of \"money-back guarantee,\" \"24/7 support,\" social proof, transparent pricing).\n\n---\n**INPUT:**\n\nHere is the scraped website content. Analyze it and generate the brand guidelines.\n\n{{ $node['aggregate_urls'].json.data.map(o => o.data.markdown).join('\\n\\n') }}\n\n{{ $node['scrape_home'].json.data.markdown }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1872,
+          32
+        ],
+        "id": "071c9e39-edc2-4cee-af8f-42216636615f",
+        "name": "build_guidelines_prompt"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.prompt }}",
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          192,
+          320
+        ],
+        "id": "82dbfa07-ef7f-41b2-ab9d-fffd9acaa44f",
+        "name": "write_guidelines"
+      },
+      {
+        "parameters": {
+          "mode": "markdownToHtml",
+          "markdown": "={{ $json.text }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.markdown",
+        "typeVersion": 1,
+        "position": [
+          784,
+          320
+        ],
+        "id": "761c0d0d-da9a-46e0-984e-ae339122277c",
+        "name": "convert_to_html"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "e7ee03ac-13e3-4fca-a7bc-57c8fc56dc42",
+                "name": "document_name",
+                "value": "=Brand Guidelines",
+                "type": "string"
+              },
+              {
+                "id": "48a07ef2-ae46-4bfc-aa7e-d92a74ef46d6",
+                "name": "html_content",
+                "value": "={{ $json.data }}",
+                "type": "string"
+              },
+              {
+                "id": "22b02fba-ba72-423a-b92f-1191a183a554",
+                "name": "drive_folder_id",
+                "value": "={{ $node['brand_form_trigger'].json['Google Drive Folder Id'] }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1056,
+          320
+        ],
+        "id": "df22b63b-4142-4aaa-b87f-39e61683b095",
+        "name": "set_google_doc_values",
+        "notesInFlow": true
+      },
+      {
+        "parameters": {
+          "jsCode": "const boundary = 'divider';\nconst docName = $input.first().json.document_name;\nconst folderId = $input.first().json.drive_folder_id;\nconst htmlContent = $input.first().json.html_content;\n\nconst metadata = JSON.stringify({\n  name: docName,\n  mimeType: \"application/vnd.google-apps.document\",\n  parents: [folderId]\n});\n\nconst htmlWithStyles = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    /* Add bottom margin to block elements for spacing */\n    p,\n    ul,\n    ol,\n    table,\n    h1,\n    h2,\n    h3,\n    h4,\n    h5,\n    h6 {\n      margin-bottom: 10pt;\n    }\n\n    h2 {\n      margin-top: 20pt;\n    }\n\n    /* Prevent margin collapse issues or excessive space inside lists */\n    li {\n       margin-bottom: 2pt; /* Optional: small space between list items */\n    }\n\n    /* Remove margin from the last child within common containers if needed */\n    /* This might be overly aggressive, test without it first */\n    /*\n    body > *:last-child,\n    li > *:last-child {\n       margin-bottom: 0;\n    }\n    */\n  </style>\n</head>\n<body>\n  ${htmlContent}\n</body>\n</html>\n`;\n\n// Construct the body with literal \\r\\n ONLY\nlet body = `--${boundary}\\r\\n`;\nbody += `Content-Type: application/json; charset=UTF-8\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${metadata}\\r\\n`;\nbody += `--${boundary}\\r\\n`;\nbody += `Content-Type: text/html\\r\\n`;\nbody += `\\r\\n`; // Blank line\nbody += `${htmlWithStyles}\\r\\n`; // Add the HTML content\nbody += `--${boundary}--\\r\\n`; // Final boundary\n\nreturn {\n  rawData: body \n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1328,
+          320
+        ],
+        "id": "afea588e-0579-4ee4-ab2f-5c6b84dfdf4e",
+        "name": "build_google_request_data"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://www.googleapis.com/upload/drive/v3/files",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "uploadType",
+                "value": "multipart"
+              },
+              {
+                "name": "supportsAllDrives",
+                "value": "true"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "raw",
+          "rawContentType": "multipart/related; boundary=divider",
+          "body": "={{ $json.rawData }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1584,
+          320
+        ],
+        "id": "067c5f44-8108-4122-96c0-afcf5ea05146",
+        "name": "create_google_doc",
+        "notesInFlow": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "a6740e71-3877-4d31-bd5b-0b81d1394014",
+                "name": "document_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "22fb595c-1b16-4077-ae33-2145aa98bddd",
+                "name": "document_url",
+                "value": "=https://docs.google.com/document/d/{{ $json.id }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1872,
+          320
+        ],
+        "id": "7e5ca22d-8b0f-4d83-a154-a64b57b5b462",
+        "name": "set_result"
+      },
+      {
+        "parameters": {
+          "content": "## Build Brand Guidelines",
+          "height": 704,
+          "width": 2128,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          96,
+          -128
+        ],
+        "typeVersion": 1,
+        "id": "b7be5e78-636f-4615-b1a8-6b1b19e075e7",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-2.5-pro",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          2048,
+          1712
+        ],
+        "id": "7bfc66f0-3dc5-41bb-b19e-33cc25c32667",
+        "name": "gemini-2.5-pro",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "qp1NlMiIctmGD0Uu",
+            "name": "Google Gemini (PaLM)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "formTitle": "Sora 2 Video Ad Form",
+          "formFields": {
+            "values": [
+              {
+                "fieldLabel": "Ad Video File",
+                "fieldType": "file",
+                "multipleFiles": false,
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Product Image",
+                "fieldType": "file",
+                "requiredField": true
+              },
+              {
+                "fieldLabel": "Brand Guidelines Doc Id",
+                "placeholder": "1xyrsH-44WrtvoyStOCE420XEMzeaH5s0OD7-2sLhpl8",
+                "requiredField": true
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.formTrigger",
+        "typeVersion": 2.3,
+        "position": [
+          192,
+          704
+        ],
+        "id": "24e95ec3-8039-4b39-bf40-06c8072c3e64",
+        "name": "generate_video_trigger",
+        "webhookId": "9c447e45-b890-4efa-9701-da92644f26de"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"inline_data\": {\n            \"mime_type\": \"video/mp4\",\n            \"data\": \"{{ $node['convert_video_to_base_64'].json.data }}\"\n          }\n        },\n        {\n          \"text\": {{ JSON.stringify($json.prompt) }}\n        }\n      ]\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1152,
+          704
+        ],
+        "id": "fa25b0e1-21d6-492a-81c1-6426ed0b052b",
+        "name": "analyze_video_ad",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "abcMckGk9RG9i0Ba",
+            "name": "Google Gemini"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "cdaec5e1-7f25-4a40-99da-a43e323cc052",
+                "name": "prompt",
+                "value": "=You are an expert video analyst tasked with creating a \"shot list\" prompt for an AI video generator. Your goal is to deconstruct a provided video into a structured, machine-readable text format that can be used to recreate the video with high fidelity.\n\nYour analysis must be chronological, breaking the video down into distinct shots. A new shot is defined by a camera cut.\n\nAdhere strictly to the following Markdown format for your output.\n\n---\n\n**### Global Context**\n*   **Overall Style:** A 1-2 sentence description of the video's aesthetic (e.g., \"Authentic direct-to-camera UGC ad,\" \"Cinematic product showcase,\" \"Fast-paced, energetic montage\").\n*   **Core Message:** The primary message or call-to-action of the video.\n*   **Key Subjects:** A comma-separated list of the main people, products, or objects featured.\n\n---\n\n**### Shot-by-Shot Breakdown**\n\n**## Shot 1**\n*   **Timestamp:** `[00:00 - 00:00]`\n*   **Visuals:** Describe the scene with objective, sensory language. Detail the setting, subjects, specific actions, and key props. Focus on what is visually present.\n*   **Cinematography:**\n    *   **Shot Type:** (e.g., Close-up, Medium Shot, Wide Shot, POV)\n    *   **Camera Angle:** (e.g., Eye-level, High-angle, Low-angle)\n    *   **Camera Movement:** (e.g., Static, Handheld, Pan Left, Slow Zoom In)\n    *   **Lighting:** (e.g., Bright natural light from a window, Soft studio lighting, Backlit)\n*   **Audio:**\n    *   **Dialogue:** `\"`*Transcribe the exact dialogue for this shot here.*`\"`\n    *   **Soundscape:** (e.g., \"Upbeat synth music,\" \"Product unboxing sounds,\" \"City street ambiance,\" \"None\")\n*   **Post-Production:**\n    *   **On-screen Text:** Describe any text or graphics, including content, font style, and position (e.g., `\"Title: 'My Morning Routine' in a white sans-serif font, top-center of the screen.\"`). If none, state \"None.\"\n    *   **VFX/Transition:** Describe visual effects or the transition into the next shot (e.g., \"Quick Cut,\" \"Zoom transition,\" \"None\").\n\n**## Shot 2**\n*   **Timestamp:** `[00:00 - 00:00]`\n*   **Visuals:** ...\n*   **Cinematography:** ...\n*   **Audio:** ...\n*   **Post-Production:** ...\n\n*(...continue this structure for every shot in the video.)*",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          768,
+          704
+        ],
+        "id": "b11d43c7-ae59-4418-a1e9-a3d7731a0b06",
+        "name": "set_ad_analysis_prompt"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "eccbeb92-af90-4244-8e23-2cd3e2616a07",
+                "name": "result",
+                "value": "={{ $json.candidates[0].content.parts[0].text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1440,
+          704
+        ],
+        "id": "53f7292b-7b90-42f6-82cd-18451752e6ff",
+        "name": "set_ad_analysis_result"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.firecrawl.dev/v1/scrape",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "firecrawlApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"url\": \"https://cookbook.openai.com/examples/sora/sora2_prompting_guide\",\n  \"formats\": [\"json\"],\n  \"excludeTags\": [\"iframe\", \"nav\", \"header\", \"footer\", \"aside\"],\n  \"onlyMainContent\": true,\n  \"timeout\": 360000,\n  \"jsonOptions\": {\n    \"prompt\": \"Identify the main content of the text (i.e., the article or newsletter body). Provide the exact text for that main content verbatim, without summarizing or rewriting any part of it. Exclude all non-essential elements such as banners, headers, footers, calls to action, ads, or purely navigational text. Format this output as markdown using appropriate '#' characters as heading levels. Exclude any promotional or sponsored content on your output. Additionally, you must identify and extract the image urls within this main content. These images must be inside the main content of the page so you must exclude small logo images, icons, avatars and other images which aren't a core part of the main content. The images you extract should at least have a width of 600 pixels (px) so it can be included on our content.\",\n    \"schema\": {\n    \"type\": \"object\",\n      \"properties\": {\n        \"content\": {\n          \"type\": \"string\",\n          \"description\": \"The exact verbatim main text content of the web page in markdown format.\"\n        }\n      },\n      \"required\": [\"content\"]\n    }\n  }\n}",
+          "options": {
+            "timeout": 360000
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1728,
+          704
+        ],
+        "id": "011a1de4-a76a-46bb-af18-944141264d00",
+        "name": "fetch_sora2_prompting_guide",
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "firecrawlApi": {
+            "id": "tTXd52Qm4ZR6N7sq",
+            "name": "Firecrawl"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "96030b94-5d65-443c-b83b-3d0a54314157",
+                "name": "guide",
+                "value": "={{ $json.data.json.content }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2032,
+          704
+        ],
+        "id": "52726824-951f-44c4-a9a3-2499c05fd43b",
+        "name": "set_sora2_prompting_guide"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "documentURL": "={{ $('generate_video_trigger').item.json['Brand Guidelines Doc Id'] }}"
+        },
+        "type": "n8n-nodes-base.googleDocs",
+        "typeVersion": 2,
+        "position": [
+          192,
+          944
+        ],
+        "id": "12fe3f50-7644-4783-a63c-bac49af086b7",
+        "name": "get_brand_guidelines",
+        "credentials": {
+          "googleDocsOAuth2Api": {
+            "id": "Bm31Z2Sp7Dd6X71P",
+            "name": "Google Docs"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "0e643351-d6af-4636-b2a8-cfdfde97904c",
+                "name": "prompt",
+                "value": "=<role>\nYou are an expert Creative Director and AI Prompt Engineer, a master of generating hyper-realistic, short-form video ads. Your core skills are **Ad Concept Transposition**, ensuring **pixel-perfect product representation**, and a specialized expertise in directing **Dynamic Physical Interaction**. You craft prompts that overcome common AI weaknesses by describing not just the scene, but the physics, weight, and sensory details of every interaction, especially hands holding objects.\n</role>\n\n<mission>\nYour mission is to synthesize the provided inputs to generate a new, Sora-optimized video prompt. You will transpose the narrative from the **Source Concept** to create an ad that embodies the **Target Brand Identity** and maintains absolute **Product Visual Integrity**. The final output must be a prompt for a **textless master** video that features hyper-realistic physical interactions and concludes definitively within a **strict 12-second total runtime**.\n</mission>\n\n<inputs>\n1.  **Source Concept (`AD_BREAKDOWN`):** A detailed breakdown of a UGC-style video ad. Your structural starting point.\n2.  **Target Brand Identity (`BRAND_GUIDELINES`):** The guide to the brand's product, messaging, and tone.\n3.  **Product Reference Image (`PRODUCT_IMAGE`):** The **ground truth** for the product's appearance, type, and exact count.\n4.  **Technical Mandate (`SORA_GUIDE`):** The guide for the required output format.\n</inputs>\n\n<process>\n1.  **Deconstruct the Source:** Analyze the `AD_BREAKDOWN` for its core components: hook, conflict, pacing, and narrative arc.\n2.  **Analyze Product for Integrity and Enumeration:** Meticulously study the `PRODUCT_IMAGE`. Determine the exact number of products visible, then extract a detailed list of visual attributes for each (shape, color, materials, texture, label design).\n3.  **Internalize the Brand:** Absorb the `BRAND_GUIDELINES` to understand the product's value proposition and brand voice.\n4.  **Strategic Synthesis:** Map the Brand Identity and Product analysis onto the Source Concept's structure using the following critical constraints:\n    *   **Mandate for Physical Realism (The Grip Protocol):** For any scene where a person holds or interacts with the product, you must provide exhaustive physical detail to ensure realism. Do not just say \"a person holds the product.\" Instead, script the interaction by describing its physics and sensory details. Follow this protocol:\n        *   **1. Describe the Weight:** Convey the product's mass through its effect on the hand and arm. *Example: \"The weight of the glass bottle causes a slight, natural tension in her wrist.\"*\n        *   **2. Describe the Grip's Intent:** Is the grip firm for use, or gentle for display? *Example: \"Her grip is secure but relaxed, presenting the product towards the camera.\"*\n        *   **3. Describe Material Interaction:** Detail how the hand's skin conforms to the product's surface. *Example: \"Her fingertips press faintly into the matte label, and the cool glass causes a subtle reflection.\"*\n        *   **4. Ensure Anatomical Correctness:** Explicitly describe a natural hand pose with five fingers, plausible joint angles, and logical placement.\n        *   **Combined Example:** Instead of \"A woman holds a bottle,\" your prompt must contain descriptions like: *\"A woman's hand securely cradles the weighted glass bottle from underneath, her fingers conforming naturally to the bottle's cool, smooth curve. Her thumb rests gently on the side, not applying pressure. The slight tension in her forearm suggests she is supporting its weight deliberately and comfortably.\"*\n    *   **Absolute Runtime Mandate (12 Seconds Total):** The entire video must have a total duration of **exactly 12 seconds.** Structure the narrative pacing to fit: Hook (1-2s), Core Dialogue/Action (8-9s), Resolution (1-2s). Verify dialogue can be spoken clearly within its allotted time.\n    *   **Crucial Constraint - Product Exclusivity and Enumeration:** The script must exclusively feature the product(s) from the `PRODUCT_IMAGE`, matching the exact count. Do not introduce any other products.\n    *   **Adapt & Integrate for Visual Integrity:** Replace the original product with the new one(s), using the visual attributes from your analysis to describe them with extreme accuracy.\n    *   **Crucial Constraint - Omit All Text:** The final video prompt must generate a **textless master**. Completely disregard and exclude any on-screen text or captions.\n5.  **Construct the Prompt:** Using the synthesized ideas, write a complete, detailed, and vivid video generation prompt. **Crucially, verify that all hand-to-object interactions are described with the exhaustive physical and sensory detail outlined in the \"Mandate for Physical Realism.\"**\n</process>\n\n<output_format>\nYour final output must be a single, ready-to-use text block containing the complete and final Sora 2 video prompt. **The described action must be completable within a 12-second timeframe.** The prompt must be for a **textless video featuring only the product(s) from the reference image, with hyper-realistic physical interactions.** It must not contain any mention of on-screen text, captions, or brand logos. Do not include any commentary outside of the prompt itself. The prompt must be written to the exact specifications of the provided `SORA_GUIDE`. Avoid showing hands in the final prompt / video script.\n</output_format>\n\n<AD_BREAKDOWN>\n{{ $node['set_ad_analysis_result'].json.result }}\n</AD_BREAKDOWN>\n\n<BRAND_GUIDELINES>\n{{ $node['get_brand_guidelines'].json.content }}\n</BRAND_GUIDELINES>\n\n\n<SORA_GUIDE>\n{{ $node['set_sora2_prompting_guide'].json.guide }}\n</SORA_GUIDE>",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          464,
+          944
+        ],
+        "id": "a071d7bb-8049-4c0f-ad8d-82272d1936a2",
+        "name": "build_sora2_prompt"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.prompt }}",
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          768,
+          944
+        ],
+        "id": "1554dd4b-b3ae-44a7-873b-d478ea4e5b48",
+        "name": "write_sora2_prompt"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "claude-sonnet-4-5-20250929",
+            "cachedResultName": "Claude Sonnet 4.5"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          1888,
+          1712
+        ],
+        "id": "cefd312f-71d7-4784-a13d-7daf1e5fe8ff",
+        "name": "claude-sonnet-4.5",
+        "credentials": {
+          "anthropicApi": {
+            "id": "l40BD4ZshdbnRGbC",
+            "name": "Anthropic"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "ff393ffc-a467-487d-8dcc-7bc3a7443847",
+                "name": "prompt_result",
+                "value": "={{ $json.text }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1152,
+          944
+        ],
+        "id": "f867bcb3-e29c-428a-91af-3aa377f376cd",
+        "name": "set_sora2_prompt_result"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.openai.com/v1/videos",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "sendBody": true,
+          "contentType": "multipart-form-data",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "prompt",
+                "value": "={{ $node['aggregate'].json.data[0].prompt_result }}"
+              },
+              {
+                "name": "model",
+                "value": "=sora-2"
+              },
+              {
+                "name": "seconds",
+                "value": "=12"
+              },
+              {
+                "name": "size",
+                "value": "720x1280"
+              },
+              {
+                "parameterType": "formBinaryData",
+                "name": "input_reference",
+                "inputDataFieldName": "data"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2032,
+          960
+        ],
+        "id": "6e1a8821-9d8e-4779-af84-f641f1c730bd",
+        "name": "generate_sora2_video",
+        "credentials": {
+          "openAiApi": {
+            "id": "7ecUbyMBJInZM14n",
+            "name": "Open AI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.openai.com/v1/videos/{{ $json.id }}",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          464,
+          1344
+        ],
+        "id": "b71949f4-e602-4ea2-ba10-98b08d5b76b8",
+        "name": "get_video_status",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "maxTries": 5,
+        "credentials": {
+          "openAiApi": {
+            "id": "7ecUbyMBJInZM14n",
+            "name": "Open AI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.openai.com/v1/videos/{{ $json.id }}/content",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "openAiApi",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1152,
+          1328
+        ],
+        "id": "4dbb282c-5bad-4778-a3d0-74b0e17d67e7",
+        "name": "get_video",
+        "retryOnFail": true,
+        "waitBetweenTries": 5000,
+        "credentials": {
+          "openAiApi": {
+            "id": "7ecUbyMBJInZM14n",
+            "name": "Open AI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "6ce95513-f1dd-4105-ab55-de5d073cb0c3",
+                "leftValue": "={{ $json.status }}",
+                "rightValue": "completed",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          784,
+          1344
+        ],
+        "id": "c721454a-f94d-4233-b9bb-5e28bebe2fd4",
+        "name": "check_status"
+      },
+      {
+        "parameters": {
+          "amount": 15
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          192,
+          1344
+        ],
+        "id": "1535c19c-d1e1-4a9c-ae0d-f2fbe2adb997",
+        "name": "delay",
+        "webhookId": "30a9268e-34cc-477e-b843-5e2fb0f76930"
+      },
+      {
+        "parameters": {
+          "name": "=Sora 2 Ad",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "https://drive.google.com/drive/u/0/folders/1kvWoclBORraBWDvIgTCztr8SgfhaUuEC",
+            "mode": "url"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          2032,
+          1328
+        ],
+        "id": "5626e11e-fae4-45b8-ae99-48e644bcbbbe",
+        "name": "upload_video",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "PgwI1k1VFnoEhOi6",
+            "name": "Google Drive account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "Ad_Video_File",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          464,
+          704
+        ],
+        "id": "0ed3e748-e290-4846-bcf9-8d804ad3736f",
+        "name": "convert_video_to_base_64"
+      },
+      {
+        "parameters": {
+          "operation": "binaryToPropery",
+          "binaryPropertyName": "Product_Image",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          1152,
+          1136
+        ],
+        "id": "73511e7a-c6db-4973-a45b-ae90532013bf",
+        "name": "convert_image_to_base_64"
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1440,
+          960
+        ],
+        "id": "0d1bacc0-ceb4-4fc4-9589-acab07437163",
+        "name": "merge"
+      },
+      {
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
+        "position": [
+          1632,
+          960
+        ],
+        "id": "8a4ab3c0-0b86-43ce-b177-789125fbbdf1",
+        "name": "aggregate"
+      },
+      {
+        "parameters": {
+          "operation": "toBinary",
+          "sourceProperty": "data[1].data",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          1824,
+          960
+        ],
+        "id": "27958e2a-3dc9-45e7-b140-0c5bef3b1917",
+        "name": "convert_base64_image_to_binary"
+      },
+      {
+        "parameters": {
+          "content": "## UGC Video Generator",
+          "height": 1264,
+          "width": 2128
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          96,
+          592
+        ],
+        "typeVersion": 1,
+        "id": "15efbd64-e7e8-42c9-8fe7-5d7f7f2f607a",
+        "name": "Sticky Note1"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "brand_form_trigger": {
+        "main": [
+          [
+            {
+              "node": "map_website",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "map_website": {
+        "main": [
+          [
+            {
+              "node": "split_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "split_urls": {
+        "main": [
+          [
+            {
+              "node": "scrape_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "scrape_urls": {
+        "main": [
+          [
+            {
+              "node": "aggregate_urls",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "aggregate_urls": {
+        "main": [
+          [
+            {
+              "node": "scrape_home",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "scrape_home": {
+        "main": [
+          [
+            {
+              "node": "build_guidelines_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_guidelines_prompt": {
+        "main": [
+          [
+            {
+              "node": "write_guidelines",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "write_guidelines": {
+        "main": [
+          [
+            {
+              "node": "convert_to_html",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_to_html": {
+        "main": [
+          [
+            {
+              "node": "set_google_doc_values",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_google_doc_values": {
+        "main": [
+          [
+            {
+              "node": "build_google_request_data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_google_request_data": {
+        "main": [
+          [
+            {
+              "node": "create_google_doc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "create_google_doc": {
+        "main": [
+          [
+            {
+              "node": "set_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "gemini-2.5-pro": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "write_guidelines",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_video_trigger": {
+        "main": [
+          [
+            {
+              "node": "convert_video_to_base_64",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "convert_image_to_base_64",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_ad_analysis_prompt": {
+        "main": [
+          [
+            {
+              "node": "analyze_video_ad",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "analyze_video_ad": {
+        "main": [
+          [
+            {
+              "node": "set_ad_analysis_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_ad_analysis_result": {
+        "main": [
+          [
+            {
+              "node": "fetch_sora2_prompting_guide",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "fetch_sora2_prompting_guide": {
+        "main": [
+          [
+            {
+              "node": "set_sora2_prompting_guide",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_sora2_prompting_guide": {
+        "main": [
+          [
+            {
+              "node": "get_brand_guidelines",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_brand_guidelines": {
+        "main": [
+          [
+            {
+              "node": "build_sora2_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "build_sora2_prompt": {
+        "main": [
+          [
+            {
+              "node": "write_sora2_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "claude-sonnet-4.5": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "write_sora2_prompt",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "write_sora2_prompt": {
+        "main": [
+          [
+            {
+              "node": "set_sora2_prompt_result",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "set_sora2_prompt_result": {
+        "main": [
+          [
+            {
+              "node": "merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_video_status": {
+        "main": [
+          [
+            {
+              "node": "check_status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "get_video": {
+        "main": [
+          [
+            {
+              "node": "upload_video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "check_status": {
+        "main": [
+          [
+            {
+              "node": "get_video",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "delay",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "delay": {
+        "main": [
+          [
+            {
+              "node": "get_video_status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_sora2_video": {
+        "main": [
+          [
+            {
+              "node": "delay",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_video_to_base_64": {
+        "main": [
+          [
+            {
+              "node": "set_ad_analysis_prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_image_to_base_64": {
+        "main": [
+          [
+            {
+              "node": "merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "merge": {
+        "main": [
+          [
+            {
+              "node": "aggregate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "aggregate": {
+        "main": [
+          [
+            {
+              "node": "convert_base64_image_to_binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "convert_base64_image_to_binary": {
+        "main": [
+          [
+            {
+              "node": "generate_sora2_video",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "versionId": "250d1f75-febe-4d27-b72d-6f818c8f2135",
+    "meta": {
+      "templateCredsSetupCompleted": true,
+      "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+    },
+    "id": "foa4qRNMoFXo1Z8i",
+    "tags": []
+  }
+}

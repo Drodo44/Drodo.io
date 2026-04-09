@@ -1,0 +1,123 @@
+{
+  "id": "official-582",
+  "source": {
+    "type": "official",
+    "url": "https://n8n.io/workflows/582",
+    "template_id": 582
+  },
+  "name": "Rename a key in n8n",
+  "description": "Companion workflow for Rename Keys node docs",
+  "category": "Engineering",
+  "tags": [
+    "Engineering",
+    "manual",
+    "Edit Fields (Set)",
+    "Rename Keys",
+    "Manual Trigger",
+    "rename",
+    "key",
+    "n8n",
+    "companion",
+    "workflow"
+  ],
+  "task_keywords": [
+    "rename a key in n8n",
+    "manual",
+    "edit fields (set)",
+    "rename keys",
+    "manual trigger",
+    "rename key",
+    "key n8n",
+    "n8n companion",
+    "companion workflow",
+    "workflow rename",
+    "keys node",
+    "node docs"
+  ],
+  "required_services": [
+    "manual",
+    "Edit Fields (Set)",
+    "Rename Keys"
+  ],
+  "triggers": [
+    "Manual Trigger"
+  ],
+  "complexity": "simple",
+  "workflow": {
+    "nodes": [
+      {
+        "name": "On clicking 'execute'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "position": [
+          250,
+          320
+        ],
+        "parameters": {},
+        "typeVersion": 1
+      },
+      {
+        "name": "Set",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          450,
+          320
+        ],
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "key",
+                "value": "somevalue"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "typeVersion": 1
+      },
+      {
+        "name": "Rename Keys",
+        "type": "n8n-nodes-base.renameKeys",
+        "position": [
+          650,
+          320
+        ],
+        "parameters": {
+          "keys": {
+            "key": [
+              {
+                "newKey": "newkey",
+                "currentKey": "key"
+              }
+            ]
+          }
+        },
+        "typeVersion": 1
+      }
+    ],
+    "connections": {
+      "Set": {
+        "main": [
+          [
+            {
+              "node": "Rename Keys",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "On clicking 'execute'": {
+        "main": [
+          [
+            {
+              "node": "Set",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+}
