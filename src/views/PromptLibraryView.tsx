@@ -48,53 +48,356 @@ function createId(): string {
 // ─── Default prompts (seeded on first load) ───────────────────────────────────
 
 const DEFAULT_PROMPTS: Omit<SavedPrompt, 'id' | 'createdAt' | 'usageCount'>[] = [
+  // Business
   {
-    title: 'Summarize This',
-    content: 'Summarize the following in 5 bullet points, focusing on the most important takeaways: [paste content here]',
-    tags: ['summarize', 'bullets'],
-    category: 'Productivity',
+    title: 'Business Plan One-Pager',
+    content: 'Draft a one-page business plan for [business idea]. Include: target customer, core problem, proposed solution, business model, pricing, go-to-market channel, first 90-day milestones, and top 3 risks with mitigation.',
+    tags: ['business-plan', 'strategy', 'founder'],
+    category: 'Business',
   },
   {
-    title: 'Cold Email',
-    content: 'Write a personalized cold email to [Name] at [Company] about [your offer]. Keep it under 100 words. Focus on their pain point: [pain point]. CTA: schedule a 15-minute call.',
-    tags: ['email', 'outreach', 'cold'],
-    category: 'Sales',
+    title: 'Competitive Positioning Brief',
+    content: 'Create a positioning brief for [product] against [competitor 1], [competitor 2], and [competitor 3]. Output: comparison table, unique value proposition, messaging pillars, objections and responses, and recommended positioning statement.',
+    tags: ['positioning', 'competition', 'messaging'],
+    category: 'Business',
   },
   {
-    title: 'Blog Post Outline',
-    content: 'Create a detailed blog post outline for the topic: [topic]. Include: hook, 5 main sections with subpoints, and a conclusion with CTA. Target keyword: [keyword].',
-    tags: ['blog', 'outline', 'seo'],
-    category: 'Content & Creative',
+    title: 'Partnership Evaluation Memo',
+    content: 'Evaluate a potential partnership with [company]. Include strategic fit, revenue upside, integration effort, legal/compliance concerns, execution dependencies, and a go/no-go recommendation with confidence level.',
+    tags: ['partnership', 'memo', 'decision'],
+    category: 'Business',
   },
   {
-    title: 'Code Review',
-    content: 'Review the following code for bugs, security issues, performance problems, and style improvements. Be specific and actionable: [paste code]',
-    tags: ['code', 'review', 'security'],
+    title: 'SOP Draft Generator',
+    content: 'Write a standard operating procedure for [process]. Format: purpose, scope, roles/responsibilities, prerequisites, step-by-step workflow, quality checks, escalation path, and KPI measures.',
+    tags: ['sop', 'operations', 'process'],
+    category: 'Business',
+  },
+  {
+    title: 'Quarterly Business Review Outline',
+    content: 'Build a QBR outline for [team or business unit]. Include goals vs actuals, win/loss highlights, operating metrics, customer feedback, key lessons, next-quarter priorities, and decisions needed from leadership.',
+    tags: ['qbr', 'operations', 'leadership'],
+    category: 'Business',
+  },
+
+  // Marketing
+  {
+    title: 'Campaign Strategy Blueprint',
+    content: 'Design a campaign strategy for [offer] targeting [audience]. Include campaign objective, core angle, channel mix, creative concepts, budget split, launch timeline, success metrics, and optimization plan after week 1.',
+    tags: ['campaign', 'marketing-strategy', 'growth'],
+    category: 'Marketing',
+  },
+  {
+    title: 'Product Launch GTM Plan',
+    content: 'Create a go-to-market plan for launching [product/feature]. Include audience segments, value messaging by segment, channel plan, pre-launch checklist, launch-day assets, and post-launch measurement framework.',
+    tags: ['gtm', 'launch', 'product-marketing'],
+    category: 'Marketing',
+  },
+  {
+    title: 'Ad Creative Brief Pack',
+    content: 'Generate 10 paid ad concepts for [product], each with: hook, headline, primary text, CTA, creative direction, and the problem-awareness level it targets.',
+    tags: ['ads', 'creative-brief', 'paid-media'],
+    category: 'Marketing',
+  },
+  {
+    title: 'Email Nurture Sequence',
+    content: 'Write a 5-email nurture sequence for leads from [source]. Include email goal, subject line options, body copy, CTA, timing cadence, and fallback copy for non-openers.',
+    tags: ['email-marketing', 'nurture', 'conversion'],
+    category: 'Marketing',
+  },
+  {
+    title: 'Conversion Funnel Audit',
+    content: 'Audit this funnel: [funnel description or URL flow]. Identify drop-off points, friction causes, message mismatches, and produce prioritized fixes with expected impact and effort level.',
+    tags: ['funnel', 'cro', 'audit'],
+    category: 'Marketing',
+  },
+
+  // Engineering
+  {
+    title: 'Implementation Plan with Risks',
+    content: 'Create an implementation plan for [feature]. Include architecture notes, file/module impact, migration needs, test strategy, rollout strategy, observability updates, and top risks with mitigations.',
+    tags: ['implementation', 'architecture', 'delivery'],
     category: 'Engineering',
   },
   {
-    title: 'Meeting Agenda',
-    content: 'Create a structured meeting agenda for a [duration] meeting about [topic]. Include: objectives, agenda items with time allocations, pre-read materials, and expected outcomes.',
-    tags: ['meeting', 'agenda', 'planning'],
-    category: 'Productivity',
+    title: 'Code Review Deep Pass',
+    content: 'Review the following code: [paste code or diff]. Identify correctness issues, regressions, performance risks, security concerns, and maintainability problems. Provide concrete code-level fixes.',
+    tags: ['code-review', 'quality', 'bugs'],
+    category: 'Engineering',
   },
   {
-    title: 'Job Description',
-    content: 'Write a compelling job description for a [role] at a [company type] company. Include: role summary, responsibilities, requirements, nice-to-haves, and company culture section.',
-    tags: ['hiring', 'job', 'recruiting'],
+    title: 'Bug Reproduction + Patch',
+    content: 'Given this bug report: [report], produce reproducible steps, probable root causes, instrumentation to confirm cause, patch proposal, and a verification checklist for staging and production.',
+    tags: ['debugging', 'incident', 'patch'],
+    category: 'Engineering',
+  },
+  {
+    title: 'API Contract Design',
+    content: 'Design an API contract for [use case]. Include endpoint list, request/response schema, validation rules, auth model, error codes, idempotency strategy, and versioning approach.',
+    tags: ['api', 'backend', 'design'],
+    category: 'Engineering',
+  },
+  {
+    title: 'Test Plan Generator',
+    content: 'Generate a complete test plan for [feature/system]. Include unit, integration, and end-to-end coverage; edge cases; failure-path tests; data setup; and release-blocking criteria.',
+    tags: ['testing', 'qa', 'release'],
+    category: 'Engineering',
+  },
+
+  // Research
+  {
+    title: 'Research Synthesis Memo',
+    content: 'Synthesize findings from these sources: [sources]. Output: key insights, evidence quality, points of disagreement, implications for [decision], and open questions requiring more data.',
+    tags: ['research', 'synthesis', 'analysis'],
+    category: 'Research',
+  },
+  {
+    title: 'User Interview Script',
+    content: 'Write a semi-structured interview guide for [research goal]. Include screener criteria, warm-up questions, problem-discovery prompts, concept testing prompts, and debrief coding framework.',
+    tags: ['ux-research', 'interviews', 'qualitative'],
+    category: 'Research',
+  },
+  {
+    title: 'Literature Review Scaffold',
+    content: 'Build a literature review structure for [topic]. Include major themes, key papers to prioritize, conflict mapping, methodological limitations, and where evidence is weak or outdated.',
+    tags: ['literature-review', 'academic', 'evidence'],
+    category: 'Research',
+  },
+  {
+    title: 'Survey Design + Bias Check',
+    content: 'Design a survey for [objective]. Provide question set, scale choices, sampling plan, anti-bias checks, data-cleaning rules, and a plan for interpreting results.',
+    tags: ['survey', 'methodology', 'data-quality'],
+    category: 'Research',
+  },
+  {
+    title: 'Decision Brief from Research',
+    content: 'Turn this research input into an executive decision brief: [input]. Include decision statement, options, evidence summary, confidence level, recommendation, and follow-up experiments.',
+    tags: ['decision-support', 'brief', 'insights'],
+    category: 'Research',
+  },
+
+  // Finance
+  {
+    title: 'Budget Variance Analysis',
+    content: 'Analyze actuals vs budget for [period] using this data: [data]. Output: variance table, key drivers, controllable vs uncontrollable factors, and corrective actions for next period.',
+    tags: ['budget', 'variance', 'fp-and-a'],
+    category: 'Finance',
+  },
+  {
+    title: 'Cash Flow Forecast',
+    content: 'Create a rolling 13-week cash flow forecast for [business]. Include assumptions, inflow/outflow categories, sensitivity scenarios, covenant risk flags, and immediate liquidity actions.',
+    tags: ['cash-flow', 'forecast', 'treasury'],
+    category: 'Finance',
+  },
+  {
+    title: 'Unit Economics Breakdown',
+    content: 'Calculate and explain unit economics for [product/service]. Include CAC, LTV, gross margin, payback period, break-even volume, and levers to improve profitability.',
+    tags: ['unit-economics', 'profitability', 'metrics'],
+    category: 'Finance',
+  },
+  {
+    title: 'Investment Memo Draft',
+    content: 'Draft an investment memo for [company/opportunity]. Include business model, market size, traction, risk factors, valuation rationale, downside case, and recommendation.',
+    tags: ['investment', 'memo', 'valuation'],
+    category: 'Finance',
+  },
+  {
+    title: 'Financial KPI Dashboard Spec',
+    content: 'Define a finance KPI dashboard for [company stage]. Include metric definitions, formulas, data sources, refresh cadence, and threshold alerts for management review.',
+    tags: ['kpi', 'dashboard', 'reporting'],
+    category: 'Finance',
+  },
+
+  // Legal
+  {
+    title: 'Contract Risk Spotter',
+    content: 'Review this contract text: [text]. Flag risky clauses, missing protections, ambiguous language, and negotiation priorities. Provide a redline-style summary and fallback language.',
+    tags: ['contract', 'risk', 'negotiation'],
+    category: 'Legal',
+  },
+  {
+    title: 'Privacy Policy Gap Check',
+    content: 'Assess this privacy policy: [policy] against [jurisdiction(s)]. Identify compliance gaps, unclear consent language, retention issues, and concrete wording updates.',
+    tags: ['privacy', 'compliance', 'policy'],
+    category: 'Legal',
+  },
+  {
+    title: 'Vendor MSA Review Checklist',
+    content: 'Create a review checklist for a vendor MSA in [industry]. Include IP ownership, confidentiality, security obligations, SLA, liability caps, termination rights, and data processing terms.',
+    tags: ['msa', 'vendor', 'procurement'],
+    category: 'Legal',
+  },
+  {
+    title: 'Terms of Service Draft',
+    content: 'Draft Terms of Service for [product type]. Include acceptable use, payment terms, suspension/termination, warranty disclaimer, limitation of liability, and dispute resolution.',
+    tags: ['terms', 'tos', 'saas'],
+    category: 'Legal',
+  },
+  {
+    title: 'Regulatory Impact Summary',
+    content: 'Summarize regulatory implications of [new rule/law] for [business]. Include impacted processes, compliance deadlines, implementation workstreams, and legal-risk prioritization.',
+    tags: ['regulation', 'risk', 'compliance'],
+    category: 'Legal',
+  },
+
+  // HR & Recruiting
+  {
+    title: 'Role Scorecard Builder',
+    content: 'Create a hiring scorecard for [role]. Include must-have competencies, weighted evaluation criteria, sample interview questions, disqualifiers, and final decision rubric.',
+    tags: ['hiring', 'scorecard', 'interview'],
     category: 'HR & Recruiting',
   },
   {
-    title: 'Weekly Report',
-    content: 'Write a professional weekly status report covering: accomplishments this week, blockers encountered, plan for next week, and any decisions needed from leadership.',
-    tags: ['report', 'weekly', 'status'],
+    title: 'Structured Interview Kit',
+    content: 'Design a structured interview process for [role] with stages, interviewer responsibilities, calibration guidance, and anti-bias safeguards. Include scoring template.',
+    tags: ['interview', 'recruiting', 'process'],
+    category: 'HR & Recruiting',
+  },
+  {
+    title: '30-60-90 Onboarding Plan',
+    content: 'Build a 30-60-90 day onboarding plan for [role]. Include goals by phase, stakeholder meetings, training modules, deliverables, and manager check-in cadence.',
+    tags: ['onboarding', 'new-hire', 'enablement'],
+    category: 'HR & Recruiting',
+  },
+  {
+    title: 'Performance Feedback Draft',
+    content: 'Draft clear and fair performance feedback for [employee role] based on [evidence]. Include strengths, improvement areas, behavior examples, and a measurable development plan.',
+    tags: ['performance', 'feedback', 'management'],
+    category: 'HR & Recruiting',
+  },
+  {
+    title: 'Compensation Benchmark Summary',
+    content: 'Prepare a compensation benchmark summary for [role] in [location]. Include market range, internal equity considerations, level calibration, and offer recommendation.',
+    tags: ['compensation', 'benchmark', 'offers'],
+    category: 'HR & Recruiting',
+  },
+
+  // Sales
+  {
+    title: 'Discovery Call Framework',
+    content: 'Create a discovery call framework for [ICP]. Include opening script, qualification questions, pain discovery flow, budget/timeline probes, and next-step close language.',
+    tags: ['discovery', 'qualification', 'sales-call'],
+    category: 'Sales',
+  },
+  {
+    title: 'Outbound Sequence Builder',
+    content: 'Write a multichannel outbound sequence (email + LinkedIn + call) for [target persona]. Provide message copy by touchpoint, timing cadence, and personalization placeholders.',
+    tags: ['outbound', 'sequence', 'prospecting'],
+    category: 'Sales',
+  },
+  {
+    title: 'Objection Handling Playbook',
+    content: 'Build an objection handling playbook for [product]. Include common objections, diagnostic questions, concise responses, proof points, and when to walk away.',
+    tags: ['objections', 'playbook', 'closing'],
+    category: 'Sales',
+  },
+  {
+    title: 'Proposal Draft Assistant',
+    content: 'Draft a client proposal for [client] based on [requirements]. Include scope, assumptions, timeline, pricing options, deliverables, acceptance criteria, and approval steps.',
+    tags: ['proposal', 'b2b', 'deal-desk'],
+    category: 'Sales',
+  },
+  {
+    title: 'Pipeline Review Prep',
+    content: 'Prepare a pipeline review summary from this deal list: [deals]. Include stage health, risk flags, next action by deal, forecast confidence, and manager escalation asks.',
+    tags: ['pipeline', 'forecast', 'revops'],
+    category: 'Sales',
+  },
+
+  // Content & Creative
+  {
+    title: 'Long-Form Article Draft',
+    content: 'Write a 1,500-word article on [topic] for [audience]. Include strong introduction, structured sections with examples, actionable takeaways, and a conclusion CTA.',
+    tags: ['article', 'writing', 'content'],
+    category: 'Content & Creative',
+  },
+  {
+    title: 'Brand Voice Rewrite',
+    content: 'Rewrite this content in our brand voice: [voice description + text]. Preserve meaning, improve clarity, and provide 3 variants: concise, balanced, and bold.',
+    tags: ['brand-voice', 'editing', 'copywriting'],
+    category: 'Content & Creative',
+  },
+  {
+    title: 'Video Script Package',
+    content: 'Create a short-form video script package for [topic]. Include hook options, full script, on-screen text cues, shot suggestions, and CTA variations.',
+    tags: ['video', 'script', 'social'],
+    category: 'Content & Creative',
+  },
+  {
+    title: 'Newsletter Edition Builder',
+    content: 'Draft a newsletter edition for [audience] covering [theme]. Include subject lines, intro, 3 featured sections, links, and end-of-email CTA.',
+    tags: ['newsletter', 'email', 'editorial'],
+    category: 'Content & Creative',
+  },
+  {
+    title: 'Creative Brief Generator',
+    content: 'Generate a creative brief for [campaign/project]. Include objective, audience, key message, mandatory elements, visual direction, deliverables, and success criteria.',
+    tags: ['creative-brief', 'design', 'campaign'],
+    category: 'Content & Creative',
+  },
+
+  // Data & Analytics
+  {
+    title: 'Metric Definition Sheet',
+    content: 'Define a clean metric dictionary for [team/product]. Include metric name, formula, business meaning, owner, source tables, update cadence, and caveats.',
+    tags: ['metrics', 'governance', 'analytics'],
+    category: 'Data & Analytics',
+  },
+  {
+    title: 'SQL Analysis Request',
+    content: 'Given this question [question] and schema [schema], produce SQL queries, explain logic, note assumptions, and include data-quality checks before final interpretation.',
+    tags: ['sql', 'analysis', 'data-quality'],
+    category: 'Data & Analytics',
+  },
+  {
+    title: 'Experiment Readout Template',
+    content: 'Create an A/B test readout for [experiment]. Include hypothesis, success metrics, sample sizing notes, results summary, confidence assessment, and ship/iterate decision.',
+    tags: ['ab-test', 'experimentation', 'readout'],
+    category: 'Data & Analytics',
+  },
+  {
+    title: 'Dashboard Requirement Spec',
+    content: 'Draft dashboard requirements for [stakeholders]. Include primary questions, KPI hierarchy, drill-down requirements, filters, alert conditions, and ownership model.',
+    tags: ['dashboard', 'bi', 'requirements'],
+    category: 'Data & Analytics',
+  },
+  {
+    title: 'Root Cause Analysis Data Pass',
+    content: 'Perform a root cause analysis plan for [metric anomaly]. Include segmentation approach, confound checks, validation steps, and a ranked list of likely drivers.',
+    tags: ['root-cause', 'anomaly', 'investigation'],
+    category: 'Data & Analytics',
+  },
+
+  // Productivity
+  {
+    title: 'Weekly Planning Sprint',
+    content: 'Plan my week from this context: [tasks/meetings/goals]. Output: top priorities, calendar blocks, deep-work windows, admin batching, and must-not-slip tasks.',
+    tags: ['planning', 'weekly', 'focus'],
     category: 'Productivity',
   },
   {
-    title: 'Competitor Analysis',
-    content: 'Analyze [competitor name] across these dimensions: product features, pricing, target market, strengths, weaknesses, and how we can position against them.',
-    tags: ['competitor', 'analysis', 'strategy'],
-    category: 'Business',
+    title: 'Meeting Agenda + Notes Template',
+    content: 'Create a reusable template for [meeting type] including agenda, decision log, action items table (owner + due date), and follow-up email draft.',
+    tags: ['meetings', 'template', 'execution'],
+    category: 'Productivity',
+  },
+  {
+    title: 'Decision Journal Entry',
+    content: 'Turn this decision context into a journal entry: [context]. Include decision statement, options considered, assumptions, expected outcomes, and revisit date.',
+    tags: ['decision-making', 'journal', 'clarity'],
+    category: 'Productivity',
+  },
+  {
+    title: 'Inbox Zero Triage Rules',
+    content: 'Design a triage workflow for [email/task inbox]. Include rule set for delete/defer/delegate/do, labels, SLA expectations, and daily maintenance routine.',
+    tags: ['inbox', 'workflow', 'systems'],
+    category: 'Productivity',
+  },
+  {
+    title: 'Project Kickoff Checklist',
+    content: 'Build a kickoff checklist for [project]. Include scope lock, stakeholders, timeline, dependencies, risk register, communication plan, and first-week actions.',
+    tags: ['project-management', 'kickoff', 'checklist'],
+    category: 'Productivity',
   },
 ]
 
@@ -108,6 +411,24 @@ function seedDefaultPrompts(): SavedPrompt[] {
   }))
   savePrompts(seeded)
   return seeded
+}
+
+function mergeMissingDefaults(existing: SavedPrompt[]): SavedPrompt[] {
+  const existingKeys = new Set(existing.map(prompt => `${prompt.category}::${prompt.title}`))
+  const now = Date.now()
+  const missing = DEFAULT_PROMPTS
+    .filter(prompt => !existingKeys.has(`${prompt.category}::${prompt.title}`))
+    .map((prompt, index) => ({
+      ...prompt,
+      id: createId(),
+      createdAt: now - index * 60000,
+      usageCount: 0,
+    }))
+
+  if (missing.length === 0) return existing
+  const merged = [...missing, ...existing]
+  savePrompts(merged)
+  return merged
 }
 
 // ─── Sort options ─────────────────────────────────────────────────────────────
@@ -360,7 +681,7 @@ export function PromptLibraryView() {
   const [prompts, setPrompts] = useState<SavedPrompt[]>(() => {
     const loaded = loadPrompts()
     if (loaded.length === 0) return seedDefaultPrompts()
-    return loaded
+    return mergeMissingDefaults(loaded)
   })
 
   const [activeCategory, setActiveCategory] = useState('All')
@@ -436,11 +757,11 @@ export function PromptLibraryView() {
   }
 
   return (
-    <div className="flex-1 flex min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
-      {/* ── Left: Category filter (180px) ─── */}
+    <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden flex-col md:flex-row" style={{ background: 'var(--bg-primary)' }}>
+      {/* ── Left: Category filter ─── */}
       <div
-        className="flex-shrink-0 flex flex-col min-h-0 overflow-hidden"
-        style={{ width: 180, borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+        className="w-full md:w-auto flex-shrink-0 flex flex-col min-h-0 min-w-0 overflow-hidden md:basis-[clamp(12rem,18vw,16rem)] border-b md:border-b-0 border-r-0 md:border-r border-[var(--border-color)]"
+        style={{ background: 'var(--bg-secondary)' }}
       >
         <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-color)' }}>
           <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Categories</p>
@@ -485,7 +806,7 @@ export function PromptLibraryView() {
       <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
         {/* Header */}
         <div
-          className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
+          className="flex items-center gap-3 px-6 py-4 flex-shrink-0 flex-wrap"
           style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
         >
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
@@ -497,7 +818,7 @@ export function PromptLibraryView() {
           </div>
 
           {/* Search */}
-          <div className="relative flex-shrink-0" style={{ width: 200 }}>
+          <div className="relative flex-1 min-w-[12rem] max-w-xs">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
             <input
               type="text"
@@ -580,7 +901,7 @@ export function PromptLibraryView() {
 
           {/* Prompt cards */}
           {filtered.length > 0 && (
-            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(16rem, 1fr))' }}>
               {filtered.map(prompt => (
                 <PromptCard
                   key={prompt.id}

@@ -8,7 +8,7 @@ import { Logo } from '../ui/Logo'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import type { NavView } from '../../types'
-import drodoLogo from '../../assets/drodo-logo.png'
+import drodoLogo from '../../assets/drodo-logo.png?url'
 
 const NAV_ITEMS: { view: NavView; label: string; Icon: typeof Bot; tutorialId?: string }[] = [
   { view: 'agent', label: 'Agent', Icon: Bot, tutorialId: 'nav-agent' },
@@ -91,8 +91,8 @@ export function Sidebar() {
   return (
     <aside
       data-tutorial="sidebar"
-      className="flex flex-col h-full flex-shrink-0"
-      style={{ width: 220, background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}
+      className="flex flex-col h-full min-h-0 min-w-0 flex-shrink-0 overflow-hidden basis-[clamp(12rem,16vw,15rem)]"
+      style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5" style={{ borderBottom: '1px solid var(--border-color)' }}>

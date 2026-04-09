@@ -35,10 +35,10 @@ import { startBotPolling, stopBotPolling } from './lib/botRunner'
 
 function AgentWorkspace() {
   return (
-    <>
+    <div className="flex flex-1 min-w-0 min-h-0 overflow-hidden flex-col lg:flex-row">
       <ChatPanel />
       <RightPanel />
-    </>
+    </div>
   )
 }
 
@@ -83,9 +83,48 @@ function MainContent() {
   return null
 }
 
+// ─── Skill library URLs fetched once at startup ───────────────────────────────
+const SKILL_LIBRARY_URLS = [
+  'https://raw.githubusercontent.com/wshobson/agents/main/README.md',
+  'https://raw.githubusercontent.com/alirezarezvani/claude-skills/main/README.md',
+  'https://raw.githubusercontent.com/obra/superpowers/main/README.md',
+  'https://raw.githubusercontent.com/VoltAgent/awesome-agent-skills/main/README.md',
+  'https://raw.githubusercontent.com/affaan-m/everything-claude-code/main/README.md',
+  'https://raw.githubusercontent.com/gsd-build/get-shit-done/main/README.md',
+]
+const SKILL_LIBRARY_KEY = 'drodo_skill_library'
+const SKILL_LIBRARY_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+
+function refreshSkillLibrary() {
+  try {
+    const cached = localStorage.getItem(SKILL_LIBRARY_KEY)
+    if (cached) {
+      const parsed = JSON.parse(cached) as { content: string; fetchedAt: number }
+      if (Date.now() - parsed.fetchedAt < SKILL_LIBRARY_TTL_MS) return
+    }
+  } catch { /* stale or corrupt — re-fetch */ }
+
+  void Promise.allSettled(
+    SKILL_LIBRARY_URLS.map(url => fetch(url, { cache: 'no-store' }).then(r => r.ok ? r.text() : ''))
+  ).then(results => {
+    const parts = results
+      .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && !!r.value)
+      .map(r => r.value)
+    if (parts.length === 0) return
+    // Deduplicate lines
+    const raw = parts.join('\n')
+    const deduped = [...new Set(raw.split('\n'))].join('\n')
+    try {
+      localStorage.setItem(SKILL_LIBRARY_KEY, JSON.stringify({ content: deduped, fetchedAt: Date.now() }))
+    } catch { /* storage full */ }
+  })
+}
+
 function App() {
   const user = useAppStore(s => s.user)
   const setUser = useAppStore(s => s.setUser)
+  const startN8nStatusPolling = useAppStore(s => s.startN8nStatusPolling)
+  const stopN8nStatusPolling = useAppStore(s => s.stopN8nStatusPolling)
   const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
   const [showTutorial, setShowTutorial] = useState(false)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
@@ -94,6 +133,18 @@ function App() {
   useEffect(() => {
     applyThemeClass(getStoredTheme())
   }, [])
+
+  // Fetch skill library once on startup (cached for 24h)
+  useEffect(() => {
+    refreshSkillLibrary()
+  }, [])
+
+  useEffect(() => {
+    startN8nStatusPolling()
+    return () => {
+      stopN8nStatusPolling()
+    }
+  }, [startN8nStatusPolling, stopN8nStatusPolling])
 
   useEffect(() => {
     let isActive = true

@@ -58,6 +58,8 @@ export interface OrchestrationStep {
   specificTask: string
   dependsOnStep?: string
   outputVar: string
+  systemPrompt?: string
+  skills?: string[]
 }
 
 export interface OrchestrationPlan {
@@ -73,6 +75,15 @@ export interface OrchestrationRun {
   stepOutputs: Record<string, string>
   startedAt: Date
   finishedAt?: Date
+}
+
+export interface SwarmFeedEntry {
+  id: string
+  stepId?: string
+  agentName: string
+  type: 'start' | 'chunk' | 'complete' | 'summary' | 'error'
+  content: string
+  timestamp: Date
 }
 
 export interface Message {
@@ -198,4 +209,16 @@ export interface Connector {
   isConnected: boolean
   requiresKey: boolean
   keyPlaceholder?: string
+}
+
+export interface Skill {
+  id: string
+  name: string
+  description: string
+  category: 'Engineering' | 'Business' | 'Creative' | 'Research' | 'DevOps' | 'Security' | 'Data' | 'General'
+  tags: string[]
+  source_repo: string
+  capability_domains: string[]
+  priority: number
+  content: string
 }

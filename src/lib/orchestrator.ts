@@ -2,6 +2,8 @@ import type { Message, OrchestrationPlan, OrchestrationRun, OrchestrationStep, P
 import { completeText, streamCompletion } from './streamChat'
 import { injectSkills } from './skillsInjector'
 import { getAppSettings } from './appSettings'
+import { getAllSkillCategories, getAllSkillDomains, getSkillCatalogSummary } from './skills'
+import { getToolCatalogPrompt } from './toolExecutor'
 import { findWorkflowForTask } from './workflows'
 
 function msg(role: Message['role'], content: string): Message {
@@ -64,7 +66,6 @@ export async function buildOrchestrationPlan(
   availableTemplates: string[],
   templateDetails?: Array<{ name: string; category: string; systemPrompt?: string }>,
   savedModels?: string[],
-  enabledSkills?: string[]
 ): Promise<OrchestrationPlan> {
   const model = provider.model ?? 'claude-sonnet-4-6'
   const matchedWorkflow = findWorkflowForTask(task)
@@ -80,11 +81,11 @@ export async function buildOrchestrationPlan(
     ? `\nAgent template details by category:\n${templateDetails.map(t => `- ${t.name} [${t.category}]`).join('\n')}`
     : ''
 
-  const skillsSection = enabledSkills && enabledSkills.length > 0
-    ? `\nEnabled skills: ${enabledSkills.join(', ')}`
-    : ''
+  const skillsSection = `\nBundled skill intelligence summary:\n${getSkillCatalogSummary()}\nRelevant skill content will be prepended automatically to each agent system prompt based on its specific task.`
+  const skillCategoriesSection = `\nAvailable skill categories: ${getAllSkillCategories().join(', ')}\nAvailable capability domains: ${getAllSkillDomains().join(', ')}`
+  const toolsSection = `\nAgents can use these tools while executing:\n${getToolCatalogPrompt()}`
 
-  const extendedFields = (savedModels || templateDetails || enabledSkills)
+  const extendedFields = (savedModels || templateDetails)
     ? `
 Extended agent fields to include in each agent object:
 - "systemPrompt": if the template has a known system prompt, copy it here; otherwise omit
@@ -95,7 +96,7 @@ Extended agent fields to include in each agent object:
   const systemPrompt = `You are an AI orchestration engine. Your job is to analyze a user task and decide which specialist AI agents are needed to complete it optimally. You must respond with ONLY valid JSON, no other text.
 
 Available agent templates: ${availableTemplates.join(', ')}
-${modelsSection}${templatesSection}${skillsSection}
+${modelsSection}${templatesSection}${skillsSection}${skillCategoriesSection}${toolsSection}
 ${workflowHintSection}
 
 Respond with this exact JSON structure:

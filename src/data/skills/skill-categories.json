@@ -1,0 +1,251 @@
+{
+  "generated_at": "2026-04-09T05:44:45.851Z",
+  "total_skills": 2397,
+  "categories": [
+    {
+      "name": "Engineering",
+      "count": 1500
+    },
+    {
+      "name": "Creative",
+      "count": 345
+    },
+    {
+      "name": "General",
+      "count": 220
+    },
+    {
+      "name": "DevOps",
+      "count": 140
+    },
+    {
+      "name": "Research",
+      "count": 78
+    },
+    {
+      "name": "Data",
+      "count": 65
+    },
+    {
+      "name": "Business",
+      "count": 37
+    },
+    {
+      "name": "Security",
+      "count": 12
+    }
+  ],
+  "capability_domains": {
+    "coding": 1956,
+    "reasoning": 800,
+    "research": 595,
+    "creative": 1323,
+    "business": 186,
+    "devops": 724,
+    "security": 138,
+    "data": 427,
+    "general": 100
+  },
+  "top_tags": [
+    {
+      "tag": "coding",
+      "count": 1956
+    },
+    {
+      "tag": "debugging",
+      "count": 1956
+    },
+    {
+      "tag": "testing",
+      "count": 1956
+    },
+    {
+      "tag": "implementation",
+      "count": 1952
+    },
+    {
+      "tag": "refactoring",
+      "count": 1894
+    },
+    {
+      "tag": "skill",
+      "count": 1728
+    },
+    {
+      "tag": "design",
+      "count": 1324
+    },
+    {
+      "tag": "creative",
+      "count": 1323
+    },
+    {
+      "tag": "writing",
+      "count": 1318
+    },
+    {
+      "tag": "analysis",
+      "count": 1080
+    },
+    {
+      "tag": "content",
+      "count": 952
+    },
+    {
+      "tag": "planning",
+      "count": 805
+    },
+    {
+      "tag": "reasoning",
+      "count": 800
+    },
+    {
+      "tag": "deployment",
+      "count": 725
+    },
+    {
+      "tag": "devops",
+      "count": 724
+    },
+    {
+      "tag": "research",
+      "count": 595
+    },
+    {
+      "tag": "infrastructure",
+      "count": 550
+    },
+    {
+      "tag": "information gathering",
+      "count": 519
+    },
+    {
+      "tag": "data",
+      "count": 428
+    },
+    {
+      "tag": "sql",
+      "count": 427
+    },
+    {
+      "tag": "agent",
+      "count": 395
+    },
+    {
+      "tag": "analytics",
+      "count": 352
+    },
+    {
+      "tag": "command",
+      "count": 197
+    },
+    {
+      "tag": "marketing",
+      "count": 187
+    }
+  ],
+  "source_repositories": [
+    {
+      "repo": "github.com/sickn33/antigravity-awesome-skills",
+      "stars": 31687,
+      "explicit_target": false,
+      "included_skills": 1098
+    },
+    {
+      "repo": "github.com/github/awesome-copilot",
+      "stars": 29002,
+      "explicit_target": false,
+      "included_skills": 464
+    },
+    {
+      "repo": "github.com/wshobson/agents",
+      "stars": 33216,
+      "explicit_target": true,
+      "included_skills": 316
+    },
+    {
+      "repo": "github.com/affaan-m/everything-claude-code",
+      "stars": 147333,
+      "explicit_target": false,
+      "included_skills": 306
+    },
+    {
+      "repo": "github.com/alirezarezvani/claude-skills",
+      "stars": 10114,
+      "explicit_target": true,
+      "included_skills": 92
+    },
+    {
+      "repo": "github.com/obra/superpowers",
+      "stars": 142044,
+      "explicit_target": true,
+      "included_skills": 33
+    },
+    {
+      "repo": "github.com/shanraisshan/claude-code-best-practice",
+      "stars": 33133,
+      "explicit_target": true,
+      "included_skills": 28
+    },
+    {
+      "repo": "github.com/anthropics/skills",
+      "stars": 113372,
+      "explicit_target": false,
+      "included_skills": 17
+    },
+    {
+      "repo": "github.com/coreyhaines31/marketingskills",
+      "stars": 19765,
+      "explicit_target": false,
+      "included_skills": 14
+    },
+    {
+      "repo": "github.com/OthmanAdi/planning-with-files",
+      "stars": 18349,
+      "explicit_target": false,
+      "included_skills": 13
+    },
+    {
+      "repo": "github.com/vercel-labs/agent-skills",
+      "stars": 24741,
+      "explicit_target": false,
+      "included_skills": 4
+    },
+    {
+      "repo": "github.com/hesreallyhim/awesome-claude-code",
+      "stars": 37580,
+      "explicit_target": false,
+      "included_skills": 4
+    },
+    {
+      "repo": "github.com/vercel-labs/skills",
+      "stars": 13438,
+      "explicit_target": false,
+      "included_skills": 3
+    },
+    {
+      "repo": "github.com/ComposioHQ/awesome-claude-skills",
+      "stars": 52258,
+      "explicit_target": false,
+      "included_skills": 2
+    },
+    {
+      "repo": "github.com/VoltAgent/awesome-agent-skills",
+      "stars": 14852,
+      "explicit_target": true,
+      "included_skills": 1
+    },
+    {
+      "repo": "github.com/kepano/obsidian-skills",
+      "stars": 21826,
+      "explicit_target": false,
+      "included_skills": 1
+    },
+    {
+      "repo": "github.com/travisvn/awesome-claude-skills",
+      "stars": 10846,
+      "explicit_target": true,
+      "included_skills": 1
+    }
+  ]
+}

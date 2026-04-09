@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Model Registry Schema",
+  "type": "object",
+  "properties": {
+    "canonical_model": {
+      "type": "object",
+      "required": [
+        "model_uid",
+        "canonical_owner",
+        "family_name",
+        "variant_name",
+        "normalized_slug",
+        "aliases",
+        "description",
+        "release_date",
+        "status",
+        "license",
+        "open_source",
+        "open_weights",
+        "primary_modality",
+        "modalities",
+        "capabilities",
+        "strength_tags",
+        "task_scores",
+        "sources",
+        "router_hints"
+      ],
+      "properties": {
+        "model_uid": {
+          "type": "string"
+        },
+        "canonical_owner": {
+          "enum": [
+            "OpenAI",
+            "Anthropic",
+            "Google / DeepMind",
+            "Meta",
+            "NVIDIA",
+            "Mistral",
+            "DeepSeek",
+            "Qwen / Alibaba",
+            "Microsoft",
+            "xAI",
+            "Cohere",
+            "Moonshot AI",
+            "Zhipu / GLM",
+            "IBM",
+            "Stability AI",
+            "Black Forest Labs",
+            "ElevenLabs",
+            "MiniMax",
+            "Baidu",
+            "Tencent",
+            "StepFun",
+            "01.AI",
+            "Writer",
+            "AI21 Labs",
+            "Amazon",
+            "TII",
+            "Snowflake / Arctic",
+            "Nomic",
+            "Jina AI",
+            "Voyage AI",
+            "Perplexity",
+            "Recraft",
+            "Runway",
+            "Pika",
+            "Luma",
+            "AssemblyAI",
+            "Suno",
+            "Udio",
+            "Adept",
+            "Sakana AI",
+            "Kyutai",
+            "Databricks",
+            "Salesforce",
+            "Other / Custom / Unknown"
+          ]
+        },
+        "family_name": {
+          "type": "string"
+        },
+        "variant_name": {
+          "type": "string"
+        },
+        "normalized_slug": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "release_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "preview",
+            "experimental",
+            "legacy",
+            "deprecated",
+            "retired"
+          ]
+        },
+        "license": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "open_source": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "open_weights": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "primary_modality": {
+          "enum": [
+            "text",
+            "image",
+            "audio",
+            "video",
+            "embedding",
+            "document"
+          ]
+        },
+        "modalities": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "text",
+              "image",
+              "audio",
+              "video",
+              "embedding",
+              "document"
+            ]
+          }
+        },
+        "capabilities": {
+          "type": "object"
+        },
+        "strength_tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "task_scores": {
+          "type": "object"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "router_hints": {
+          "type": "object"
+        }
+      }
+    },
+    "provider_mapping": {
+      "type": "object",
+      "required": [
+        "model_uid",
+        "access_provider",
+        "provider_model_id",
+        "provider_model_label",
+        "api_compatibility",
+        "available",
+        "local_runnable",
+        "pricing",
+        "context_window",
+        "max_output_tokens",
+        "notes",
+        "sources"
+      ],
+      "properties": {
+        "model_uid": {
+          "type": "string"
+        },
+        "access_provider": {
+          "enum": [
+            "OpenRouter",
+            "Hugging Face",
+            "OpenAI API",
+            "Anthropic API",
+            "Google AI Studio",
+            "Google Vertex AI",
+            "Azure AI Foundry",
+            "GitHub Models",
+            "NVIDIA NIM",
+            "Amazon Bedrock",
+            "Ollama",
+            "LM Studio",
+            "vLLM",
+            "Text Generation Inference",
+            "Groq",
+            "Fireworks",
+            "Together",
+            "Novita",
+            "DeepInfra",
+            "Replicate",
+            "Cerebras",
+            "SambaNova",
+            "Custom OpenAI-compatible",
+            "Custom Anthropic-compatible",
+            "Local GGUF",
+            "Local ONNX",
+            "Local MLX",
+            "Mistral API",
+            "Cohere API",
+            "xAI API",
+            "Moonshot API",
+            "DeepSeek API",
+            "Zhipu API",
+            "ElevenLabs API",
+            "MiniMax API",
+            "StepFun API",
+            "Voyage API",
+            "Perplexity API",
+            "Recraft API",
+            "Runway API",
+            "Luma API",
+            "AssemblyAI API",
+            "Black Forest Labs API",
+            "Stability AI API",
+            "Databricks Model Serving",
+            "AI21 API",
+            "Writer API",
+            "IBM watsonx.ai",
+            "Baidu ERNIE API",
+            "Other / Custom"
+          ]
+        },
+        "provider_model_id": {
+          "type": "string"
+        },
+        "provider_model_label": {
+          "type": "string"
+        },
+        "api_compatibility": {
+          "enum": [
+            "native",
+            "openai_compatible",
+            "anthropic_compatible",
+            "google_compatible",
+            "custom"
+          ]
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "local_runnable": {
+          "type": "boolean"
+        },
+        "pricing": {
+          "type": "object"
+        },
+        "context_window": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "max_output_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

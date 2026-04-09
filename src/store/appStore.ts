@@ -7,6 +7,7 @@ import type {
   OrchestrationRun,
   PermissionTier,
   Provider,
+  SwarmFeedEntry,
   TaskStep,
   TerminalEntry,
 } from '../types'
@@ -17,10 +18,11 @@ import {
   getConnectedProviders,
   getAllSavedModels,
   loadAllSavedConfigs,
+  routeModelForTask,
   saveProviderConfig,
 } from '../lib/providerApi'
 import { INITIAL_CONNECTORS } from '../lib/connectors'
-import { executeCommand, readFile } from '../lib/tauri'
+import { executeCommand, getN8nStatus, readFile } from '../lib/tauri'
 import { trackUsage, estimateCost } from '../lib/usageTracker'
 import { notify } from '../lib/notifications'
 import {
@@ -30,11 +32,28 @@ import {
 } from '../lib/dashboardData'
 import { buildOrchestrationPlan, runOrchestration } from '../lib/orchestrator'
 import { AGENT_TEMPLATE_NAMES } from '../lib/agentTemplates'
+import { getSkillsForTask } from '../lib/skills'
+import { findWorkflowForTask } from '../lib/workflows'
+import {
+  compressMemory,
+  injectMemoryContext,
+  initializeAgentMemory,
+  writeMemoryEntry,
+} from '../lib/agentMemory'
+import { TEMPLATES } from '../views/AgentTemplatesView'
 
 let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
+let n8nStatusPollTimer: ReturnType<typeof setInterval> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: (() => void) | null = null
+
+function clearN8nStatusPollTimer() {
+  if (n8nStatusPollTimer) {
+    clearInterval(n8nStatusPollTimer)
+    n8nStatusPollTimer = null
+  }
+}
 
 // ─── Chat session persistence ─────────────────────────────────────────────────
 
@@ -250,7 +269,20 @@ function selectProvider(preferredId: string | undefined, activeProvider: Provide
 function resolveProviderForModel(model: string | undefined, fallback: Provider): Provider {
   if (!model) return fallback
 
-  const match = getAllSavedModels().find(entry => entry.model.id === model || entry.model.label === model)
+  const explicit = model.includes('::') ? model.split('::') : []
+  if (explicit.length === 2) {
+    const [providerId, modelId] = explicit
+    const provider = buildProvider(providerId)
+    if (provider) {
+      return { ...provider, model: modelId }
+    }
+  }
+
+  const match = getAllSavedModels().find(entry => (
+    entry.model.id === model ||
+    entry.model.label === model ||
+    `${entry.providerId}::${entry.model.id}` === model
+  ))
   if (!match) return { ...fallback, model }
 
   const provider = buildProvider(match.providerId)
@@ -271,6 +303,36 @@ function fallbackSubtasks(goal: string) {
 }
 
 let agentCounter = 1
+
+function pushSwarmFeed(
+  feed: SwarmFeedEntry[],
+  next: SwarmFeedEntry,
+): SwarmFeedEntry[] {
+  return [...feed, next].slice(-3000)
+}
+
+function buildWorkflowHint(task: string): string {
+  const workflowMatch = findWorkflowForTask(task)
+  if (!workflowMatch || workflowMatch.confidence <= 0.7) return ''
+
+  return [
+    '## Workflow Hint',
+    `Matched workflow: ${workflowMatch.workflow.name}`,
+    `Category: ${workflowMatch.workflow.category}`,
+    `Required services: ${workflowMatch.workflow.required_services.join(', ') || 'None listed'}`,
+    `Template file: ${workflowMatch.filePath}`,
+  ].join('\n')
+}
+
+function buildAgentSystemPrompt(task: string, basePrompt: string): string {
+  const memoryPrompt = injectMemoryContext(task)
+  const skillPrompt = getSkillsForTask(task)
+  const workflowPrompt = buildWorkflowHint(task)
+
+  return [memoryPrompt, skillPrompt, basePrompt, workflowPrompt]
+    .filter(section => section.trim().length > 0)
+    .join('\n\n')
+}
 
 interface AppState {
   activeView: NavView
@@ -301,10 +363,14 @@ interface AppState {
   swarmGoal: string
   swarmRunning: boolean
   chatDraft: string
+  chatDraftBySession: Record<string, string>
   multiAgentMode: boolean
   orchestrationRun: OrchestrationRun | null
+  swarmFeed: SwarmFeedEntry[]
   chatSessions: ChatSession[]
   activeChatSessionId: string
+  n8nReady: boolean
+  n8nUrl: string
 
   setView: (view: NavView) => void
   setUser: (user: any | null) => void
@@ -321,7 +387,7 @@ interface AppState {
   addMessage: (message: Message) => void
   sendMessage: (content: string) => void
   stopAll: () => void
-  spawnAgent: (task?: string, providerId?: string, name?: string, model?: string) => Promise<void>
+  spawnAgent: (task?: string, providerId?: string, name?: string, model?: string, systemPrompt?: string) => Promise<void>
   launchSwarm: (goal?: string) => Promise<void>
   stopAgent: (id: string) => void
   setConnectorConnected: (id: string, connected: boolean) => void
@@ -331,6 +397,7 @@ interface AppState {
   clearTerminal: () => void
   setSwarmGoal: (goal: string) => void
   setChatDraft: (draft: string) => void
+  clearSwarmFeed: () => void
   toggleMultiAgentMode: () => void
   setOrchestrationRun: (run: OrchestrationRun | null) => void
   startOrchestration: (task: string) => Promise<void>
@@ -339,6 +406,9 @@ interface AppState {
   closeChatSession: (id: string) => void
   renameChatSession: (id: string, name: string) => void
   setSessionModel: (providerId: string, modelId: string) => void
+  refreshN8nStatus: () => Promise<void>
+  startN8nStatusPolling: () => void
+  stopN8nStatusPolling: () => void
 }
 
 const _defaultProvider = buildDefaultProvider()
@@ -376,16 +446,54 @@ export const useAppStore = create<AppState>((set, get) => ({
   swarmGoal: '',
   swarmRunning: false,
   chatDraft: '',
+  chatDraftBySession: { [_chatInit.activeChatSessionId]: '' },
   multiAgentMode: false,
   orchestrationRun: null,
+  swarmFeed: [],
   chatSessions: _chatInit.chatSessions,
   activeChatSessionId: _chatInit.activeChatSessionId,
+  n8nReady: false,
+  n8nUrl: 'http://localhost:5678',
 
   setView: view => set({ activeView: view }),
   setUser: user => set({ user }),
   startNewSession: () => {
     // Delegate to createChatSession for consistency
     get().createChatSession()
+  },
+  refreshN8nStatus: async () => {
+    try {
+      const status = await getN8nStatus()
+      set({
+        n8nReady: status.running,
+        n8nUrl: status.url || 'http://localhost:5678',
+      })
+
+      if (status.running) {
+        clearN8nStatusPollTimer()
+      }
+    } catch {
+      set(state => ({
+        n8nReady: false,
+        n8nUrl: state.n8nUrl || 'http://localhost:5678',
+      }))
+    }
+  },
+  startN8nStatusPolling: () => {
+    clearN8nStatusPollTimer()
+    void get().refreshN8nStatus()
+
+    n8nStatusPollTimer = setInterval(() => {
+      if (get().n8nReady) {
+        clearN8nStatusPollTimer()
+        return
+      }
+
+      void get().refreshN8nStatus()
+    }, 30_000)
+  },
+  stopN8nStatusPolling: () => {
+    clearN8nStatusPollTimer()
   },
   setSessionName: name => set({ sessionName: name }),
   toggleAgentRunning: () => set(state => ({ agentRunning: !state.agentRunning })),
@@ -422,15 +530,36 @@ export const useAppStore = create<AppState>((set, get) => ({
   setProviderHubOpen: open => set({ providerHubOpen: open }),
   addMessage: message => set(state => ({ messages: [...state.messages, message] })),
   setSwarmGoal: goal => set({ swarmGoal: goal }),
-  setChatDraft: draft => set({ chatDraft: draft }),
+  setChatDraft: draft => set(state => ({
+    chatDraft: draft,
+    chatDraftBySession: {
+      ...state.chatDraftBySession,
+      [state.activeChatSessionId]: draft,
+    },
+  })),
+  clearSwarmFeed: () => set({ swarmFeed: [] }),
   toggleMultiAgentMode: () => set(state => ({ multiAgentMode: !state.multiAgentMode })),
   setOrchestrationRun: run => set({ orchestrationRun: run }),
 
   startOrchestration: async task => {
+    // Chat stays active — never switch to 'swarm' view here.
+
+    // ── Complexity guard ───────────────────────────────────────────────────────
+    // Simple messages (< 20 words, no task keywords) route to regular chat.
+    const TASK_KEYWORDS = /\b(build|create|write|research|analyze|generate|make|design|develop|find|compare|summarize|plan|implement|draft|produce|explain|code|debug|review|evaluate|investigate|gather)\b/i
+    const wordCount = task.trim().split(/\s+/).length
+    if (wordCount < 20 && !TASK_KEYWORDS.test(task)) {
+      get().sendMessage(task)
+      return
+    }
+
     const state = get()
     const provider = state.activeProvider
+    const originSessionId = state.activeChatSessionId
 
     if (!provider.isLocal && !provider.apiKey) return
+
+    await initializeAgentMemory()
 
     const runId = createId('orch')
     const run: OrchestrationRun = {
@@ -442,13 +571,102 @@ export const useAppStore = create<AppState>((set, get) => ({
       startedAt: new Date(),
     }
 
-    set({ orchestrationRun: run, activeView: 'swarm' })
+    set({ orchestrationRun: run, swarmFeed: [] })
+
+    // ── Mutable checklist message helpers ─────────────────────────────────────
+    // We create ONE assistant message and edit it in-place as steps progress.
+    const checklistMsgId = createId('checklist')
+
+    const upsertSessionMessage = (msgId: string, content: string, role: Message['role'] = 'assistant') => {
+      set(current => {
+        const sourceMessages = current.chatSessions.find(s => s.id === originSessionId)?.messages ?? current.messages
+        const exists = sourceMessages.some(m => m.id === msgId)
+        const nextMessages = exists
+          ? sourceMessages.map(m => m.id === msgId ? { ...m, content } : m)
+          : [...sourceMessages, { id: msgId, role, content, timestamp: new Date() }]
+        const nextChatSessions = current.chatSessions.map(session =>
+          session.id === originSessionId ? { ...session, messages: nextMessages } : session
+        )
+        return {
+          messages: current.activeChatSessionId === originSessionId ? nextMessages : current.messages,
+          chatSessions: nextChatSessions,
+        }
+      })
+      const latest = get()
+      persistChatSessions(latest.chatSessions, latest.activeChatSessionId)
+    }
+
+    const appendSessionMessage = (content: string, role: Message['role'] = 'assistant') => {
+      const message = createMessage(role, content)
+      set(current => {
+        const sourceMessages = current.chatSessions.find(s => s.id === originSessionId)?.messages ?? current.messages
+        const nextMessages = [...sourceMessages, message]
+        const nextChatSessions = current.chatSessions.map(session =>
+          session.id === originSessionId ? { ...session, messages: nextMessages } : session
+        )
+        return {
+          messages: current.activeChatSessionId === originSessionId ? nextMessages : current.messages,
+          chatSessions: nextChatSessions,
+        }
+      })
+      const latest = get()
+      persistChatSessions(latest.chatSessions, latest.activeChatSessionId)
+      const targetSession = latest.chatSessions.find(s => s.id === originSessionId)
+      if (targetSession) {
+        const targetProvider = buildProvider(targetSession.providerId)
+        persistSessionSnapshot(
+          targetSession.id,
+          targetSession.name,
+          targetProvider ? { ...targetProvider, model: targetSession.modelId || targetProvider.model } : latest.activeProvider,
+          targetSession.messages,
+        )
+      }
+    }
+
+    const buildChecklist = (
+      agents: Array<{ id: string; templateName: string; specificTask: string }>,
+      completedIds: Set<string>,
+      runningId: string | null,
+      taskSummary: string,
+    ) => {
+      const lines = agents.map(a => {
+        if (completedIds.has(a.id)) return `✅ **${a.templateName}** — done`
+        if (a.id === runningId) return `🔄 **${a.templateName}** — running…`
+        return `⏳ **${a.templateName}** — waiting`
+      })
+      return `🤖 **Multi-Agent Task:** ${taskSummary}\n\n${lines.join('\n')}`
+    }
+
+    appendSessionMessage(task, 'user')
 
     try {
-      const plan = await buildOrchestrationPlan(task, provider, AGENT_TEMPLATE_NAMES)
+      const templateDetails = TEMPLATES.map(t => ({ name: t.name, category: t.category, systemPrompt: t.systemPrompt }))
+      const savedModels = getAllSavedModels().map(m => `${m.providerId}::${m.model.id}`)
+      const basePlan = await buildOrchestrationPlan(task, provider, AGENT_TEMPLATE_NAMES, templateDetails, savedModels)
+      const plan = {
+        ...basePlan,
+        agents: basePlan.agents.map(step => {
+          const baseSystemPrompt = step.systemPrompt?.trim()
+            || `You are a ${step.templateName}. ${step.templateTask}. Focus only on your specific assigned task and produce high quality output.`
+          const injectedPrompt = buildAgentSystemPrompt(step.specificTask, baseSystemPrompt)
+          return {
+            ...step,
+            systemPrompt: injectedPrompt,
+          }
+        }),
+      }
+
+      appendSessionMessage(`Starting multi-agent task: ${plan.taskSummary || task}. Agents are running — check the Agent Swarm tab for live progress.`)
 
       const runningRun: OrchestrationRun = { ...run, plan, status: 'running' }
       set({ orchestrationRun: runningRun })
+
+      // Post the initial checklist message (all waiting)
+      const completedStepIds = new Set<string>()
+      upsertSessionMessage(
+        checklistMsgId,
+        buildChecklist(plan.agents, completedStepIds, null, plan.taskSummary || task),
+      )
 
       // Create an AgentInstance for each orchestration step
       const stepAgentIds: Record<string, string> = {}
@@ -456,14 +674,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       for (let i = 0; i < plan.agents.length; i++) {
         const step = plan.agents[i]
         const agentId = `orch-${runId}-step-${i}`
-        const agentProvider = resolveProviderForModel(step.model, selectProvider(undefined, provider, i))
+        const fallbackProvider = resolveProviderForModel(step.model, selectProvider(undefined, provider, i))
+        const agentProvider = routeModelForTask(step.specificTask, fallbackProvider)
         stepProviders.set(step.id, agentProvider)
         const agent: AgentInstance = {
           id: agentId,
           name: step.templateName,
           providerId: agentProvider.id,
           providerName: agentProvider.name,
-          model: step.model || (agentProvider.model ?? agentProvider.name),
+          model: agentProvider.model ?? step.model ?? agentProvider.name,
           task: step.specificTask,
           status: 'idle',
           tokens: 0,
@@ -486,6 +705,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         provider,
         (stepId, agentName) => {
           const agentId = stepAgentIds[stepId]
+          const step = plan.agents.find(item => item.id === stepId)
           if (!agentId) return
           set(current => ({
             agents: current.agents.map(a =>
@@ -493,15 +713,71 @@ export const useAppStore = create<AppState>((set, get) => ({
                 ? { ...a, status: 'running' as const, startedAt: new Date(), lastUpdate: `${agentName} started…` }
                 : a
             ),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              stepId,
+              agentName,
+              type: 'start',
+              content: plan.agents.find(s => s.id === stepId)?.specificTask ?? '',
+              timestamp: new Date(),
+            }),
           }))
+          if (step) {
+            void writeMemoryEntry({
+              session_id: originSessionId,
+              agent_id: agentId,
+              agent_name: agentName,
+              task: step.specificTask,
+              type: 'observation',
+              content: `${agentName} started ${step.specificTask}`,
+              project_id: runId,
+            })
+          }
+          // Update checklist: mark this step as running
+          upsertSessionMessage(
+            checklistMsgId,
+            buildChecklist(plan.agents, completedStepIds, stepId, plan.taskSummary || task),
+          )
         },
         (stepId, chunk) => {
+          const agentId = stepAgentIds[stepId]
+          if (!agentId) return
+          const step = plan.agents.find(item => item.id === stepId)
+          const agentName = step?.templateName ?? 'Agent'
+          set(current => ({
+            agents: current.agents.map(a =>
+              a.id === agentId
+                ? { ...a, tokens: a.tokens + Math.ceil(chunk.length / 4), lastUpdate: chunk.slice(-120) }
+                : a
+            ),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              stepId,
+              agentName,
+              type: 'chunk',
+              content: chunk,
+              timestamp: new Date(),
+            }),
+          }))
+          if (step) {
+            void writeMemoryEntry({
+              session_id: originSessionId,
+              agent_id: agentId,
+              agent_name: agentName,
+              task: step.specificTask,
+              type: 'observation',
+              content: chunk,
+              project_id: runId,
+            })
+          }
+        },
+        stepId => {
           const agentId = stepAgentIds[stepId]
           if (!agentId) return
           set(current => ({
             agents: current.agents.map(a =>
               a.id === agentId
-                ? { ...a, tokens: a.tokens + Math.ceil(chunk.length / 4), lastUpdate: chunk.slice(-120) }
+                ? { ...a, lastUpdate: 'Reviewing…', status: 'running' as const }
                 : a
             ),
           }))
@@ -509,28 +785,71 @@ export const useAppStore = create<AppState>((set, get) => ({
         (stepId, output) => {
           const agentId = stepAgentIds[stepId]
           if (!agentId) return
+          const step = plan.agents.find(item => item.id === stepId)
+          const agentName = step?.templateName ?? 'Agent'
+          completedStepIds.add(stepId)
           set(current => ({
             agents: current.agents.map(a =>
               a.id === agentId
                 ? { ...a, status: 'complete' as const, summary: output, lastUpdate: output.slice(0, 120) }
                 : a
             ),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              stepId,
+              agentName,
+              type: 'complete',
+              content: output,
+              timestamp: new Date(),
+            }),
           }))
+          // Update checklist: mark this step as done
+          upsertSessionMessage(
+            checklistMsgId,
+            buildChecklist(plan.agents, completedStepIds, null, plan.taskSummary || task),
+          )
           // Persist output to orchestrationRun in store
           set(current => {
             if (!current.orchestrationRun) return {}
-            const step = current.orchestrationRun.plan.agents.find(s => s.id === stepId)
-            if (!step) return {}
+            const s = current.orchestrationRun.plan.agents.find(a => a.id === stepId)
+            if (!s) return {}
             return {
               orchestrationRun: {
                 ...current.orchestrationRun,
-                stepOutputs: { ...current.orchestrationRun.stepOutputs, [step.outputVar]: output },
+                stepOutputs: { ...current.orchestrationRun.stepOutputs, [s.outputVar]: output },
               },
             }
           })
+          if (step) {
+            const routedProvider = stepProviders.get(step.id)
+            void writeMemoryEntry({
+              session_id: originSessionId,
+              agent_id: agentId,
+              agent_name: agentName,
+              task: step.specificTask,
+              type: 'output',
+              content: output,
+              project_id: runId,
+            }).then(() => compressMemory(agentId, routedProvider))
+          }
         },
         completedRun => {
           activeOrchestrationAbort = null
+
+          // Finalize checklist to all-done
+          const finalChecklist = buildChecklist(plan.agents, new Set(plan.agents.map(a => a.id)), null, plan.taskSummary || task)
+          upsertSessionMessage(checklistMsgId, finalChecklist)
+
+          // Build synthesized summary and append as a new assistant message
+          const summaryParts = completedRun.plan.agents.map(step => {
+            const output = completedRun.stepOutputs[step.outputVar] ?? ''
+            return output.trim() ? `### ${step.templateName}\n\n${output.trim()}` : ''
+          }).filter(Boolean)
+          const synthesized = summaryParts.join('\n\n---\n\n')
+          if (synthesized) {
+            appendSessionMessage(synthesized)
+          }
+
           set(current => ({
             orchestrationRun: {
               ...completedRun,
@@ -538,6 +857,13 @@ export const useAppStore = create<AppState>((set, get) => ({
               finishedAt: new Date(),
             },
             swarmRunning: current.agents.some(a => a.status === 'running'),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              agentName: 'Swarm',
+              type: 'summary',
+              content: `Completed: ${completedRun.originalTask}`,
+              timestamp: new Date(),
+            }),
           }))
           void notify('Drodo', 'Multi-agent task complete')
         },
@@ -551,7 +877,15 @@ export const useAppStore = create<AppState>((set, get) => ({
               ...current.terminalEntries,
               createTerminalEntry('error', 'Orchestration failed', errorMessage),
             ],
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              agentName: 'Swarm',
+              type: 'error',
+              content: errorMessage,
+              timestamp: new Date(),
+            }),
           }))
+          appendSessionMessage(`❌ Multi-agent task failed: ${errorMessage}`, 'system')
         },
         step => stepProviders.get(step.id) ?? provider,
       )
@@ -567,6 +901,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           ...current.terminalEntries,
           createTerminalEntry('error', 'Orchestration failed', message),
         ],
+        swarmFeed: pushSwarmFeed(current.swarmFeed, {
+          id: createId('swarm-feed'),
+          agentName: 'Swarm',
+          type: 'error',
+          content: message,
+          timestamp: new Date(),
+        }),
       }))
     }
   },
@@ -860,7 +1201,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     activePrimaryRun = handle
   },
 
-  spawnAgent: async (task, providerId, name, model) => {
+  spawnAgent: async (task, providerId, name, model, systemPrompt) => {
     const state = get()
     const agentTask =
       task?.trim() ||
@@ -868,13 +1209,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       state.messages.filter(message => message.role === 'user').slice(-1)[0]?.content ||
       state.sessionName
 
+    await initializeAgentMemory()
+
     const agentId = `agent-${agentCounter++}`
     const selectedProvider = selectProvider(providerId, state.activeProvider, agentCounter)
-    const provider = model ? { ...selectedProvider, model } : selectedProvider
-    const conversation = [
-      createMessage('system', 'You are a Drodo swarm worker. Focus only on the assigned subtask.'),
+    const fallbackProvider = model ? { ...selectedProvider, model } : selectedProvider
+    const provider = routeModelForTask(agentTask, fallbackProvider)
+    const resolvedSystemPrompt = buildAgentSystemPrompt(
+      agentTask,
+      systemPrompt ?? 'You are a Drodo swarm worker. Focus only on the assigned subtask.',
+    )
+    const baseConversation = [
+      createMessage('system', resolvedSystemPrompt),
       createMessage('user', agentTask),
     ]
+    const conversation = baseConversation
 
     const agent: AgentInstance = {
       id: agentId,
@@ -915,6 +1264,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     let accumulated = ''
     let usedTools = false
 
+    void writeMemoryEntry({
+      session_id: state.activeChatSessionId,
+      agent_id: agentId,
+      agent_name: name?.trim() || `Agent ${agentCounter - 1}`,
+      task: agentTask,
+      type: 'observation',
+      content: `Assigned task: ${agentTask}`,
+      project_id: state.sessionId,
+    })
+
     const handle = runAgentSession({
       provider,
       conversation,
@@ -938,6 +1297,15 @@ export const useAppStore = create<AppState>((set, get) => ({
             createTerminalEntry('tool', `${agent.name}: ${call.tool}`, JSON.stringify(call.arguments, null, 2), agentId),
           ],
         }))
+        void writeMemoryEntry({
+          session_id: state.activeChatSessionId,
+          agent_id: agentId,
+          agent_name: agent.name,
+          task: agentTask,
+          type: 'tool_call',
+          content: `${call.tool}\n${JSON.stringify(call.arguments, null, 2)}`,
+          project_id: state.sessionId,
+        })
       },
       onToolResult: result => {
         set(current => ({
@@ -956,6 +1324,15 @@ export const useAppStore = create<AppState>((set, get) => ({
             createTerminalEntry('output', `${agent.name}: ${result.summary}`, result.contentForModel, agentId),
           ],
         }))
+        void writeMemoryEntry({
+          session_id: state.activeChatSessionId,
+          agent_id: agentId,
+          agent_name: agent.name,
+          task: agentTask,
+          type: 'output',
+          content: result.contentForModel,
+          project_id: state.sessionId,
+        })
       },
       onFinalStart: () => {
         set(current => ({
@@ -973,6 +1350,15 @@ export const useAppStore = create<AppState>((set, get) => ({
               : item
           ),
         }))
+        void writeMemoryEntry({
+          session_id: state.activeChatSessionId,
+          agent_id: agentId,
+          agent_name: agent.name,
+          task: agentTask,
+          type: 'observation',
+          content: chunk,
+          project_id: state.sessionId,
+        })
       },
       onFinal: message => {
         activeSwarmRuns.delete(agentId)
@@ -999,6 +1385,15 @@ export const useAppStore = create<AppState>((set, get) => ({
             ],
           }
         })
+        void writeMemoryEntry({
+          session_id: state.activeChatSessionId,
+          agent_id: agentId,
+          agent_name: agent.name,
+          task: agentTask,
+          type: 'output',
+          content: message,
+          project_id: state.sessionId,
+        }).then(() => compressMemory(agentId, provider))
       },
       onError: error => {
         activeSwarmRuns.delete(agentId)
@@ -1136,13 +1531,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         ],
       }))
 
-      const connectedProviders = getConnectedProviders()
       for (let index = 0; index < subtasks.length; index += 1) {
         const taskEntry = subtasks[index]
-        const assignedProvider = connectedProviders.length > 0
-          ? connectedProviders[index % connectedProviders.length]
-          : state.activeProvider
-        await get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name)
+        const assignedProvider = routeModelForTask(taskEntry.task, state.activeProvider)
+        await get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name, assignedProvider.model)
       }
     } catch (error: unknown) {
       activeSwarmRuns.delete(orchestratorId)
@@ -1230,6 +1622,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       autonomousLoopCount: 0,
       taskSteps: createTaskSteps(),
       chatDraft: '',
+      chatDraftBySession: {
+        ...state.chatDraftBySession,
+        [newSession.id]: '',
+      },
     })
     persistChatSessions(allSessions, newSession.id)
   },
@@ -1267,6 +1663,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       autonomousLoopActive: false,
       autonomousLoopCount: 0,
       taskSteps: createTaskSteps(),
+      chatDraftBySession: {
+        ...state.chatDraftBySession,
+        [state.activeChatSessionId]: state.chatDraft,
+      },
+      chatDraft: state.chatDraftBySession[id] ?? '',
     })
     persistChatSessions(updatedSessions, id)
   },
@@ -1279,6 +1680,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (idx === -1) return
 
     const remaining = state.chatSessions.filter(s => s.id !== id)
+    const { [id]: _removedDraft, ...remainingDrafts } = state.chatDraftBySession
 
     if (id === state.activeChatSessionId) {
       activePrimaryRun?.abort()
@@ -1300,10 +1702,15 @@ export const useAppStore = create<AppState>((set, get) => ({
         agentRunning: false,
         autonomousLoopActive: false,
         taskSteps: createTaskSteps(),
+        chatDraftBySession: remainingDrafts,
+        chatDraft: remainingDrafts[nextSession.id] ?? '',
       })
       persistChatSessions(remaining, nextSession.id)
     } else {
-      set({ chatSessions: remaining })
+      set({
+        chatSessions: remaining,
+        chatDraftBySession: remainingDrafts,
+      })
       persistChatSessions(remaining, state.activeChatSessionId)
     }
   },

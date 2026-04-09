@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { open } from '@tauri-apps/plugin-shell'
 import {
   GitBranch,
   Plus,
@@ -25,6 +26,7 @@ import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
 import { getWorkflowCategories, getWorkflowCount, getWorkflowTemplate, searchWorkflows, type WorkflowIndex } from '../lib/workflows'
+import { useAppStore } from '../store/appStore'
 import type { Message, Provider } from '../types'
 
 const WORKFLOWS_KEY = 'drodo_workflow_defs'
@@ -404,6 +406,8 @@ function RunCard({ run }: { run: WorkflowRun }) {
 
 export function WorkflowsView() {
   const initialProviderId = getSavedProviders()[0]?.id ?? ''
+  const n8nReady = useAppStore(state => state.n8nReady)
+  const n8nUrl = useAppStore(state => state.n8nUrl)
   const [tab, setTab] = useState<WorkflowTab>('workflows')
   const [loading, setLoading] = useState(true)
   const [workflows, setWorkflows] = useState<StoredWorkflow[]>([])
@@ -912,6 +916,35 @@ export function WorkflowsView() {
             </button>
           )}
         </div>
+      </div>
+
+      <div
+        className="flex items-center justify-between gap-3 px-6 py-3 flex-shrink-0 flex-wrap"
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}
+      >
+        <div className="flex items-center gap-3 flex-wrap">
+          <span
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
+            style={n8nReady
+              ? { color: '#1d9e75', background: '#1d9e7515', borderColor: '#1d9e7533' }
+              : { color: '#b58a24', background: '#b58a2415', borderColor: '#b58a2433' }}
+          >
+            {n8nReady ? <Check size={12} /> : <Loader2 size={12} className="animate-spin" />}
+            {n8nReady ? 'n8n Ready' : 'n8n Starting...'}
+          </span>
+          <span className="text-xs text-[var(--text-secondary)]">
+            {n8nReady ? `Dashboard available at ${n8nUrl}` : 'Drodo is bootstrapping Node.js, Git, and n8n in the background.'}
+          </span>
+        </div>
+
+        <button
+          onClick={() => void open(n8nUrl)}
+          className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:border-[#7f77dd]/50 hover:text-white"
+          style={{ background: 'var(--bg-secondary)' }}
+        >
+          <Workflow size={12} />
+          Open n8n Dashboard
+        </button>
       </div>
 
       {loading ? (

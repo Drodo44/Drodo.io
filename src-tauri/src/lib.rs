@@ -1,11 +1,25 @@
 use serde::Serialize;
+use serde_json::json;
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     process::Command,
+    time::Duration,
     time::UNIX_EPOCH,
 };
 use tauri::Manager;
+
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+const N8N_PORT: u16 = 5678;
+const N8N_URL: &str = "http://localhost:5678";
+
+#[cfg(target_os = "windows")]
+const DETACHED_PROCESS: u32 = 0x0000_0008;
+#[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -40,6 +54,80 @@ fn path_from_input(path: &str) -> Result<PathBuf, String> {
 
 fn stringify_path(path: &Path) -> String {
     path.to_string_lossy().to_string()
+}
+
+fn probe_n8n_running() -> bool {
+    reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(2))
+        .build()
+        .and_then(|client| client.head(N8N_URL).send())
+        .is_ok()
+}
+
+fn build_n8n_status(running: bool) -> serde_json::Value {
+    json!({
+        "running": running,
+        "url": N8N_URL,
+        "port": N8N_PORT,
+    })
+}
+
+fn resolve_dependency_script_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let file_name = if cfg!(target_os = "windows") {
+        "install-dependencies.ps1"
+    } else {
+        "install-dependencies.sh"
+    };
+
+    let mut candidates = Vec::new();
+
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        candidates.push(resource_dir.join(file_name));
+        candidates.push(resource_dir.join("scripts").join(file_name));
+    }
+
+    let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve the repository root.".to_string())?;
+    candidates.push(repo_root.join("scripts").join(file_name));
+
+    candidates
+        .into_iter()
+        .find(|candidate| candidate.exists())
+        .ok_or_else(|| format!("Unable to locate the dependency bootstrap script: {file_name}"))
+}
+
+fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
+    let script_path = resolve_dependency_script_path(app)?;
+
+    #[cfg(target_os = "windows")]
+    {
+        let mut command = Command::new("powershell");
+        command
+            .args([
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                &stringify_path(&script_path),
+            ])
+            .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
+
+        command
+            .spawn()
+            .map_err(|err| format!("Failed to start the dependency bootstrapper: {err}"))?;
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Command::new("sh")
+            .arg(&script_path)
+            .spawn()
+            .map_err(|err| format!("Failed to start the dependency bootstrapper: {err}"))?;
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -143,6 +231,46 @@ fn execute_command(command: String) -> Result<CommandExecutionResult, String> {
     })
 }
 
+/// Spawn an MCP server process with the given command and environment variables.
+/// Credentials from localStorage are passed as env vars so they never touch the
+/// Drodo network — they only exist locally in the spawned child process.
+#[tauri::command]
+fn start_mcp_server(
+    _server_id: String,
+    command: String,
+    env_vars: HashMap<String, String>,
+) -> Result<(), String> {
+    let trimmed = command.trim();
+    if trimmed.is_empty() {
+        return Err("MCP server command cannot be empty.".to_string());
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("powershell")
+            .args(["-NoProfile", "-Command", trimmed])
+            .envs(&env_vars)
+            .spawn()
+            .map_err(|err| format!("Failed to start MCP server: {}", err))?;
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Command::new("sh")
+            .args(["-c", trimmed])
+            .envs(&env_vars)
+            .spawn()
+            .map_err(|err| format!("Failed to start MCP server: {}", err))?;
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn get_n8n_status() -> Result<serde_json::Value, String> {
+    Ok(build_n8n_status(probe_n8n_running()))
+}
+
 #[tauri::command]
 fn get_home_dir(app: tauri::AppHandle) -> Result<String, String> {
     app.path()
@@ -162,6 +290,15 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
+            let app_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if !probe_n8n_running() {
+                    if let Err(err) = spawn_dependency_bootstrap(&app_handle) {
+                        eprintln!("{err}");
+                    }
+                }
+            });
+
             #[cfg(debug_assertions)]
             {
                 let window = app.get_webview_window("main").unwrap();
@@ -174,7 +311,9 @@ pub fn run() {
             write_file,
             list_directory,
             execute_command,
-            get_home_dir
+            get_home_dir,
+            get_n8n_status,
+            start_mcp_server
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

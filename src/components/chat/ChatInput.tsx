@@ -38,13 +38,9 @@ export function ChatInput() {
   )
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Consume chatDraft when it changes (set by Prompt Library "Use in Chat")
+  // Keep textarea in sync with persisted draft for the active chat session.
   useEffect(() => {
-    if (chatDraft) {
-      setValue(chatDraft)
-      setChatDraft('')
-      textareaRef.current?.focus()
-    }
+    setValue(chatDraft)
   }, [chatDraft, setChatDraft])
 
   const handleSend = () => {
@@ -58,6 +54,7 @@ export function ChatInput() {
     }
 
     setValue('')
+    setChatDraft('')
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
@@ -71,7 +68,9 @@ export function ChatInput() {
   }
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value)
+    const next = e.target.value
+    setValue(next)
+    setChatDraft(next)
     const ta = e.target
     ta.style.height = 'auto'
     ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'

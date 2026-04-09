@@ -1,0 +1,258 @@
+{
+  "generated_at": "2026-04-09",
+  "canonical_model_count": 127,
+  "canonical_models_by_owner": {
+    "01.AI": 1,
+    "AI21 Labs": 2,
+    "Amazon": 8,
+    "Anthropic": 4,
+    "AssemblyAI": 2,
+    "Baidu": 1,
+    "Black Forest Labs": 3,
+    "Cohere": 6,
+    "Databricks": 1,
+    "DeepSeek": 4,
+    "ElevenLabs": 4,
+    "Google / DeepMind": 7,
+    "IBM": 2,
+    "Jina AI": 2,
+    "Kyutai": 1,
+    "Luma": 2,
+    "Meta": 7,
+    "Microsoft": 3,
+    "MiniMax": 2,
+    "Mistral": 6,
+    "Moonshot AI": 3,
+    "Nomic": 2,
+    "NVIDIA": 3,
+    "OpenAI": 17,
+    "Perplexity": 3,
+    "Pika": 1,
+    "Qwen / Alibaba": 6,
+    "Recraft": 1,
+    "Runway": 2,
+    "Salesforce": 1,
+    "Snowflake / Arctic": 2,
+    "Stability AI": 3,
+    "StepFun": 1,
+    "Tencent": 1,
+    "TII": 2,
+    "Voyage AI": 4,
+    "Writer": 4,
+    "xAI": 2,
+    "Zhipu / GLM": 1
+  },
+  "canonical_models_by_primary_modality": {
+    "audio": 13,
+    "document": 1,
+    "embedding": 17,
+    "image": 9,
+    "text": 81,
+    "video": 6
+  },
+  "represented_owner_count": 39,
+  "provider_mapping_count": 188,
+  "provider_mappings_by_access_provider": {
+    "AI21 API": 2,
+    "Amazon Bedrock": 9,
+    "Anthropic API": 4,
+    "AssemblyAI API": 2,
+    "Azure AI Foundry": 2,
+    "Baidu ERNIE API": 1,
+    "Black Forest Labs API": 2,
+    "Cohere API": 7,
+    "Databricks Model Serving": 1,
+    "DeepSeek API": 2,
+    "ElevenLabs API": 4,
+    "Fireworks": 2,
+    "Google AI Studio": 7,
+    "Google Vertex AI": 5,
+    "Groq": 2,
+    "Hugging Face": 41,
+    "LM Studio": 2,
+    "Luma API": 2,
+    "MiniMax API": 2,
+    "Mistral API": 10,
+    "Moonshot API": 3,
+    "NVIDIA NIM": 3,
+    "Ollama": 2,
+    "OpenAI API": 15,
+    "OpenRouter": 30,
+    "Perplexity API": 3,
+    "Recraft API": 1,
+    "Runway API": 2,
+    "Stability AI API": 3,
+    "StepFun API": 1,
+    "Together": 2,
+    "vLLM": 2,
+    "Voyage API": 4,
+    "Writer API": 4,
+    "xAI API": 3,
+    "Zhipu API": 1
+  },
+  "represented_access_provider_count": 36,
+  "missing_release_date_count": 55,
+  "missing_release_date_pct": 43.3,
+  "missing_pricing_count": 126,
+  "missing_pricing_pct": 67,
+  "missing_context_window_count": 115,
+  "missing_context_window_pct": 61.2,
+  "missing_max_output_tokens_count": 137,
+  "missing_max_output_tokens_pct": 72.9,
+  "records_missing_ranking_data_count": 0,
+  "missing_ranking_data_by_domain": {
+    "coding": 61,
+    "reasoning": 46,
+    "tool_use": 46,
+    "vision": 113,
+    "multimodal": 99,
+    "agentic": 96,
+    "long_context": 89,
+    "instruction_following": 107,
+    "creative_writing": 107,
+    "document_extraction": 120,
+    "research": 99,
+    "math": 105,
+    "speed": 36,
+    "cost_efficiency": 44,
+    "general_chat": 51
+  },
+  "low_confidence_score_count": 16,
+  "low_confidence_score_count_by_domain": {
+    "coding": 0,
+    "reasoning": 0,
+    "tool_use": 0,
+    "vision": 0,
+    "multimodal": 1,
+    "agentic": 0,
+    "long_context": 0,
+    "instruction_following": 1,
+    "creative_writing": 1,
+    "document_extraction": 0,
+    "research": 0,
+    "math": 0,
+    "speed": 13,
+    "cost_efficiency": 0,
+    "general_chat": 0
+  },
+  "benchmark_backed_score_count_by_domain": {
+    "coding": 3,
+    "reasoning": 6,
+    "tool_use": 2,
+    "vision": 2,
+    "multimodal": 1,
+    "agentic": 2,
+    "long_context": 0,
+    "instruction_following": 0,
+    "creative_writing": 0,
+    "document_extraction": 5,
+    "research": 0,
+    "math": 4,
+    "speed": 0,
+    "cost_efficiency": 0,
+    "general_chat": 0
+  },
+  "unresolved_duplicate_count": 0,
+  "modality_coverage": {
+    "audio": 13,
+    "document": 1,
+    "embedding": 17,
+    "image": 9,
+    "text": 81,
+    "video": 6
+  },
+  "sources_by_evidence_type": {
+    "benchmark_report": 11,
+    "official_docs": 57,
+    "official_model_card": 55,
+    "official_release_notes": 16,
+    "provider_catalog": 20
+  },
+  "benchmark_source_count": 11,
+  "underrepresented_owners": [
+    {
+      "canonical_owner": "01.AI",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "AI21 Labs",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "AssemblyAI",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Baidu",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Databricks",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "IBM",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Jina AI",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Kyutai",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Luma",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "MiniMax",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Nomic",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Pika",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Recraft",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Runway",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Salesforce",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Snowflake / Arctic",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "StepFun",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "Tencent",
+      "canonical_model_count": 1
+    },
+    {
+      "canonical_owner": "TII",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "xAI",
+      "canonical_model_count": 2
+    },
+    {
+      "canonical_owner": "Zhipu / GLM",
+      "canonical_model_count": 1
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 import type { Provider } from '../types'
 import { decryptStoredKey, encryptStoredKey } from './encryption'
+import { autoTagModel, getBestModelForTask } from './modelRegistry'
+import { PROVIDER_CATALOG } from './providerCatalog'
 
 // ─── localStorage persistence ────────────────────────────────────────────────
 
@@ -16,23 +18,6 @@ interface SavedConfig {
   model: string
   savedModels?: SavedModel[]
 }
-
-export const PROVIDER_CATALOG: Provider[] = [
-  { id: 'nvidia', name: 'NVIDIA NIM', baseUrl: 'integrate.api.nvidia.com/v1', color: '#76b900', initials: 'NV' },
-  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'openrouter.ai/api/v1', color: '#6366f1', initials: 'OR', model: 'mistralai/mistral-7b-instruct:free' },
-  { id: 'anthropic', name: 'Anthropic', baseUrl: 'api.anthropic.com', color: '#cc785c', initials: 'AN', model: 'claude-sonnet-4-6' },
-  { id: 'openai', name: 'OpenAI', baseUrl: 'api.openai.com/v1', color: '#10a37f', initials: 'OA', model: 'gpt-4o' },
-  { id: 'gemini', name: 'Google Gemini', baseUrl: 'generativelanguage.googleapis.com', color: '#4285f4', initials: 'GG', model: 'gemini-2.0-flash' },
-  { id: 'mistral', name: 'Mistral', baseUrl: 'api.mistral.ai/v1', color: '#ff7000', initials: 'MI', model: 'mistral-large-latest' },
-  { id: 'groq', name: 'Groq', baseUrl: 'api.groq.com/openai/v1', color: '#f55036', initials: 'GR', model: 'llama-3.3-70b-versatile' },
-  { id: 'together', name: 'Together AI', baseUrl: 'api.together.xyz/v1', color: '#0ea5e9', initials: 'TA', model: 'meta-llama/Llama-3-8b-chat-hf' },
-  { id: 'fireworks', name: 'Fireworks AI', baseUrl: 'api.fireworks.ai/inference/v1', color: '#f97316', initials: 'FW', model: 'accounts/fireworks/models/llama-v3-8b-instruct' },
-  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'api.deepseek.com/v1', color: '#2563eb', initials: 'DS', model: 'deepseek-chat' },
-  { id: 'huggingface', name: 'Hugging Face', baseUrl: 'api-inference.huggingface.co', color: '#ffd21e', initials: 'HF', model: 'HuggingFaceH4/zephyr-7b-beta' },
-  { id: 'ollama', name: 'Ollama', baseUrl: 'localhost:11434/v1', color: '#7f77dd', initials: 'OL', isLocal: true, model: 'llama3.2' },
-  { id: 'lmstudio', name: 'LM Studio', baseUrl: 'localhost:1234/v1', color: '#8b5cf6', initials: 'LM', isLocal: true, model: 'local-model' },
-  { id: 'custom', name: 'Custom Endpoint', baseUrl: '', color: 'var(--text-secondary)', initials: 'CU' },
-]
 
 const CUSTOM_PROVIDERS_KEY = 'drodo_custom_providers'
 
@@ -105,6 +90,7 @@ export function loadAllSavedConfigs(): Record<string, SavedConfig> {
 export function saveProviderConfig(id: string, config: SavedConfig): void {
   const all = loadRawSavedConfigs()
   const existing = all[id]
+  const previousModel = existing?.model?.trim()
   const savedModels = Object.prototype.hasOwnProperty.call(config, 'savedModels')
     ? sanitizeSavedModels(config.savedModels)
     : existing?.savedModels
@@ -116,6 +102,12 @@ export function saveProviderConfig(id: string, config: SavedConfig): void {
     savedModels,
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
+
+  const provider = buildProvider(id)
+  const nextModel = config.model?.trim()
+  if (provider && nextModel && nextModel !== previousModel) {
+    void autoTagModel(nextModel, { ...provider, model: nextModel })
+  }
 }
 
 export function loadProviderConfig(id: string): SavedConfig | null {
@@ -175,6 +167,11 @@ export function addSavedModel(providerId: string, model: SavedModel): void {
     ...current,
     savedModels: [...(current.savedModels ?? []).filter(item => item.id !== next.id), next],
   })
+
+  const provider = buildProvider(providerId)
+  if (provider) {
+    void autoTagModel(next.id, { ...provider, model: next.id })
+  }
 }
 
 export function removeSavedModel(providerId: string, modelId: string): void {
@@ -197,6 +194,16 @@ export function getAllSavedModels(): { providerId: string; providerName: string;
       model,
     }))
   )
+}
+
+export function routeModelForTask(task: string, fallback: Provider): Provider {
+  const connectedProviderIds = getConnectedProviders().map(provider => provider.id)
+  const savedProviderIds = Object.keys(loadAllSavedConfigs())
+  const providerIds = connectedProviderIds.length > 0
+    ? connectedProviderIds
+    : (savedProviderIds.length > 0 ? savedProviderIds : [fallback.id])
+
+  return getBestModelForTask(task, providerIds, fallback)
 }
 
 // ─── CORS proxy ──────────────────────────────────────────────────────────────

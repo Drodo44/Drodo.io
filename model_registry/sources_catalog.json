@@ -1,0 +1,1274 @@
+[
+  {
+    "source_id": "01_ai_yi_lightning",
+    "title": "01-ai/Yi-Lightning model card",
+    "url": "https://huggingface.co/01-ai/Yi-Lightning",
+    "publisher": "01.AI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ai21_jamba",
+    "title": "AI21 Jamba models",
+    "url": "https://docs.ai21.com/docs/jamba-foundation-models",
+    "publisher": "AI21 Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ai21_sdk",
+    "title": "AI21 SDK",
+    "url": "https://docs.ai21.com/docs/sdk",
+    "publisher": "AI21 Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ai21_vllm",
+    "title": "AI21 vLLM deployment",
+    "url": "https://docs.ai21.com/docs/vllm",
+    "publisher": "AI21 Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ai21labs_ai21_jamba_large_1_7",
+    "title": "ai21labs/AI21-Jamba-Large-1.7 model card",
+    "url": "https://huggingface.co/ai21labs/AI21-Jamba-Large-1.7",
+    "publisher": "AI21 Labs",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ai21labs_ai21_jamba_mini_1_7",
+    "title": "ai21labs/AI21-Jamba-Mini-1.7 model card",
+    "url": "https://huggingface.co/ai21labs/AI21-Jamba-Mini-1.7",
+    "publisher": "AI21 Labs",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "aider_polyglot_leaderboard",
+    "title": "Aider polyglot benchmark leaderboard",
+    "url": "https://aider.chat/docs/leaderboards/",
+    "publisher": "Aider",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "amazon_nova_reel_service_card",
+    "title": "Amazon Nova Reel service card",
+    "url": "https://docs.aws.amazon.com/pdfs/ai/responsible-ai/nova-reel/nova-reel.pdf",
+    "publisher": "Amazon",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "amazon_nova_service_card",
+    "title": "Amazon Nova service card",
+    "url": "https://docs.aws.amazon.com/pdfs/ai/responsible-ai/nova-micro-lite-pro/nova-micro-lite-pro.pdf",
+    "publisher": "Amazon",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "amazon_nova_sonic",
+    "title": "Amazon Nova Sonic overview",
+    "url": "https://docs.aws.amazon.com/ai/responsible-ai/nova-sonic/overview.html",
+    "publisher": "Amazon",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "anthropic_claude_37_release",
+    "title": "Claude 3.7 Sonnet system card",
+    "url": "https://www-cdn.anthropic.com/9ff93dfa8f445c932415d335c88852ef47f1201e.pdf",
+    "publisher": "Anthropic",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "anthropic_models",
+    "title": "Anthropic model docs",
+    "url": "https://docs.anthropic.com/en/docs/about-claude/model-deprecations",
+    "publisher": "Anthropic",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "anthropic_overview",
+    "title": "Anthropic models overview",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+    "publisher": "Anthropic",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "anthropic_pricing",
+    "title": "Anthropic pricing",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "publisher": "Anthropic",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "assemblyai_benchmarks",
+    "title": "AssemblyAI benchmarks",
+    "url": "https://www.assemblyai.com/docs/evaluations/benchmarks",
+    "publisher": "AssemblyAI",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "assemblyai_products",
+    "title": "AssemblyAI products overview",
+    "url": "https://www.assemblyai.com/products",
+    "publisher": "AssemblyAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "azure_foundry_models",
+    "title": "Azure AI Foundry model catalog",
+    "url": "https://learn.microsoft.com/en-us/azure/ai-foundry/azure-openai-in-ai-foundry",
+    "publisher": "Microsoft",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "baidu_ernie_45",
+    "title": "Baidu ERNIE 4.5 article",
+    "url": "https://cloud.baidu.com/article/3553539",
+    "publisher": "Baidu Cloud",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_claude_sonnet_45",
+    "title": "Claude Sonnet 4.5 on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_llama33",
+    "title": "Llama 3.3 70B Instruct on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-3-70b-instruct.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_models",
+    "title": "Amazon Bedrock models",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_nova_canvas",
+    "title": "Nova Canvas on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-canvas.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_nova_lite",
+    "title": "Nova Lite model card",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-lite.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_nova_micro",
+    "title": "Nova Micro model card",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-micro.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_nova_pro",
+    "title": "Nova Pro model card",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-pro.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_palmyra_x5",
+    "title": "Palmyra X5 on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-palmyra-x5.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_pricing",
+    "title": "Amazon Bedrock pricing",
+    "url": "https://aws.amazon.com/bedrock/pricing/",
+    "publisher": "Amazon",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_titan_embed",
+    "title": "Titan Text Embeddings V2 on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-titan-text-embeddings-v2.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bfcl_intro",
+    "title": "Berkeley Function Calling Leaderboard intro",
+    "url": "https://gorilla.cs.berkeley.edu/blogs/8_berkeley_function_calling_leaderboard.html",
+    "publisher": "Berkeley Gorilla",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bfcl_v4_leaderboard",
+    "title": "Berkeley Function Calling Leaderboard",
+    "url": "https://gorilla.cs.berkeley.edu/leaderboard",
+    "publisher": "Berkeley Gorilla",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bfl_flux_11_pro",
+    "title": "Black Forest Labs FLUX 1.1 Pro",
+    "url": "https://docs.bfl.ai/flux_models/flux_1_1_pro",
+    "publisher": "Black Forest Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bfl_models",
+    "title": "Black Forest Labs model overview",
+    "url": "https://docs.bfl.ai/",
+    "publisher": "Black Forest Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bfl_pricing",
+    "title": "Black Forest Labs quick start pricing",
+    "url": "https://docs.us.bfl.ai/quick_start/pricing",
+    "publisher": "Black Forest Labs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_command_a",
+    "title": "Command A",
+    "url": "https://docs.cohere.com/docs/command-a",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_command_a_vision",
+    "title": "Command A Vision",
+    "url": "https://docs.cohere.com/v1/docs/command-a-vision",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_command_r_plus",
+    "title": "Command R+",
+    "url": "https://docs.cohere.com/v2/docs/command-r-plus",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_command_r7b",
+    "title": "Command R7B",
+    "url": "https://docs.cohere.com/docs/command-r7b",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_embed4_release",
+    "title": "Embed Multimodal 4 release",
+    "url": "https://docs.cohere.com/v2/changelog/embed-multimodal-v4",
+    "publisher": "Cohere",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_embeddings",
+    "title": "Cohere embeddings overview",
+    "url": "https://docs.cohere.com/v2/docs/embeddings",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_models",
+    "title": "Cohere model guide",
+    "url": "https://docs.cohere.com/v2/docs/models",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_pricing",
+    "title": "Cohere pricing",
+    "url": "https://cohere.com/pricing",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_rerank",
+    "title": "Cohere rerank overview",
+    "url": "https://docs.cohere.com/v2/docs/rerank-overview",
+    "publisher": "Cohere",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "cohere_rerank35_release",
+    "title": "Rerank 3.5 release",
+    "url": "https://docs.cohere.com/v2/changelog/rerank-v3.5",
+    "publisher": "Cohere",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "databricks_dbrx_instruct",
+    "title": "databricks/dbrx-instruct model card",
+    "url": "https://huggingface.co/databricks/dbrx-instruct",
+    "publisher": "Databricks",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_ai_deepseek_r1",
+    "title": "deepseek-ai/DeepSeek-R1 model card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1",
+    "publisher": "DeepSeek",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_ai_deepseek_r1_distill_llama_70b",
+    "title": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B model card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+    "publisher": "DeepSeek",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_ai_deepseek_r1_distill_qwen_32b",
+    "title": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B model card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+    "publisher": "DeepSeek",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_ai_deepseek_v3_1",
+    "title": "deepseek-ai/DeepSeek-V3.1 model card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1",
+    "publisher": "DeepSeek",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_api",
+    "title": "DeepSeek API docs",
+    "url": "https://api-docs.deepseek.com",
+    "publisher": "DeepSeek",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "deepseek_r1",
+    "title": "DeepSeek-R1 Model Card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-R1",
+    "publisher": "deepseek-ai",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "deepseek_v31",
+    "title": "DeepSeek-V3.1 Model Card",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V3.1",
+    "publisher": "deepseek-ai",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "docvqa_official",
+    "title": "DocVQA official site",
+    "url": "https://www.docvqa.org/",
+    "publisher": "DocVQA",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "eleven_models",
+    "title": "ElevenLabs model guide",
+    "url": "https://elevenlabs.io/docs/developer-guides/models",
+    "publisher": "ElevenLabs",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "eleven_v3_release",
+    "title": "Eleven v3 alpha now available in the API",
+    "url": "https://elevenlabs.io/blog/eleven-v3-alpha-now-available-in-the-api",
+    "publisher": "ElevenLabs",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "gaia2_leaderboard_update",
+    "title": "GAIA 2 evaluation update",
+    "url": "https://huggingface.co/blog/meta-agents-research-environments/gaia2-new-models-evaluation",
+    "publisher": "Hugging Face",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "glm51",
+    "title": "GLM-5.1",
+    "url": "https://huggingface.co/zai-org/GLM-5.1",
+    "publisher": "Z.ai",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "google_changelog",
+    "title": "Google Gemini API changelog",
+    "url": "https://ai.google.dev/gemini-api/docs/changelog",
+    "publisher": "Google AI for Developers",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "google_embeddings",
+    "title": "Google Gemini embeddings",
+    "url": "https://ai.google.dev/gemini-api/docs/embeddings",
+    "publisher": "Google AI for Developers",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "google_models",
+    "title": "Google Gemini API models",
+    "url": "https://ai.google.dev/gemini-api/docs/models",
+    "publisher": "Google AI for Developers",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "google_pricing",
+    "title": "Google Gemini API pricing",
+    "url": "https://ai.google.dev/gemini-api/docs/pricing",
+    "publisher": "Google AI for Developers",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "google_video",
+    "title": "Google video generation",
+    "url": "https://ai.google.dev/gemini-api/docs/video",
+    "publisher": "Google AI for Developers",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_gpt_oss_120b",
+    "title": "Groq GPT-OSS 120B model page",
+    "url": "https://console.groq.com/docs/model/openai/gpt-oss-120b",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_gpt_oss_20b",
+    "title": "Groq GPT-OSS 20B model page",
+    "url": "https://console.groq.com/docs/model/openai/gpt-oss-20b",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_models",
+    "title": "Groq supported models",
+    "url": "https://console.groq.com/docs/models",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_reasoning",
+    "title": "Groq reasoning models",
+    "url": "https://console.groq.com/docs/reasoning",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_stt",
+    "title": "Groq speech-to-text docs",
+    "url": "https://console.groq.com/docs/speech-to-text",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "groq_tool_use",
+    "title": "Groq supported tool-use models",
+    "url": "https://console.groq.com/docs/tool-use/overview",
+    "publisher": "Groq",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ibm_granite_granite_3_3_8b_instruct",
+    "title": "ibm-granite/granite-3.3-8b-instruct model card",
+    "url": "https://huggingface.co/ibm-granite/granite-3.3-8b-instruct",
+    "publisher": "IBM",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ibm_granite_granite_speech_3_3_8b",
+    "title": "ibm-granite/granite-speech-3.3-8b model card",
+    "url": "https://huggingface.co/ibm-granite/granite-speech-3.3-8b",
+    "publisher": "IBM",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "jinaai_jina_embeddings_v3",
+    "title": "jinaai/jina-embeddings-v3 model card",
+    "url": "https://huggingface.co/jinaai/jina-embeddings-v3",
+    "publisher": "Jina AI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "jinaai_jina_reranker_v2_base_multilingual",
+    "title": "jinaai/jina-reranker-v2-base-multilingual model card",
+    "url": "https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual",
+    "publisher": "Jina AI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "kyutai_tts_1_6b_en_fr",
+    "title": "kyutai/tts-1.6b-en_fr model card",
+    "url": "https://huggingface.co/kyutai/tts-1.6b-en_fr",
+    "publisher": "Kyutai",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "livebench_leaderboard",
+    "title": "LiveBench leaderboard",
+    "url": "https://livebench.ai/",
+    "publisher": "LiveBench",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "livebench_paper",
+    "title": "LiveBench paper",
+    "url": "https://livebench.ai/livebench.pdf",
+    "publisher": "LiveBench",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "llama33",
+    "title": "Llama 3.3 70B Instruct",
+    "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "llama4_mav",
+    "title": "Llama 4 Maverick",
+    "url": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "llama4_scout",
+    "title": "Llama 4 Scout",
+    "url": "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "luma_video",
+    "title": "Luma video generation",
+    "url": "https://docs.lumalabs.ai/docs/video-generation",
+    "publisher": "Luma",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "meta_llama_llama_3_2_11b_vision_instruct",
+    "title": "meta-llama/Llama-3.2-11B-Vision-Instruct model card",
+    "url": "https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "meta_llama_llama_3_2_90b_vision_instruct",
+    "title": "meta-llama/Llama-3.2-90B-Vision-Instruct model card",
+    "url": "https://huggingface.co/meta-llama/Llama-3.2-90B-Vision-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "meta_llama_llama_3_3_70b_instruct",
+    "title": "meta-llama/Llama-3.3-70B-Instruct model card",
+    "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "meta_llama_llama_4_maverick_17b_128e_instruct",
+    "title": "meta-llama/Llama-4-Maverick-17B-128E-Instruct model card",
+    "url": "https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "meta_llama_llama_4_scout_17b_16e_instruct",
+    "title": "meta-llama/Llama-4-Scout-17B-16E-Instruct model card",
+    "url": "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct",
+    "publisher": "Meta",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "microsoft_phi_4_mini_reasoning",
+    "title": "microsoft/Phi-4-mini-reasoning model card",
+    "url": "https://huggingface.co/microsoft/Phi-4-mini-reasoning",
+    "publisher": "Microsoft",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "microsoft_phi_4_multimodal_instruct",
+    "title": "microsoft/Phi-4-multimodal-instruct model card",
+    "url": "https://huggingface.co/microsoft/Phi-4-multimodal-instruct",
+    "publisher": "Microsoft",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "microsoft_phi_4_reasoning",
+    "title": "microsoft/Phi-4-reasoning model card",
+    "url": "https://huggingface.co/microsoft/Phi-4-reasoning",
+    "publisher": "Microsoft",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "minimax_m25_news",
+    "title": "MiniMax M2.5 release",
+    "url": "https://www.minimax.io/news/minimax-m25",
+    "publisher": "MiniMax",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "minimax_models",
+    "title": "MiniMax model releases",
+    "url": "https://platform.minimax.io/docs/release-notes/models",
+    "publisher": "MiniMax",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "mistral_models",
+    "title": "Mistral models overview",
+    "url": "https://docs.mistral.ai/getting-started/models/",
+    "publisher": "Mistral",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "mistral_ocr_benchmark",
+    "title": "Mistral OCR announcement",
+    "url": "https://mistral.ai/news/mistral-ocr",
+    "publisher": "Mistral",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "mmmu_leaderboard",
+    "title": "MMMU leaderboard",
+    "url": "https://mmmu-benchmark.github.io/",
+    "publisher": "MMMU",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "moonshot_kimi",
+    "title": "Moonshot Kimi guide",
+    "url": "https://platform.moonshot.ai/docs/guide/use-kimi",
+    "publisher": "Moonshot AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "moonshot_overview",
+    "title": "Moonshot overview",
+    "url": "https://platform.moonshot.ai/docs/overview",
+    "publisher": "Moonshot AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "nomic_ai_nomic_embed_text_v1_5",
+    "title": "nomic-ai/nomic-embed-text-v1.5 model card",
+    "url": "https://huggingface.co/nomic-ai/nomic-embed-text-v1.5",
+    "publisher": "Nomic",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "nomic_ai_nomic_embed_vision_v1_5",
+    "title": "nomic-ai/nomic-embed-vision-v1.5 model card",
+    "url": "https://huggingface.co/nomic-ai/nomic-embed-vision-v1.5",
+    "publisher": "Nomic",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "nvidia_llama_3_3_nemotron_super_49b_v1",
+    "title": "nvidia/Llama-3_3-Nemotron-Super-49B-v1 model card",
+    "url": "https://huggingface.co/nvidia/Llama-3_3-Nemotron-Super-49B-v1",
+    "publisher": "NVIDIA",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "nvidia_nim_models",
+    "title": "NVIDIA NIM supported models",
+    "url": "https://docs.nvidia.com/nim/large-language-models/latest/_include/models.html",
+    "publisher": "NVIDIA",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "nvidia_nv_embed_v1",
+    "title": "nvidia/NV-Embed-v1 model card",
+    "url": "https://huggingface.co/nvidia/NV-Embed-v1",
+    "publisher": "NVIDIA",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "ocrbench_v2_leaderboard",
+    "title": "OCRBench v2 leaderboard",
+    "url": "https://99franklin.github.io/ocrbench_v2/",
+    "publisher": "OCRBench",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_audio",
+    "title": "OpenAI Audio Guide",
+    "url": "https://platform.openai.com/docs/guides/text-to-speech",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_embeddings",
+    "title": "OpenAI Embeddings Guide",
+    "url": "https://platform.openai.com/docs/guides/embeddings",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_41_release",
+    "title": "Introducing GPT-4.1",
+    "url": "https://openai.com/index/gpt-4-1/",
+    "publisher": "OpenAI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_54_mini_nano_release",
+    "title": "Introducing GPT-5.4 mini and nano",
+    "url": "https://openai.com/index/introducing-gpt-5-4-mini-and-nano/",
+    "publisher": "OpenAI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_54_release",
+    "title": "Introducing GPT-5.4",
+    "url": "https://openai.com/index/introducing-gpt-5-4/",
+    "publisher": "OpenAI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_oss",
+    "title": "Introducing gpt-oss",
+    "url": "https://openai.com/index/introducing-gpt-oss",
+    "publisher": "OpenAI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_oss_120b",
+    "title": "openai/gpt-oss-120b model card",
+    "url": "https://huggingface.co/openai/gpt-oss-120b",
+    "publisher": "OpenAI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_oss_20b",
+    "title": "openai/gpt-oss-20b model card",
+    "url": "https://huggingface.co/openai/gpt-oss-20b",
+    "publisher": "OpenAI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_gpt_oss_card",
+    "title": "gpt-oss model card",
+    "url": "https://openai.com/index/gpt-oss-model-card/",
+    "publisher": "OpenAI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_images",
+    "title": "OpenAI Images Guide",
+    "url": "https://platform.openai.com/docs/guides/images",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_models",
+    "title": "OpenAI Models",
+    "url": "https://platform.openai.com/docs/models",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_pricing",
+    "title": "OpenAI API pricing",
+    "url": "https://platform.openai.com/docs/pricing",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openrouter_models",
+    "title": "OpenRouter models API",
+    "url": "https://openrouter.ai/api/v1/models",
+    "publisher": "OpenRouter",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_changelog",
+    "title": "Perplexity changelog",
+    "url": "https://docs.perplexity.ai/docs/resources/changelog",
+    "publisher": "Perplexity",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_openai_compat",
+    "title": "Perplexity OpenAI compatibility",
+    "url": "https://docs.perplexity.ai/docs/sonar/openai-compatibility",
+    "publisher": "Perplexity",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_pricing",
+    "title": "Perplexity pricing",
+    "url": "https://docs.perplexity.ai/guides/pricing",
+    "publisher": "Perplexity",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_sonar",
+    "title": "Perplexity Sonar API",
+    "url": "https://docs.perplexity.ai/docs/grounded-llm/chat-completions/quickstart",
+    "publisher": "Perplexity",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_sonar_deep_research",
+    "title": "Sonar Deep Research model card",
+    "url": "https://docs.perplexity.ai/models/model-cards/sonar-deep-research",
+    "publisher": "Perplexity",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_sonar_pro",
+    "title": "Sonar Pro model card",
+    "url": "https://docs.perplexity.ai/models/model-cards/sonar-pro",
+    "publisher": "Perplexity",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "perplexity_sonar_reasoning_pro",
+    "title": "Sonar Reasoning Pro model card",
+    "url": "https://docs.perplexity.ai/models/model-cards/sonar-reasoning-pro",
+    "publisher": "Perplexity",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "pika_api",
+    "title": "Pika API overview",
+    "url": "https://pika.art/api",
+    "publisher": "Pika",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "pika_pricing",
+    "title": "Pika pricing",
+    "url": "https://pika.art/pricing",
+    "publisher": "Pika",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen2_5_coder_32b_instruct",
+    "title": "Qwen/Qwen2.5-Coder-32B-Instruct model card",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen2_5_vl_32b_instruct",
+    "title": "Qwen/Qwen2.5-VL-32B-Instruct model card",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen2_5_vl_72b_instruct",
+    "title": "Qwen/Qwen2.5-VL-72B-Instruct model card",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen3_235b_a22b",
+    "title": "Qwen/Qwen3-235B-A22B model card",
+    "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen3_30b_a3b",
+    "title": "Qwen/Qwen3-30B-A3B model card",
+    "url": "https://huggingface.co/Qwen/Qwen3-30B-A3B",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen_qwen3_coder_480b_a35b_instruct",
+    "title": "Qwen/Qwen3-Coder-480B-A35B-Instruct model card",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct",
+    "publisher": "Qwen / Alibaba",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "qwen25_vl",
+    "title": "Qwen2.5 VL 72B",
+    "url": "https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct",
+    "publisher": "Qwen",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "qwen3",
+    "title": "Qwen3 235B A22B",
+    "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B",
+    "publisher": "Qwen",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "qwen3_coder",
+    "title": "Qwen3 Coder 480B A35B",
+    "url": "https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct",
+    "publisher": "Qwen",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-08"
+  },
+  {
+    "source_id": "recraft_api",
+    "title": "Recraft API getting started",
+    "url": "https://www.recraft.ai/docs/mcp-reference/getting-started",
+    "publisher": "Recraft",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "runway_billing",
+    "title": "Runway API billing",
+    "url": "https://docs.dev.runwayml.com/usage/billing/",
+    "publisher": "Runway",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "runway_changelog",
+    "title": "Runway API changelog",
+    "url": "https://docs.dev.runwayml.com/api-details/api_changelog/",
+    "publisher": "Runway",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "salesforce_xlam_2_8b_fc_r",
+    "title": "Salesforce/xLAM-2-8b-fc-r model card",
+    "url": "https://huggingface.co/Salesforce/xLAM-2-8b-fc-r",
+    "publisher": "Salesforce",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "snowflake_arctic_text2sql_r1_7b",
+    "title": "Snowflake/Arctic-Text2SQL-R1-7B model card",
+    "url": "https://huggingface.co/Snowflake/Arctic-Text2SQL-R1-7B",
+    "publisher": "Snowflake / Arctic",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "snowflake_snowflake_arctic_embed_l_v2_0",
+    "title": "Snowflake/snowflake-arctic-embed-l-v2.0 model card",
+    "url": "https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0",
+    "publisher": "Snowflake / Arctic",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "stability_audio2",
+    "title": "Stable Audio 2.0",
+    "url": "https://stability.ai/news/stable-audio-2-0",
+    "publisher": "Stability AI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "stability_bedrock",
+    "title": "Stability models on Bedrock",
+    "url": "https://stability.ai/news/stability-ais-top-3-text-to-image-models-now-available-in-amazon-bedrock",
+    "publisher": "Stability AI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "stability_core_models",
+    "title": "Stability AI core models",
+    "url": "https://stability.ai/core-models",
+    "publisher": "Stability AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "stepfun_overview",
+    "title": "StepFun model overview",
+    "url": "https://platform.stepfun.com/docs/en/llm/modeloverview",
+    "publisher": "StepFun",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "stepfun_pricing",
+    "title": "StepFun pricing",
+    "url": "https://platform.stepfun.com/docs/pricing/details",
+    "publisher": "StepFun",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "swebench_official",
+    "title": "SWE-bench official site",
+    "url": "https://www.swebench.com/",
+    "publisher": "SWE-bench",
+    "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "tencent_hunyuan_models",
+    "title": "Tencent Hunyuan model catalog",
+    "url": "https://cloud.tencent.com/document/product/1759/112876",
+    "publisher": "Tencent Cloud",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "tiiuae_falcon3_10b_instruct",
+    "title": "tiiuae/Falcon3-10B-Instruct model card",
+    "url": "https://huggingface.co/tiiuae/Falcon3-10B-Instruct",
+    "publisher": "TII",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "tiiuae_falcon3_7b_instruct",
+    "title": "tiiuae/Falcon3-7B-Instruct model card",
+    "url": "https://huggingface.co/tiiuae/Falcon3-7B-Instruct",
+    "publisher": "TII",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "together_serverless",
+    "title": "Together serverless models",
+    "url": "https://docs.together.ai/docs/serverless-models",
+    "publisher": "Together",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "voyage_embeddings",
+    "title": "Voyage embeddings",
+    "url": "https://docs.voyageai.com/docs/embeddings",
+    "publisher": "Voyage AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "voyage_multimodal",
+    "title": "Voyage multimodal embeddings",
+    "url": "https://docs.voyageai.com/docs/multimodal-embeddings",
+    "publisher": "Voyage AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "voyage_pricing",
+    "title": "Voyage pricing",
+    "url": "https://docs.voyageai.com/docs/pricing",
+    "publisher": "Voyage AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "voyage_rerank",
+    "title": "Voyage rerankers",
+    "url": "https://docs.voyageai.com/docs/reranker",
+    "publisher": "Voyage AI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_bedrock",
+    "title": "Writer models on Bedrock",
+    "url": "https://dev.writer.com/home/integrations/bedrock",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_model_delegation",
+    "title": "Writer model delegation",
+    "url": "https://dev.writer.com/api-guides/model-delegation",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_models",
+    "title": "Writer model overview",
+    "url": "https://dev.writer.com/home/models",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_pricing",
+    "title": "Writer pricing",
+    "url": "https://dev.writer.com/home/pricing",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_structured",
+    "title": "Writer structured outputs",
+    "url": "https://dev.writer.com/home/structured-output",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_tooling",
+    "title": "Writer tool calling",
+    "url": "https://dev.writer.com/home/tool-calling",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "writer_vision",
+    "title": "Writer chat with images",
+    "url": "https://dev.writer.com/home/chat-with-images",
+    "publisher": "Writer",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "xai_models",
+    "title": "xAI model reference",
+    "url": "https://docs.x.ai/docs/models",
+    "publisher": "xAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "zai_org_glm_5_1",
+    "title": "zai-org/GLM-5.1 model card",
+    "url": "https://huggingface.co/zai-org/GLM-5.1",
+    "publisher": "Zhipu / GLM",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  }
+]

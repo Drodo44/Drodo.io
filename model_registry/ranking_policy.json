@@ -1,0 +1,274 @@
+{
+  "version": "2.0.0",
+  "ranking_domains": {
+    "coding": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "reasoning": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "tool_use": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "vision": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "multimodal": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "agentic": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "long_context": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "instruction_following": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "creative_writing": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "document_extraction": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "research": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "math": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "speed": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "cost_efficiency": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    },
+    "general_chat": {
+      "score_range": [
+        0,
+        100
+      ],
+      "rank_semantics": "Lower rank is better. Rank is relative to the currently curated active registry subset for that domain.",
+      "confidence_range": [
+        0,
+        1
+      ],
+      "evidence_count_minimum": 0,
+      "null_policy": "Leave null when evidence is weak, stale, or not meaningfully comparable.",
+      "last_reviewed_required_for_ranked_records": true
+    }
+  },
+  "confidence_bands": {
+    "high": {
+      "minimum": 0.8,
+      "meaning": "Benchmark-backed and/or corroborated by multiple high-signal sources."
+    },
+    "medium": {
+      "minimum": 0.65,
+      "meaning": "Single high-signal source or strong qualitative confidence."
+    },
+    "low": {
+      "minimum": 0.5,
+      "meaning": "Useful but weakly evidenced; routing should use more conservative tie-breakers."
+    }
+  },
+  "preferred_evidence_by_domain": {
+    "coding": [
+      "aider_polyglot_leaderboard",
+      "swebench_official",
+      "livebench_leaderboard"
+    ],
+    "reasoning": [
+      "livebench_leaderboard",
+      "livebench_paper"
+    ],
+    "math": [
+      "livebench_leaderboard",
+      "livebench_paper"
+    ],
+    "tool_use": [
+      "bfcl_v4_leaderboard",
+      "bfcl_intro"
+    ],
+    "agentic": [
+      "gaia2_leaderboard_update",
+      "swebench_official",
+      "bfcl_v4_leaderboard"
+    ],
+    "vision": [
+      "mmmu_leaderboard",
+      "ocrbench_v2_leaderboard"
+    ],
+    "multimodal": [
+      "mmmu_leaderboard",
+      "livebench_leaderboard"
+    ],
+    "document_extraction": [
+      "ocrbench_v2_leaderboard",
+      "docvqa_official",
+      "mistral_ocr_benchmark"
+    ]
+  },
+  "routing_rules": {
+    "never_use_global_best_score": true,
+    "require_capability_match_first": true,
+    "prefer_domain_rank_when_confidence_at_least": 0.65,
+    "use_cost_and_latency_tiers_as_tiebreakers": true,
+    "prefer_null_over_guessing": true,
+    "prefer_verified_provider_mapping_for_execution": true
+  }
+}

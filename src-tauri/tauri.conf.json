@@ -35,6 +35,10 @@
     ],
     "publisher": "Drodo",
     "copyright": "Copyright © 2024 Drodo",
+    "resources": [
+      "../scripts/install-dependencies.ps1",
+      "../scripts/install-dependencies.sh"
+    ],
     "windows": {
       "nsis": {
         "displayLanguageSelector": false,

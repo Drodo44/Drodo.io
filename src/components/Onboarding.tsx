@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   CheckCircle2, ChevronRight, ArrowRight,
   Bot, Search, FileText, Target, Settings2, Code2,
@@ -23,7 +23,9 @@ export function resetOnboarding() {
 }
 
 export function isOnboardingComplete(): boolean {
-  return !!localStorage.getItem(ONBOARDING_KEY)
+  const hasSavedProviderKey = Object.values(loadAllSavedConfigs())
+    .some(config => typeof config.apiKey === 'string' && config.apiKey.trim().length > 0)
+  return !!localStorage.getItem(ONBOARDING_KEY) || hasSavedProviderKey
 }
 
 // ─── Step dots ────────────────────────────────────────────────────────────────
@@ -91,6 +93,14 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
   const hasProvider = Object.values(loadAllSavedConfigs()).some(c => c.apiKey || false)
 
+  // If any API key is already saved, skip onboarding immediately
+  useEffect(() => {
+    if (isOnboardingComplete()) {
+      onComplete()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const finish = () => {
     markOnboardingComplete()
     onComplete()
@@ -153,7 +163,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <div className="flex flex-col gap-6" style={{ width: '100%', maxWidth: 560 }}>
           <div className="text-center">
             <h2 style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-              Connect an AI model
+              Connect Additional AI Model
             </h2>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
               Drodo works with any AI provider. Use your own API key — your data never touches our servers.
