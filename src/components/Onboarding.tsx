@@ -140,10 +140,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       {step === 0 && (
         <div className="flex flex-col items-center gap-6 text-center" style={{ maxWidth: 480 }}>
           <div
-            className="w-20 h-20 rounded-3xl flex items-center justify-center"
+            className="w-32 h-32 rounded-3xl flex items-center justify-center"
             style={{ background: '#7f77dd18', border: '2px solid #7f77dd30' }}
           >
-            <img src={drodoLogoUrl} alt="Drodo" style={{ width: 48, height: 48 }} />
+            <img src={drodoLogoUrl} alt="Drodo" style={{ width: 96, height: 96 }} />
           </div>
           <div>
             <h1 style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>

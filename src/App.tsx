@@ -26,7 +26,8 @@ import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
 import { withErrorBoundary } from './components/ui/ErrorBoundary'
-import { LoadingSpinner } from './components/ui/LoadingSpinner'
+import { Logo } from './components/ui/Logo'
+import { Loader2 } from 'lucide-react'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
 import { supabase } from './lib/supabase'
@@ -256,7 +257,13 @@ function App() {
         className="app-shell flex items-center justify-center"
         style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
       >
-        <LoadingSpinner label="Loading session…" />
+        <div className="flex flex-col items-center gap-6">
+          <Logo size={96} showText />
+          <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <Loader2 size={16} className="animate-spin" style={{ color: '#7f77dd' }} />
+            Loading session…
+          </div>
+        </div>
       </div>
     )
   }

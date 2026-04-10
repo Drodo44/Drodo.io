@@ -25,6 +25,7 @@ export interface Provider {
   baseUrl: string
   apiKey?: string
   model?: string
+  displayName?: string
   isLocal?: boolean
   isConnected?: boolean
   color: string

@@ -7,6 +7,9 @@ import { PROVIDER_CATALOG } from './providerCatalog'
 
 const STORAGE_KEY = 'drodo_provider_configs'
 
+// Providers where users manage a list of saved models rather than one default model
+export const MULTI_MODEL_PROVIDER_IDS = new Set(['nvidia', 'huggingface', 'openrouter'])
+
 export interface SavedModel {
   id: string
   label: string
@@ -16,6 +19,7 @@ interface SavedConfig {
   apiKey: string
   baseUrl: string
   model: string
+  modelDisplayName?: string
   savedModels?: SavedModel[]
 }
 
@@ -137,7 +141,8 @@ export function buildProvider(id: string): Provider | null {
     ...base,
     baseUrl: saved?.baseUrl || base.baseUrl,
     apiKey: saved?.apiKey || '',
-    model: saved?.model || base.model || '',
+    model: saved?.model || base.model || saved?.savedModels?.[0]?.id || '',
+    displayName: saved?.modelDisplayName || undefined,
     isConnected: base.isLocal || !!saved?.apiKey,
   }
 }
@@ -196,7 +201,46 @@ export function getAllSavedModels(): { providerId: string; providerName: string;
   )
 }
 
+function scoreModelForTask(modelId: string, task: string): number {
+  const m = modelId.toLowerCase()
+  const t = task.toLowerCase()
+  let score = 0
+  if (/(code|implement|debug|refactor|typescript|javascript|python|test|build)/.test(t)) {
+    if (/(code|coder|sonnet|gpt-4\.1|gpt-5|o1|o3|gemini-2\.5)/.test(m)) score += 6
+  }
+  if (/(analy|research|review|plan|design|architecture|strategy)/.test(t)) {
+    if (/(sonnet|opus|gpt-5|gpt-4|reason|gemini-2\.5)/.test(m)) score += 5
+  }
+  if (/(quick|fast|short|brief|summarize|summary)/.test(t)) {
+    if (/(mini|haiku|flash|lite|small|groq|gemini-flash)/.test(m)) score += 4
+  }
+  return score
+}
+
+function pickBestSavedModelForTask(
+  task: string,
+  savedModels: { providerId: string; providerName: string; model: SavedModel }[],
+): Provider | null {
+  let best: { entry: { providerId: string; providerName: string; model: SavedModel }; score: number } | null = null
+  for (const entry of savedModels) {
+    const score = scoreModelForTask(entry.model.id, task)
+    if (!best || score > best.score) best = { entry, score }
+  }
+  if (!best) return null
+  const provider = buildProvider(best.entry.providerId)
+  if (!provider) return null
+  return { ...provider, model: best.entry.model.id, displayName: best.entry.model.label || undefined }
+}
+
 export function routeModelForTask(task: string, fallback: Provider): Provider {
+  // Prefer user's explicitly saved models — only use the full registry as a last resort
+  const savedModels = getAllSavedModels()
+  if (savedModels.length > 0) {
+    const best = pickBestSavedModelForTask(task, savedModels)
+    if (best) return best
+  }
+
+  // Fall back to connected-provider registry selection
   const connectedProviderIds = getConnectedProviders().map(provider => provider.id)
   const savedProviderIds = Object.keys(loadAllSavedConfigs())
   const providerIds = connectedProviderIds.length > 0

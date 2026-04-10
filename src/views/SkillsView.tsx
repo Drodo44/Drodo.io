@@ -48,7 +48,7 @@ function SkillCard({ skill }: { skill: Skill }) {
 
   return (
     <article
-      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-colors hover:border-[var(--text-muted)]"
+      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-colors hover:border-[var(--text-muted)] min-h-[200px] flex flex-col"
       style={{ borderLeft: `4px solid ${color}` }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -65,7 +65,7 @@ function SkillCard({ skill }: { skill: Skill }) {
           {skill.priority}
         </span>
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">{skill.description}</p>
+      <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)] flex-1">{skill.description}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {skill.tags.slice(0, 4).map(tag => (
           <span

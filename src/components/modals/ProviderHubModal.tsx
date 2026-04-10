@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { X, Check, Loader, AlertCircle, Key, Link, Cpu, CheckCircle2 } from 'lucide-react'
+import { X, Check, Loader, AlertCircle, Key, Link, Cpu, CheckCircle2, Tag } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
@@ -9,6 +9,7 @@ import {
   getSavedModels,
   getProviderCatalog,
   loadProviderConfig,
+  MULTI_MODEL_PROVIDER_IDS,
   normalizeUrl,
   removeSavedModel,
   saveProviderConfig,
@@ -32,6 +33,7 @@ export function ProviderHubModal() {
   const [apiKey, setApiKey] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
   const [model, setModel] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [savedModels, setSavedModels] = useState<SavedModel[]>([])
   const [newModelId, setNewModelId] = useState('')
   const [newModelLabel, setNewModelLabel] = useState('')
@@ -48,10 +50,12 @@ export function ProviderHubModal() {
       setApiKey(saved.apiKey)
       setBaseUrl(saved.baseUrl || selected.baseUrl)
       setModel(saved.model || selected.model || '')
+      setDisplayName(saved.modelDisplayName || '')
     } else {
       setApiKey('')
       setBaseUrl(selected.baseUrl)
       setModel(selected.model ?? '')
+      setDisplayName('')
     }
     setSavedModels(getSavedModels(selectedId))
     setNewModelId('')
@@ -87,10 +91,15 @@ export function ProviderHubModal() {
       return
     }
 
+    const modelToSave = MULTI_MODEL_PROVIDER_IDS.has(selectedId)
+      ? (savedModels[0]?.id ?? '')
+      : effectiveModel
+
     const provider: Provider = {
       ...selected,
       baseUrl: effectiveBaseUrl,
-      model: effectiveModel,
+      model: modelToSave,
+      displayName: displayName.trim() || undefined,
       apiKey,
       isConnected: testState === 'success',
     }
@@ -98,7 +107,8 @@ export function ProviderHubModal() {
     saveProviderConfig(selectedId, {
       apiKey,
       baseUrl: effectiveBaseUrl,
-      model: effectiveModel,
+      model: modelToSave,
+      modelDisplayName: displayName.trim() || undefined,
     })
     setSaveError('')
     setProviderHubOpen(false)
@@ -265,19 +275,45 @@ export function ProviderHubModal() {
                 </div>
               )}
 
-              {/* Model */}
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
-                  <Cpu size={12} />
-                  Model
-                </label>
-                <input
-                  value={model || selected.model || ''}
-                  onChange={e => setModel(e.target.value)}
-                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
-                  placeholder="model-name"
-                />
-              </div>
+              {/* Model / multi-model notice */}
+              {MULTI_MODEL_PROVIDER_IDS.has(selectedId) ? (
+                <div
+                  className="rounded-lg border border-[var(--border-color)] px-4 py-3 text-xs"
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+                >
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Multi-model provider.</span>{' '}
+                  Add each model you want to use in the <strong>Saved Models</strong> section below
+                  using its Model ID and a friendly label. The first saved model will be used by default.
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
+                      <Cpu size={12} />
+                      Model
+                    </label>
+                    <input
+                      value={model || selected.model || ''}
+                      onChange={e => setModel(e.target.value)}
+                      className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                      placeholder="model-name"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)]">
+                      <Tag size={12} />
+                      Display Name
+                    </label>
+                    <input
+                      value={displayName}
+                      onChange={e => setDisplayName(e.target.value)}
+                      className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 transition-colors"
+                      placeholder="Friendly name shown in UI (e.g. Claude Sonnet)"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="space-y-2">
                 <label className="text-xs font-medium text-[var(--text-muted)]">Saved Models</label>

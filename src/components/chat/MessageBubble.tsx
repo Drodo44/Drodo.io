@@ -10,6 +10,37 @@ function formatTime(date: Date) {
   return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
+function sanitizeChatContent(content: string): string {
+  // Strip XML tool call blocks the LLM may emit
+  let out = content
+    .replace(/<function_calls>[\s\S]*?<\/antml:function_calls>/g, '')
+    .replace(/<function_calls>[\s\S]*?<\/function_calls>/g, '')
+    .replace(/<tool_use>[\s\S]*?<\/tool_use>/g, '')
+    .replace(/<tool_result>[\s\S]*?<\/tool_result>/g, '')
+    .trim()
+
+  // Strip bare tool-call JSON lines: lines like {"tool":"...","arguments":{...}}
+  out = out
+    .split('\n')
+    .filter(line => {
+      const t = line.trim()
+      if (!t.startsWith('{')) return true
+      try {
+        const parsed = JSON.parse(t) as Record<string, unknown>
+        // Drop lines that look like tool call objects
+        if ('tool' in parsed && 'arguments' in parsed) return false
+        if ('tool_name' in parsed) return false
+      } catch {
+        // Not valid JSON — keep the line
+      }
+      return true
+    })
+    .join('\n')
+    .trim()
+
+  return out
+}
+
 export function MessageBubble({ message, isLast }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isSystem = message.role === 'system'
@@ -23,6 +54,8 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
       </div>
     )
   }
+
+  const displayContent = isUser ? message.content : sanitizeChatContent(message.content)
 
   return (
     <div
@@ -51,7 +84,7 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
               : 'bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-sm'
           )}
         >
-          <span className="whitespace-pre-wrap break-words">{message.content}</span>
+          <span className="whitespace-pre-wrap break-words">{displayContent}</span>
           {message.streaming && isLast && (
             <span className="inline-block w-0.5 h-4 bg-[#7f77dd] ml-0.5 -mb-0.5 animate-blink" />
           )}

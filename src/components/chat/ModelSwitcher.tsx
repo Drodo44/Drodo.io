@@ -31,7 +31,7 @@ export function ModelSwitcher() {
           providerColor: p.color,
           providerInitials: p.initials,
           modelId: p.model,
-          modelLabel: p.model,
+          modelLabel: p.displayName || p.model,
         })
       }
     }
@@ -57,7 +57,7 @@ export function ModelSwitcher() {
   }
 
   const options = buildOptions()
-  const currentLabel = activeProvider.model || activeProvider.name
+  const currentLabel = activeProvider.displayName || activeProvider.model || activeProvider.name
 
   // Close on outside click
   useEffect(() => {

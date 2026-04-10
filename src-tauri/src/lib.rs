@@ -190,9 +190,9 @@ fn execute_command(command: String) -> Result<CommandExecutionResult, String> {
 
     #[cfg(target_os = "windows")]
     let (shell, output) = {
-        let shell = "powershell";
+        let shell = "cmd";
         let output = Command::new(shell)
-            .args(["-NoProfile", "-Command", trimmed])
+            .args(["/C", trimmed])
             .output()
             .map_err(|err| format!("Failed to execute command: {}", err))?;
         (shell.to_string(), output)

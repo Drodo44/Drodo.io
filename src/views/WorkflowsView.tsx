@@ -35,7 +35,6 @@ const WORKFLOWS_KEY = 'drodo_workflow_defs'
 const RUNS_KEY = 'drodo_workflow_runs'
 const LEGACY_PROVIDER_PREFIX = 'drodo_provider_'
 const TEMPLATE_SECTION_PREVIEW_LIMIT = 6
-const TEMPLATE_GRID_RENDER_LIMIT = 160
 
 type WorkflowTab = 'workflows' | 'builder' | 'history'
 type StepRunStatus = 'pending' | 'running' | 'complete' | 'error' | 'stopped'
@@ -461,6 +460,8 @@ export function WorkflowsView() {
   const [nodeVersion, setNodeVersion] = useState('')
   const [nodeCheckError, setNodeCheckError] = useState<string | null>(null)
   const [n8nLaunchError, setN8nLaunchError] = useState<string | null>(null)
+  const [templatePage, setTemplatePage] = useState(0)
+  const TEMPLATES_PER_PAGE = 50
   const activeStreamRef = useRef<{ abort: () => void } | null>(null)
   const pendingStepAbortResolverRef = useRef<(() => void) | null>(null)
   const stepRunsRef = useRef<StepRunState[]>([])
@@ -476,6 +477,10 @@ export function WorkflowsView() {
     setDraft(storedWorkflows[0] ? cloneWorkflow(storedWorkflows[0]) : null)
     setLoading(false)
   }, [initialProviderId])
+
+  useEffect(() => {
+    setTemplatePage(0)
+  }, [templateQuery, activeTemplateCategory])
 
   useEffect(() => {
     let cancelled = false
@@ -878,8 +883,7 @@ export function WorkflowsView() {
     if (!templateQuery.trim() && activeTemplateCategory === 'All') {
       return []
     }
-
-    return filteredTemplates.slice(0, TEMPLATE_GRID_RENDER_LIMIT)
+    return filteredTemplates
   }, [activeTemplateCategory, filteredTemplates, templateQuery])
   const selectedTemplate = useMemo(
     () => allTemplates.find(template => template.id === selectedTemplateId) ?? null,
@@ -1330,69 +1334,105 @@ export function WorkflowsView() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="mt-5">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <p className="text-xs text-[var(--text-secondary)]">
-                        Showing {displayedTemplates.length} of {filteredTemplates.length} matching templates
-                        {filteredTemplates.length > displayedTemplates.length ? ' — refine search to narrow further.' : ''}
-                      </p>
-                    </div>
-
-                    {displayedTemplates.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-primary)] px-5 py-10 text-center">
-                        <h3 className="text-sm font-semibold text-[var(--text-primary)]">No templates match this filter</h3>
-                        <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                          Adjust the search terms or switch categories to broaden the results.
+                ) : (() => {
+                  const totalPages = Math.ceil(displayedTemplates.length / TEMPLATES_PER_PAGE)
+                  const pagedTemplates = displayedTemplates.slice(
+                    templatePage * TEMPLATES_PER_PAGE,
+                    (templatePage + 1) * TEMPLATES_PER_PAGE,
+                  )
+                  const startIdx = templatePage * TEMPLATES_PER_PAGE + 1
+                  const endIdx = Math.min((templatePage + 1) * TEMPLATES_PER_PAGE, displayedTemplates.length)
+                  return (
+                    <div className="mt-5">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <p className="text-xs text-[var(--text-secondary)]">
+                          {displayedTemplates.length > 0
+                            ? `Showing ${startIdx}–${endIdx} of ${displayedTemplates.length.toLocaleString()} templates`
+                            : 'No templates match this filter'}
                         </p>
                       </div>
-                    ) : (
-                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        {displayedTemplates.map(template => (
-                          <div
-                            key={template.id}
-                            className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4"
-                            style={{ borderLeft: `4px solid ${getWorkflowAccentColor(template.category)}` }}
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#1d9e7518', color: '#1d9e75' }}>
-                                    {template.category}
-                                  </span>
-                                  <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
-                                    {template.complexity}
-                                  </span>
+
+                      {displayedTemplates.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--bg-primary)] px-5 py-10 text-center">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)]">No templates match this filter</h3>
+                          <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                            Adjust the search terms or switch categories to broaden the results.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            {pagedTemplates.map(template => (
+                              <div
+                                key={template.id}
+                                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4"
+                                style={{ borderLeft: `4px solid ${getWorkflowAccentColor(template.category)}` }}
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#1d9e7518', color: '#1d9e75' }}>
+                                        {template.category}
+                                      </span>
+                                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
+                                        {template.complexity}
+                                      </span>
+                                    </div>
+                                    <h4 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{template.name}</h4>
+                                    <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{template.description}</p>
+                                  </div>
                                 </div>
-                                <h4 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{template.name}</h4>
-                                <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{template.description}</p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {template.required_services.slice(0, 5).map(service => (
+                                    <span
+                                      key={service}
+                                      className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
+                                      style={{ borderColor: 'var(--border-color)' }}
+                                    >
+                                      {service}
+                                    </span>
+                                  ))}
+                                </div>
+                                <button
+                                  onClick={() => openTemplate(template)}
+                                  className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                                  style={{ background: '#7f77dd' }}
+                                >
+                                  <Workflow size={12} />
+                                  Use Template
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {totalPages > 1 && (
+                            <div className="mt-5 flex items-center justify-between gap-3">
+                              <span className="text-xs text-[var(--text-secondary)]">
+                                Page {templatePage + 1} of {totalPages.toLocaleString()}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  disabled={templatePage === 0}
+                                  onClick={() => setTemplatePage(p => p - 1)}
+                                  className="rounded-lg border border-[var(--border-color)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40 hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] transition-colors"
+                                >
+                                  Previous
+                                </button>
+                                <button
+                                  disabled={templatePage >= totalPages - 1}
+                                  onClick={() => setTemplatePage(p => p + 1)}
+                                  className="rounded-lg border border-[var(--border-color)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-40 hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] transition-colors"
+                                >
+                                  Next
+                                </button>
                               </div>
                             </div>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {template.required_services.slice(0, 5).map(service => (
-                                <span
-                                  key={service}
-                                  className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
-                                  style={{ borderColor: 'var(--border-color)' }}
-                                >
-                                  {service}
-                                </span>
-                              ))}
-                            </div>
-                            <button
-                              onClick={() => openTemplate(template)}
-                              className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
-                              style={{ background: '#7f77dd' }}
-                            >
-                              <Workflow size={12} />
-                              Use Template
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
               </section>
 
               {selectedWorkflow ? (
