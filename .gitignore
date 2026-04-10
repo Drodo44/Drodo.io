@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+src-tauri/drodo.key
+src-tauri/drodo.key.pub
 
 # Editor directories and files
 .vscode/*
