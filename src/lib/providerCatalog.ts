@@ -29,8 +29,9 @@ export const ACCESS_PROVIDER_BY_APP_PROVIDER_ID: Record<string, string[]> = {
   fireworks: ['Fireworks'],
   deepseek: ['DeepSeek API'],
   huggingface: ['Hugging Face'],
-  ollama: ['Ollama'],
-  lmstudio: ['LM Studio', 'vLLM'],
+  ollama: ['Ollama', 'Local GGUF'],
+  lmstudio: ['LM Studio', 'vLLM', 'Local ONNX', 'Local MLX', 'Text Generation Inference'],
+  custom: ['Custom OpenAI-compatible', 'Custom Anthropic-compatible', 'Other / Custom'],
 }
 
 export const APP_PROVIDER_ID_BY_ACCESS_PROVIDER = Object.entries(ACCESS_PROVIDER_BY_APP_PROVIDER_ID)

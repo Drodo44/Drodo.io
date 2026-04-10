@@ -106,6 +106,20 @@ export function getAllSkillCategories(): string[] {
   return SKILL_CATEGORIES.categories.map(category => category.name)
 }
 
+export function getAllSkills(): Skill[] {
+  return SKILLS.map(skill => ({
+    id: skill.id,
+    name: skill.name,
+    description: skill.description,
+    category: skill.category,
+    tags: skill.tags,
+    source_repo: skill.source_repo,
+    capability_domains: skill.capability_domains,
+    priority: skill.priority,
+    content: skill.content,
+  }))
+}
+
 export function getSkillsByDomain(domain: string): Skill[] {
   const normalizedDomain = domain.toLowerCase()
   const entries = SKILLS_BY_DOMAIN[normalizedDomain] ?? []

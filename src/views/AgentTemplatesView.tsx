@@ -97,7 +97,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 // ─── Templates ────────────────────────────────────────────────────────────────
 
-const TEMPLATES: AgentTemplate[] = [
+const BASE_TEMPLATES: AgentTemplate[] = [
   // Business
   { id: 'ceo-advisor', name: 'CEO Advisor', category: 'Business', description: 'Acts as a strategic C-suite advisor. Helps with vision, decision-making, board communications, and business strategy.', model: 'your active model', color: '#7f77dd', Icon: TrendingUp, task: 'Act as my strategic CEO advisor. Help me with vision setting, major decisions, board communications, and overall business strategy. Be direct and think long-term.', systemPrompt: 'You are an elite CEO advisor with experience across Fortune 500 and high-growth startups. Your role: clarify company vision, stress-test strategic decisions, prepare board communications, and identify second-order consequences. Be direct, data-informed, and think long-term. Push back on bad ideas. Success = decisions that compound favorably over 3–5 years.' },
   { id: 'cfo-advisor', name: 'CFO Advisor', category: 'Business', description: 'Financial strategy, cash flow analysis, budgeting, forecasting, and investor reporting.', model: 'your active model', color: '#7f77dd', Icon: DollarSign, task: 'Act as my CFO advisor. Help me with financial strategy, cash flow, budgeting, forecasting, and investor reporting. Focus on the numbers and what they mean for the business.', systemPrompt: 'You are a seasoned CFO advisor. Core focus: cash flow health, unit economics, scenario-based forecasting, budget allocation, and investor-grade reporting. Translate numbers into strategic narrative. Flag burn risks early. Success = financial clarity that enables confident resource allocation and fundraising.' },
@@ -223,6 +223,62 @@ const TEMPLATES: AgentTemplate[] = [
   { id: 'personal-shopper', name: 'Personal Shopper', category: 'Personal', description: 'Finds products matching your criteria, compares options, and makes recommendations.', model: 'your active model', color: '#f43f5e', Icon: ShoppingCart, task: 'Help me find the best products for my needs. Understand my criteria, compare options, and make clear recommendations with reasoning.' },
 ]
 
+type TemplateExpansionSpec = {
+  category: string
+  Icon: LucideIcon
+  role: string
+  themes: string[]
+}
+
+const TEMPLATE_EXPANSION_SPECS: TemplateExpansionSpec[] = [
+  { category: 'Business', Icon: Briefcase, role: 'senior business operator', themes: ['Market Entry Strategist', 'Pricing Reset Advisor', 'Board Narrative Partner', 'Operating Cadence Designer', 'Partnership Pipeline Lead', 'Customer Segment Analyst', 'Business Continuity Planner', 'Strategic Moat Advisor'] },
+  { category: 'Marketing', Icon: Megaphone, role: 'growth marketing leader', themes: ['Campaign Calendar Manager', 'Brand Positioning Coach', 'Lead Magnet Builder', 'Lifecycle Marketing Planner', 'Paid Social Experimenter', 'Customer Advocacy Lead', 'Event Marketing Producer', 'Referral Program Designer'] },
+  { category: 'Content & Creative', Icon: Paintbrush, role: 'creative content lead', themes: ['Editorial Calendar Editor', 'Thought Leadership Writer', 'Video Series Producer', 'Newsletter Relaunch Editor', 'Case Study Builder', 'Brand Voice Coach', 'Podcast Season Planner', 'Creative Concept Director'] },
+  { category: 'Research', Icon: Search, role: 'research analyst', themes: ['Literature Review Analyst', 'Competitor Scan Researcher', 'Customer Interview Planner', 'Survey Program Designer', 'Trend Analysis Reporter', 'Source Synthesis Analyst', 'Expert Panel Planner', 'Evidence Map Builder'] },
+  { category: 'Engineering', Icon: Code2, role: 'senior engineering lead', themes: ['Architecture Review Partner', 'Incident Follow-up Lead', 'API Contract Designer', 'Data Migration Planner', 'Release Readiness Reviewer', 'Security Hardening Advisor', 'Test Coverage Planner', 'Developer Experience Lead'] },
+  { category: 'Finance', Icon: LineChart, role: 'finance and FP&A lead', themes: ['Cash Forecast Analyst', 'Budget Reset Planner', 'Board Reporting Analyst', 'Unit Economics Advisor', 'Pricing Sensitivity Analyst', 'Fundraising Model Partner', 'Margin Improvement Lead', 'Runway Extension Planner'] },
+  { category: 'Legal', Icon: Scale, role: 'legal operations reviewer', themes: ['Contract Risk Reviewer', 'Privacy Compliance Checker', 'Vendor Terms Analyst', 'Employment Policy Reviewer', 'Data Processing Advisor', 'IP Protection Planner', 'Regulatory Update Analyst', 'Records Retention Planner'] },
+  { category: 'Sales', Icon: Target, role: 'sales enablement leader', themes: ['Discovery Motion Coach', 'Enterprise Deal Strategist', 'Objection Handling Coach', 'Renewal Save Partner', 'Pipeline Hygiene Reviewer', 'Territory Planning Lead', 'Demo Narrative Coach', 'Competitive Battlecard Builder'] },
+  { category: 'HR & Recruiting', Icon: UserCheck, role: 'people operations partner', themes: ['Role Scorecard Builder', 'Interview Loop Designer', 'Onboarding Journey Planner', 'Manager Training Coach', 'Performance Cycle Partner', 'Compensation Review Analyst', 'Employee Survey Analyst', 'Career Ladder Designer'] },
+  { category: 'Customer Support', Icon: Headphones, role: 'customer support operations lead', themes: ['Ticket Triage Designer', 'Help Center Writer', 'Escalation Policy Planner', 'CSAT Recovery Coach', 'Support Macro Builder', 'Incident Communication Lead', 'Refund Workflow Designer', 'Agent Coaching Partner'] },
+  { category: 'Education', Icon: GraduationCap, role: 'instructional designer', themes: ['Lesson Plan Designer', 'Course Outline Builder', 'Assessment Rubric Writer', 'Student Feedback Coach', 'Curriculum Map Planner', 'Study Guide Writer', 'Workshop Agenda Builder', 'Capstone Project Advisor'] },
+  { category: 'Health & Wellness', Icon: Heart, role: 'health education planner', themes: ['Habit Program Coach', 'Wellness Workshop Planner', 'Patient Education Writer', 'Fitness Routine Designer', 'Sleep Improvement Coach', 'Nutrition Planning Guide', 'Stress Reduction Coach', 'Workplace Wellness Planner'] },
+  { category: 'Real Estate', Icon: Home, role: 'real estate strategy advisor', themes: ['Listing Strategy Advisor', 'Deal Underwriting Analyst', 'Rental Analysis Partner', 'Neighborhood Researcher', 'Buyer Consultation Coach', 'Seller Prep Planner', 'Open House Planner', 'Renovation Scope Advisor'] },
+  { category: 'E-commerce', Icon: ShoppingBag, role: 'e-commerce growth operator', themes: ['Product Listing Optimizer', 'Conversion Audit Lead', 'Inventory Planning Analyst', 'Review Mining Analyst', 'Bundle Strategy Advisor', 'Marketplace Launch Planner', 'Checkout Recovery Planner', 'Supplier Review Analyst'] },
+  { category: 'Social Media', Icon: Share2, role: 'social media strategist', themes: ['Content Calendar Planner', 'Reels Series Producer', 'LinkedIn Authority Coach', 'Community Prompt Writer', 'Creator Collaboration Planner', 'Platform Audit Reviewer', 'Launch Countdown Planner', 'Engagement Recovery Coach'] },
+  { category: 'SEO', Icon: Link, role: 'SEO strategist', themes: ['Keyword Cluster Builder', 'Technical Audit Reviewer', 'Content Refresh Planner', 'Internal Linking Advisor', 'Backlink Outreach Planner', 'Local SEO Analyst', 'SERP Analysis Reporter', 'Topic Authority Planner'] },
+  { category: 'Data & Analytics', Icon: Database, role: 'analytics lead', themes: ['Metric Dictionary Builder', 'Dashboard Design Advisor', 'SQL Analysis Partner', 'Experiment Readout Analyst', 'Root Cause Analyst', 'Data Quality Reviewer', 'Segmentation Analyst', 'Attribution Report Builder'] },
+  { category: 'Productivity', Icon: Calendar, role: 'productivity systems coach', themes: ['Weekly Planning Coach', 'Meeting Rhythm Designer', 'Task Triage Partner', 'Project Kickoff Lead', 'Decision Journal Coach', 'Knowledge Base Organizer', 'Focus Routine Coach', 'Delegation Plan Builder'] },
+  { category: 'Personal', Icon: Star, role: 'personal planning coach', themes: ['Career Move Advisor', 'Resume Refresh Coach', 'Travel Itinerary Planner', 'Budget Reset Coach', 'Learning Plan Builder', 'Personal Brand Coach', 'Home Project Planner', 'Goal Setting Partner'] },
+]
+
+function slugifyTemplateId(value: string): string {
+  return value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+function buildGeneratedTemplates(): AgentTemplate[] {
+  return TEMPLATE_EXPANSION_SPECS.flatMap(spec => spec.themes.map(theme => {
+    const color = CATEGORY_COLORS[spec.category] ?? '#7f77dd'
+    const lowerTheme = theme.toLowerCase()
+    return {
+      id: `generated-${slugifyTemplateId(spec.category)}-${slugifyTemplateId(theme)}`,
+      name: theme,
+      category: spec.category,
+      description: `Plans and executes ${lowerTheme} work with clear strategy, deliverables, risks, and next steps.`,
+      model: 'your active model',
+      color,
+      Icon: spec.Icon,
+      task: `Act as my ${spec.role} focused on ${lowerTheme}. Help me define the objective, gather context, produce a practical plan, identify risks, and create the next deliverables with clear owners and success metrics.`,
+      systemPrompt: `You are an expert ${spec.role}. Your specialty is ${lowerTheme}. Produce concise, practical outputs with assumptions, recommended actions, risks, owners, metrics, and follow-up questions when context is missing.`,
+    }
+  }))
+}
+
+export const TEMPLATES: AgentTemplate[] = [
+  ...BASE_TEMPLATES,
+  ...buildGeneratedTemplates(),
+]
+
 // ─── Template Card ────────────────────────────────────────────────────────────
 
 function TemplateCard({
@@ -310,7 +366,7 @@ export function AgentTemplatesView() {
         key: `${activeProvider.id}::${defaultModel}`,
         providerId: activeProvider.id,
         modelId: defaultModel,
-        label: `${activeProvider.name} — ${defaultModel}`,
+        label: 'Default: Orchestrator Assigns',
       },
     ]
 
@@ -453,7 +509,3 @@ export function AgentTemplatesView() {
     </div>
   )
 }
-
-// Export featured templates for use in Onboarding
-export { TEMPLATES }
-

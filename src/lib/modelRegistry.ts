@@ -26,6 +26,7 @@ type RawCanonicalModel = {
   family_name: string
   variant_name: string
   normalized_slug: string
+  aliases?: string[]
   modalities?: string[]
   capabilities?: CanonicalCapabilitiesRecord
   task_scores?: Record<string, CanonicalTaskScore>
@@ -58,6 +59,7 @@ export interface CanonicalModel {
   family_name: string
   variant_name: string
   normalized_slug: string
+  aliases: string[]
   capabilities: string[]
   modalities: string[]
   task_scores: Record<string, CanonicalTaskScore>
@@ -118,6 +120,10 @@ const canonicalModelBySlug = new Map<string, CanonicalModel>()
 const providerMappingsByUid = new Map<string, ProviderMapping[]>()
 const canonicalModelByProviderModelId = new Map<string, CanonicalModel>()
 
+function normalizeLookupKey(value: string): string {
+  return value.trim().toLowerCase()
+}
+
 function parseNdjson<T>(raw: string): T[] {
   return raw
     .split(/\r?\n/)
@@ -137,6 +143,7 @@ function normalizeCanonicalModel(raw: RawCanonicalModel): CanonicalModel {
     family_name: raw.family_name,
     variant_name: raw.variant_name,
     normalized_slug: raw.normalized_slug,
+    aliases: raw.aliases ?? [],
     capabilities,
     modalities: raw.modalities ?? [],
     task_scores: raw.task_scores ?? {},
@@ -164,6 +171,13 @@ for (const rawModel of parseNdjson<RawCanonicalModel>(canonicalModelsRaw)) {
   const model = normalizeCanonicalModel(rawModel)
   canonicalModelByUid.set(model.model_uid, model)
   canonicalModelBySlug.set(model.normalized_slug, model)
+
+  for (const alias of [model.normalized_slug, ...model.aliases]) {
+    const key = normalizeLookupKey(alias)
+    if (key && !canonicalModelByProviderModelId.has(key)) {
+      canonicalModelByProviderModelId.set(key, model)
+    }
+  }
 }
 
 for (const rawMapping of parseNdjson<RawProviderMapping>(providerMappingsRaw)) {
@@ -173,8 +187,11 @@ for (const rawMapping of parseNdjson<RawProviderMapping>(providerMappingsRaw)) {
   providerMappingsByUid.set(mapping.model_uid, list)
 
   const model = canonicalModelByUid.get(mapping.model_uid)
-  if (model && !canonicalModelByProviderModelId.has(mapping.provider_model_id.toLowerCase())) {
-    canonicalModelByProviderModelId.set(mapping.provider_model_id.toLowerCase(), model)
+  for (const lookupValue of [mapping.provider_model_id, mapping.provider_model_label]) {
+    const key = normalizeLookupKey(lookupValue)
+    if (model && key && !canonicalModelByProviderModelId.has(key)) {
+      canonicalModelByProviderModelId.set(key, model)
+    }
   }
 }
 
@@ -309,7 +326,9 @@ function buildProviderFromMapping(mapping: ProviderMapping, fallbackProvider: Pr
     ...base,
     baseUrl: savedConfig?.baseUrl || base.baseUrl,
     apiKey: savedConfig?.apiKey || (fallbackProvider.id === providerId ? fallbackProvider.apiKey : ''),
-    model: mapping.provider_model_id,
+    model: providerId === 'custom'
+      ? (savedConfig?.model || fallbackProvider.model || mapping.provider_model_id)
+      : mapping.provider_model_id,
     isConnected: base.isLocal || !!savedConfig?.apiKey || !!(fallbackProvider.id === providerId && fallbackProvider.apiKey),
   }
 
@@ -392,7 +411,7 @@ export function getBestModelForTask(task: string, userProviderIds: string[], fal
 }
 
 export function getModelByProviderModelId(providerModelId: string): CanonicalModel | null {
-  return canonicalModelByProviderModelId.get(providerModelId.toLowerCase()) ?? null
+  return canonicalModelByProviderModelId.get(normalizeLookupKey(providerModelId)) ?? null
 }
 
 export function addUserCapabilityTag(providerModelId: string, tag: string): void {

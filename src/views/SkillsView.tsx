@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import {
-  Puzzle, CheckCircle2, Circle, X, Key, Check, Star,
+  Puzzle, CheckCircle2, Circle, X, Key, Check, Search, Plug,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
-import type { Connector, ConnectorCategory } from '../types'
+import type { Connector, ConnectorCategory, Skill } from '../types'
 import { loadConnectorKeys, removeConnectorKey, saveConnectorKey } from '../lib/connectorKeys'
-import { getAllSkillCategories, getAllSkillDomains, getSkillCount, getTopSkillCategories } from '../lib/skills'
+import { getAllSkillCategories, getAllSkills, getSkillCount, getTopSkillCategories } from '../lib/skills'
 
 const CATEGORY_ORDER: ConnectorCategory[] = [
   'Social Media',
@@ -20,7 +20,7 @@ const CATEGORY_ORDER: ConnectorCategory[] = [
   'Communication',
 ]
 
-const CATEGORY_COLORS: Record<ConnectorCategory, string> = {
+const CONNECTOR_CATEGORY_COLORS: Record<ConnectorCategory, string> = {
   'Social Media': '#e1306c',
   'Productivity': '#4285f4',
   'Development': '#1d9e75',
@@ -30,144 +30,55 @@ const CATEGORY_COLORS: Record<ConnectorCategory, string> = {
   'Communication': '#229ed9',
 }
 
-// ─── Skill Packages ───────────────────────────────────────────────────────────
-
-interface SkillPackage {
-  id: string
-  name: string
-  author: string
-  stars: string
-  description: string
-  category: string
-  recommended?: boolean
-  exploreUrl?: string
-  buttonLabel?: string
+const SKILL_CATEGORY_COLORS: Record<string, string> = {
+  Engineering: '#3b82f6',
+  Business: '#10b981',
+  Creative: '#ec4899',
+  Research: '#06b6d4',
+  DevOps: '#f97316',
+  Security: '#ef4444',
+  Data: '#8b5cf6',
+  General: '#6b7280',
 }
 
-const SKILL_PACKAGES: SkillPackage[] = [
-  {
-    id: 'wshobson-agents',
-    name: 'Agent Orchestration Suite',
-    author: 'wshobson',
-    stars: '33.2k',
-    description: '182 specialized agents, 147 skills, 75 plugins for software engineering, DevOps, security, and multi-agent orchestration. Best for: developers.',
-    category: 'Engineering',
-    recommended: true,
-  },
-  {
-    id: 'alirezarezvani-claude-skills',
-    name: 'Business Skills Library',
-    author: 'alirezarezvani',
-    stars: '10.1k',
-    description: '248 skills across marketing, product, C-level advisory, compliance, and finance. Best for: business users and non-developers.',
-    category: 'Business',
-  },
-  {
-    id: 'obra-superpowers',
-    name: 'Superpowers',
-    author: 'obra',
-    stars: '142k',
-    description: 'TDD-focused development workflow with brainstorm, write-plan, and execute-plan commands. Lightweight and opinionated.',
-    category: 'Developer',
-  },
-  {
-    id: 'voltAgent-awesome-agent-skills',
-    name: 'Awesome Agent Skills',
-    author: 'VoltAgent',
-    stars: '14.8k',
-    description: '1,000+ community agent skills from official dev teams. Compatible with any AI model.',
-    category: 'Community',
-  },
-  {
-    id: 'travisvn-awesome-claude-skills',
-    name: 'Awesome Claude Skills Directory',
-    author: 'travisvn',
-    stars: '10.8k',
-    description: 'The most comprehensive curated index of Claude skills and resources.',
-    category: 'Resource',
-    exploreUrl: 'https://github.com/travisvn/awesome-claude-skills',
-    buttonLabel: 'Explore →',
-  },
-  {
-    id: 'shanraisshan-best-practice',
-    name: 'Claude Code Best Practices',
-    author: 'shanraisshan',
-    stars: '33.1k',
-    description: 'The definitive reference guide for agents, commands, skills, hooks, and workflows. Read before building.',
-    category: 'Reference',
-    exploreUrl: 'https://github.com/shanraisshan/claude-code-best-practice',
-    buttonLabel: 'Explore →',
-  },
-]
+type SkillsTab = 'skills' | 'connectors'
 
-const CATEGORY_BADGE_COLORS: Record<string, string> = {
-  Engineering: '#7f77dd',
-  Business: '#4285f4',
-  Developer: '#1d9e75',
-  Community: '#f97316',
-  Resource: 'var(--text-muted)',
-  Reference: 'var(--text-muted)',
-}
-
-function PackageCard({ pkg }: { pkg: SkillPackage }) {
-  const badgeColor = CATEGORY_BADGE_COLORS[pkg.category] ?? 'var(--text-muted)'
+function SkillCard({ skill }: { skill: Skill }) {
+  const color = SKILL_CATEGORY_COLORS[skill.category] ?? '#6b7280'
 
   return (
-    <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col gap-3">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-semibold text-[var(--text-primary)]">{pkg.name}</span>
-            {pkg.recommended && (
-              <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ background: '#7f77dd22', color: '#a09ae8' }}
-              >
-                RECOMMENDED
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)', border: '1px solid var(--border-color)' }}
-            >
-              by {pkg.author}
-            </span>
-            <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
-              <Star size={11} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
-              {pkg.stars}
-            </div>
-          </div>
+    <article
+      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-colors hover:border-[var(--text-muted)]"
+      style={{ borderLeft: `4px solid ${color}` }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold leading-snug text-[var(--text-primary)]">{skill.name}</h3>
+          <span
+            className="mt-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+            style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}
+          >
+            {skill.category}
+          </span>
         </div>
-        {/* Always-active indicator — packages are built-in, not installed */}
-        <span
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-          style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#1d9e75] flex-shrink-0" />
-          Included
+        <span className="flex-shrink-0 rounded-full bg-[var(--bg-tertiary)] px-2 py-0.5 text-xs text-[var(--text-secondary)]">
+          {skill.priority}
         </span>
       </div>
-
-      {/* Description */}
-      <p className="text-xs text-[var(--text-muted)] leading-relaxed">{pkg.description}</p>
-
-      {/* Category badge */}
-      <div>
-        <span
-          className="text-xs px-2 py-0.5 rounded-full font-medium"
-          style={{ background: badgeColor + '18', color: badgeColor, border: `1px solid ${badgeColor}30` }}
-        >
-          {pkg.category}
-        </span>
+      <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">{skill.description}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {skill.tags.slice(0, 4).map(tag => (
+          <span
+            key={tag}
+            className="rounded-full bg-[var(--bg-tertiary)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
-    </div>
+    </article>
   )
 }
-
-// ─── Connect Modal ────────────────────────────────────────────────────────────
 
 function ConnectModal({
   connector,
@@ -195,7 +106,6 @@ function ConnectModal({
     onSave('')
   }
 
-  // Load existing key
   const existingKey = (() => {
     try {
       return loadConnectorKeys()[connector.id] ?? ''
@@ -210,19 +120,19 @@ function ConnectModal({
           style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
         />
         <Dialog.Content
-          className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl shadow-2xl overflow-hidden animate-fade-in"
-          style={{ width: 420, background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+          className="fixed z-50 top-1/2 left-1/2 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl shadow-2xl animate-fade-in"
+          style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
         >
           <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-3">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold"
-                style={{ background: connector.color + '33', color: connector.color }}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold"
+                style={{ background: `${connector.color}33`, color: connector.color }}
               >
                 {connector.initials}
               </div>
               <div>
-                <Dialog.Title className="font-bold text-[var(--text-primary)] text-sm">
+                <Dialog.Title className="text-sm font-bold text-[var(--text-primary)]">
                   Connect {connector.name}
                 </Dialog.Title>
                 <Dialog.Description className="text-xs text-[var(--text-secondary)]">
@@ -231,17 +141,17 @@ function ConnectModal({
               </div>
             </div>
             <Dialog.Close asChild>
-              <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)] transition-colors">
+              <button className="rounded-lg p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--border-color)] hover:text-[var(--text-primary)]">
                 <X size={16} />
               </button>
             </Dialog.Close>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             {connector.isConnected && !saved && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: '#1d9e7512', border: '1px solid #1d9e7530' }}>
+              <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: '#1d9e7512', border: '1px solid #1d9e7530' }}>
                 <CheckCircle2 size={14} style={{ color: '#1d9e75' }} />
-                <span className="text-xs text-[#1d9e75] font-medium">Connected — key saved locally</span>
+                <span className="text-xs font-medium text-[#1d9e75]">Connected - key saved locally</span>
               </div>
             )}
 
@@ -255,7 +165,7 @@ function ConnectModal({
                 value={key || existingKey}
                 onChange={e => setKey(e.target.value)}
                 placeholder={connector.keyPlaceholder ?? 'API key'}
-                className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2 font-mono text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[#7f77dd]/60"
               />
               <p className="text-xs text-[var(--text-secondary)]">
                 Stored locally on your device. Never sent to Drodo servers.
@@ -272,7 +182,7 @@ function ConnectModal({
                 {connector.isConnected && (
                   <button
                     onClick={handleDisconnect}
-                    className="px-4 py-2 rounded-xl text-sm font-medium border border-[#e05050]/30 text-[#e05050] hover:bg-[#e05050]/10 transition-colors"
+                    className="rounded-xl border border-[#e05050]/30 px-4 py-2 text-sm font-medium text-[#e05050] transition-colors hover:bg-[#e05050]/10"
                   >
                     Disconnect
                   </button>
@@ -281,8 +191,8 @@ function ConnectModal({
                   onClick={handleSave}
                   disabled={!key.trim() && !existingKey}
                   className={clsx(
-                    'flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all',
-                    (key.trim() || existingKey) ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed'
+                    'flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all',
+                    (key.trim() || existingKey) ? 'hover:opacity-90' : 'cursor-not-allowed opacity-40'
                   )}
                   style={{ background: '#7f77dd' }}
                 >
@@ -298,39 +208,35 @@ function ConnectModal({
   )
 }
 
-// ─── Connector Card ───────────────────────────────────────────────────────────
-
 function ConnectorCard({ connector, onConnect }: { connector: Connector; onConnect: () => void }) {
   return (
     <div
       className={clsx(
-        'flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 group',
+        'group flex items-center gap-3 rounded-xl border p-4 transition-all duration-200',
         connector.isConnected
           ? 'border-[#1d9e75]/30 bg-[#1d9e75]/5 hover:border-[#1d9e75]/50'
           : 'border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)]'
       )}
     >
-      {/* Icon */}
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0"
-        style={{ background: connector.color + '22', color: connector.color }}
+        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+        style={{ background: `${connector.color}22`, color: connector.color }}
       >
         {connector.initials}
       </div>
 
-      {/* Name + status */}
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-[var(--text-primary)] truncate">{connector.name}</div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-[var(--text-primary)]">{connector.name}</div>
         {connector.description && (
           <div className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
             {connector.description}
           </div>
         )}
-        <div className="flex items-center gap-1.5 mt-0.5">
+        <div className="mt-1 flex items-center gap-1.5">
           {connector.isConnected ? (
             <>
               <CheckCircle2 size={11} style={{ color: '#1d9e75' }} />
-              <span className="text-xs" style={{ color: '#1d9e75' }}>Connected</span>
+              <span className="text-xs text-[#1d9e75]">Connected</span>
             </>
           ) : (
             <>
@@ -341,11 +247,10 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
         </div>
       </div>
 
-      {/* Connect button */}
       <button
         onClick={onConnect}
         className={clsx(
-          'flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150',
+          'flex-shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-150',
           connector.isConnected
             ? 'border border-[#1d9e75]/30 text-[#1d9e75] hover:bg-[#1d9e75]/15'
             : 'text-white hover:opacity-90'
@@ -358,153 +263,195 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
   )
 }
 
-// ─── Main View ────────────────────────────────────────────────────────────────
-
 export function SkillsView() {
   const { connectors, setConnectorConnected } = useAppStore(
     useShallow(s => ({ connectors: s.connectors, setConnectorConnected: s.setConnectorConnected }))
   )
   const [activeConnector, setActiveConnector] = useState<Connector | null>(null)
+  const [activeTab, setActiveTab] = useState<SkillsTab>('skills')
+  const [activeSkillCategory, setActiveSkillCategory] = useState('All')
+  const [skillSearch, setSkillSearch] = useState('')
 
-  const connectedCount = connectors.filter(c => c.isConnected).length
   const skillCount = getSkillCount()
-  const skillDomains = getAllSkillDomains()
-  const topCategories = getTopSkillCategories(5)
-  const allCategories = getAllSkillCategories()
+  const allSkills = useMemo(() => getAllSkills(), [])
+  const topCategories = useMemo(() => getTopSkillCategories(5), [])
+  const skillCategories = useMemo(() => ['All', ...getAllSkillCategories()], [])
+  const connectedCount = connectors.filter(c => c.isConnected).length
 
-  const byCategory = CATEGORY_ORDER.map(cat => ({
+  const filteredSkills = useMemo(() => {
+    const query = skillSearch.trim().toLowerCase()
+    return allSkills.filter(skill => {
+      const matchesCategory = activeSkillCategory === 'All' || skill.category === activeSkillCategory
+      if (!matchesCategory) return false
+      if (!query) return true
+
+      return [
+        skill.name,
+        skill.description,
+        skill.category,
+        skill.tags.join(' '),
+        skill.capability_domains.join(' '),
+      ].some(value => value.toLowerCase().includes(query))
+    })
+  }, [activeSkillCategory, allSkills, skillSearch])
+
+  const byConnectorCategory = CATEGORY_ORDER.map(cat => ({
     category: cat,
     items: connectors.filter(c => c.category === cat),
   }))
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
-      {/* Header */}
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <div
-        className="flex items-center gap-3 px-6 py-4 flex-shrink-0"
+        className="flex flex-shrink-0 flex-wrap items-center gap-3 px-6 py-4"
         style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
       >
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: '#7f77dd22' }}>
           <Puzzle size={18} style={{ color: '#7f77dd' }} />
         </div>
-        <div>
-          <h1 className="font-bold text-[var(--text-primary)] text-lg">Skills & Connectors</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">Skills & Connectors</h1>
           <p className="text-xs text-[var(--text-secondary)]">
-            {connectedCount} connected · {connectors.length} available
+            {skillCount.toLocaleString()} skills · {connectedCount} connectors connected
           </p>
+        </div>
+
+        <div className="flex rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-1">
+          {(['skills', 'connectors'] as SkillsTab[]).map(tab => {
+            const isActive = activeTab === tab
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={clsx(
+                  'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                  isActive ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                )}
+              >
+                {tab === 'skills' ? 'Skills' : 'Connectors'}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
-
-        {/* ── Active Skills Intelligence ───────────────────────── */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#7f77dd' }} />
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Active Skills Intelligence</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}>
-              Always on
-            </span>
-          </div>
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-            <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-              <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Total Skills</div>
-              <div className="mt-3 text-3xl font-bold text-[var(--text-primary)]">{skillCount.toLocaleString()}</div>
-              <div className="mt-2 text-xs text-[var(--text-secondary)]">
-                Deduplicated bundle shipped locally with the app.
+      {activeTab === 'skills' ? (
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
+          <section className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+            <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+              <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Skill Library</div>
+              <div className="mt-3 text-2xl font-bold text-[var(--text-primary)]">
+                {skillCount.toLocaleString()} AI skills available - automatically matched to your tasks
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-              <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Domains Covered</div>
+            <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+              <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Top Categories</div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {skillDomains.map(domain => (
+                {topCategories.map(category => (
                   <span
-                    key={domain}
-                    className="text-xs px-2 py-1 rounded-full font-medium"
-                    style={{ background: '#7f77dd18', color: '#a09ae8', border: '1px solid #7f77dd30' }}
+                    key={category.name}
+                    className="rounded-full px-2 py-1 text-xs font-medium"
+                    style={{
+                      background: `${SKILL_CATEGORY_COLORS[category.name] ?? '#6b7280'}18`,
+                      color: SKILL_CATEGORY_COLORS[category.name] ?? '#6b7280',
+                      border: `1px solid ${SKILL_CATEGORY_COLORS[category.name] ?? '#6b7280'}30`,
+                    }}
                   >
-                    {domain}
+                    {category.name} {category.count}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-              <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Top Categories</div>
-              <div className="mt-3 space-y-2">
-                {topCategories.map(category => (
-                  <div key={category.name} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-[var(--text-primary)]">{category.name}</span>
-                    <span className="text-[var(--text-secondary)]">{category.count}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 text-xs text-[var(--text-secondary)]">
-                {allCategories.length} categories available for orchestration-aware matching.
-              </div>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        {/* ── Skill Packages ────────────────────────────────────── */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full" style={{ background: '#f97316' }} />
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Skill Packages</h2>
-            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}>
-              {SKILL_PACKAGES.length} included
-            </span>
-          </div>
-          {/* Info banner */}
-          <div
-            className="flex items-start gap-2 px-4 py-3 rounded-xl mb-4 text-xs text-[var(--text-muted)] leading-relaxed"
-            style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)' }}
-          >
-            <span className="flex-shrink-0 mt-0.5">ℹ️</span>
-            <span>
-              Skill packages are built-in and automatically injected into agent system prompts when relevant. No installation needed — they are always active.
-            </span>
-          </div>
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-            {SKILL_PACKAGES.map(pkg => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ── Connectors (existing sections, preserved exactly) ──── */}
-        {byCategory.map(({ category, items }) => (
-          <div key={category}>
-            {/* Category header */}
-            <div className="flex items-center gap-2 mb-3">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: CATEGORY_COLORS[category] }}
-              />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{category}</h2>
+          <section className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[220px] flex-1">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" />
+                <input
+                  type="text"
+                  value={skillSearch}
+                  onChange={e => setSkillSearch(e.target.value)}
+                  placeholder="Search skills..."
+                  className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] py-2 pl-8 pr-3 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-muted)] focus:border-[#7f77dd]/60"
+                />
+              </div>
               <span className="text-xs text-[var(--text-secondary)]">
-                ({items.filter(c => c.isConnected).length}/{items.length})
+                Showing {filteredSkills.length.toLocaleString()} skill{filteredSkills.length === 1 ? '' : 's'}
               </span>
             </div>
 
-            {/* Cards grid */}
-            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-              {items.map(connector => (
-                <ConnectorCard
-                  key={connector.id}
-                  connector={connector}
-                  onConnect={() => setActiveConnector(connector)}
-                />
+            <div className="flex flex-wrap gap-2">
+              {skillCategories.map(category => {
+                const isActive = activeSkillCategory === category
+                const color = SKILL_CATEGORY_COLORS[category] ?? '#7f77dd'
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setActiveSkillCategory(category)}
+                    className="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
+                    style={{
+                      background: isActive ? `${color}22` : 'var(--bg-tertiary)',
+                      color: isActive ? color : 'var(--text-secondary)',
+                      border: `1px solid ${isActive ? `${color}45` : 'var(--border-color)'}`,
+                    }}
+                  >
+                    {category}
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+              {filteredSkills.map(skill => (
+                <SkillCard key={skill.id} skill={skill} />
               ))}
             </div>
-          </div>
-        ))}
-      </div>
+          </section>
+        </div>
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">
+          <section className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: '#7f77dd22', color: '#7f77dd' }}>
+                <Plug size={18} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-[var(--text-primary)]">Connectors</h2>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  Connect the apps and services you want Drodo to use.
+                </p>
+              </div>
+            </div>
+          </section>
 
-      {/* Modals */}
+          {byConnectorCategory.map(({ category, items }) => (
+            <section key={category}>
+              <div className="mb-3 flex items-center gap-2">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: CONNECTOR_CATEGORY_COLORS[category] }}
+                />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{category}</h2>
+                <span className="text-xs text-[var(--text-secondary)]">
+                  ({items.filter(c => c.isConnected).length}/{items.length})
+                </span>
+              </div>
+
+              <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+                {items.map(connector => (
+                  <ConnectorCard
+                    key={connector.id}
+                    connector={connector}
+                    onConnect={() => setActiveConnector(connector)}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+
       {activeConnector && (
         <ConnectModal
           connector={activeConnector}

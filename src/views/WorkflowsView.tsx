@@ -18,6 +18,7 @@ import {
   X,
   Search,
   Workflow,
+  AlertCircle,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -25,6 +26,7 @@ import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
+import { executeCommand } from '../lib/tauri'
 import { getWorkflowCategories, getWorkflowCount, getWorkflowTemplate, searchWorkflows, type WorkflowIndex } from '../lib/workflows'
 import { useAppStore } from '../store/appStore'
 import type { Message, Provider } from '../types'
@@ -37,6 +39,7 @@ const TEMPLATE_GRID_RENDER_LIMIT = 160
 
 type WorkflowTab = 'workflows' | 'builder' | 'history'
 type StepRunStatus = 'pending' | 'running' | 'complete' | 'error' | 'stopped'
+type NodeCheckState = 'checking' | 'available' | 'missing' | 'dismissed'
 
 interface WorkflowStep {
   stepId: string
@@ -85,6 +88,34 @@ type SavedProviderConfig = {
   apiKey?: string
   baseUrl?: string
   model?: string
+}
+
+const WORKFLOW_CATEGORY_ACCENTS: Record<string, string> = {
+  marketing: '#f59e0b',
+  engineering: '#3b82f6',
+  dev: '#3b82f6',
+  finance: '#10b981',
+  hr: '#8b5cf6',
+  recruiting: '#8b5cf6',
+  sales: '#ef4444',
+  content: '#ec4899',
+  creative: '#ec4899',
+  research: '#06b6d4',
+  productivity: '#f97316',
+  general: '#6b7280',
+  other: '#6b7280',
+}
+
+function getWorkflowAccentColor(category?: string): string {
+  const normalized = (category || 'general').toLowerCase()
+  for (const [keyword, color] of Object.entries(WORKFLOW_CATEGORY_ACCENTS)) {
+    if (normalized.includes(keyword)) return color
+  }
+  return '#6b7280'
+}
+
+function formatNodeCheckFailure(message: string): string {
+  return `Node.js is required to launch n8n. Drodo could not run "node --version": ${message}`
 }
 
 function cloneSteps(steps: WorkflowStep[]): WorkflowStep[] {
@@ -426,6 +457,10 @@ export function WorkflowsView() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   const [selectedTemplateJson, setSelectedTemplateJson] = useState('')
   const [templateImportStatus, setTemplateImportStatus] = useState<string | null>(null)
+  const [nodeCheckState, setNodeCheckState] = useState<NodeCheckState>('checking')
+  const [nodeVersion, setNodeVersion] = useState('')
+  const [nodeCheckError, setNodeCheckError] = useState<string | null>(null)
+  const [n8nLaunchError, setN8nLaunchError] = useState<string | null>(null)
   const activeStreamRef = useRef<{ abort: () => void } | null>(null)
   const pendingStepAbortResolverRef = useRef<(() => void) | null>(null)
   const stepRunsRef = useRef<StepRunState[]>([])
@@ -441,6 +476,34 @@ export function WorkflowsView() {
     setDraft(storedWorkflows[0] ? cloneWorkflow(storedWorkflows[0]) : null)
     setLoading(false)
   }, [initialProviderId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void executeCommand('node --version')
+      .then(result => {
+        if (cancelled) return
+        if (result.success) {
+          setNodeCheckState('available')
+          setNodeVersion(result.stdout.trim() || result.combined.trim())
+          setNodeCheckError(null)
+          return
+        }
+
+        setNodeCheckState('missing')
+        setNodeCheckError(formatNodeCheckFailure(result.stderr.trim() || result.combined.trim() || `exit code ${result.exitCode}`))
+      })
+      .catch(error => {
+        if (cancelled) return
+        const message = error instanceof Error ? error.message : String(error)
+        setNodeCheckState('missing')
+        setNodeCheckError(formatNodeCheckFailure(message))
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const applyStepRuns = (
     updater: StepRunState[] | ((current: StepRunState[]) => StepRunState[])
@@ -842,6 +905,33 @@ export function WorkflowsView() {
     })
   }
 
+  const handleLaunchN8n = async () => {
+    setN8nLaunchError(null)
+
+    try {
+      const nodeResult = await executeCommand('node --version')
+      if (!nodeResult.success) {
+        const message = formatNodeCheckFailure(nodeResult.stderr.trim() || nodeResult.combined.trim() || `exit code ${nodeResult.exitCode}`)
+        setNodeCheckState('missing')
+        setNodeCheckError(message)
+        throw new Error(message)
+      }
+
+      setNodeCheckState('available')
+      setNodeVersion(nodeResult.stdout.trim() || nodeResult.combined.trim())
+
+      if (!n8nReady) {
+        throw new Error('n8n is still starting. Wait a moment and try again. If this persists, check that port 5678 is available.')
+      }
+
+      await open(n8nUrl)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      setN8nLaunchError(message)
+      void notify('Drodo', message)
+    }
+  }
+
   const deploySelectedTemplate = async () => {
     if (!selectedTemplateJson.trim()) return
 
@@ -933,19 +1023,81 @@ export function WorkflowsView() {
             {n8nReady ? 'n8n Ready' : 'n8n Starting...'}
           </span>
           <span className="text-xs text-[var(--text-secondary)]">
-            {n8nReady ? `Dashboard available at ${n8nUrl}` : 'Drodo is bootstrapping Node.js, Git, and n8n in the background.'}
+            {n8nReady
+              ? `Dashboard available at ${n8nUrl}${nodeVersion ? ` · Node ${nodeVersion}` : ''}`
+              : 'Drodo is bootstrapping Node.js, Git, and n8n in the background.'}
           </span>
         </div>
 
         <button
-          onClick={() => void open(n8nUrl)}
+          onClick={() => void handleLaunchN8n()}
           className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)] transition-colors hover:border-[#7f77dd]/50 hover:text-white"
           style={{ background: 'var(--bg-secondary)' }}
         >
           <Workflow size={12} />
-          Open n8n Dashboard
+          Launch n8n
         </button>
       </div>
+
+      {n8nLaunchError && (
+        <div
+          className="mx-6 mt-3 flex flex-wrap items-start justify-between gap-3 rounded-xl px-4 py-3 text-xs"
+          style={{ background: '#e0505010', border: '1px solid #e0505030', color: '#e05050' }}
+        >
+          <span>{n8nLaunchError}</span>
+          <button
+            onClick={() => setN8nLaunchError(null)}
+            className="font-semibold text-[#e05050] underline-offset-2 hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {nodeCheckState === 'missing' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div
+            className="w-full max-w-md rounded-xl border p-5 shadow-2xl"
+            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#e0505015', color: '#e05050' }}>
+                  <AlertCircle size={18} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">Node.js was not detected</h2>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
+                    {nodeCheckError ?? 'Drodo could not run "node --version". Install Node.js or make sure it is available on PATH, then try launching n8n again.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setNodeCheckState('dismissed')}
+                className="rounded-lg p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
+                aria-label="Close Node.js notice"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                onClick={() => setNodeCheckState('dismissed')}
+                className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
+              >
+                Dismiss
+              </button>
+              <button
+                onClick={() => void open('https://nodejs.org/en/download')}
+                className="rounded-lg px-3 py-2 text-xs font-semibold text-white"
+                style={{ background: '#7f77dd' }}
+              >
+                Download Node.js
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex-1">
@@ -983,6 +1135,7 @@ export function WorkflowsView() {
                     ? 'bg-[#7f77dd]/12 text-[var(--text-primary)]'
                     : 'text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                 )}
+                style={{ borderLeft: `4px solid ${getWorkflowAccentColor('General')}` }}
               >
                 <GitBranch
                   size={14}
@@ -1052,7 +1205,10 @@ export function WorkflowsView() {
                 </div>
 
                 {selectedTemplate && (
-                  <div className="mt-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
+                  <div
+                    className="mt-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden"
+                    style={{ borderLeft: `4px solid ${getWorkflowAccentColor(selectedTemplate.category)}` }}
+                  >
                     <div className="flex flex-col gap-3 border-b border-[var(--border-color)] px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -1135,7 +1291,11 @@ export function WorkflowsView() {
                         </div>
                         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                           {section.templates.map(template => (
-                            <div key={template.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                            <div
+                              key={template.id}
+                              className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4"
+                              style={{ borderLeft: `4px solid ${getWorkflowAccentColor(template.category)}` }}
+                            >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                   <div className="rounded-full inline-flex px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
@@ -1189,7 +1349,11 @@ export function WorkflowsView() {
                     ) : (
                       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {displayedTemplates.map(template => (
-                          <div key={template.id} className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4">
+                          <div
+                            key={template.id}
+                            className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4"
+                            style={{ borderLeft: `4px solid ${getWorkflowAccentColor(template.category)}` }}
+                          >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">

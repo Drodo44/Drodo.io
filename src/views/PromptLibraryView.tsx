@@ -401,9 +401,76 @@ const DEFAULT_PROMPTS: Omit<SavedPrompt, 'id' | 'createdAt' | 'usageCount'>[] = 
   },
 ]
 
+type PromptExpansionSpec = {
+  category: string
+  role: string
+  tags: string[]
+  themes: string[]
+}
+
+const PROMPT_FORMATS = [
+  { label: 'Strategy Brief', tag: 'strategy', output: 'executive summary, recommended direction, tradeoffs, risks, and first actions' },
+  { label: 'Audit Checklist', tag: 'audit', output: 'checklist, scoring rubric, issue severity, and prioritized fixes' },
+  { label: 'Operating Plan', tag: 'planning', output: 'goals, workstreams, owners, timeline, dependencies, and success metrics' },
+  { label: 'Decision Memo', tag: 'decision', output: 'context, options, evaluation criteria, recommendation, and confidence level' },
+  { label: 'Playbook', tag: 'playbook', output: 'repeatable steps, templates, examples, quality checks, and escalation rules' },
+  { label: 'Experiment Plan', tag: 'experiment', output: 'hypothesis, method, sample, measurement plan, and decision thresholds' },
+  { label: 'Stakeholder Update', tag: 'communication', output: 'summary, progress, blockers, risks, asks, and next milestones' },
+  { label: 'Requirements Pack', tag: 'requirements', output: 'requirements, constraints, acceptance criteria, dependencies, and open questions' },
+  { label: 'Risk Review', tag: 'risk', output: 'risk register, likelihood, impact, mitigations, owners, and monitoring plan' },
+  { label: 'KPI Framework', tag: 'metrics', output: 'metric definitions, formulas, targets, data sources, and reporting cadence' },
+  { label: 'Training Guide', tag: 'enablement', output: 'learning objectives, modules, exercises, examples, and assessment criteria' },
+  { label: 'Launch Plan', tag: 'launch', output: 'launch phases, assets, timeline, owners, readiness checks, and rollback plan' },
+]
+
+const PROMPT_EXPANSION_SPECS: PromptExpansionSpec[] = [
+  { category: 'Business', role: 'business strategy operator', tags: ['business', 'strategy'], themes: ['market entry', 'pricing reset', 'board narrative', 'operating cadence', 'partnership pipeline', 'customer segmentation', 'new business line', 'vendor consolidation', 'executive offsite', 'business continuity', 'franchise model', 'strategic moat'] },
+  { category: 'Marketing', role: 'growth marketing lead', tags: ['marketing', 'growth'], themes: ['campaign calendar', 'brand positioning', 'lead magnet', 'lifecycle marketing', 'paid social testing', 'customer advocacy', 'product launch', 'retention campaign', 'webinar funnel', 'event marketing', 'referral program', 'message testing'] },
+  { category: 'Content & Creative', role: 'creative content director', tags: ['content', 'creative'], themes: ['editorial calendar', 'thought leadership', 'video series', 'newsletter relaunch', 'case study library', 'brand voice', 'podcast season', 'creative concept', 'landing page copy', 'visual storytelling', 'pillar article', 'community content'] },
+  { category: 'Research', role: 'research analyst', tags: ['research', 'insights'], themes: ['literature review', 'competitor scan', 'customer interview', 'survey program', 'trend analysis', 'source synthesis', 'expert panel', 'market sizing', 'policy scan', 'evidence map', 'benchmark study', 'decision research'] },
+  { category: 'Engineering', role: 'senior engineering lead', tags: ['engineering', 'delivery'], themes: ['architecture review', 'incident follow-up', 'API design', 'data migration', 'release readiness', 'security hardening', 'test coverage', 'technical debt', 'observability', 'performance tuning', 'developer experience', 'integration rollout'] },
+  { category: 'Finance', role: 'finance and FP&A lead', tags: ['finance', 'fp-and-a'], themes: ['cash forecast', 'budget reset', 'board reporting', 'unit economics', 'pricing sensitivity', 'fundraising model', 'department planning', 'margin improvement', 'scenario planning', 'investment case', 'runway extension', 'working capital'] },
+  { category: 'Legal', role: 'legal operations reviewer', tags: ['legal', 'compliance'], themes: ['contract review', 'privacy compliance', 'vendor terms', 'employment policy', 'data processing', 'IP protection', 'regulatory update', 'risk register', 'terms update', 'procurement clause', 'incident response', 'records retention'] },
+  { category: 'Sales', role: 'sales enablement leader', tags: ['sales', 'revenue'], themes: ['discovery motion', 'enterprise deal', 'objection handling', 'renewal save', 'pipeline hygiene', 'territory planning', 'demo narrative', 'proposal strategy', 'account expansion', 'sales coaching', 'competitive battlecard', 'forecast review'] },
+  { category: 'HR & Recruiting', role: 'people operations partner', tags: ['hr', 'recruiting'], themes: ['role scorecard', 'interview loop', 'onboarding journey', 'manager training', 'performance cycle', 'compensation review', 'employee survey', 'retention risk', 'policy rollout', 'talent pipeline', 'career ladder', 'workforce plan'] },
+  { category: 'Customer Support', role: 'customer support operations lead', tags: ['support', 'customer'], themes: ['ticket triage', 'help center', 'escalation policy', 'CSAT recovery', 'support macros', 'incident communication', 'refund workflow', 'VIP support', 'voice of customer', 'agent coaching', 'queue staffing', 'self-serve deflection'] },
+  { category: 'Education', role: 'instructional designer', tags: ['education', 'learning'], themes: ['lesson plan', 'course outline', 'assessment rubric', 'student feedback', 'curriculum map', 'learning objective', 'study guide', 'teacher training', 'workshop agenda', 'microlearning module', 'peer review', 'capstone project'] },
+  { category: 'Health & Wellness', role: 'health education planner', tags: ['health', 'wellness'], themes: ['habit program', 'wellness workshop', 'patient education', 'fitness routine', 'sleep improvement', 'nutrition planning', 'stress reduction', 'care coordination', 'preventive health', 'workplace wellness', 'behavior change', 'resource guide'] },
+  { category: 'Real Estate', role: 'real estate strategy advisor', tags: ['real-estate', 'property'], themes: ['listing strategy', 'deal underwriting', 'rental analysis', 'neighborhood research', 'buyer consultation', 'seller prep', 'open house', 'investment memo', 'property management', 'lead nurture', 'market update', 'renovation scope'] },
+  { category: 'E-commerce', role: 'e-commerce growth operator', tags: ['ecommerce', 'commerce'], themes: ['product listing', 'conversion audit', 'inventory planning', 'review mining', 'bundle strategy', 'marketplace launch', 'retention email', 'checkout recovery', 'category expansion', 'pricing test', 'supplier review', 'holiday plan'] },
+  { category: 'Social Media', role: 'social media strategist', tags: ['social', 'community'], themes: ['content calendar', 'reels series', 'LinkedIn authority', 'community prompts', 'creator collaboration', 'platform audit', 'launch countdown', 'engagement recovery', 'social listening', 'short-form hooks', 'profile optimization', 'comment strategy'] },
+  { category: 'SEO', role: 'SEO strategist', tags: ['seo', 'search'], themes: ['keyword cluster', 'technical audit', 'content refresh', 'internal linking', 'backlink outreach', 'local SEO', 'SERP analysis', 'programmatic SEO', 'site migration', 'schema markup', 'topic authority', 'content gap'] },
+  { category: 'Data & Analytics', role: 'analytics lead', tags: ['analytics', 'data'], themes: ['metric dictionary', 'dashboard design', 'SQL analysis', 'experiment readout', 'root cause analysis', 'data quality', 'segmentation', 'forecast model', 'attribution report', 'cohort analysis', 'anomaly review', 'tracking plan'] },
+  { category: 'Productivity', role: 'productivity systems coach', tags: ['productivity', 'systems'], themes: ['weekly planning', 'meeting rhythm', 'task triage', 'project kickoff', 'decision journal', 'knowledge base', 'focus routine', 'handoff process', 'goal review', 'email workflow', 'delegation plan', 'personal operating system'] },
+  { category: 'Personal', role: 'personal planning coach', tags: ['personal', 'planning'], themes: ['career move', 'resume refresh', 'travel itinerary', 'budget reset', 'learning plan', 'personal brand', 'home project', 'habit tracker', 'decision clarity', 'life admin', 'shopping comparison', 'goal setting'] },
+]
+
+function toTag(value: string): string {
+  return value.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+function generatePromptExpansion(): Omit<SavedPrompt, 'id' | 'createdAt' | 'usageCount'>[] {
+  return PROMPT_EXPANSION_SPECS.flatMap(spec => spec.themes.map((theme, index) => {
+    const format = PROMPT_FORMATS[index % PROMPT_FORMATS.length]
+    const themeTag = toTag(theme)
+
+    return {
+      title: `${theme.replace(/\b\w/g, char => char.toUpperCase())} ${format.label}`,
+      content: `Act as a ${spec.role} for [context]. Build a ${format.label.toLowerCase()} for ${theme}. Output: ${format.output}. Include assumptions, recommended next steps, likely failure modes, and the 3 questions you need answered before execution.`,
+      tags: [...spec.tags, themeTag, format.tag],
+      category: spec.category,
+    }
+  }))
+}
+
+const COMPREHENSIVE_PROMPTS: Omit<SavedPrompt, 'id' | 'createdAt' | 'usageCount'>[] = [
+  ...DEFAULT_PROMPTS,
+  ...generatePromptExpansion(),
+]
+
 function seedDefaultPrompts(): SavedPrompt[] {
   const now = Date.now()
-  const seeded = DEFAULT_PROMPTS.map((p, i) => ({
+  const seeded = COMPREHENSIVE_PROMPTS.map((p, i) => ({
     ...p,
     id: createId(),
     createdAt: now - i * 60000, // stagger timestamps
@@ -416,7 +483,7 @@ function seedDefaultPrompts(): SavedPrompt[] {
 function mergeMissingDefaults(existing: SavedPrompt[]): SavedPrompt[] {
   const existingKeys = new Set(existing.map(prompt => `${prompt.category}::${prompt.title}`))
   const now = Date.now()
-  const missing = DEFAULT_PROMPTS
+  const missing = COMPREHENSIVE_PROMPTS
     .filter(prompt => !existingKeys.has(`${prompt.category}::${prompt.title}`))
     .map((prompt, index) => ({
       ...prompt,

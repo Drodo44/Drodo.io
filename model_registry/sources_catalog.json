@@ -8,6 +8,22 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "adept_fuyu_8b",
+    "title": "adept/fuyu-8b model card",
+    "url": "https://huggingface.co/adept/fuyu-8b",
+    "publisher": "Adept",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "adept_persimmon_8b_chat",
+    "title": "adept/persimmon-8b-chat model card",
+    "url": "https://huggingface.co/adept/persimmon-8b-chat",
+    "publisher": "Adept",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "ai21_jamba",
     "title": "AI21 Jamba models",
     "url": "https://docs.ai21.com/docs/jamba-foundation-models",
@@ -88,6 +104,14 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "anthropic_messages_api",
+    "title": "Anthropic Messages API",
+    "url": "https://docs.anthropic.com/en/api/messages",
+    "publisher": "Anthropic",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "anthropic_models",
     "title": "Anthropic model docs",
     "url": "https://docs.anthropic.com/en/docs/about-claude/model-deprecations",
@@ -124,6 +148,30 @@
     "title": "AssemblyAI products overview",
     "url": "https://www.assemblyai.com/products",
     "publisher": "AssemblyAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "assemblyai_universal_streaming_release",
+    "title": "Universal-Streaming announcement",
+    "url": "https://www.assemblyai.com/blog/introducing-universal-streaming",
+    "publisher": "AssemblyAI",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "aws_bedrock_cost_optimization",
+    "title": "Optimizing costs of generative AI applications on AWS",
+    "url": "https://aws.amazon.com/blogs/machine-learning/optimizing-costs-of-generative-ai-applications-on-aws/",
+    "publisher": "Amazon",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "aws_nova_price_performance",
+    "title": "Prompting for the best price-performance",
+    "url": "https://aws.amazon.com/blogs/machine-learning/prompting-for-the-best-price-performance/",
+    "publisher": "Amazon",
     "evidence_type": "official_docs",
     "accessed_at": "2026-04-09"
   },
@@ -195,6 +243,14 @@
     "source_id": "bedrock_nova_pro",
     "title": "Nova Pro model card",
     "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-amazon-nova-pro.html",
+    "publisher": "Amazon",
+    "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "bedrock_palmyra_x4",
+    "title": "Palmyra X4 on Bedrock",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-palmyra-x4.html",
     "publisher": "Amazon",
     "evidence_type": "provider_catalog",
     "accessed_at": "2026-04-09"
@@ -416,11 +472,27 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "eleven_flash_release",
+    "title": "Meet Flash",
+    "url": "https://elevenlabs.io/blog/meet-flash",
+    "publisher": "ElevenLabs",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "eleven_models",
     "title": "ElevenLabs model guide",
     "url": "https://elevenlabs.io/docs/developer-guides/models",
     "publisher": "ElevenLabs",
     "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "eleven_scribe_release",
+    "title": "Meet Scribe",
+    "url": "https://elevenlabs.io/blog/meet-scribe",
+    "publisher": "ElevenLabs",
+    "evidence_type": "official_release_notes",
     "accessed_at": "2026-04-09"
   },
   {
@@ -437,6 +509,22 @@
     "url": "https://huggingface.co/blog/meta-agents-research-environments/gaia2-new-models-evaluation",
     "publisher": "Hugging Face",
     "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "gguf_docs",
+    "title": "GGUF format documentation",
+    "url": "https://github.com/ggml-org/llama.cpp/blob/master/docs/gguf.md",
+    "publisher": "ggml-org",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "github_models_quickstart",
+    "title": "GitHub Models quickstart",
+    "url": "https://docs.github.com/en/github-models/quickstart",
+    "publisher": "GitHub",
+    "evidence_type": "provider_catalog",
     "accessed_at": "2026-04-09"
   },
   {
@@ -720,11 +808,27 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "mlx_docs",
+    "title": "MLX documentation",
+    "url": "https://ml-explore.github.io/mlx/build/html/index.html",
+    "publisher": "Apple",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "mmmu_leaderboard",
     "title": "MMMU leaderboard",
     "url": "https://mmmu-benchmark.github.io/",
     "publisher": "MMMU",
     "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "moonshot_changelog",
+    "title": "Moonshot changelog",
+    "url": "https://platform.moonshot.ai/docs/changelog",
+    "publisher": "Moonshot AI",
+    "evidence_type": "official_release_notes",
     "accessed_at": "2026-04-09"
   },
   {
@@ -789,6 +893,22 @@
     "url": "https://99franklin.github.io/ocrbench_v2/",
     "publisher": "OCRBench",
     "evidence_type": "benchmark_report",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "onnx_genai_docs",
+    "title": "ONNX Runtime GenAI docs",
+    "url": "https://onnxruntime.ai/docs/genai/",
+    "publisher": "Microsoft",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_api_reference",
+    "title": "OpenAI Responses API reference",
+    "url": "https://platform.openai.com/docs/api-reference/responses",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
     "accessed_at": "2026-04-09"
   },
   {
@@ -867,6 +987,78 @@
     "source_id": "openai_images",
     "title": "OpenAI Images Guide",
     "url": "https://platform.openai.com/docs/guides/images",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_gpt_4o",
+    "title": "GPT-4o model page",
+    "url": "https://developers.openai.com/api/docs/models/gpt-4o",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_gpt_4o_mini",
+    "title": "GPT-4o mini model page",
+    "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_gpt_4o_mini_tts",
+    "title": "GPT-4o mini TTS model page",
+    "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_gpt_4o_transcribe",
+    "title": "GPT-4o Transcribe model page",
+    "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_gpt_image_1",
+    "title": "GPT Image 1 model page",
+    "url": "https://developers.openai.com/api/docs/models/gpt-image-1",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_o3",
+    "title": "o3 model page",
+    "url": "https://developers.openai.com/api/docs/models/o3",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_o4_mini",
+    "title": "o4-mini model page",
+    "url": "https://developers.openai.com/api/docs/models/o4-mini",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_text_embedding_3_large",
+    "title": "text-embedding-3-large model page",
+    "url": "https://developers.openai.com/api/docs/models/text-embedding-3-large",
+    "publisher": "OpenAI",
+    "evidence_type": "official_docs",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "openai_model_text_embedding_3_small",
+    "title": "text-embedding-3-small model page",
+    "url": "https://developers.openai.com/api/docs/models/text-embedding-3-small",
     "publisher": "OpenAI",
     "evidence_type": "official_docs",
     "accessed_at": "2026-04-09"
@@ -1064,6 +1256,14 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "sakanaai_tinyswallow_1_5b_instruct",
+    "title": "SakanaAI/TinySwallow-1.5B-Instruct model card",
+    "url": "https://huggingface.co/SakanaAI/TinySwallow-1.5B-Instruct",
+    "publisher": "Sakana AI",
+    "evidence_type": "official_model_card",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "salesforce_xlam_2_8b_fc_r",
     "title": "Salesforce/xLAM-2-8b-fc-r model card",
     "url": "https://huggingface.co/Salesforce/xLAM-2-8b-fc-r",
@@ -1128,6 +1328,14 @@
     "accessed_at": "2026-04-09"
   },
   {
+    "source_id": "suno_v45_release",
+    "title": "Introducing Suno v4.5",
+    "url": "https://suno.com/blog/introducing-v4-5",
+    "publisher": "Suno",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
     "source_id": "swebench_official",
     "title": "SWE-bench official site",
     "url": "https://www.swebench.com/",
@@ -1141,6 +1349,14 @@
     "url": "https://cloud.tencent.com/document/product/1759/112876",
     "publisher": "Tencent Cloud",
     "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "tgi_docs",
+    "title": "Text Generation Inference documentation",
+    "url": "https://huggingface.co/docs/text-generation-inference/index",
+    "publisher": "Hugging Face",
+    "evidence_type": "official_docs",
     "accessed_at": "2026-04-09"
   },
   {
@@ -1165,6 +1381,22 @@
     "url": "https://docs.together.ai/docs/serverless-models",
     "publisher": "Together",
     "evidence_type": "provider_catalog",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "udio_v15_release",
+    "title": "Introducing Udio v1.5",
+    "url": "https://www.udio.com/blog/introducing-v1-5",
+    "publisher": "Udio",
+    "evidence_type": "official_release_notes",
+    "accessed_at": "2026-04-09"
+  },
+  {
+    "source_id": "vllm_docs",
+    "title": "vLLM documentation",
+    "url": "https://docs.vllm.ai/en/latest/",
+    "publisher": "vLLM",
+    "evidence_type": "official_docs",
     "accessed_at": "2026-04-09"
   },
   {

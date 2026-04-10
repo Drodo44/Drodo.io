@@ -7,7 +7,7 @@ import {
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
-import { getAllSavedModels, getConnectedProviders } from '../lib/providerApi'
+import { getAllSavedModels, loadAllSavedConfigs } from '../lib/providerApi'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +23,12 @@ export function resetOnboarding() {
 }
 
 function hasCompletedProviderSetup(): boolean {
-  return getAllSavedModels().length > 0 || getConnectedProviders().length > 0
+  if (getAllSavedModels().length > 0) return true
+
+  const configs = loadAllSavedConfigs()
+  return Object.values(configs).some(config => {
+    return !!config.apiKey?.trim() || (config.savedModels?.length ?? 0) > 0
+  })
 }
 
 export function isOnboardingComplete(): boolean {

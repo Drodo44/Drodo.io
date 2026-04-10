@@ -287,6 +287,8 @@ const UID_REMAPS = new Map([
   ['mdl:google-deepmind:gemini-embedding:gemini-embedding-001', modelRef('Google / DeepMind', 'Embedding', 'Gemini Embedding 001')],
   ['mdl:google-deepmind:gemini:gemini-3-1-flash', modelRef('Google / DeepMind', 'Gemini', 'Gemini 3.1 Flash Preview')],
   ['mdl:google-deepmind:gemini:gemini-3-1-flash-lite', modelRef('Google / DeepMind', 'Gemini', 'Gemini 3.1 Flash Lite Preview')],
+  ['mdl:meta:llama:llama-4-maverick-instruct', modelRef('Meta', 'Llama', 'Llama 4 Maverick 17B 128E Instruct')],
+  ['mdl:meta:llama:llama-4-scout-instruct', modelRef('Meta', 'Llama', 'Llama 4 Scout 17B 16E Instruct')],
   ['mdl:mistral:devstral:devstral-2', modelRef('Mistral', 'Devstral', 'Devstral 25.12')],
   ['mdl:mistral:mistral-large:mistral-large-3', modelRef('Mistral', 'Mistral', 'Mistral Large 25.12')],
   ['mdl:mistral:mistral-medium:mistral-medium-3-1', modelRef('Mistral', 'Mistral', 'Mistral Medium 3.1')],
@@ -298,7 +300,17 @@ const UID_REMAPS = new Map([
 ]);
 const STATIC_SOURCES = [
   docSource('openai_models','OpenAI Models','https://platform.openai.com/docs/models','OpenAI'),
+  docSource('openai_api_reference','OpenAI Responses API reference','https://platform.openai.com/docs/api-reference/responses','OpenAI'),
   docSource('openai_pricing','OpenAI API pricing','https://platform.openai.com/docs/pricing','OpenAI'),
+  docSource('openai_model_gpt_4o','GPT-4o model page','https://developers.openai.com/api/docs/models/gpt-4o','OpenAI'),
+  docSource('openai_model_gpt_4o_mini','GPT-4o mini model page','https://developers.openai.com/api/docs/models/gpt-4o-mini','OpenAI'),
+  docSource('openai_model_o3','o3 model page','https://developers.openai.com/api/docs/models/o3','OpenAI'),
+  docSource('openai_model_o4_mini','o4-mini model page','https://developers.openai.com/api/docs/models/o4-mini','OpenAI'),
+  docSource('openai_model_gpt_image_1','GPT Image 1 model page','https://developers.openai.com/api/docs/models/gpt-image-1','OpenAI'),
+  docSource('openai_model_gpt_4o_transcribe','GPT-4o Transcribe model page','https://developers.openai.com/api/docs/models/gpt-4o-transcribe','OpenAI'),
+  docSource('openai_model_gpt_4o_mini_tts','GPT-4o mini TTS model page','https://developers.openai.com/api/docs/models/gpt-4o-mini-tts','OpenAI'),
+  docSource('openai_model_text_embedding_3_large','text-embedding-3-large model page','https://developers.openai.com/api/docs/models/text-embedding-3-large','OpenAI'),
+  docSource('openai_model_text_embedding_3_small','text-embedding-3-small model page','https://developers.openai.com/api/docs/models/text-embedding-3-small','OpenAI'),
   docSource('openai_embeddings','OpenAI Embeddings Guide','https://platform.openai.com/docs/guides/embeddings','OpenAI'),
   docSource('openai_images','OpenAI Images Guide','https://platform.openai.com/docs/guides/images','OpenAI'),
   docSource('openai_audio','OpenAI Audio Guide','https://platform.openai.com/docs/guides/text-to-speech','OpenAI'),
@@ -308,6 +320,7 @@ const STATIC_SOURCES = [
   docSource('openai_gpt_oss','Introducing gpt-oss','https://openai.com/index/introducing-gpt-oss','OpenAI','official_release_notes'),
   docSource('openai_gpt_oss_card','gpt-oss model card','https://openai.com/index/gpt-oss-model-card/','OpenAI','official_model_card'),
   docSource('anthropic_models','Anthropic model docs','https://docs.anthropic.com/en/docs/about-claude/model-deprecations','Anthropic'),
+  docSource('anthropic_messages_api','Anthropic Messages API','https://docs.anthropic.com/en/api/messages','Anthropic'),
   docSource('anthropic_overview','Anthropic models overview','https://platform.claude.com/docs/en/about-claude/models/overview','Anthropic'),
   docSource('anthropic_pricing','Anthropic pricing','https://platform.claude.com/docs/en/about-claude/pricing','Anthropic'),
   docSource('anthropic_claude_37_release','Claude 3.7 Sonnet system card','https://www-cdn.anthropic.com/9ff93dfa8f445c932415d335c88852ef47f1201e.pdf','Anthropic','official_model_card'),
@@ -328,12 +341,16 @@ const STATIC_SOURCES = [
   docSource('cohere_embed4_release','Embed Multimodal 4 release','https://docs.cohere.com/v2/changelog/embed-multimodal-v4','Cohere','official_release_notes'),
   docSource('cohere_rerank35_release','Rerank 3.5 release','https://docs.cohere.com/v2/changelog/rerank-v3.5','Cohere','official_release_notes'),
   docSource('eleven_models','ElevenLabs model guide','https://elevenlabs.io/docs/developer-guides/models','ElevenLabs'),
+  docSource('eleven_flash_release','Meet Flash','https://elevenlabs.io/blog/meet-flash','ElevenLabs','official_release_notes'),
+  docSource('eleven_scribe_release','Meet Scribe','https://elevenlabs.io/blog/meet-scribe','ElevenLabs','official_release_notes'),
   docSource('eleven_v3_release','Eleven v3 alpha now available in the API','https://elevenlabs.io/blog/eleven-v3-alpha-now-available-in-the-api','ElevenLabs','official_release_notes'),
   docSource('xai_models','xAI model reference','https://docs.x.ai/docs/models','xAI'),
   docSource('moonshot_overview','Moonshot overview','https://platform.moonshot.ai/docs/overview','Moonshot AI'),
   docSource('moonshot_kimi','Moonshot Kimi guide','https://platform.moonshot.ai/docs/guide/use-kimi','Moonshot AI'),
+  docSource('moonshot_changelog','Moonshot changelog','https://platform.moonshot.ai/docs/changelog','Moonshot AI','official_release_notes'),
   docSource('deepseek_api','DeepSeek API docs','https://api-docs.deepseek.com','DeepSeek'),
   docSource('azure_foundry_models','Azure AI Foundry model catalog','https://learn.microsoft.com/en-us/azure/ai-foundry/azure-openai-in-ai-foundry','Microsoft','provider_catalog'),
+  docSource('github_models_quickstart','GitHub Models quickstart','https://docs.github.com/en/github-models/quickstart','GitHub','provider_catalog'),
   docSource('bedrock_models','Amazon Bedrock models','https://docs.aws.amazon.com/bedrock/latest/userguide/models.html','Amazon','provider_catalog'),
   docSource('bedrock_pricing','Amazon Bedrock pricing','https://aws.amazon.com/bedrock/pricing/','Amazon','official_docs'),
   docSource('bedrock_claude_sonnet_45','Claude Sonnet 4.5 on Bedrock','https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html','Amazon','provider_catalog'),
@@ -346,7 +363,14 @@ const STATIC_SOURCES = [
   docSource('amazon_nova_service_card','Amazon Nova service card','https://docs.aws.amazon.com/pdfs/ai/responsible-ai/nova-micro-lite-pro/nova-micro-lite-pro.pdf','Amazon','official_model_card'),
   docSource('amazon_nova_reel_service_card','Amazon Nova Reel service card','https://docs.aws.amazon.com/pdfs/ai/responsible-ai/nova-reel/nova-reel.pdf','Amazon','official_model_card'),
   docSource('amazon_nova_sonic','Amazon Nova Sonic overview','https://docs.aws.amazon.com/ai/responsible-ai/nova-sonic/overview.html','Amazon','official_docs'),
+  docSource('aws_nova_price_performance','Prompting for the best price-performance','https://aws.amazon.com/blogs/machine-learning/prompting-for-the-best-price-performance/','Amazon','official_docs'),
+  docSource('aws_bedrock_cost_optimization','Optimizing costs of generative AI applications on AWS','https://aws.amazon.com/blogs/machine-learning/optimizing-costs-of-generative-ai-applications-on-aws/','Amazon','official_docs'),
   docSource('nvidia_nim_models','NVIDIA NIM supported models','https://docs.nvidia.com/nim/large-language-models/latest/_include/models.html','NVIDIA','provider_catalog'),
+  docSource('vllm_docs','vLLM documentation','https://docs.vllm.ai/en/latest/','vLLM','official_docs'),
+  docSource('tgi_docs','Text Generation Inference documentation','https://huggingface.co/docs/text-generation-inference/index','Hugging Face','official_docs'),
+  docSource('gguf_docs','GGUF format documentation','https://github.com/ggml-org/llama.cpp/blob/master/docs/gguf.md','ggml-org','official_docs'),
+  docSource('onnx_genai_docs','ONNX Runtime GenAI docs','https://onnxruntime.ai/docs/genai/','Microsoft','official_docs'),
+  docSource('mlx_docs','MLX documentation','https://ml-explore.github.io/mlx/build/html/index.html','Apple','official_docs'),
   docSource('together_serverless','Together serverless models','https://docs.together.ai/docs/serverless-models','Together','provider_catalog'),
   docSource('groq_models','Groq supported models','https://console.groq.com/docs/models','Groq','provider_catalog'),
   docSource('groq_tool_use','Groq supported tool-use models','https://console.groq.com/docs/tool-use/overview','Groq','provider_catalog'),
@@ -375,6 +399,7 @@ const STATIC_SOURCES = [
   docSource('luma_video','Luma video generation','https://docs.lumalabs.ai/docs/video-generation','Luma','official_docs'),
   docSource('assemblyai_benchmarks','AssemblyAI benchmarks','https://www.assemblyai.com/docs/evaluations/benchmarks','AssemblyAI','benchmark_report'),
   docSource('assemblyai_products','AssemblyAI products overview','https://www.assemblyai.com/products','AssemblyAI','official_docs'),
+  docSource('assemblyai_universal_streaming_release','Universal-Streaming announcement','https://www.assemblyai.com/blog/introducing-universal-streaming','AssemblyAI','official_release_notes'),
   docSource('bfl_models','Black Forest Labs model overview','https://docs.bfl.ai/','Black Forest Labs','official_docs'),
   docSource('bfl_flux_11_pro','Black Forest Labs FLUX 1.1 Pro','https://docs.bfl.ai/flux_models/flux_1_1_pro','Black Forest Labs','official_docs'),
   docSource('bfl_pricing','Black Forest Labs quick start pricing','https://docs.us.bfl.ai/quick_start/pricing','Black Forest Labs','official_docs'),
@@ -384,6 +409,7 @@ const STATIC_SOURCES = [
   docSource('writer_models','Writer model overview','https://dev.writer.com/home/models','Writer','official_docs'),
   docSource('writer_pricing','Writer pricing','https://dev.writer.com/home/pricing','Writer','official_docs'),
   docSource('writer_bedrock','Writer models on Bedrock','https://dev.writer.com/home/integrations/bedrock','Writer','official_docs'),
+  docSource('bedrock_palmyra_x4','Palmyra X4 on Bedrock','https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-palmyra-x4.html','Amazon','provider_catalog'),
   docSource('bedrock_palmyra_x5','Palmyra X5 on Bedrock','https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-palmyra-x5.html','Amazon','provider_catalog'),
   docSource('writer_tooling','Writer tool calling','https://dev.writer.com/home/tool-calling','Writer','official_docs'),
   docSource('writer_structured','Writer structured outputs','https://dev.writer.com/home/structured-output','Writer','official_docs'),
@@ -396,6 +422,8 @@ const STATIC_SOURCES = [
   docSource('tencent_hunyuan_models','Tencent Hunyuan model catalog','https://cloud.tencent.com/document/product/1759/112876','Tencent Cloud','provider_catalog'),
   docSource('pika_api','Pika API overview','https://pika.art/api','Pika','official_docs'),
   docSource('pika_pricing','Pika pricing','https://pika.art/pricing','Pika','official_docs'),
+  docSource('suno_v45_release','Introducing Suno v4.5','https://suno.com/blog/introducing-v4-5','Suno','official_release_notes'),
+  docSource('udio_v15_release','Introducing Udio v1.5','https://www.udio.com/blog/introducing-v1-5','Udio','official_release_notes'),
   docSource('livebench_leaderboard','LiveBench leaderboard','https://livebench.ai/','LiveBench','benchmark_report'),
   docSource('livebench_paper','LiveBench paper','https://livebench.ai/livebench.pdf','LiveBench','benchmark_report'),
   docSource('aider_polyglot_leaderboard','Aider polyglot benchmark leaderboard','https://aider.chat/docs/leaderboards/','Aider','benchmark_report'),
@@ -567,20 +595,47 @@ const MODEL_SEEDS = [
   c({ owner:'Baidu', family:'ERNIE', variant:'ERNIE 4.5', aliases:['ernie-4.5'], description:'Baidu flagship ERNIE model for Chinese-first reasoning and assistant tasks.', primary_modality:'text', modalities:['text','image'], capabilities:['text_input','text_output','image_input','tool_calling','structured_output','streaming','vision_understanding','reasoning'], profile:'fast_general', sources:['baidu_ernie_45'], router_hints:routerHints('medium','medium',['Chinese market support'],['verified cross-provider routing']) }),
   c({ owner:'Tencent', family:'Hunyuan', variant:'Hunyuan Turbo S', aliases:['hunyuan-turbo-s'], description:'Tencent general-purpose model for chat and reasoning in Chinese enterprise settings.', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning'], profile:'fast_general', sources:['tencent_hunyuan_models'], router_hints:routerHints('fast','medium',['Chinese enterprise chat'],['provider portability']) }),
   o({ owner:'Kyutai', family:'TTS', variant:'Kyutai Unmute', aliases:['kyutai-unmute'], description:'Kyutai open text-to-speech model with streaming-oriented design.', hf_repo:'kyutai/tts-1.6b-en_fr', primary_modality:'audio', modalities:['audio','text'], capabilities:['text_input','audio_output','streaming','realtime'], profile:'tts', sources:[], router_hints:routerHints('fast','low',['open streaming TTS'],['speech recognition']) }),
+  c({ owner:'Suno', family:'Suno', variant:'Suno v4.5', aliases:['suno-v4.5','v4.5'], description:'Suno flagship music generation model for prompt-driven songs, lyrics, and arrangement control.', release_date:'2025-05-01', primary_modality:'audio', modalities:['audio','text'], capabilities:['text_input','audio_output'], profile:'music', task_score_overrides:{ creative_writing:{score:92,rank:3,confidence:0.74,evidence_count:1,last_reviewed_at:TODAY,source_ids:['suno_v45_release']} }, sources:['suno_v45_release'], router_hints:routerHints('medium','medium',['music generation','lyric-first ideation'],['speech recognition']) }),
+  c({ owner:'Udio', family:'Udio', variant:'Udio v1.5', aliases:['udio-v1.5','udio-1.5'], description:'Udio music generation model for detailed prompt steering, remixing, and song creation workflows.', release_date:'2024-08-08', primary_modality:'audio', modalities:['audio','text'], capabilities:['text_input','audio_output'], profile:'music', task_score_overrides:{ creative_writing:{score:91,rank:4,confidence:0.72,evidence_count:1,last_reviewed_at:TODAY,source_ids:['udio_v15_release']} }, sources:['udio_v15_release'], router_hints:routerHints('medium','medium',['music generation','iterative remixing'],['speech recognition']) }),
+  o({ owner:'Adept', family:'Persimmon', variant:'Persimmon 8B Chat', aliases:['persimmon-8b-chat'], description:'Adept open chat model for general assistant behavior and self-hosted experimentation.', hf_repo:'adept/persimmon-8b-chat', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning'], profile:'cheap_general', sources:[], router_hints:routerHints('fast','low',['open experimentation'],['vision']) }),
+  o({ owner:'Adept', family:'Fuyu', variant:'Fuyu-8B', aliases:['fuyu-8b'], description:'Adept multimodal model for image-grounded question answering and vision-language experimentation.', hf_repo:'adept/fuyu-8b', primary_modality:'text', modalities:['text','image'], capabilities:['text_input','text_output','image_input','streaming','vision_understanding','document_extraction'], profile:'multimodal_frontier', sources:[], router_hints:routerHints('medium','low',['open multimodal research'],['tool orchestration']) }),
+  o({ owner:'Sakana AI', family:'TinySwallow', variant:'TinySwallow-1.5B-Instruct', aliases:['tinyswallow-1.5b-instruct'], description:'Sakana AI compact open instruct model focused on efficient multilingual chat and lightweight local deployment.', hf_repo:'SakanaAI/TinySwallow-1.5B-Instruct', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning','local_runnable'], profile:'cheap_general', sources:[], router_hints:routerHints('fast','low',['tiny local assistants'],['complex reasoning']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Compatibility', variant:'Custom OpenAI-Compatible Chat Model', aliases:['custom-openai-compatible'], description:'Fallback canonical record for user-supplied OpenAI-compatible chat endpoints when the upstream model identity is unknown.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','tool_calling','function_calling','structured_output','streaming','reasoning'], profile:'fast_general', sources:['openai_api_reference'], router_hints:routerHints('medium','variable',['custom endpoints','unknown hosted chat models'],['provider-specific assumptions']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Compatibility', variant:'Custom Anthropic-Compatible Chat Model', aliases:['custom-anthropic-compatible'], description:'Fallback canonical record for user-supplied Anthropic-compatible chat endpoints when the upstream model identity is unknown.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','tool_calling','structured_output','streaming','reasoning'], profile:'fast_general', sources:['anthropic_messages_api'], router_hints:routerHints('medium','variable',['custom endpoints','unknown hosted chat models'],['provider-specific assumptions']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Local Runtime', variant:'Generic Runtime-Hosted Open Model', aliases:['runtime-hosted-open-model'], description:'Fallback canonical record for self-hosted open models served through generic OpenAI-compatible runtimes.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning','local_runnable'], profile:'cheap_general', sources:['vllm_docs','tgi_docs'], router_hints:routerHints('medium','low',['self-hosted open model fleets'],['provider-specific guarantees']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Local Runtime', variant:'Generic Local GGUF Chat Model', aliases:['local-gguf-chat'], description:'Fallback canonical record for local GGUF chat models running in llama.cpp-compatible stacks.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning','local_runnable'], profile:'cheap_general', sources:['gguf_docs'], router_hints:routerHints('fast','low',['desktop local inference'],['frontier reasoning']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Local Runtime', variant:'Generic Local ONNX Chat Model', aliases:['local-onnx-chat'], description:'Fallback canonical record for local ONNX chat deployments in OpenAI-compatible wrappers.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning','local_runnable'], profile:'cheap_general', sources:['onnx_genai_docs'], router_hints:routerHints('fast','low',['CPU-friendly local inference'],['frontier reasoning']) }),
+  c({ owner:'Other / Custom / Unknown', family:'Local Runtime', variant:'Generic Local MLX Chat Model', aliases:['local-mlx-chat'], description:'Fallback canonical record for Apple-silicon-local chat models deployed through MLX-based runtimes.', status:'experimental', primary_modality:'text', modalities:['text'], capabilities:['text_input','text_output','structured_output','streaming','reasoning','local_runnable'], profile:'cheap_general', sources:['mlx_docs'], router_hints:routerHints('fast','low',['Apple local inference'],['frontier reasoning']) }),
 ];
 
 const OR_MAPPING_SPECS = [
   ['OpenAI','GPT','GPT-5.4','openai/gpt-5.4'],['OpenAI','GPT','GPT-5.4 Mini','openai/gpt-5.4-mini'],['OpenAI','GPT','GPT-5.4 Nano','openai/gpt-5.4-nano'],
+  ['OpenAI','GPT','GPT-4.1','openai/gpt-4.1'],['OpenAI','GPT','GPT-4.1 Mini','openai/gpt-4.1-mini'],['OpenAI','GPT','GPT-4.1 Nano','openai/gpt-4.1-nano'],
+  ['OpenAI','GPT','GPT-4o','openai/gpt-4o'],['OpenAI','GPT','GPT-4o Mini','openai/gpt-4o-mini'],['OpenAI','GPT','GPT-4o Mini','openai/gpt-4o-mini-2024-07-18'],
+  ['OpenAI','o','o3','openai/o3'],['OpenAI','o','o4-mini','openai/o4-mini'],
+  ['OpenAI','GPT-OSS','GPT-OSS 120B','openai/gpt-oss-120b'],['OpenAI','GPT-OSS','GPT-OSS 120B','openai/gpt-oss-120b:free'],
+  ['OpenAI','GPT-OSS','GPT-OSS 20B','openai/gpt-oss-20b'],['OpenAI','GPT-OSS','GPT-OSS 20B','openai/gpt-oss-20b:free'],
   ['Anthropic','Claude','Claude Opus 4.1','anthropic/claude-opus-4.1'],['Anthropic','Claude','Claude Sonnet 4.5','anthropic/claude-sonnet-4.5'],['Anthropic','Claude','Claude Haiku 4.5','anthropic/claude-haiku-4.5'],
-  ['Google / DeepMind','Gemini','Gemini 3.1 Pro Preview','google/gemini-3.1-pro-preview'],['Google / DeepMind','Gemini','Gemini 3.1 Flash Preview','google/gemini-3.1-flash-preview'],['Google / DeepMind','Gemini','Gemini 3.1 Flash Lite Preview','google/gemini-3.1-flash-lite-preview'],
-  ['Mistral','Mistral','Mistral Large 25.12','mistralai/mistral-large-2512'],['Mistral','Mistral','Mistral Medium 3.1','mistralai/mistral-medium-3.1'],['Mistral','Devstral','Devstral 25.12','mistralai/devstral-2512'],
+  ['Anthropic','Claude','Claude 3.7 Sonnet','anthropic/claude-3.7-sonnet'],['Anthropic','Claude','Claude 3.7 Sonnet','anthropic/claude-3.7-sonnet:thinking'],
+  ['Google / DeepMind','Gemini','Gemini 2.5 Pro','google/gemini-2.5-pro'],['Google / DeepMind','Gemini','Gemini 2.5 Pro','google/gemini-2.5-pro-preview'],['Google / DeepMind','Gemini','Gemini 2.5 Pro','google/gemini-2.5-pro-preview-05-06'],
+  ['Google / DeepMind','Gemini','Gemini 2.5 Flash','google/gemini-2.5-flash'],
+  ['Google / DeepMind','Gemini','Gemini 3.1 Pro Preview','google/gemini-3.1-pro-preview'],['Google / DeepMind','Gemini','Gemini 3.1 Pro Preview','google/gemini-3.1-pro-preview-customtools'],
+  ['Google / DeepMind','Gemini','Gemini 3.1 Flash Preview','google/gemini-3.1-flash-preview'],['Google / DeepMind','Gemini','Gemini 3.1 Flash Lite Preview','google/gemini-3.1-flash-lite-preview'],
+  ['Mistral','Mistral','Mistral Large 25.12','mistralai/mistral-large-2512'],['Mistral','Mistral','Mistral Medium 3.1','mistralai/mistral-medium-3.1'],['Mistral','Mistral','Mistral Small 3.1','mistralai/mistral-small-3.1-24b-instruct'],['Mistral','Pixtral','Pixtral Large','mistralai/pixtral-large-2411'],['Mistral','Devstral','Devstral 25.12','mistralai/devstral-2512'],
   ['Cohere','Command','Command A','cohere/command-a'],['Cohere','Command','Command R7B','cohere/command-r7b-12-2024'],
   ['xAI','Grok','Grok 4.20','x-ai/grok-4.20'],['xAI','Grok','Grok 4.20 Multi-Agent','x-ai/grok-4.20-multi-agent'],
   ['Moonshot AI','Kimi','Kimi K2.5','moonshotai/kimi-k2.5'],['Moonshot AI','Kimi','Kimi K2 Thinking','moonshotai/kimi-k2-thinking'],['Moonshot AI','Kimi','Kimi K2','moonshotai/kimi-k2'],
-  ['DeepSeek','DeepSeek','DeepSeek V3.1','deepseek/deepseek-v3.1-terminus'],['DeepSeek','DeepSeek','DeepSeek R1','deepseek/deepseek-r1'],
+  ['DeepSeek','DeepSeek','DeepSeek V3.1','deepseek/deepseek-v3.1-terminus'],['DeepSeek','DeepSeek','DeepSeek V3.1','deepseek/deepseek-chat-v3.1'],['DeepSeek','DeepSeek','DeepSeek V3.1','deepseek/deepseek-chat'],['DeepSeek','DeepSeek','DeepSeek R1','deepseek/deepseek-r1'],['DeepSeek','DeepSeek','DeepSeek R1','deepseek/deepseek-r1-0528'],
   ['Meta','Llama','Llama 4 Maverick 17B 128E Instruct','meta-llama/llama-4-maverick'],['Meta','Llama','Llama 4 Scout 17B 16E Instruct','meta-llama/llama-4-scout'],['Meta','Llama','Llama 3.3 70B Instruct','meta-llama/llama-3.3-70b-instruct'],
-  ['Qwen / Alibaba','Qwen','Qwen3 235B A22B','qwen/qwen3-235b-a22b'],['Qwen / Alibaba','Qwen Coder','Qwen3 Coder 480B A35B Instruct','qwen/qwen3-coder'],['Qwen / Alibaba','Qwen VL','Qwen2.5 VL 72B Instruct','qwen/qwen2.5-vl-72b-instruct'],
-  ['Zhipu / GLM','GLM','GLM-5.1','z-ai/glm-5.1']
+  ['Meta','Llama','Llama 3.3 70B Instruct','meta-llama/llama-3.3-70b-instruct:free'],['Meta','Llama','Llama 3.2 11B Vision Instruct','meta-llama/llama-3.2-11b-vision-instruct'],
+  ['Qwen / Alibaba','Qwen','Qwen3 235B A22B','qwen/qwen3-235b-a22b'],['Qwen / Alibaba','Qwen Coder','Qwen3 Coder 480B A35B Instruct','qwen/qwen3-coder'],['Qwen / Alibaba','Qwen Coder','Qwen2.5 Coder 32B Instruct','qwen/qwen-2.5-coder-32b-instruct'],['Qwen / Alibaba','Qwen VL','Qwen2.5 VL 72B Instruct','qwen/qwen2.5-vl-72b-instruct'],['Qwen / Alibaba','Qwen VL','Qwen2.5 VL 32B Instruct','qwen/qwen2.5-vl-32b-instruct'],
+  ['Zhipu / GLM','GLM','GLM-5.1','z-ai/glm-5.1'],
+  ['AI21 Labs','Jamba','Jamba 1.7 Large','ai21/jamba-large-1.7'],
+  ['MiniMax','MiniMax','MiniMax M2.5','minimax/minimax-m2.5'],['MiniMax','MiniMax','MiniMax M2.5','minimax/minimax-m2.5:free'],
+  ['StepFun','Step','Step-3.5 Flash','stepfun/step-3.5-flash'],
+  ['Writer','Palmyra','Palmyra X5','writer/palmyra-x5'],
+  ['Amazon','Nova','Nova Premier','amazon/nova-premier-v1'],['Amazon','Nova','Nova Lite','amazon/nova-lite-v1'],['Amazon','Nova','Nova Micro','amazon/nova-micro-v1'],
+  ['Perplexity','Sonar','Sonar Pro','perplexity/sonar-pro'],['Perplexity','Sonar','Sonar Pro','perplexity/sonar-pro-search'],['Perplexity','Sonar','Sonar Reasoning Pro','perplexity/sonar-reasoning-pro'],['Perplexity','Sonar','Sonar Deep Research','perplexity/sonar-deep-research']
 ];
 
 const LEGACY_PROVIDER_UID_REMAPS = new Map([
@@ -697,6 +752,40 @@ const MODEL_PATCHES = new Map([
   [modelRef('Cohere', 'Embedding', 'Embed 4'), { release_date: '2025-04-15', sources: ['cohere_embed4_release', 'cohere_embeddings'] }],
   [modelRef('Cohere', 'Rerank', 'Rerank 3.5'), { release_date: '2024-12-02', sources: ['cohere_rerank35_release', 'cohere_rerank'] }],
   [modelRef('ElevenLabs', 'Eleven', 'Eleven v3'), { release_date: '2025-08-20', sources: ['eleven_v3_release', 'eleven_models'] }],
+  [modelRef('ElevenLabs', 'Eleven', 'Flash v2.5'), {
+    release_date: '2024-12-18',
+    aliases: ['flash-v2-5', 'eleven_flash_v2_5'],
+    sources: ['eleven_flash_release', 'eleven_models'],
+  }],
+  [modelRef('ElevenLabs', 'Scribe', 'Scribe v1'), {
+    release_date: '2025-02-26',
+    aliases: ['scribe-v1'],
+    sources: ['eleven_scribe_release', 'eleven_models'],
+  }],
+  [modelRef('Moonshot AI', 'Kimi', 'Kimi K2'), {
+    release_date: '2025-07-11',
+    aliases: ['kimi-k2-0711-preview', 'kimi-k2-turbo-preview'],
+    sources: ['moonshot_changelog', 'moonshot_kimi', 'moonshot_overview'],
+  }],
+  [modelRef('Moonshot AI', 'Kimi', 'Kimi K2 Thinking'), {
+    release_date: '2025-11-06',
+    aliases: ['kimi-k2-thinking-turbo'],
+    sources: ['moonshot_changelog', 'moonshot_kimi', 'moonshot_overview'],
+  }],
+  [modelRef('Moonshot AI', 'Kimi', 'Kimi K2.5'), {
+    release_date: '2026-01-27',
+    aliases: ['kimi-k2-0905-preview', 'kimi-k2-5'],
+    sources: ['moonshot_changelog', 'moonshot_kimi', 'moonshot_overview'],
+  }],
+  [modelRef('AssemblyAI', 'Universal', 'Universal Streaming'), {
+    release_date: '2025-06-02',
+    aliases: ['universal-streaming-v1'],
+    sources: ['assemblyai_universal_streaming_release', 'assemblyai_products', 'assemblyai_benchmarks'],
+  }],
+  [modelRef('StepFun', 'Step', 'Step-3.5 Flash'), {
+    aliases: ['step-3.5-flash-2603'],
+    sources: ['stepfun_overview', 'stepfun_pricing'],
+  }],
 ]);
 
 const MAPPING_PATCHES = new Map([
@@ -706,6 +795,21 @@ const MAPPING_PATCHES = new Map([
   ['OpenAI API|gpt-4.1', { context_window: 1_000_000, max_output_tokens: 32_768, pricing: { input_text_per_million_tokens_usd: 2, output_text_per_million_tokens_usd: 8 }, sources: ['openai_gpt_41_release', 'openai_pricing'] }],
   ['OpenAI API|gpt-4.1-mini', { context_window: 1_000_000, max_output_tokens: 32_768, pricing: { input_text_per_million_tokens_usd: 0.4, output_text_per_million_tokens_usd: 1.6 }, sources: ['openai_gpt_41_release', 'openai_pricing'] }],
   ['OpenAI API|gpt-4.1-nano', { context_window: 1_000_000, max_output_tokens: 32_768, pricing: { input_text_per_million_tokens_usd: 0.1, output_text_per_million_tokens_usd: 0.4 }, sources: ['openai_gpt_41_release', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o', { context_window: 128_000, max_output_tokens: 16_384, pricing: { input_text_per_million_tokens_usd: 2.5, output_text_per_million_tokens_usd: 10 }, sources: ['openai_model_gpt_4o', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-2024-11-20', { context_window: 128_000, max_output_tokens: 16_384, pricing: { input_text_per_million_tokens_usd: 2.5, output_text_per_million_tokens_usd: 10 }, sources: ['openai_model_gpt_4o', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-mini', { context_window: 128_000, max_output_tokens: 16_384, pricing: { input_text_per_million_tokens_usd: 0.15, output_text_per_million_tokens_usd: 0.6 }, sources: ['openai_model_gpt_4o_mini', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-mini-2024-07-18', { context_window: 128_000, max_output_tokens: 16_384, pricing: { input_text_per_million_tokens_usd: 0.15, output_text_per_million_tokens_usd: 0.6 }, sources: ['openai_model_gpt_4o_mini', 'openai_pricing'] }],
+  ['OpenAI API|o3', { context_window: 200_000, max_output_tokens: 100_000, pricing: { input_text_per_million_tokens_usd: 2, output_text_per_million_tokens_usd: 8 }, sources: ['openai_model_o3', 'openai_pricing'] }],
+  ['OpenAI API|o3-2025-04-16', { context_window: 200_000, max_output_tokens: 100_000, pricing: { input_text_per_million_tokens_usd: 2, output_text_per_million_tokens_usd: 8 }, sources: ['openai_model_o3', 'openai_pricing'] }],
+  ['OpenAI API|o4-mini', { context_window: 200_000, max_output_tokens: 100_000, pricing: { input_text_per_million_tokens_usd: 1.1, output_text_per_million_tokens_usd: 4.4 }, sources: ['openai_model_o4_mini', 'openai_pricing'] }],
+  ['OpenAI API|o4-mini-2025-04-16', { context_window: 200_000, max_output_tokens: 100_000, pricing: { input_text_per_million_tokens_usd: 1.1, output_text_per_million_tokens_usd: 4.4 }, sources: ['openai_model_o4_mini', 'openai_pricing'] }],
+  ['OpenAI API|gpt-image-1', { pricing: { image_per_output_usd: 0.011, notes: 'Baseline 1024x1024 low-quality image generation price; higher qualities and sizes cost more, and token pricing also applies.' }, sources: ['openai_model_gpt_image_1', 'openai_pricing'] }],
+  ['OpenAI API|text-embedding-3-large', { context_window: 8_191, pricing: { embedding_per_million_tokens_usd: 0.13 }, sources: ['openai_model_text_embedding_3_large', 'openai_pricing', 'openai_embeddings'] }],
+  ['OpenAI API|text-embedding-3-small', { context_window: 8_191, pricing: { embedding_per_million_tokens_usd: 0.02 }, sources: ['openai_model_text_embedding_3_small', 'openai_pricing', 'openai_embeddings'] }],
+  ['OpenAI API|gpt-4o-transcribe', { context_window: 16_000, max_output_tokens: 2_000, notes: 'Official model page exposes audio-token pricing that is not fully representable in this schema.', sources: ['openai_model_gpt_4o_transcribe', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-mini-tts', { context_window: 2_000, pricing: { input_text_per_million_tokens_usd: 0.6, notes: 'Official model page also exposes output audio-token pricing of $12 per 1M audio tokens, which is not normalized into the current schema.' }, sources: ['openai_model_gpt_4o_mini_tts', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-mini-tts-2025-03-20', { context_window: 2_000, pricing: { input_text_per_million_tokens_usd: 0.6, notes: 'Official model page also exposes output audio-token pricing of $12 per 1M audio tokens, which is not normalized into the current schema.' }, sources: ['openai_model_gpt_4o_mini_tts', 'openai_pricing'] }],
+  ['OpenAI API|gpt-4o-mini-tts-2025-12-15', { context_window: 2_000, pricing: { input_text_per_million_tokens_usd: 0.6, notes: 'Official model page also exposes output audio-token pricing of $12 per 1M audio tokens, which is not normalized into the current schema.' }, sources: ['openai_model_gpt_4o_mini_tts', 'openai_pricing'] }],
   ['Anthropic API|claude-opus-4-1', { context_window: 200_000, pricing: { input_text_per_million_tokens_usd: 15, output_text_per_million_tokens_usd: 75 }, sources: ['anthropic_overview', 'anthropic_pricing'] }],
   ['Anthropic API|claude-sonnet-4-5', { context_window: 200_000, pricing: { input_text_per_million_tokens_usd: 3, output_text_per_million_tokens_usd: 15 }, sources: ['anthropic_overview', 'anthropic_pricing'] }],
   ['Anthropic API|claude-haiku-4-5', { context_window: 200_000, max_output_tokens: 64_000, pricing: { input_text_per_million_tokens_usd: 1, output_text_per_million_tokens_usd: 5 }, sources: ['anthropic_overview', 'anthropic_pricing'] }],
@@ -718,12 +822,17 @@ const MAPPING_PATCHES = new Map([
   ['Google AI Studio|gemini-embedding-001', { context_window: 2_048, pricing: { embedding_per_million_tokens_usd: 0.15 }, sources: ['google_embeddings', 'google_pricing', 'google_changelog'] }],
   ['Google Vertex AI|gemini-2.5-pro', { context_window: 1_000_000, pricing: { input_text_per_million_tokens_usd: 1.25, output_text_per_million_tokens_usd: 10, notes: 'Official pricing is tiered above 200k prompt/output thresholds; stored here at the <=200k baseline.' }, sources: ['google_models', 'google_pricing'] }],
   ['Google Vertex AI|gemini-2.5-flash', { context_window: 1_000_000, pricing: { input_text_per_million_tokens_usd: 0.3, output_text_per_million_tokens_usd: 2.5, notes: 'Audio input is separately priced at $1.00 per 1M input tokens in Google pricing.' }, sources: ['google_models', 'google_pricing'] }],
+  ['Google Vertex AI|gemini-3.1-pro-preview', { context_window: 1_048_576, max_output_tokens: 65_536, pricing: { input_text_per_million_tokens_usd: 2, output_text_per_million_tokens_usd: 12 }, sources: ['google_models', 'google_pricing', 'google_changelog'] }],
+  ['Google Vertex AI|gemini-3.1-flash-preview', { context_window: 1_048_576, max_output_tokens: 65_536, sources: ['google_models', 'google_changelog'] }],
+  ['Google Vertex AI|gemini-3.1-flash-lite-preview', { context_window: 1_048_576, max_output_tokens: 65_536, pricing: { input_text_per_million_tokens_usd: 0.25, output_text_per_million_tokens_usd: 1.5 }, sources: ['google_models', 'google_pricing', 'google_changelog'] }],
   ['Amazon Bedrock|amazon.nova-premier-v1:0', { context_window: 300_000, max_output_tokens: 5_000, sources: ['amazon_nova_service_card', 'bedrock_models'] }],
-  ['Amazon Bedrock|amazon.nova-pro-v1:0', { context_window: 300_000, max_output_tokens: 5_000, sources: ['bedrock_nova_pro', 'amazon_nova_service_card'] }],
-  ['Amazon Bedrock|amazon.nova-lite-v1:0', { context_window: 300_000, max_output_tokens: 5_000, sources: ['bedrock_nova_lite', 'amazon_nova_service_card'] }],
-  ['Amazon Bedrock|amazon.nova-micro-v1:0', { context_window: 128_000, max_output_tokens: 5_000, sources: ['bedrock_nova_micro', 'amazon_nova_service_card'] }],
-  ['Amazon Bedrock|amazon.titan-embed-text-v2:0', { context_window: 8_000, sources: ['bedrock_titan_embed'] }],
+  ['Amazon Bedrock|amazon.nova-pro-v1:0', { context_window: 300_000, max_output_tokens: 5_000, pricing: { input_text_per_million_tokens_usd: 0.8, output_text_per_million_tokens_usd: 3.2 }, sources: ['bedrock_nova_pro', 'amazon_nova_service_card', 'aws_nova_price_performance'] }],
+  ['Amazon Bedrock|amazon.nova-lite-v1:0', { context_window: 300_000, max_output_tokens: 5_000, pricing: { input_text_per_million_tokens_usd: 0.06, output_text_per_million_tokens_usd: 0.24 }, sources: ['bedrock_nova_lite', 'amazon_nova_service_card', 'aws_nova_price_performance'] }],
+  ['Amazon Bedrock|amazon.nova-micro-v1:0', { context_window: 128_000, max_output_tokens: 5_000, pricing: { input_text_per_million_tokens_usd: 0.035, output_text_per_million_tokens_usd: 0.14 }, sources: ['bedrock_nova_micro', 'amazon_nova_service_card', 'aws_nova_price_performance'] }],
+  ['Amazon Bedrock|amazon.titan-embed-text-v2:0', { context_window: 8_000, pricing: { embedding_per_million_tokens_usd: 0.02 }, sources: ['bedrock_titan_embed', 'aws_bedrock_cost_optimization'] }],
+  ['Amazon Bedrock|writer.palmyra-x4-v1:0', { context_window: 128_000, max_output_tokens: 4_096, pricing: { input_text_per_million_tokens_usd: 2.5, output_text_per_million_tokens_usd: 10 }, sources: ['bedrock_palmyra_x4', 'bedrock_pricing', 'writer_bedrock'] }],
   ['Amazon Bedrock|writer.palmyra-x5-v1:0', { context_window: 1_040_000, max_output_tokens: 8_192, sources: ['bedrock_palmyra_x5', 'writer_bedrock'] }],
+  ['Amazon Bedrock|writer.palmyra-x5-v1:0', { context_window: 1_040_000, max_output_tokens: 8_192, pricing: { input_text_per_million_tokens_usd: 0.6, output_text_per_million_tokens_usd: 6 }, sources: ['bedrock_palmyra_x5', 'bedrock_pricing', 'writer_bedrock'] }],
   ['Cohere API|command-a-03-2025', { context_window: 256_000, max_output_tokens: 8_000, pricing: { input_text_per_million_tokens_usd: 2.5, output_text_per_million_tokens_usd: 10 }, sources: ['cohere_command_a', 'cohere_pricing'] }],
   ['Cohere API|command-a-vision-07-2025', { context_window: 128_000, max_output_tokens: 8_000, sources: ['cohere_command_a_vision', 'cohere_models'] }],
   ['Cohere API|command-r-plus-08-2024', { context_window: 128_000, max_output_tokens: 4_000, pricing: { input_text_per_million_tokens_usd: 2.5, output_text_per_million_tokens_usd: 10 }, sources: ['cohere_command_r_plus', 'cohere_pricing'] }],
@@ -744,6 +853,8 @@ const MAPPING_PATCHES = new Map([
   ['Groq|openai/gpt-oss-20b', { context_window: 131_072, max_output_tokens: 65_536, sources: ['groq_gpt_oss_20b', 'groq_models'] }],
   ['Black Forest Labs API|flux-pro-1.1-ultra', { pricing: { image_per_output_usd: 0.06 }, sources: ['bfl_pricing'] }],
   ['Black Forest Labs API|flux-kontext-pro', { pricing: { image_per_output_usd: 0.04 }, sources: ['bfl_pricing'] }],
+  ['StepFun API|step-3.5-flash', { context_window: 256_000, pricing: { input_text_per_million_tokens_usd: 0.1, output_text_per_million_tokens_usd: 0.3, notes: 'Official StepFun pricing is published in USD on the English pricing page.' }, sources: ['stepfun_overview', 'stepfun_pricing'] }],
+  ['StepFun API|step-3.5-flash-2603', { context_window: 256_000, pricing: { input_text_per_million_tokens_usd: 0.1, output_text_per_million_tokens_usd: 0.3, notes: 'Official dated alias for Step-3.5 Flash on StepFun.' }, sources: ['stepfun_overview', 'stepfun_pricing'] }],
 ]);
 
 function mappingKey(mapping) {
@@ -882,6 +993,9 @@ async function main() {
     ['GPT','GPT-5.4','gpt-5.4'],['GPT','GPT-5.4 Mini','gpt-5.4-mini'],['GPT','GPT-5.4 Nano','gpt-5.4-nano'],['GPT','GPT-4.1','gpt-4.1'],['GPT','GPT-4.1 Mini','gpt-4.1-mini'],['GPT','GPT-4.1 Nano','gpt-4.1-nano'],['GPT','GPT-4o','gpt-4o'],['GPT','GPT-4o Mini','gpt-4o-mini'],['o','o3','o3'],['o','o4-mini','o4-mini'],['GPT Image','GPT Image 1','gpt-image-1'],['Embedding','text-embedding-3-large','text-embedding-3-large'],['Embedding','text-embedding-3-small','text-embedding-3-small'],['Audio','GPT-4o Transcribe','gpt-4o-transcribe'],['Audio','GPT-4o Mini TTS','gpt-4o-mini-tts']
   ];
   for (const [family, variant, provider_model_id] of openAiMaps) pushMap({ model_uid:modelRef('OpenAI',family,variant), access_provider:'OpenAI API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'native', sources:['openai_models'] });
+  for (const [family, variant, provider_model_id] of [['GPT','GPT-4o','gpt-4o-2024-11-20'],['GPT','GPT-4o Mini','gpt-4o-mini-2024-07-18'],['o','o3','o3-2025-04-16'],['o','o4-mini','o4-mini-2025-04-16'],['Audio','GPT-4o Mini TTS','gpt-4o-mini-tts-2025-03-20'],['Audio','GPT-4o Mini TTS','gpt-4o-mini-tts-2025-12-15']]) {
+    pushMap({ model_uid:modelRef('OpenAI',family,variant), access_provider:'OpenAI API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'native', notes:'Official OpenAI snapshot alias for the same canonical model family.', sources:['openai_models'] });
+  }
 
   for (const [variant, provider_model_id] of [['Claude Opus 4.1','claude-opus-4-1'],['Claude Sonnet 4.5','claude-sonnet-4-5'],['Claude Haiku 4.5','claude-haiku-4-5'],['Claude 3.7 Sonnet','claude-3-7-sonnet']]) pushMap({ model_uid:modelRef('Anthropic','Claude',variant), access_provider:'Anthropic API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'native', sources:['anthropic_models'] });
 
@@ -900,7 +1014,7 @@ async function main() {
 
   for (const [variant, provider_model_id] of [['Grok 4.20','grok-4.20'],['Grok 4.20 Multi-Agent','grok-4.20-multi-agent']]) pushMap({ model_uid:modelRef('xAI','Grok',variant), access_provider:'xAI API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'native', sources:['xai_models'] });
 
-  for (const [variant, provider_model_id] of [['Kimi K2.5','kimi-k2.5'],['Kimi K2 Thinking','kimi-k2-thinking'],['Kimi K2','kimi-k2']]) pushMap({ model_uid:modelRef('Moonshot AI','Kimi',variant), access_provider:'Moonshot API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'openai_compatible', sources:['moonshot_kimi'] });
+  for (const [variant, provider_model_id] of [['Kimi K2.5','kimi-k2.5'],['Kimi K2 Thinking','kimi-k2-thinking'],['Kimi K2','kimi-k2']]) pushMap({ model_uid:modelRef('Moonshot AI','Kimi',variant), access_provider:'Moonshot API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'openai_compatible', sources:['moonshot_kimi', 'moonshot_changelog'] });
 
   pushMap({ model_uid:modelRef('DeepSeek','DeepSeek','DeepSeek V3.1'), access_provider:'DeepSeek API', provider_model_id:'deepseek-chat', provider_model_label:'deepseek-chat', api_compatibility:'openai_compatible', sources:['deepseek_api'] });
   pushMap({ model_uid:modelRef('DeepSeek','DeepSeek','DeepSeek R1'), access_provider:'DeepSeek API', provider_model_id:'deepseek-reasoner', provider_model_label:'deepseek-reasoner', api_compatibility:'openai_compatible', sources:['deepseek_api'] });
@@ -911,6 +1025,7 @@ async function main() {
   pushMap({ model_uid:modelRef('MiniMax','MiniMax','MiniMax M2.5'), access_provider:'MiniMax API', provider_model_id:'MiniMax-M2.5', provider_model_label:'MiniMax-M2.5', api_compatibility:'openai_compatible', sources:['minimax_models'] });
   pushMap({ model_uid:modelRef('MiniMax','Music','Music 2.5'), access_provider:'MiniMax API', provider_model_id:'Music-2.5', provider_model_label:'Music-2.5', api_compatibility:'native', sources:['minimax_models'] });
   pushMap({ model_uid:modelRef('StepFun','Step','Step-3.5 Flash'), access_provider:'StepFun API', provider_model_id:'step-3.5-flash', provider_model_label:'step-3.5-flash', api_compatibility:'openai_compatible', sources:['stepfun_overview'] });
+  pushMap({ model_uid:modelRef('StepFun','Step','Step-3.5 Flash'), access_provider:'StepFun API', provider_model_id:'step-3.5-flash-2603', provider_model_label:'step-3.5-flash-2603', api_compatibility:'openai_compatible', notes:'Official dated StepFun alias for the same Step-3.5 Flash release track.', sources:['stepfun_overview', 'stepfun_pricing'] });
 
   for (const [variant, provider_model_id, sourceIds, contextWindow] of [['Palmyra X4','palmyra-x4',['writer_models','writer_pricing'],128_000],['Palmyra X5','palmyra-x5',['writer_models','writer_tooling','writer_structured','writer_pricing'],1_000_000],['Palmyra Creative','palmyra-creative',['writer_models','writer_pricing'],128_000],['Palmyra Vision','palmyra-vision',['writer_models','writer_vision','writer_pricing'],128_000]]) pushMap({ model_uid:modelRef('Writer','Palmyra',variant), access_provider:'Writer API', provider_model_id, provider_model_label:provider_model_id, api_compatibility:'openai_compatible', context_window:contextWindow, sources:sourceIds });
 
@@ -964,9 +1079,20 @@ async function main() {
   pushMap({ model_uid:modelRef('Amazon','Nova','Nova Reel'), access_provider:'Amazon Bedrock', provider_model_id:'amazon.nova-reel-v1:0', provider_model_label:'amazon.nova-reel-v1:0', api_compatibility:'native', sources:['bedrock_models'] });
   pushMap({ model_uid:modelRef('Amazon','Nova','Nova Sonic'), access_provider:'Amazon Bedrock', provider_model_id:'amazon.nova-sonic-v1:0', provider_model_label:'amazon.nova-sonic-v1:0', api_compatibility:'native', sources:['amazon_nova_sonic','bedrock_models'] });
   pushMap({ model_uid:modelRef('Amazon','Titan Embeddings','Titan Text Embeddings V2'), access_provider:'Amazon Bedrock', provider_model_id:'amazon.titan-embed-text-v2:0', provider_model_label:'amazon.titan-embed-text-v2:0', api_compatibility:'native', sources:['bedrock_titan_embed'] });
+  pushMap({ model_uid:modelRef('Writer','Palmyra','Palmyra X4'), access_provider:'Amazon Bedrock', provider_model_id:'writer.palmyra-x4-v1:0', provider_model_label:'writer.palmyra-x4-v1:0', api_compatibility:'native', sources:['bedrock_palmyra_x4', 'writer_bedrock'] });
   pushMap({ model_uid:modelRef('Writer','Palmyra','Palmyra X5'), access_provider:'Amazon Bedrock', provider_model_id:'writer.palmyra-x5-v1:0', provider_model_label:'writer.palmyra-x5-v1:0', api_compatibility:'native', sources:['bedrock_palmyra_x5','writer_bedrock'] });
   pushMap({ model_uid:modelRef('Databricks','DBRX','DBRX Instruct'), access_provider:'Databricks Model Serving', provider_model_id:'databricks-dbrx-instruct', provider_model_label:'databricks-dbrx-instruct', api_compatibility:'openai_compatible', sources:['databricks_dbrx_instruct'] });
   pushMap({ model_uid:modelRef('Baidu','ERNIE','ERNIE 4.5'), access_provider:'Baidu ERNIE API', provider_model_id:'ernie-4.5', provider_model_label:'ernie-4.5', api_compatibility:'native', sources:['baidu_ernie_45'] });
+  pushMap({ model_uid:modelRef('OpenAI','GPT','GPT-4.1'), access_provider:'GitHub Models', provider_model_id:'openai/gpt-4.1', provider_model_label:'openai/gpt-4.1', api_compatibility:'openai_compatible', sources:['github_models_quickstart'] });
+  pushMap({ model_uid:modelRef('OpenAI','GPT','GPT-4o'), access_provider:'GitHub Models', provider_model_id:'openai/gpt-4o', provider_model_label:'openai/gpt-4o', api_compatibility:'openai_compatible', sources:['github_models_quickstart'] });
+  pushMap({ model_uid:modelRef('OpenAI','GPT','GPT-4o Mini'), access_provider:'GitHub Models', provider_model_id:'openai/gpt-4o-mini', provider_model_label:'openai/gpt-4o-mini', api_compatibility:'openai_compatible', sources:['github_models_quickstart'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Compatibility','Custom OpenAI-Compatible Chat Model'), access_provider:'Custom OpenAI-compatible', provider_model_id:'custom-openai-compatible', provider_model_label:'custom-openai-compatible', api_compatibility:'openai_compatible', notes:'User-configured OpenAI-compatible endpoint; exact upstream model identity may vary.', sources:['openai_api_reference'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Compatibility','Custom Anthropic-Compatible Chat Model'), access_provider:'Custom Anthropic-compatible', provider_model_id:'custom-anthropic-compatible', provider_model_label:'custom-anthropic-compatible', api_compatibility:'anthropic_compatible', notes:'User-configured Anthropic-compatible endpoint; exact upstream model identity may vary.', sources:['anthropic_messages_api'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Local Runtime','Generic Runtime-Hosted Open Model'), access_provider:'vLLM', provider_model_id:'runtime-hosted-open-model', provider_model_label:'runtime-hosted-open-model', api_compatibility:'openai_compatible', local_runnable:true, notes:'Generic self-hosted OpenAI-compatible runtime fallback for vLLM deployments.', sources:['vllm_docs'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Local Runtime','Generic Runtime-Hosted Open Model'), access_provider:'Text Generation Inference', provider_model_id:'runtime-hosted-open-model', provider_model_label:'runtime-hosted-open-model', api_compatibility:'openai_compatible', local_runnable:true, notes:'Generic self-hosted runtime fallback for TGI deployments proxied behind OpenAI-compatible APIs.', sources:['tgi_docs'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Local Runtime','Generic Local GGUF Chat Model'), access_provider:'Local GGUF', provider_model_id:'local-gguf-chat', provider_model_label:'local-gguf-chat', api_compatibility:'custom', local_runnable:true, notes:'Generic local GGUF chat fallback for llama.cpp-compatible stacks.', sources:['gguf_docs'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Local Runtime','Generic Local ONNX Chat Model'), access_provider:'Local ONNX', provider_model_id:'local-onnx-chat', provider_model_label:'local-onnx-chat', api_compatibility:'openai_compatible', local_runnable:true, notes:'Generic local ONNX fallback for OpenAI-compatible wrappers on ONNX Runtime GenAI.', sources:['onnx_genai_docs'] });
+  pushMap({ model_uid:modelRef('Other / Custom / Unknown','Local Runtime','Generic Local MLX Chat Model'), access_provider:'Local MLX', provider_model_id:'local-mlx-chat', provider_model_label:'local-mlx-chat', api_compatibility:'openai_compatible', local_runnable:true, notes:'Generic local MLX fallback for Apple-silicon-hosted chat models.', sources:['mlx_docs'] });
 
   for (const [owner, family, variant, providerId] of OR_MAPPING_SPECS) {
     const uid = modelRef(owner, family, variant);

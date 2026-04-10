@@ -94,6 +94,7 @@ const SKILL_LIBRARY_URLS = [
 ]
 const SKILL_LIBRARY_KEY = 'drodo_skill_library'
 const SKILL_LIBRARY_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+const SESSION_INIT_TIMEOUT_MS = 5000
 
 function refreshSkillLibrary() {
   try {
@@ -184,10 +185,23 @@ function App() {
   useEffect(() => {
     let mounted = true
 
-    void getSession()
-      .then(({ data }) => {
+    const sessionTimeout = new Promise<null>(resolve => {
+      window.setTimeout(() => resolve(null), SESSION_INIT_TIMEOUT_MS)
+    })
+
+    void Promise.race([getSession(), sessionTimeout])
+      .then(result => {
         if (!mounted) return
-        setUser(data.session?.user ?? null)
+        if (result === null) {
+          console.warn('Session initialization timed out. Continuing without a restored session.')
+          setUser(null)
+          return
+        }
+        setUser(result.data.session?.user ?? null)
+      })
+      .catch(error => {
+        console.error('Session initialization failed. Continuing without a restored session.', error)
+        if (mounted) setUser(null)
       })
       .finally(() => {
         if (mounted) setAuthReady(true)
@@ -247,10 +261,6 @@ function App() {
     )
   }
 
-  if (!user && !skipAuth) {
-    return <SafeAuthView />
-  }
-
   if (!onboardingDone) {
     return (
       <div
@@ -278,6 +288,10 @@ function App() {
         <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
       </div>
     )
+  }
+
+  if (!user && !skipAuth) {
+    return <SafeAuthView />
   }
 
   return (

@@ -24,14 +24,14 @@ Run: `node scripts/generate-model-registry.mjs`
 
 ## Coverage
 
-- Canonical models: 127
-- Represented owners: 39
-- Provider mappings: 188
-- Represented access providers: 36
-- Missing release dates: 55 (43.3%)
-- Missing pricing blocks: 126 (67%)
-- Missing context windows: 115 (61.2%)
-- Missing max output tokens: 137 (72.9%)
+- Canonical models: 136
+- Represented owners: 44
+- Provider mappings: 245
+- Represented access providers: 43
+- Missing release dates: 53 (39%)
+- Missing pricing blocks: 125 (51%)
+- Missing context windows: 114 (46.5%)
+- Missing max output tokens: 150 (61.2%)
 - Low-confidence score cells: 16
 - Benchmark-backed score cells by domain: see `coverage_report.json`
 - Unresolved duplicates: 0

@@ -1,109 +1,109 @@
 {
   "generated_at": "2026-04-09",
   "summary": {
-    "canonical_models_total": 127,
-    "canonical_models_missing_release_date": 55,
-    "canonical_models_missing_release_date_pct": 43.3,
-    "canonical_models_missing_license": 70,
+    "canonical_models_total": 136,
+    "canonical_models_missing_release_date": 53,
+    "canonical_models_missing_release_date_pct": 39,
+    "canonical_models_missing_license": 78,
     "canonical_models_missing_description": 0,
     "canonical_models_missing_ranking_data": 0,
-    "provider_mappings_total": 188,
-    "provider_mappings_missing_pricing": 126,
-    "provider_mappings_missing_pricing_pct": 67,
-    "provider_mappings_missing_context_window": 115,
-    "provider_mappings_missing_context_window_pct": 61.2,
-    "provider_mappings_missing_max_output_tokens": 137,
-    "provider_mappings_missing_max_output_tokens_pct": 72.9,
+    "provider_mappings_total": 245,
+    "provider_mappings_missing_pricing": 125,
+    "provider_mappings_missing_pricing_pct": 51,
+    "provider_mappings_missing_context_window": 114,
+    "provider_mappings_missing_context_window_pct": 46.5,
+    "provider_mappings_missing_max_output_tokens": 150,
+    "provider_mappings_missing_max_output_tokens_pct": 61.2,
     "low_confidence_score_count": 16
   },
   "ranking_gaps_by_domain": {
     "coding": {
-      "missing_count": 61,
-      "missing_pct": 48,
+      "missing_count": 64,
+      "missing_pct": 47.1,
       "low_confidence_count": 0,
       "benchmark_backed_count": 3
     },
     "reasoning": {
-      "missing_count": 46,
-      "missing_pct": 36.2,
+      "missing_count": 48,
+      "missing_pct": 35.3,
       "low_confidence_count": 0,
       "benchmark_backed_count": 6
     },
     "tool_use": {
-      "missing_count": 46,
-      "missing_pct": 36.2,
+      "missing_count": 48,
+      "missing_pct": 35.3,
       "low_confidence_count": 0,
       "benchmark_backed_count": 2
     },
     "vision": {
-      "missing_count": 113,
+      "missing_count": 121,
       "missing_pct": 89,
       "low_confidence_count": 0,
       "benchmark_backed_count": 2
     },
     "multimodal": {
-      "missing_count": 99,
-      "missing_pct": 78,
+      "missing_count": 107,
+      "missing_pct": 78.7,
       "low_confidence_count": 1,
       "benchmark_backed_count": 1
     },
     "agentic": {
-      "missing_count": 96,
-      "missing_pct": 75.6,
+      "missing_count": 104,
+      "missing_pct": 76.5,
       "low_confidence_count": 0,
       "benchmark_backed_count": 2
     },
     "long_context": {
-      "missing_count": 89,
-      "missing_pct": 70.1,
+      "missing_count": 99,
+      "missing_pct": 72.8,
       "low_confidence_count": 0,
       "benchmark_backed_count": 0
     },
     "instruction_following": {
-      "missing_count": 107,
-      "missing_pct": 84.3,
+      "missing_count": 116,
+      "missing_pct": 85.3,
       "low_confidence_count": 1,
       "benchmark_backed_count": 0
     },
     "creative_writing": {
-      "missing_count": 107,
-      "missing_pct": 84.3,
+      "missing_count": 114,
+      "missing_pct": 83.8,
       "low_confidence_count": 1,
       "benchmark_backed_count": 0
     },
     "document_extraction": {
-      "missing_count": 120,
-      "missing_pct": 94.5,
+      "missing_count": 129,
+      "missing_pct": 94.9,
       "low_confidence_count": 0,
       "benchmark_backed_count": 5
     },
     "research": {
-      "missing_count": 99,
-      "missing_pct": 78,
+      "missing_count": 107,
+      "missing_pct": 78.7,
       "low_confidence_count": 0,
       "benchmark_backed_count": 0
     },
     "math": {
-      "missing_count": 105,
-      "missing_pct": 82.7,
+      "missing_count": 116,
+      "missing_pct": 85.3,
       "low_confidence_count": 0,
       "benchmark_backed_count": 4
     },
     "speed": {
-      "missing_count": 36,
-      "missing_pct": 28.3,
+      "missing_count": 35,
+      "missing_pct": 25.7,
       "low_confidence_count": 13,
       "benchmark_backed_count": 0
     },
     "cost_efficiency": {
-      "missing_count": 44,
+      "missing_count": 47,
       "missing_pct": 34.6,
       "low_confidence_count": 0,
       "benchmark_backed_count": 0
     },
     "general_chat": {
-      "missing_count": 51,
-      "missing_pct": 40.2,
+      "missing_count": 53,
+      "missing_pct": 39,
       "low_confidence_count": 0,
       "benchmark_backed_count": 0
     }
@@ -111,34 +111,40 @@
   "provider_gap_breakdown": {
     "missing_pricing_by_access_provider": {
       "AI21 API": 2,
-      "Amazon Bedrock": 9,
+      "Amazon Bedrock": 4,
       "AssemblyAI API": 2,
       "Azure AI Foundry": 2,
       "Baidu ERNIE API": 1,
       "Cohere API": 3,
+      "Custom Anthropic-compatible": 1,
+      "Custom OpenAI-compatible": 1,
       "Databricks Model Serving": 1,
       "DeepSeek API": 2,
       "ElevenLabs API": 4,
       "Fireworks": 2,
+      "GitHub Models": 3,
       "Google AI Studio": 2,
-      "Google Vertex AI": 3,
+      "Google Vertex AI": 1,
       "Groq": 2,
-      "Hugging Face": 41,
+      "Hugging Face": 42,
       "LM Studio": 2,
+      "Local GGUF": 1,
+      "Local MLX": 1,
+      "Local ONNX": 1,
       "Luma API": 2,
       "MiniMax API": 2,
       "Mistral API": 10,
       "Moonshot API": 3,
       "NVIDIA NIM": 3,
       "Ollama": 2,
-      "OpenAI API": 9,
-      "OpenRouter": 1,
+      "OpenAI API": 1,
+      "OpenRouter": 5,
       "Recraft API": 1,
       "Runway API": 2,
       "Stability AI API": 3,
-      "StepFun API": 1,
+      "Text Generation Inference": 1,
       "Together": 2,
-      "vLLM": 2,
+      "vLLM": 3,
       "Voyage API": 1,
       "xAI API": 3,
       "Zhipu API": 1
@@ -150,28 +156,33 @@
       "Baidu ERNIE API": 1,
       "Black Forest Labs API": 2,
       "Cohere API": 2,
+      "Custom Anthropic-compatible": 1,
+      "Custom OpenAI-compatible": 1,
       "Databricks Model Serving": 1,
       "DeepSeek API": 2,
       "ElevenLabs API": 4,
       "Fireworks": 2,
+      "GitHub Models": 3,
       "Google AI Studio": 1,
-      "Google Vertex AI": 3,
-      "Hugging Face": 41,
+      "Hugging Face": 42,
       "LM Studio": 2,
+      "Local GGUF": 1,
+      "Local MLX": 1,
+      "Local ONNX": 1,
       "Luma API": 2,
       "MiniMax API": 2,
       "Mistral API": 10,
       "Moonshot API": 3,
       "NVIDIA NIM": 3,
       "Ollama": 2,
-      "OpenAI API": 9,
+      "OpenAI API": 1,
       "OpenRouter": 1,
       "Recraft API": 1,
       "Runway API": 2,
       "Stability AI API": 3,
-      "StepFun API": 1,
+      "Text Generation Inference": 1,
       "Together": 2,
-      "vLLM": 2,
+      "vLLM": 3,
       "xAI API": 3,
       "Zhipu API": 1
     },
@@ -184,28 +195,35 @@
       "Baidu ERNIE API": 1,
       "Black Forest Labs API": 2,
       "Cohere API": 2,
+      "Custom Anthropic-compatible": 1,
+      "Custom OpenAI-compatible": 1,
       "Databricks Model Serving": 1,
       "DeepSeek API": 2,
       "ElevenLabs API": 4,
       "Fireworks": 2,
+      "GitHub Models": 3,
       "Google AI Studio": 4,
-      "Google Vertex AI": 5,
-      "Hugging Face": 41,
+      "Google Vertex AI": 2,
+      "Hugging Face": 42,
       "LM Studio": 2,
+      "Local GGUF": 1,
+      "Local MLX": 1,
+      "Local ONNX": 1,
       "Luma API": 2,
       "MiniMax API": 2,
       "Mistral API": 10,
       "Moonshot API": 3,
       "NVIDIA NIM": 3,
       "Ollama": 2,
-      "OpenAI API": 9,
-      "OpenRouter": 9,
+      "OpenAI API": 6,
+      "OpenRouter": 16,
       "Recraft API": 1,
       "Runway API": 2,
       "Stability AI API": 3,
-      "StepFun API": 1,
+      "StepFun API": 2,
+      "Text Generation Inference": 1,
       "Together": 2,
-      "vLLM": 2,
+      "vLLM": 3,
       "Voyage API": 4,
       "xAI API": 3,
       "Zhipu API": 1
@@ -227,11 +245,6 @@
         "model_uid": "mdl:amazon:nova:nova-sonic",
         "canonical_owner": "Amazon",
         "variant_name": "Nova Sonic"
-      },
-      {
-        "model_uid": "mdl:assemblyai:universal:universal-streaming",
-        "canonical_owner": "AssemblyAI",
-        "variant_name": "Universal Streaming"
       },
       {
         "model_uid": "mdl:assemblyai:universal:universal-3",
@@ -274,16 +287,6 @@
         "variant_name": "Eleven Multilingual v2"
       },
       {
-        "model_uid": "mdl:elevenlabs:eleven:flash-v2-5",
-        "canonical_owner": "ElevenLabs",
-        "variant_name": "Flash v2.5"
-      },
-      {
-        "model_uid": "mdl:elevenlabs:scribe:scribe-v1",
-        "canonical_owner": "ElevenLabs",
-        "variant_name": "Scribe v1"
-      },
-      {
         "model_uid": "mdl:google-deepmind:gemini:gemini-3-1-flash-preview",
         "canonical_owner": "Google / DeepMind",
         "variant_name": "Gemini 3.1 Flash Preview"
@@ -302,16 +305,6 @@
         "model_uid": "mdl:luma:ray:ray-2-flash",
         "canonical_owner": "Luma",
         "variant_name": "Ray 2 Flash"
-      },
-      {
-        "model_uid": "mdl:meta:llama:llama-4-maverick-instruct",
-        "canonical_owner": "Meta",
-        "variant_name": "Llama 4 Maverick Instruct"
-      },
-      {
-        "model_uid": "mdl:meta:llama:llama-4-scout-instruct",
-        "canonical_owner": "Meta",
-        "variant_name": "Llama 4 Scout Instruct"
       },
       {
         "model_uid": "mdl:minimax:minimax:minimax-m2-5",
@@ -337,6 +330,31 @@
         "model_uid": "mdl:mistral:ocr:mistral-ocr",
         "canonical_owner": "Mistral",
         "variant_name": "Mistral OCR"
+      },
+      {
+        "model_uid": "mdl:mistral:pixtral:pixtral-large",
+        "canonical_owner": "Mistral",
+        "variant_name": "Pixtral Large"
+      },
+      {
+        "model_uid": "mdl:nvidia:reranker:llama-nemotron-rerank-vl-1b-v2",
+        "canonical_owner": "NVIDIA",
+        "variant_name": "Llama Nemotron Rerank VL 1B v2"
+      },
+      {
+        "model_uid": "mdl:openai:gpt:gpt-5-4",
+        "canonical_owner": "OpenAI",
+        "variant_name": "GPT-5.4"
+      },
+      {
+        "model_uid": "mdl:openai:gpt:gpt-5-4-mini",
+        "canonical_owner": "OpenAI",
+        "variant_name": "GPT-5.4 Mini"
+      },
+      {
+        "model_uid": "mdl:openai:gpt:gpt-5-4-nano",
+        "canonical_owner": "OpenAI",
+        "variant_name": "GPT-5.4 Nano"
       }
     ],
     "mappings_missing_pricing": [
@@ -356,24 +374,9 @@
         "provider_model_id": "amazon.nova-canvas-v1:0"
       },
       {
-        "model_uid": "mdl:amazon:nova:nova-lite",
-        "access_provider": "Amazon Bedrock",
-        "provider_model_id": "amazon.nova-lite-v1:0"
-      },
-      {
-        "model_uid": "mdl:amazon:nova:nova-micro",
-        "access_provider": "Amazon Bedrock",
-        "provider_model_id": "amazon.nova-micro-v1:0"
-      },
-      {
         "model_uid": "mdl:amazon:nova:nova-premier",
         "access_provider": "Amazon Bedrock",
         "provider_model_id": "amazon.nova-premier-v1:0"
-      },
-      {
-        "model_uid": "mdl:amazon:nova:nova-pro",
-        "access_provider": "Amazon Bedrock",
-        "provider_model_id": "amazon.nova-pro-v1:0"
       },
       {
         "model_uid": "mdl:amazon:nova:nova-reel",
@@ -384,16 +387,6 @@
         "model_uid": "mdl:amazon:nova:nova-sonic",
         "access_provider": "Amazon Bedrock",
         "provider_model_id": "amazon.nova-sonic-v1:0"
-      },
-      {
-        "model_uid": "mdl:amazon:titan-embeddings:titan-text-embeddings-v2",
-        "access_provider": "Amazon Bedrock",
-        "provider_model_id": "amazon.titan-embed-text-v2:0"
-      },
-      {
-        "model_uid": "mdl:writer:palmyra:palmyra-x5",
-        "access_provider": "Amazon Bedrock",
-        "provider_model_id": "writer.palmyra-x5-v1:0"
       },
       {
         "model_uid": "mdl:assemblyai:universal:universal-3",
@@ -436,6 +429,16 @@
         "provider_model_id": "rerank-v3.5"
       },
       {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-anthropic-compatible-chat-model",
+        "access_provider": "Custom Anthropic-compatible",
+        "provider_model_id": "custom-anthropic-compatible"
+      },
+      {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-openai-compatible-chat-model",
+        "access_provider": "Custom OpenAI-compatible",
+        "provider_model_id": "custom-openai-compatible"
+      },
+      {
         "model_uid": "mdl:databricks:dbrx:dbrx-instruct",
         "access_provider": "Databricks Model Serving",
         "provider_model_id": "databricks-dbrx-instruct"
@@ -464,6 +467,21 @@
         "model_uid": "mdl:elevenlabs:eleven:flash-v2-5",
         "access_provider": "ElevenLabs API",
         "provider_model_id": "eleven_flash_v2_5"
+      },
+      {
+        "model_uid": "mdl:elevenlabs:scribe:scribe-v1",
+        "access_provider": "ElevenLabs API",
+        "provider_model_id": "scribe_v1"
+      },
+      {
+        "model_uid": "mdl:openai:gpt-oss:gpt-oss-120b",
+        "access_provider": "Fireworks",
+        "provider_model_id": "openai/gpt-oss-120b"
+      },
+      {
+        "model_uid": "mdl:openai:gpt-oss:gpt-oss-20b",
+        "access_provider": "Fireworks",
+        "provider_model_id": "openai/gpt-oss-20b"
       }
     ],
     "mappings_missing_context_window": [
@@ -528,6 +546,16 @@
         "provider_model_id": "rerank-v3.5"
       },
       {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-anthropic-compatible-chat-model",
+        "access_provider": "Custom Anthropic-compatible",
+        "provider_model_id": "custom-anthropic-compatible"
+      },
+      {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-openai-compatible-chat-model",
+        "access_provider": "Custom OpenAI-compatible",
+        "provider_model_id": "custom-openai-compatible"
+      },
+      {
         "model_uid": "mdl:databricks:dbrx:dbrx-instruct",
         "access_provider": "Databricks Model Serving",
         "provider_model_id": "databricks-dbrx-instruct"
@@ -573,24 +601,14 @@
         "provider_model_id": "openai/gpt-oss-20b"
       },
       {
-        "model_uid": "mdl:google-deepmind:veo:veo-3-1-fast",
-        "access_provider": "Google AI Studio",
-        "provider_model_id": "veo-3.1-fast-generate-preview"
+        "model_uid": "mdl:openai:gpt:gpt-4-1",
+        "access_provider": "GitHub Models",
+        "provider_model_id": "openai/gpt-4.1"
       },
       {
-        "model_uid": "mdl:google-deepmind:gemini:gemini-3-1-flash-lite-preview",
-        "access_provider": "Google Vertex AI",
-        "provider_model_id": "gemini-3.1-flash-lite-preview"
-      },
-      {
-        "model_uid": "mdl:google-deepmind:gemini:gemini-3-1-flash-preview",
-        "access_provider": "Google Vertex AI",
-        "provider_model_id": "gemini-3.1-flash-preview"
-      },
-      {
-        "model_uid": "mdl:google-deepmind:gemini:gemini-3-1-pro-preview",
-        "access_provider": "Google Vertex AI",
-        "provider_model_id": "gemini-3.1-pro-preview"
+        "model_uid": "mdl:openai:gpt:gpt-4o-mini",
+        "access_provider": "GitHub Models",
+        "provider_model_id": "openai/gpt-4o-mini"
       }
     ],
     "mappings_missing_max_output_tokens": [
@@ -680,6 +698,16 @@
         "provider_model_id": "rerank-v3.5"
       },
       {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-anthropic-compatible-chat-model",
+        "access_provider": "Custom Anthropic-compatible",
+        "provider_model_id": "custom-anthropic-compatible"
+      },
+      {
+        "model_uid": "mdl:other-custom-unknown:compatibility:custom-openai-compatible-chat-model",
+        "access_provider": "Custom OpenAI-compatible",
+        "provider_model_id": "custom-openai-compatible"
+      },
+      {
         "model_uid": "mdl:databricks:dbrx:dbrx-instruct",
         "access_provider": "Databricks Model Serving",
         "provider_model_id": "databricks-dbrx-instruct"
@@ -708,16 +736,6 @@
         "model_uid": "mdl:elevenlabs:eleven:flash-v2-5",
         "access_provider": "ElevenLabs API",
         "provider_model_id": "eleven_flash_v2_5"
-      },
-      {
-        "model_uid": "mdl:elevenlabs:scribe:scribe-v1",
-        "access_provider": "ElevenLabs API",
-        "provider_model_id": "scribe_v1"
-      },
-      {
-        "model_uid": "mdl:openai:gpt-oss:gpt-oss-120b",
-        "access_provider": "Fireworks",
-        "provider_model_id": "openai/gpt-oss-120b"
       }
     ]
   }

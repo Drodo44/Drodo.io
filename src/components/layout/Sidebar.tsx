@@ -91,7 +91,7 @@ export function Sidebar() {
   return (
     <aside
       data-tutorial="sidebar"
-      className="flex flex-col h-full min-h-0 min-w-0 flex-shrink-0 overflow-hidden basis-[clamp(12rem,16vw,15rem)]"
+      className="flex h-full w-full min-w-0 flex-shrink-0 flex-col overflow-hidden"
       style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)' }}
     >
       {/* Logo */}

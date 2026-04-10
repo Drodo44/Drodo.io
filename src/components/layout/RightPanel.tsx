@@ -82,7 +82,7 @@ export function RightPanel() {
 
   return (
     <aside
-      className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-[1_1_0] basis-[clamp(18rem,30vw,28rem)] border-t lg:border-t-0 lg:border-l"
+      className="flex min-h-0 min-w-0 flex-col overflow-hidden border-t lg:flex-[0_0_clamp(20rem,32vw,28rem)] lg:border-l lg:border-t-0"
       style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
     >
       <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-color)]">
