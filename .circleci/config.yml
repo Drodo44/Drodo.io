@@ -63,6 +63,13 @@ jobs:
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
             npm run tauri build -- --bundles nsis
       - run:
+          name: Debug - List bundle output
+          shell: powershell.exe
+          command: |
+            Write-Host "=== src-tauri/target/release/bundle/ ==="
+            Get-ChildItem -Path "src-tauri/target/release/bundle" -Recurse -ErrorAction SilentlyContinue |
+              Select-Object FullName, Length | Format-Table -AutoSize
+      - run:
           name: Upload to GitHub Release
           shell: powershell.exe
           command: |
@@ -120,8 +127,8 @@ jobs:
             Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $uploadHeaders -InFile $assetPath
             Write-Host "Upload complete."
 
-            # Upload NSIS .sig file for updater manifest
-            $sigFiles = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.sig" -ErrorAction SilentlyContinue
+            # Upload NSIS .sig file for updater manifest (search recursively under bundle/)
+            $sigFiles = Get-ChildItem -Path "src-tauri/target/release/bundle" -Filter "*.sig" -Recurse -ErrorAction SilentlyContinue
             foreach ($sig in $sigFiles) {
               $sigUploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($sig.Name)"
               Invoke-RestMethod -Uri $sigUploadUrl -Method Post -Headers $uploadHeaders -InFile $sig.FullName
