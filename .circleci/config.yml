@@ -63,7 +63,10 @@ jobs:
           shell: powershell.exe
           command: |
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
-            $env:TAURI_SIGNING_PRIVATE_KEY = $env:TAURI_SIGNING_PRIVATE_KEY -replace '\\n', "`n"
+            $env:TAURI_SIGNING_PRIVATE_KEY = [System.Environment]::GetEnvironmentVariable("TAURI_SIGNING_PRIVATE_KEY", "Machine")
+            if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
+              $env:TAURI_SIGNING_PRIVATE_KEY = [System.Environment]::GetEnvironmentVariable("TAURI_SIGNING_PRIVATE_KEY", "User")
+            }
             npm run tauri build -- --bundles nsis
       - run:
           name: Debug - List bundle output
@@ -194,7 +197,8 @@ jobs:
           no_output_timeout: 60m
           command: |
             source $HOME/.cargo/env
-            export TAURI_SIGNING_PRIVATE_KEY=$(echo "$TAURI_SIGNING_PRIVATE_KEY" | sed 's/\\n/\n/g')
+            export TAURI_SIGNING_PRIVATE_KEY="${TAURI_SIGNING_PRIVATE_KEY}"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD}"
             npm run tauri build -- --bundles appimage,deb
       - run:
           name: Upload to GitHub Release
