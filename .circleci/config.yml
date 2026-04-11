@@ -61,6 +61,7 @@ jobs:
           shell: powershell.exe
           command: |
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
+            $env:TAURI_SIGNING_PRIVATE_KEY = $env:TAURI_SIGNING_PRIVATE_KEY -replace '\\n', "`n"
             npm run tauri build -- --bundles nsis
       - run:
           name: Debug - List bundle output
@@ -124,6 +125,15 @@ jobs:
               "Content-Type" = "application/octet-stream"
             }
 
+            # Delete existing asset if it exists
+            $existingAssets = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/$releaseId/assets" -Headers $headers
+            foreach ($existing in $existingAssets) {
+              if ($existing.name -eq $assetName) {
+                Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/assets/$($existing.id)" -Headers $headers -Method Delete
+                Write-Host "Deleted existing asset: $($existing.name)"
+              }
+            }
+
             Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $uploadHeaders -InFile $assetPath
             Write-Host "Upload complete."
 
@@ -180,6 +190,7 @@ jobs:
           no_output_timeout: 60m
           command: |
             source $HOME/.cargo/env
+            export TAURI_SIGNING_PRIVATE_KEY=$(echo "$TAURI_SIGNING_PRIVATE_KEY" | sed 's/\\n/\n/g')
             npm run tauri build -- --bundles appimage,deb
       - run:
           name: Upload to GitHub Release
@@ -221,10 +232,18 @@ jobs:
             fi
 
             UPLOAD_URL=$(echo "$RELEASE_BODY" | python3 -c "import sys,json,re; print(re.sub(r'\{[^}]*\}', '', json.load(sys.stdin)['upload_url']))")
+            RELEASE_ID=$(echo "$RELEASE_BODY" | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
             APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
             if [ -n "$APPIMAGE" ]; then
               FILENAME=$(basename $APPIMAGE)
+              # Delete existing asset with same name if present
+              EXISTING_ASSETS=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets")
+              EXISTING_ID=$(echo "$EXISTING_ASSETS" | python3 -c "import sys,json; assets=json.load(sys.stdin); match=[a['id'] for a in assets if a['name']==('$(basename $APPIMAGE)' if '$APPIMAGE' else '')]; print(match[0] if match else '')" 2>/dev/null || echo "")
+              if [ -n "$EXISTING_ID" ]; then
+                curl -s -X DELETE -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$EXISTING_ID"
+                echo "Deleted existing asset"
+              fi
               curl -s -X POST \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/vnd.github+json" \
