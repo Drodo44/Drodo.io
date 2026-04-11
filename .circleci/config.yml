@@ -61,8 +61,6 @@ jobs:
           shell: powershell.exe
           command: |
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
-            $env:TAURI_SIGNING_PRIVATE_KEY = $env:TAURI_SIGNING_PRIVATE_KEY
-            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD
             npm run tauri build -- --bundles nsis
       - run:
           name: Debug - List bundle output
@@ -131,10 +129,14 @@ jobs:
 
             # Upload NSIS .sig file for updater manifest (search recursively under bundle/)
             $sigFiles = Get-ChildItem -Path "src-tauri/target/release/bundle" -Filter "*.sig" -Recurse -ErrorAction SilentlyContinue
+            if (-not $sigFiles) {
+              Write-Error "FATAL: No .sig files found. TAURI_SIGNING_PRIVATE_KEY may not be set or signing failed."
+              exit 1
+            }
             foreach ($sig in $sigFiles) {
               $sigUploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($sig.Name)"
-              Invoke-RestMethod -Uri $sigUploadUrl -Method Post -Headers $uploadHeaders -InFile $sig.FullName
-              Write-Host "Uploaded sig: $($sig.Name)"
+              $result = Invoke-RestMethod -Uri $sigUploadUrl -Method Post -Headers $uploadHeaders -InFile $sig.FullName
+              Write-Host "Uploaded sig: $($sig.Name) -> $($result.browser_download_url)"
             }
 
   build-linux:
@@ -178,8 +180,6 @@ jobs:
           no_output_timeout: 60m
           command: |
             source $HOME/.cargo/env
-            export TAURI_SIGNING_PRIVATE_KEY=$TAURI_SIGNING_PRIVATE_KEY
-            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=$TAURI_SIGNING_PRIVATE_KEY_PASSWORD
             npm run tauri build -- --bundles appimage,deb
       - run:
           name: Upload to GitHub Release
@@ -233,18 +233,19 @@ jobs:
                 "$UPLOAD_URL?name=$FILENAME"
             fi
 
-            # Upload AppImage .sig file for updater manifest
             SIG_FILE=$(find src-tauri/target/release/bundle/appimage -name "*.sig" | head -1)
-            if [ -n "$SIG_FILE" ]; then
-              SIG_FILENAME=$(basename "$SIG_FILE")
-              curl -s -X POST \
-                -H "Authorization: Bearer $TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                -H "Content-Type: application/octet-stream" \
-                --data-binary @"$SIG_FILE" \
-                "$UPLOAD_URL?name=$SIG_FILENAME"
-              echo "Uploaded sig: $SIG_FILENAME"
+            if [ -z "$SIG_FILE" ]; then
+              echo "FATAL: No .sig file found. TAURI_SIGNING_PRIVATE_KEY may not be set or signing failed."
+              exit 1
             fi
+            SIG_FILENAME=$(basename "$SIG_FILE")
+            curl -f -s -X POST \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @"$SIG_FILE" \
+              "$UPLOAD_URL?name=$SIG_FILENAME"
+            echo "Uploaded sig: $SIG_FILENAME"
 
   publish-updater:
     machine:
