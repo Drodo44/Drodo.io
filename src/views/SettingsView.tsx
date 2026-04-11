@@ -12,6 +12,7 @@ import { syncUserData } from '../lib/syncToSupabase'
 import { getAppSettings, setAppSetting } from '../lib/appSettings'
 import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
+import { getVersion } from '@tauri-apps/api/app'
 import { checkForUpdates, getStoredUpdateInfo, type StoredUpdateInfo } from '../lib/updater'
 
 // ─── Settings helpers ─────────────────────────────────────────────────────────
@@ -56,10 +57,15 @@ export function SettingsView() {
   const [theme, setTheme] = useState<'dark' | 'light' | 'system'>(
     (settings.theme as 'dark' | 'light' | 'system') ?? 'dark'
   )
+  const [appVersion, setAppVersion] = useState('...')
 
   useEffect(() => {
     applyThemeClass(theme)
   }, [theme])
+
+  useEffect(() => {
+    getVersion().then(setAppVersion)
+  }, [])
 
   const handleTheme = (t: 'dark' | 'light' | 'system') => {
     setTheme(t)
@@ -497,7 +503,7 @@ export function SettingsView() {
                 <Logo size={28} />
                 <div>
                   <div className="text-sm font-semibold text-[var(--text-primary)]">Drodo</div>
-                  <div className="text-xs text-[var(--text-secondary)]">Version 1.0.0</div>
+                  <div className="text-xs text-[var(--text-secondary)]">Version {appVersion}</div>
                 </div>
               </div>
             </div>
