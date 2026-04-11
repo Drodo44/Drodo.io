@@ -67,7 +67,7 @@
     },
     "updater": {
       "active": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJFQkU4MDgyQkRENzg3NkMKUldSc2g5ZTlnb0MrdnBZZG5pUmJxTlZ3Z3p1dmJrcU5DYnFXOWttTFdJOFNjc00zY1NDUG1ZcTEK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNTUxNUNBQ0QyQkExMEUKUldRT29Tdk55aFZWUHBiek9HdWJOQjRtbXVEeW9HN0c1QnhzQTU3TkZmMW1qYjFpcXp4aGVSaXAK",
       "endpoints": [
         "https://github.com/Drodo44/Drodo.io/releases/latest/download/latest.json"
       ]

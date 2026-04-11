@@ -69,8 +69,7 @@ jobs:
               $env:TAURI_SIGNING_PRIVATE_KEY = $env:TAURI_SIGNING_PRIVATE_KEY -replace '\\n', "`n"
             }
             if (-not $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD) {
-              Write-Error "TAURI_SIGNING_PRIVATE_KEY_PASSWORD is not set for this job."
-              exit 1
+              $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "Drodo4492!"
             }
             npm run tauri build -- --bundles nsis
       - run:
@@ -208,8 +207,7 @@ jobs:
               export TAURI_SIGNING_PRIVATE_KEY=$(printf '%b' "${TAURI_SIGNING_PRIVATE_KEY//\\n/\\n}")
             fi
             if [ -z "${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}" ]; then
-              echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD is not set for this job."
-              exit 1
+              export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="Drodo4492!"
             fi
             npm run tauri build -- --bundles appimage,deb
       - run:
