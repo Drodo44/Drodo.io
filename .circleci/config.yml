@@ -35,8 +35,6 @@ jobs:
     resource_class: windows.medium
     environment:
       NODE_OPTIONS: --max-old-space-size=8192
-      TAURI_SIGNING_PRIVATE_KEY: $TAURI_SIGNING_PRIVATE_KEY
-      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: $TAURI_SIGNING_PRIVATE_KEY_PASSWORD
     steps:
       - checkout
       - run:
@@ -63,9 +61,16 @@ jobs:
           shell: powershell.exe
           command: |
             $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
-            $env:TAURI_SIGNING_PRIVATE_KEY = [System.Environment]::GetEnvironmentVariable("TAURI_SIGNING_PRIVATE_KEY", "Machine")
             if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
-              $env:TAURI_SIGNING_PRIVATE_KEY = [System.Environment]::GetEnvironmentVariable("TAURI_SIGNING_PRIVATE_KEY", "User")
+              Write-Error "TAURI_SIGNING_PRIVATE_KEY is not set for this job."
+              exit 1
+            }
+            if ($env:TAURI_SIGNING_PRIVATE_KEY.Contains('\n')) {
+              $env:TAURI_SIGNING_PRIVATE_KEY = $env:TAURI_SIGNING_PRIVATE_KEY -replace '\\n', "`n"
+            }
+            if (-not $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD) {
+              Write-Error "TAURI_SIGNING_PRIVATE_KEY_PASSWORD is not set for this job."
+              exit 1
             }
             npm run tauri build -- --bundles nsis
       - run:
@@ -160,8 +165,6 @@ jobs:
     environment:
       DEBIAN_FRONTEND: noninteractive
       NODE_OPTIONS: --max-old-space-size=8192
-      TAURI_SIGNING_PRIVATE_KEY: $TAURI_SIGNING_PRIVATE_KEY
-      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: $TAURI_SIGNING_PRIVATE_KEY_PASSWORD
     resource_class: medium
     steps:
       - checkout
@@ -197,8 +200,17 @@ jobs:
           no_output_timeout: 60m
           command: |
             source $HOME/.cargo/env
-            export TAURI_SIGNING_PRIVATE_KEY="${TAURI_SIGNING_PRIVATE_KEY}"
-            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD}"
+            if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+              echo "TAURI_SIGNING_PRIVATE_KEY is not set for this job."
+              exit 1
+            fi
+            if printf '%s' "$TAURI_SIGNING_PRIVATE_KEY" | grep -q '\\n'; then
+              export TAURI_SIGNING_PRIVATE_KEY=$(printf '%b' "${TAURI_SIGNING_PRIVATE_KEY//\\n/\\n}")
+            fi
+            if [ -z "${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}" ]; then
+              echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD is not set for this job."
+              exit 1
+            fi
             npm run tauri build -- --bundles appimage,deb
       - run:
           name: Upload to GitHub Release
