@@ -35,6 +35,8 @@ jobs:
     resource_class: windows.medium
     environment:
       NODE_OPTIONS: --max-old-space-size=8192
+      TAURI_SIGNING_PRIVATE_KEY: $TAURI_SIGNING_PRIVATE_KEY
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: $TAURI_SIGNING_PRIVATE_KEY_PASSWORD
     steps:
       - checkout
       - run:
@@ -155,6 +157,8 @@ jobs:
     environment:
       DEBIAN_FRONTEND: noninteractive
       NODE_OPTIONS: --max-old-space-size=8192
+      TAURI_SIGNING_PRIVATE_KEY: $TAURI_SIGNING_PRIVATE_KEY
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: $TAURI_SIGNING_PRIVATE_KEY_PASSWORD
     resource_class: medium
     steps:
       - checkout
