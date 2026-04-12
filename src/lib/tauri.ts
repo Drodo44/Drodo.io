@@ -27,6 +27,10 @@ export async function getN8nStatus(): Promise<N8nStatus> {
   return invoke<N8nStatus>('get_n8n_status')
 }
 
+export async function startDependencyBootstrap(): Promise<void> {
+  await invoke('start_dependency_bootstrap')
+}
+
 export async function getHomeDir(): Promise<string> {
   return invoke<string>('get_home_dir')
 }

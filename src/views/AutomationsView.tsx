@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { Workflow, ExternalLink, RefreshCw, Circle } from 'lucide-react'
-import { Command } from '@tauri-apps/plugin-shell'
-import { openUrl } from '@tauri-apps/plugin-opener'
+import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
 
 const N8N_URL = 'http://localhost:5678'
 
@@ -11,54 +10,40 @@ export function AutomationsView() {
   const [status, setStatus] = useState<Status>('idle')
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [iframeError, setIframeError] = useState(false)
-  const [nodeRequired, setNodeRequired] = useState(false)
   const [launchError, setLaunchError] = useState('')
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const stopPoll = () => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current)
-      pollRef.current = null
+  const waitForN8nReady = async (timeoutMs = 60_000) => {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      const nextStatus = await getN8nStatus().catch(() => null)
+      if (nextStatus?.running) {
+        return true
+      }
+      await new Promise(resolve => window.setTimeout(resolve, 2000))
     }
-  }
-
-  const pollUntilReady = () => {
-    stopPoll()
-    pollRef.current = setInterval(() => {
-      fetch(N8N_URL, { mode: 'no-cors' })
-        .then(() => {
-          stopPoll()
-          setStatus('running')
-          setIframeError(false)
-          setIframeLoaded(false)
-          // Reload the iframe
-          if (iframeRef.current) {
-            iframeRef.current.src = N8N_URL
-          }
-        })
-        .catch(() => { /* keep polling */ })
-    }, 2000)
+    return false
   }
 
   const handleLaunch = async () => {
     setStatus('launching')
-    setNodeRequired(false)
     setLaunchError('')
 
     try {
-      await Command.create('node', ['--version']).execute()
+      await startDependencyBootstrap()
+      const isReady = await waitForN8nReady()
+      if (!isReady) {
+        throw new Error('n8n is still starting. Wait a moment and try again. If this persists, reinstall Drodo or check whether port 5678 is available.')
+      }
+      setStatus('running')
+      setIframeError(false)
+      setIframeLoaded(false)
+      if (iframeRef.current) {
+        iframeRef.current.src = N8N_URL
+      }
     } catch (error) {
-      setNodeRequired(true)
-      setStatus('idle')
-      return
-    }
-
-    try {
-      await Command.create('npx', ['n8n']).spawn()
-      pollUntilReady()
-    } catch {
-      setLaunchError('Unable to start n8n. Confirm Node.js and n8n are installed, then try again.')
+      const message = error instanceof Error ? error.message : 'Unable to start n8n. Try again in a moment.'
+      setLaunchError(message)
       setStatus('error')
     }
   }
@@ -79,9 +64,7 @@ export function AutomationsView() {
   const handleIframeError = () => {
     setIframeError(true)
     setIframeLoaded(false)
-    // n8n went down — go back to idle
     setStatus('idle')
-    stopPoll()
   }
 
   return (
@@ -163,7 +146,7 @@ export function AutomationsView() {
               Launch n8n
             </button>
             <p className="text-xs text-[var(--text-muted)]">
-              Requires Node.js. n8n will start locally at localhost:5678.
+              Drodo will start n8n locally at localhost:5678.
             </p>
           </div>
         </div>
@@ -235,36 +218,6 @@ export function AutomationsView() {
             onError={handleIframeError}
             style={{ display: iframeLoaded ? 'block' : 'block', background: '#fff' }}
           />
-        </div>
-      )}
-
-      {nodeRequired && (
-        <div
-          className="absolute inset-0 z-20 flex items-center justify-center px-6"
-          style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(6px)' }}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl border p-8 text-center"
-            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-          >
-            <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-5" style={{ background: '#f59e0b22' }}>
-              <Workflow size={26} style={{ color: '#f59e0b' }} />
-            </div>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">One more step to enable Automations</h2>
-            <p className="text-sm leading-relaxed text-[var(--text-muted)] mb-6">
-              Drodo's automation engine requires Node.js. It's free and installs in 30 seconds.
-            </p>
-            <button
-              onClick={() => void openUrl('https://nodejs.org')}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
-              style={{ background: '#7f77dd' }}
-            >
-              Download Node.js
-            </button>
-            <p className="text-xs text-[var(--text-secondary)] mt-4">
-              After installing Node.js, restart Drodo and click Launch again.
-            </p>
-          </div>
         </div>
       )}
     </div>

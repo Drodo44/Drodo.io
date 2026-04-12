@@ -272,6 +272,11 @@ fn get_n8n_status() -> Result<serde_json::Value, String> {
 }
 
 #[tauri::command]
+fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
+    spawn_dependency_bootstrap(&app)
+}
+
+#[tauri::command]
 fn get_home_dir(app: tauri::AppHandle) -> Result<String, String> {
     app.path()
         .home_dir()
@@ -320,6 +325,7 @@ pub fn run() {
             execute_command,
             get_home_dir,
             get_n8n_status,
+            start_dependency_bootstrap,
             start_mcp_server
         ])
         .run(tauri::generate_context!())

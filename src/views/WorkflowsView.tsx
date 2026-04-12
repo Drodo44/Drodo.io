@@ -18,7 +18,6 @@ import {
   X,
   Search,
   Workflow,
-  AlertCircle,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -26,7 +25,7 @@ import { streamCompletion } from '../lib/streamChat'
 import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
-import { executeCommand } from '../lib/tauri'
+import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
 import { getWorkflowCategories, getWorkflowCount, getWorkflowTemplate, searchWorkflows, type WorkflowIndex } from '../lib/workflows'
 import { useAppStore } from '../store/appStore'
 import type { Message, Provider } from '../types'
@@ -34,11 +33,9 @@ import type { Message, Provider } from '../types'
 const WORKFLOWS_KEY = 'drodo_workflow_defs'
 const RUNS_KEY = 'drodo_workflow_runs'
 const LEGACY_PROVIDER_PREFIX = 'drodo_provider_'
-const TEMPLATE_SECTION_PREVIEW_LIMIT = 6
 
 type WorkflowTab = 'workflows' | 'builder' | 'history'
 type StepRunStatus = 'pending' | 'running' | 'complete' | 'error' | 'stopped'
-type NodeCheckState = 'checking' | 'available' | 'missing' | 'dismissed'
 
 interface WorkflowStep {
   stepId: string
@@ -111,10 +108,6 @@ function getWorkflowAccentColor(category?: string): string {
     if (normalized.includes(keyword)) return color
   }
   return '#6b7280'
-}
-
-function formatNodeCheckFailure(message: string): string {
-  return `Node.js is required to launch n8n. Drodo could not run "node --version": ${message}`
 }
 
 function cloneSteps(steps: WorkflowStep[]): WorkflowStep[] {
@@ -456,9 +449,6 @@ export function WorkflowsView() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   const [selectedTemplateJson, setSelectedTemplateJson] = useState('')
   const [templateImportStatus, setTemplateImportStatus] = useState<string | null>(null)
-  const [nodeCheckState, setNodeCheckState] = useState<NodeCheckState>('checking')
-  const [nodeVersion, setNodeVersion] = useState('')
-  const [nodeCheckError, setNodeCheckError] = useState<string | null>(null)
   const [n8nLaunchError, setN8nLaunchError] = useState<string | null>(null)
   const [templatePage, setTemplatePage] = useState(0)
   const TEMPLATES_PER_PAGE = 50
@@ -481,34 +471,6 @@ export function WorkflowsView() {
   useEffect(() => {
     setTemplatePage(0)
   }, [templateQuery, activeTemplateCategory])
-
-  useEffect(() => {
-    let cancelled = false
-
-    void executeCommand('node --version')
-      .then(result => {
-        if (cancelled) return
-        if (result.success) {
-          setNodeCheckState('available')
-          setNodeVersion(result.stdout.trim() || result.combined.trim())
-          setNodeCheckError(null)
-          return
-        }
-
-        setNodeCheckState('missing')
-        setNodeCheckError(formatNodeCheckFailure(result.stderr.trim() || result.combined.trim() || `exit code ${result.exitCode}`))
-      })
-      .catch(error => {
-        if (cancelled) return
-        const message = error instanceof Error ? error.message : String(error)
-        setNodeCheckState('missing')
-        setNodeCheckError(formatNodeCheckFailure(message))
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const applyStepRuns = (
     updater: StepRunState[] | ((current: StepRunState[]) => StepRunState[])
@@ -856,22 +818,6 @@ export function WorkflowsView() {
 
     return searchedTemplates.filter(template => template.category === activeTemplateCategory)
   }, [activeTemplateCategory, searchedTemplates])
-  const previewTemplateSections = useMemo(() => {
-    if (templateQuery.trim() || activeTemplateCategory !== 'All') {
-      return []
-    }
-
-    return getWorkflowCategories()
-      .map(category => {
-        const templates = allTemplates.filter(template => template.category === category)
-        return {
-          category,
-          count: templates.length,
-          templates: templates.slice(0, TEMPLATE_SECTION_PREVIEW_LIMIT),
-        }
-      })
-      .filter(section => section.count > 0)
-  }, [activeTemplateCategory, allTemplates, templateQuery])
   const templateCategoryCounts = useMemo(() => {
     const counts = new Map<string, number>()
     for (const template of allTemplates) {
@@ -879,16 +825,23 @@ export function WorkflowsView() {
     }
     return counts
   }, [allTemplates])
-  const displayedTemplates = useMemo(() => {
-    if (!templateQuery.trim() && activeTemplateCategory === 'All') {
-      return []
-    }
-    return filteredTemplates
-  }, [activeTemplateCategory, filteredTemplates, templateQuery])
+  const displayedTemplates = useMemo(() => filteredTemplates, [filteredTemplates])
   const selectedTemplate = useMemo(
     () => allTemplates.find(template => template.id === selectedTemplateId) ?? null,
     [allTemplates, selectedTemplateId]
   )
+
+  const waitForN8nReady = async (timeoutMs = 60_000) => {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      const status = await getN8nStatus().catch(() => null)
+      if (status?.running) {
+        return status
+      }
+      await new Promise(resolve => window.setTimeout(resolve, 2000))
+    }
+    throw new Error('n8n is still starting. Wait a moment and try again. If this persists, reinstall Drodo or check whether port 5678 is available.')
+  }
 
   const openTemplate = (template: WorkflowIndex) => {
     const templateJson = getWorkflowTemplate(template.id)
@@ -913,22 +866,14 @@ export function WorkflowsView() {
     setN8nLaunchError(null)
 
     try {
-      const nodeResult = await executeCommand('node --version')
-      if (!nodeResult.success) {
-        const message = formatNodeCheckFailure(nodeResult.stderr.trim() || nodeResult.combined.trim() || `exit code ${nodeResult.exitCode}`)
-        setNodeCheckState('missing')
-        setNodeCheckError(message)
-        throw new Error(message)
+      if (n8nReady) {
+        await open(n8nUrl)
+        return
       }
 
-      setNodeCheckState('available')
-      setNodeVersion(nodeResult.stdout.trim() || nodeResult.combined.trim())
-
-      if (!n8nReady) {
-        throw new Error('n8n is still starting. Wait a moment and try again. If this persists, check that port 5678 is available.')
-      }
-
-      await open(n8nUrl)
+      await startDependencyBootstrap()
+      const readyStatus = await waitForN8nReady()
+      await open(readyStatus.url)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
       setN8nLaunchError(message)
@@ -1028,8 +973,8 @@ export function WorkflowsView() {
           </span>
           <span className="text-xs text-[var(--text-secondary)]">
             {n8nReady
-              ? `Dashboard available at ${n8nUrl}${nodeVersion ? ` · Node ${nodeVersion}` : ''}`
-              : 'Drodo is bootstrapping Node.js, Git, and n8n in the background.'}
+              ? `Dashboard available at ${n8nUrl}`
+              : 'Drodo is preparing the local automation runtime in the background.'}
           </span>
         </div>
 
@@ -1055,51 +1000,6 @@ export function WorkflowsView() {
           >
             Dismiss
           </button>
-        </div>
-      )}
-
-      {nodeCheckState === 'missing' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div
-            className="w-full max-w-md rounded-xl border p-5 shadow-2xl"
-            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#e0505015', color: '#e05050' }}>
-                  <AlertCircle size={18} />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">Node.js was not detected</h2>
-                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">
-                    {nodeCheckError ?? 'Drodo could not run "node --version". Install Node.js or make sure it is available on PATH, then try launching n8n again.'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setNodeCheckState('dismissed')}
-                className="rounded-lg p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
-                aria-label="Close Node.js notice"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <button
-                onClick={() => setNodeCheckState('dismissed')}
-                className="rounded-lg border border-[var(--border-color)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)]"
-              >
-                Dismiss
-              </button>
-              <button
-                onClick={() => void open('https://nodejs.org/en/download')}
-                className="rounded-lg px-3 py-2 text-xs font-semibold text-white"
-                style={{ background: '#7f77dd' }}
-              >
-                Download Node.js
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -1277,64 +1177,7 @@ export function WorkflowsView() {
                   </div>
                 )}
 
-                {!templateQuery.trim() && activeTemplateCategory === 'All' ? (
-                  <div className="mt-5 space-y-5">
-                    {previewTemplateSections.map(section => (
-                      <div key={section.category}>
-                        <div className="mb-3 flex items-center justify-between">
-                          <div>
-                            <h3 className="text-sm font-semibold text-[var(--text-primary)]">{section.category}</h3>
-                            <p className="text-xs text-[var(--text-secondary)]">{getWorkflowCountLabel(section.count, 'template')}</p>
-                          </div>
-                          <button
-                            onClick={() => setActiveTemplateCategory(section.category)}
-                            className="text-xs font-semibold text-[#7f77dd] hover:opacity-80 transition-opacity"
-                          >
-                            View Category
-                          </button>
-                        </div>
-                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                          {section.templates.map(template => (
-                            <div
-                              key={template.id}
-                              className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-4"
-                              style={{ borderLeft: `4px solid ${getWorkflowAccentColor(template.category)}` }}
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <div className="rounded-full inline-flex px-2 py-0.5 text-[10px] font-semibold" style={{ background: '#7f77dd18', color: '#a09ae8' }}>
-                                    {template.complexity}
-                                  </div>
-                                  <h4 className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{template.name}</h4>
-                                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{template.description}</p>
-                                </div>
-                              </div>
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {template.required_services.slice(0, 4).map(service => (
-                                  <span
-                                    key={service}
-                                    className="rounded-full border px-2 py-0.5 text-[11px] text-[var(--text-secondary)]"
-                                    style={{ borderColor: 'var(--border-color)' }}
-                                  >
-                                    {service}
-                                  </span>
-                                ))}
-                              </div>
-                              <button
-                                onClick={() => openTemplate(template)}
-                                className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
-                                style={{ background: '#7f77dd' }}
-                              >
-                                <Workflow size={12} />
-                                Use Template
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (() => {
+                {(() => {
                   const totalPages = Math.ceil(displayedTemplates.length / TEMPLATES_PER_PAGE)
                   const pagedTemplates = displayedTemplates.slice(
                     templatePage * TEMPLATES_PER_PAGE,
