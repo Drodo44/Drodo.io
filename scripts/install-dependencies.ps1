@@ -299,12 +299,27 @@ function Ensure-N8nInstalled {
     }
 
     Write-Log 'n8n not found globally. Installing with npm.'
-    & $npmPath install -g n8n --silent
-    if ($LASTEXITCODE -ne 0) {
-        throw "npm install -g n8n failed with exit code $LASTEXITCODE."
+    $maxAttempts = 3
+    $retryDelaySeconds = 5
+    $lastExitCode = 0
+
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt += 1) {
+        Write-Log "Installing n8n with npm (attempt $attempt of $maxAttempts)."
+        & $npmPath install -g n8n --silent --prefer-offline --no-audit --no-fund
+        $lastExitCode = $LASTEXITCODE
+
+        if ($lastExitCode -eq 0) {
+            Write-Log 'n8n installed successfully.'
+            return
+        }
+
+        Write-Log "npm install -g n8n attempt $attempt failed with exit code $lastExitCode."
+        if ($attempt -lt $maxAttempts) {
+            Start-Sleep -Seconds $retryDelaySeconds
+        }
     }
 
-    Write-Log 'n8n installed successfully.'
+    throw "npm install -g n8n failed after $maxAttempts attempts. Final exit code: $lastExitCode."
 }
 
 function Resolve-N8nPath {
