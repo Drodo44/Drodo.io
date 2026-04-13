@@ -33,10 +33,15 @@ function Save-Status {
         [string]$StartedAt = ''
     )
 
+    $normalizedStartedAt = $null
+    if ($StartedAt) {
+        $normalizedStartedAt = $StartedAt
+    }
+
     $payload = [ordered]@{
         running   = $Running
         port      = $Port
-        startedAt = if ($StartedAt) { $StartedAt } else { $null }
+        startedAt = $normalizedStartedAt
     }
 
     $payload | ConvertTo-Json | Set-Content -Path $StatusFile
@@ -91,6 +96,10 @@ function Resolve-Executable {
         if ($command -and $command.Source) {
             return $command.Source
         }
+    }
+
+    if ($FallbackPaths.Count -eq 0) {
+        return $null
     }
 
     return Get-FirstExistingPath -Candidates $FallbackPaths
@@ -230,12 +239,18 @@ function Resolve-NodePath {
 
 function Resolve-NpmPath {
     $nodePath = Resolve-NodePath
-    $nodeDir = if ($nodePath) { Split-Path -Parent $nodePath } else { '' }
+    $nodeDir = ''
+    if ($nodePath) {
+        $nodeDir = Split-Path -Parent $nodePath
+    }
 
-    return Resolve-Executable -CommandNames @('npm.cmd', 'npm') -FallbackPaths @(
-        (if ($nodeDir) { Join-Path $nodeDir 'npm.cmd' } else { $null }),
-        (Join-Path $env:APPDATA 'npm\npm.cmd')
-    )
+    $fallbackPaths = @()
+    if ($nodeDir) {
+        $fallbackPaths += Join-Path $nodeDir 'npm.cmd'
+    }
+    $fallbackPaths += Join-Path $env:APPDATA 'npm\npm.cmd'
+
+    return Resolve-Executable -CommandNames @('npm.cmd', 'npm') -FallbackPaths $fallbackPaths
 }
 
 function Resolve-GitPath {
@@ -313,6 +328,11 @@ function Ensure-N8nInstalled {
                 Start-Sleep -Seconds $retryDelaySeconds
             }
             continue
+        }
+
+        & $npmPath list -g n8n --depth=0 *> $null
+        if ($LASTEXITCODE -ne 0) {
+            throw 'npm reported n8n installed successfully, but n8n is still unavailable globally.'
         }
 
         Write-Log 'n8n installed successfully.'
