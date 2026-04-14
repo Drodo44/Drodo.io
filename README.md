@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src-tauri/icons/icon.png" alt="Drodo" width="90" />
+<img src="src-tauri/icons/128x128.png" alt="Drodo" width="90" />
 
 # Drodo
 
@@ -51,40 +51,6 @@ You don't need to know how to code. You don't need to configure servers. You don
 
 ---
 
-## Screenshots
-
-### 2,397 AI Skills — Automatically Matched to Every Task
-![Skills Library](docs/screenshots/Skills.png)
-
-### 14,936 Built-in Workflow Templates
-![Workflow Templates](docs/screenshots/Workflows.png)
-
-### 238 Expert Agent Templates Across 19 Categories
-![Agent Templates](docs/screenshots/Agent_Templates.png)
-
-### 283 Ready-to-Use Prompts Across Every Domain
-![Prompt Library](docs/screenshots/Prompt_Library.png)
-
-### MCP Servers — One-Click Integrations
-![MCP Servers](docs/screenshots/MCP_Servers.png)
-
-### Messaging Bots — Telegram, Slack, Discord
-![Messaging Bots](docs/screenshots/Messaging_Telegram_Slack_Discord.png)
-
-### n8n Automation Engine — Built In
-![Automations](docs/screenshots/n8n_workflow_visual.png)
-
-### Analytics & Token Usage Dashboard
-![Analytics](docs/screenshots/Analytics_Token_Usage.png)
-
-### Model Connections — Every Provider, Your Keys
-![Connections](docs/screenshots/Connections.png)
-
-### Sessions — Full History & Monitoring
-![Sessions](docs/screenshots/Sessions_Monitoring.png)
-
----
-
 ## Features
 
 ### 🤖 Autonomous Multi-Agent Orchestration
@@ -99,6 +65,8 @@ Switch between Standard and Autonomous modes with one click. In Autonomous mode,
 
 Launch a domain expert instantly — no prompt engineering required.
 
+![Agent Templates](docs/screenshots/Agent_Templates.png)
+
 Drodo ships with 238 ready-to-deploy agent templates across 19 categories:
 
 **Business · Marketing · Content & Creative · Research · Engineering · Finance · Legal · Sales · HR & Recruiting · Customer Support · Education · Health & Wellness · Real Estate · E-commerce · Social Media · SEO · Data & Analytics · Productivity · Personal**
@@ -109,11 +77,17 @@ From CEO Advisor to Security Auditor to Ghostwriter to Kubernetes Architect — 
 
 No toggles. No configuration. Skills are matched to every task automatically.
 
+![Skills Library](docs/screenshots/Skills.png)
+
 Drodo's skill engine analyzes each request and injects the right capabilities directly into the agent's working context. Skills span Engineering (1,500+), Creative (345), General (220), DevOps (140), Research (78), Business, Data, and Security — automatically selected based on what your task actually needs.
 
 ### ⚡ 14,936 Built-in Workflow Templates
 
 The largest bundled automation library ever shipped in a desktop app.
+
+![Workflow Templates](docs/screenshots/Workflows.png)
+
+![Automations](docs/screenshots/n8n_workflow_visual.png)
 
 Drodo includes 14,936 n8n workflow templates spanning AI (10,927), Communication (1,215), Data (604), DevOps (257), E-commerce (100), Engineering (139), Finance (66), Marketing (191), Operations (210), Productivity (530), Sales (370), and Support (97) — all available instantly, all searchable, all deployable with one click.
 
@@ -122,6 +96,8 @@ The n8n automation engine, Node.js, and Git install automatically alongside Drod
 ### 📝 283 Ready-to-Use Prompts
 
 A curated prompt library spanning every professional domain — organized, searchable, and deployable to any agent with a single click. Business plans, campaign briefs, code reviews, research memos, financial models, legal checklists, and much more — all built in and ready to use.
+
+![Prompt Library](docs/screenshots/Prompt_Library.png)
 
 ### 🔴 Live Mission Control — Agent Swarm
 
@@ -140,6 +116,8 @@ Most AI tools hide the work. Drodo makes it fully visible.
 
 Connect agents to the real world with structured, secure tool access — no configuration required:
 
+![MCP Servers](docs/screenshots/MCP_Servers.png)
+
 **Google Workspace · n8n-MCP · Supabase · GitHub · Filesystem · Brave Search · PostgreSQL · Slack · Puppeteer**
 
 Or add any custom MCP server with a URL. Credentials are stored locally on your device and never sent to Drodo servers.
@@ -148,13 +126,19 @@ Or add any custom MCP server with a URL. Credentials are stored locally on your 
 
 Control your agents from anywhere. Connect Telegram, Slack, or Discord and route any incoming message through your active AI provider — with streamed responses delivered directly back to the same conversation. Your agents are accessible from your phone, your team workspace, or a Discord server.
 
+![Messaging Bots](docs/screenshots/Messaging_Telegram_Slack_Discord.png)
+
 ### 📊 Analytics & Token Tracking
 
 Full visibility into your AI usage — total tokens, estimated cost, sessions, provider breakdown, and a 7-day usage chart. Know exactly what you're spending and where, across every provider and every session.
 
+![Analytics](docs/screenshots/Analytics_Token_Usage.png)
+
 ### 🌐 Model Agnostic — Every Provider, Your Keys
 
 Never locked to a single vendor. Never charged a subscription.
+
+![Connections](docs/screenshots/Connections.png)
 
 Connect any provider, use any model, switch anytime. Your API keys are stored locally on your device and never sent to Drodo servers.
 
@@ -184,6 +168,8 @@ Optional Supabase-backed sync for sessions, workflows, and your prompt library a
 - 4 GB RAM minimum (8 GB recommended for agent swarms)
 - Internet connection for AI model API calls
 - ~2 GB disk space for the automation runtime (installed automatically to your chosen drive)
+
+![Sessions](docs/screenshots/Sessions_Monitoring.png)
 
 ---
 
