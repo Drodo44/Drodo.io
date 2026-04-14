@@ -188,21 +188,21 @@ Optional Supabase-backed sync for sessions, workflows, and your prompt library a
 
 ## Supported AI Providers
 
-| Provider | Example Models |
+| Provider | Models Supported |
 |---|---|
-| Anthropic | claude-sonnet-4-6, claude-opus-4-6 |
-| OpenAI | gpt-4o, o3 |
-| Google Gemini | gemini-2.0-flash, gemini-2.5-pro |
-| NVIDIA NIM | meta/llama-3.1-70b-instruct |
-| OpenRouter | Any model via openrouter.ai |
-| Mistral | mistral-large-latest |
-| Groq | llama-3.3-70b-versatile |
-| Together AI | meta-llama/Llama-3-8b-chat-hf |
-| Fireworks AI | llama-v3-8b-instruct |
-| DeepSeek | deepseek-chat |
-| Hugging Face | Any inference-compatible model |
-| Ollama | Any locally running model |
-| LM Studio | Any locally running model |
+| Anthropic | All models |
+| OpenAI | All models |
+| Google Gemini | All models |
+| NVIDIA NIM | All models |
+| OpenRouter | All models |
+| Mistral | All models |
+| Groq | All models |
+| Together AI | All models |
+| Fireworks AI | All models |
+| DeepSeek | All models |
+| Hugging Face | All models |
+| Ollama | All local models |
+| LM Studio | All local models |
 | Custom Endpoint | Any OpenAI-compatible base URL |
 
 ---
