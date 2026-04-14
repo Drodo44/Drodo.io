@@ -1,16 +1,19 @@
 <div align="center">
 
-# 🤖 Drodo
+<img src="src-tauri/icons/icon.png" alt="Drodo" width="90" />
+
+# Drodo
+
 ### The AI Agent Platform Built for Everyone
 
-**Connect any AI model. Deploy any agent. Automate anything.**
-*No technical knowledge required.*
+**Connect any AI model. Deploy autonomous agents. Automate anything.**
+*No technical knowledge required. No subscriptions. No lock-in.*
 
-[![Download](https://img.shields.io/badge/Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.8/Drodo_1.2.6_x64-setup.exe)
-[![Release](https://img.shields.io/badge/Version-1.2.0-1d9e75?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/tag/v1.2.0)
+[![Download for Windows](https://img.shields.io/badge/⬇︎%20Download-Windows%20Installer-7f77dd?style=for-the-badge&logo=windows)](https://github.com/Drodo44/Drodo.io/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/Drodo44/Drodo.io?style=for-the-badge&color=1d9e75&label=Latest%20Version)](https://github.com/Drodo44/Drodo.io/releases/latest)
 [![License](https://img.shields.io/badge/License-BUSL%201.1-f97316?style=for-the-badge)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Mac%20%7C%20Linux-4285f4?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases)
-[![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/Drodo)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-4285f4?style=for-the-badge)](https://github.com/Drodo44/Drodo.io/releases/latest)
+[![Support](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/Drodo)
 
 </div>
 
@@ -18,167 +21,171 @@
 
 ## What is Drodo?
 
-Drodo is the first AI agent platform that combines the power of autonomous multi-agent orchestration, a one-click skill marketplace, built-in workflow automation, and real-time mission control — packaged into a beautiful desktop app that anyone can install and use in under 3 minutes.
+Drodo is the most powerful AI agent platform ever built for everyday people.
 
-Think Claude Code meets Agent Zero meets OpenClaw — but stable, beautiful, model-agnostic, and with zero setup complexity.
+It combines autonomous multi-agent orchestration, 2,397 AI skills, 14,936 workflow templates, 238 one-click expert agents, a full-featured prompt library, real-time mission control, and a built-in n8n automation engine — all inside a single beautiful desktop app that installs in under 3 minutes.
+
+You don't need to know how to code. You don't need to configure servers. You don't need a subscription. Install Drodo, connect any AI provider, and start doing things that used to require an entire engineering team.
+
+> **Node.js, Git, and the n8n automation engine install automatically with Drodo — zero manual setup, zero command line, zero technical knowledge required.**
+
+---
 
 ## Why Drodo?
 
 | Feature | Drodo | ChatGPT | Claude.ai | OpenClaw | Agent Zero |
 |---|---|---|---|---|---|
-| Any AI model | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Any AI model, bring your own key | ✅ | ❌ | ❌ | ✅ | ✅ |
 | No subscription required | ✅ | ❌ | ❌ | ✅ | ✅ |
-| One-click install | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Live agent mission control | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
-| Multi-agent orchestration | ✅ | ❌ | ❌ | ⚠️ | ✅ |
-| Built-in workflow automation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Skill packages marketplace | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Telegram/Slack/Discord bots | ✅ | ❌ | ❌ | ⚠️ | ❌ |
+| One-click install, zero config | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Live multi-agent mission control | ✅ | ❌ | ❌ | ⚠️ | ⚠️ |
+| Autonomous multi-agent swarm | ✅ | ❌ | ❌ | ⚠️ | ✅ |
+| 14,936 built-in workflow templates | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 2,397 built-in AI skills | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 238 one-click expert agent templates | ✅ | ❌ | ❌ | ❌ | ❌ |
+| n8n automation engine (auto-installed) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Telegram / Slack / Discord bots | ✅ | ❌ | ❌ | ⚠️ | ❌ |
+| Built-in analytics & token tracking | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Non-technical friendly | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Cloud sync | ✅ | ✅ | ✅ | ❌ | ❌ |
 
+---
+
+## Screenshots
+
+### 2,397 AI Skills — Automatically Matched to Every Task
+![Skills Library](docs/screenshots/Skills.png)
+
+### 14,936 Built-in Workflow Templates
+![Workflow Templates](docs/screenshots/Workflows.png)
+
+### 238 Expert Agent Templates Across 19 Categories
+![Agent Templates](docs/screenshots/Agent_Templates.png)
+
+### 283 Ready-to-Use Prompts Across Every Domain
+![Prompt Library](docs/screenshots/Prompt_Library.png)
+
+### MCP Servers — One-Click Integrations
+![MCP Servers](docs/screenshots/MCP_Servers.png)
+
+### Messaging Bots — Telegram, Slack, Discord
+![Messaging Bots](docs/screenshots/Messaging_Telegram_Slack_Discord.png)
+
+### n8n Automation Engine — Built In
+![Automations](docs/screenshots/n8n_workflow_visual.png)
+
+### Analytics & Token Usage Dashboard
+![Analytics](docs/screenshots/Analytics_Token_Usage.png)
+
+### Model Connections — Every Provider, Your Keys
+![Connections](docs/screenshots/Connections.png)
+
+### Sessions — Full History & Monitoring
+![Sessions](docs/screenshots/Sessions_Monitoring.png)
+
+---
+
 ## Features
 
-### 🤖 Multi-Agent Orchestration
+### 🤖 Autonomous Multi-Agent Orchestration
 
-Drodo uses an Orchestrator → Specialist pattern built for real work, not toy demos. You give the orchestrator a goal, and it decides when to fan that work out into focused specialists such as research agents, software architects, analysts, writers, or operators.
+Give Drodo a goal. It handles the rest.
 
-Each specialist gets a scoped task, runs independently, and feeds its output back into the larger mission. The result is a clean chain of reasoning where one agent researches, another plans, another executes, and another reviews. Instead of a single monolithic conversation, you get visible, modular execution that is easier to trust, debug, and improve.
+Drodo's Mixture-of-Experts orchestrator automatically decides whether to answer directly, dispatch a single specialist agent, or fan the task out across a full parallel swarm — based on what the task actually requires. Each agent gets a scoped mission, runs independently, and feeds its output back into the larger goal. You get a clean, observable chain of reasoning: one agent researches, another plans, another executes, another reviews.
 
-Because every agent is tied into Drodo’s live swarm interface, you can watch the work unfold in real time, see status changes, inspect intermediate outputs, and stop bad runs before they waste tokens.
+Switch between Standard and Autonomous modes with one click. In Autonomous mode, agents self-continue until the task is complete — no babysitting required.
 
-### 🎯 70+ Agent Templates
+### 🎯 238 One-Click Expert Agent Templates
 
-Drodo ships with 70+ one-click agent templates across 19 categories:
+Launch a domain expert instantly — no prompt engineering required.
 
-- Business
-- Marketing
-- Content & Creative
-- Research
-- Engineering
-- Finance
-- Legal
-- Sales
-- HR & Recruiting
-- Customer Support
-- Education
-- Health & Wellness
-- Real Estate
-- E-commerce
-- Social Media
-- SEO
-- Data & Analytics
-- Productivity
-- Personal
+Drodo ships with 238 ready-to-deploy agent templates across 19 categories:
 
-Every template is designed to make an agent feel like an expert in its domain from the first message. Instead of starting with a blank prompt, you can launch a CEO Advisor, Sales Coach, Research Analyst, Senior Software Architect, Technical Writer, Financial Analyst, Resume Writer, or dozens more with one click.
+**Business · Marketing · Content & Creative · Research · Engineering · Finance · Legal · Sales · HR & Recruiting · Customer Support · Education · Health & Wellness · Real Estate · E-commerce · Social Media · SEO · Data & Analytics · Productivity · Personal**
 
-This matters for both speed and quality. Non-technical users can launch something useful immediately, while power users can use templates as strong starting points for more specialized workflows.
+From CEO Advisor to Security Auditor to Ghostwriter to Kubernetes Architect — every template is designed to deliver expert-level output from the very first message.
 
-### 🔴 Live Mission Control
+### 🧠 2,397 AI Skills — Automatically Injected
 
-Drodo’s Agent Swarm view is a live control room for autonomous work.
+No toggles. No configuration. Skills are matched to every task automatically.
 
-You can:
+Drodo's skill engine analyzes each request and injects the right capabilities directly into the agent's working context. Skills span Engineering (1,500+), Creative (345), General (220), DevOps (140), Research (78), Business, Data, and Security — automatically selected based on what your task actually needs.
 
-- Watch every active agent update in real time
+### ⚡ 14,936 Built-in Workflow Templates
+
+The largest bundled automation library ever shipped in a desktop app.
+
+Drodo includes 14,936 n8n workflow templates spanning AI (10,927), Communication (1,215), Data (604), DevOps (257), E-commerce (100), Engineering (139), Finance (66), Marketing (191), Operations (210), Productivity (530), Sales (370), and Support (97) — all available instantly, all searchable, all deployable with one click.
+
+The n8n automation engine, Node.js, and Git install automatically alongside Drodo. No npm. No terminal. No system configuration needed.
+
+### 📝 283 Ready-to-Use Prompts
+
+A curated prompt library spanning every professional domain — organized, searchable, and deployable to any agent with a single click. Business plans, campaign briefs, code reviews, research memos, financial models, legal checklists, and much more — all built in and ready to use.
+
+### 🔴 Live Mission Control — Agent Swarm
+
+A real-time control room for autonomous work.
+
+- Watch every active agent update live
 - See tool calls and execution progress as they happen
 - Inspect per-agent status, summaries, and timing
 - Track the entire swarm from a global feed
-- Abort individual runs when something goes off course
+- Spawn unlimited subagents for parallel task execution
+- Abort individual runs the moment something goes wrong
 
-Most AI apps hide the work. Drodo makes it observable. That visibility is what makes autonomous agents usable by real people doing real tasks.
+Most AI tools hide the work. Drodo makes it fully visible.
 
-### ⚡ Built-in Workflow Automation (n8n)
+### 🔌 One-Click MCP Integrations
 
-Drodo does not stop at “here’s an answer.” It turns successful work into repeatable automation.
+Connect agents to the real world with structured, secure tool access — no configuration required:
 
-The built-in workflow builder lets you design multi-step workflows, choose models per step, pass outputs between steps, and run them sequentially with a live output panel. Once a workflow works, agents can hand that logic off into n8n-compatible JSON so it can run permanently and repeatedly.
+**Google Workspace · n8n-MCP · Supabase · GitHub · Filesystem · Brave Search · PostgreSQL · Slack · Puppeteer**
 
-You also get workflow definitions, saved runs, run history, and an Agent → n8n handoff flow that converts completed agent work into production-ready automation scaffolding.
+Or add any custom MCP server with a URL. Credentials are stored locally on your device and never sent to Drodo servers.
 
-### 🧠 AI Skills
+### 📱 Messaging Bot Integration
 
-Drodo’s AI skills inject powerful capabilities directly into agent conversations so agents can work with more than just text.
+Control your agents from anywhere. Connect Telegram, Slack, or Discord and route any incoming message through your active AI provider — with streamed responses delivered directly back to the same conversation. Your agents are accessible from your phone, your team workspace, or a Discord server.
 
-Included skills:
+### 📊 Analytics & Token Tracking
 
-- Web Search (Tavily)
-- Web Scraper
-- Persistent Memory
-- Code Execution
-- File Reader
-- Image Analysis
-- Voice Input
-- Email Integration
+Full visibility into your AI usage — total tokens, estimated cost, sessions, provider breakdown, and a 7-day usage chart. Know exactly what you're spending and where, across every provider and every session.
 
-These skills are designed to feel native. When enabled, they become part of the agent’s working environment, allowing agents to search, inspect, recall, execute, read, analyze, listen, and communicate without forcing users to stitch tools together manually.
+### 🌐 Model Agnostic — Every Provider, Your Keys
 
-### 📦 Skill Packages Marketplace
+Never locked to a single vendor. Never charged a subscription.
 
-Drodo includes a built-in skill packages marketplace so users can extend agents with curated capabilities from the open-source ecosystem.
+Connect any provider, use any model, switch anytime. Your API keys are stored locally on your device and never sent to Drodo servers.
 
-Current featured packages include:
-
-- Agent Orchestration Suite
-- Business Skills Library
-- Superpowers
-- Awesome Agent Skills
-- Awesome Claude Skills Directory
-- Claude Code Best Practices
-
-The marketplace also includes conflict detection. If a package overlaps heavily with something already installed, Drodo warns the user before proceeding. That extra guardrail is critical for non-technical users who want more power without accidentally creating duplicate or conflicting agent behavior.
-
-### 🔌 9 Featured MCP Integrations
-
-Drodo includes one-click featured MCP integrations for:
-
-- Google Workspace
-- n8n-MCP
-- Supabase
-- GitHub
-- Filesystem
-- Brave Search
-- PostgreSQL
-- Slack
-- Puppeteer
-
-These integrations give agents secure, structured access to external tools and data sources. In practice, that means agents can work with source code, cloud databases, browser sessions, files, search engines, automation nodes, and productivity platforms without leaving the app.
-
-### 💬 Messaging Bot Integration
-
-Drodo can connect to Telegram, Slack, and Discord so your agents are reachable far beyond the desktop app.
-
-Once connected, Drodo polls for incoming messages, routes them through the active AI provider, streams a response, and sends the answer back to the same chat. That means you can control your agents from anywhere in the world — from your phone, your team workspace, or a Discord server.
-
-### 🌐 Model Agnostic — Every Provider
-
-Drodo is built around BYOK: bring your own key.
-
-You are never locked to a single model vendor, subscription, or cloud. Connect the provider you want, use the model you trust, and switch whenever you need to. Out of the box, Drodo supports OpenAI, Anthropic, Google Gemini, NVIDIA NIM, OpenRouter, Mistral, Groq, Together AI, Fireworks AI, DeepSeek, Hugging Face, Ollama, LM Studio, and any custom base URL.
+**OpenAI · Anthropic · Google Gemini · NVIDIA NIM · OpenRouter · Mistral · Groq · Together AI · Fireworks AI · DeepSeek · Hugging Face · Ollama · LM Studio · Any custom OpenAI-compatible endpoint**
 
 ### ☁️ Cloud Sync
 
-Drodo includes optional Supabase authentication and cloud sync for users who want their data available across devices.
+Optional Supabase-backed sync for sessions, workflows, and your prompt library across devices. Works fully offline in guest mode. Your keys and data stay yours — nothing is routed through Drodo servers.
 
-Sessions, workflows, and prompt library data can be synced to the cloud while the core experience still works in guest mode. Sensitive key material is encrypted before storage, and the app is built with a privacy-first, local-first mindset: your providers stay yours, your keys stay yours, and your data is not routed through Drodo servers.
+---
 
 ## Getting Started
 
-### Installation (Windows)
-1. Download the installer below
-2. Run `Drodo_1.0.0_x64-setup.exe` (Windows) or mount the `.AppImage` (Linux)
-3. Follow the setup wizard
-4. Connect your first AI model
+### Installation
+
+1. Download the latest installer from the button above or from [Releases](https://github.com/Drodo44/Drodo.io/releases/latest)
+2. Run the installer and follow the guided setup wizard
+3. Drodo automatically installs Node.js, Git, and the n8n automation engine — no manual steps required
+4. Connect your first AI model with your own API key
 5. Deploy your first agent
 
-> **Note:** Windows may show a SmartScreen warning on first run. Click "More info" → "Run anyway". This is normal for new applications and will be resolved with code signing in a future release.
+> **Windows SmartScreen:** Windows may show a security prompt on first run. Click **"More info" → "Run anyway"**. This is expected for new applications and will be resolved with code signing, which is on the roadmap.
 
 ### System Requirements
-- Windows 10 or later (64-bit) or Linux (x86_64)
-- 4GB RAM minimum
+
+- Windows 10 or later (64-bit) · Linux x86_64
+- 4 GB RAM minimum (8 GB recommended for agent swarms)
 - Internet connection for AI model API calls
-- Node.js (optional — required for n8n automation engine)
+- ~2 GB disk space for the automation runtime (installed automatically to your chosen drive)
+
+---
 
 ## Tech Stack
 
@@ -188,60 +195,74 @@ Sessions, workflows, and prompt library data can be synced to the cloud while th
 | Frontend | React + TypeScript + Vite |
 | Styling | Tailwind CSS |
 | State Management | Zustand |
-| Backend/Auth | Supabase |
-| Automation Engine | n8n |
+| Backend / Auth | Supabase |
+| Automation Engine | n8n (bundled, auto-installed) |
 | AI Streaming | Custom multi-provider streaming engine |
 | UI Components | Radix UI + Lucide React |
 
+---
+
 ## Supported AI Providers
 
-| Provider | Example Model |
+| Provider | Example Models |
 |---|---|
-| NVIDIA NIM | `meta/llama-3.1-70b-instruct` |
-| OpenRouter | `openai/gpt-4o` |
-| Anthropic | `claude-sonnet-4-6` |
-| OpenAI | `gpt-4o` |
-| Google Gemini | `gemini-2.0-flash` |
-| Mistral | `mistral-large-latest` |
-| Groq | `llama-3.3-70b-versatile` |
-| Together AI | `meta-llama/Llama-3-8b-chat-hf` |
-| Fireworks AI | `accounts/fireworks/models/llama-v3-8b-instruct` |
-| DeepSeek | `deepseek-chat` |
-| Hugging Face | `HuggingFaceH4/zephyr-7b-beta` |
-| Ollama | `llama3.2` |
-| LM Studio | `local-model` |
-| Custom Endpoint | Any OpenAI-compatible model |
+| Anthropic | claude-sonnet-4-6, claude-opus-4-6 |
+| OpenAI | gpt-4o, o3 |
+| Google Gemini | gemini-2.0-flash, gemini-2.5-pro |
+| NVIDIA NIM | meta/llama-3.1-70b-instruct |
+| OpenRouter | Any model via openrouter.ai |
+| Mistral | mistral-large-latest |
+| Groq | llama-3.3-70b-versatile |
+| Together AI | meta-llama/Llama-3-8b-chat-hf |
+| Fireworks AI | llama-v3-8b-instruct |
+| DeepSeek | deepseek-chat |
+| Hugging Face | Any inference-compatible model |
+| Ollama | Any locally running model |
+| LM Studio | Any locally running model |
+| Custom Endpoint | Any OpenAI-compatible base URL |
+
+---
 
 ## Roadmap
 
-- [x] Automated cross-platform builds via CircleCI — Windows (.exe) and Linux (.AppImage) available now
+- [x] Automated cross-platform CI — Windows (.exe) and Linux (.AppImage) on every release
+- [x] Autonomous multi-agent swarm with live mission control
+- [x] 14,936 bundled n8n workflow templates
+- [x] 2,397 AI skills with automatic task matching
+- [x] 238 one-click expert agent templates
+- [x] 283 built-in prompts across every domain
+- [x] Automated runtime installation (Node, Git, n8n — zero manual setup)
+- [x] Messaging bot integration (Telegram, Slack, Discord)
+- [x] Analytics & token usage dashboard
+- [x] Cloud sync via Supabase
+- [x] One-click MCP server integrations
 - [ ] Code signing (removes Windows SmartScreen warning)
-- [ ] Pro tier with advanced features
+- [ ] macOS build
 - [ ] Mobile companion app
+- [ ] Pro tier with advanced features
 - [ ] More messaging platforms (WhatsApp, Google Chat, Teams)
-- [ ] Agent-to-agent memory sharing
-- [ ] Marketplace for user-created agent templates
+- [ ] Marketplace for user-created agent templates and skills
 
-## License
-
-This project is licensed under the Business Source License 1.1. Personal and non-commercial use is permitted. Commercial use requires written permission from the author. See LICENSE for details.
+---
 
 ## Download
 
 <div align="center">
 
-### Drodo v1.2.0
-
 | Platform | Download |
 |---|---|
-| 🪟 Windows (x64) | [Drodo_1.0.0_x64-setup.exe](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.8/Drodo_1.2.6_x64-setup.exe) |
-| 🐧 Linux (AppImage) | [Drodo_1.0.0_amd64.AppImage](https://github.com/Drodo44/Drodo.io/releases/download/v1.2.0/Drodo_1.0.0_amd64.AppImage) |
-| 🍎 macOS | Coming in a future release |
+| 🪟 Windows (x64) | [**⬇ Download Latest Installer**](https://github.com/Drodo44/Drodo.io/releases/latest) |
+| 🐧 Linux (AppImage) | [**⬇ Download Latest AppImage**](https://github.com/Drodo44/Drodo.io/releases/latest) |
+| 🍎 macOS | Coming soon |
 
-[View all releases →](https://github.com/Drodo44/Drodo.io/releases)
-[☕ Support Drodo](https://buymeacoffee.com/Drodo)
+[View all releases and release notes →](https://github.com/Drodo44/Drodo.io/releases)
+
+[☕ Support Drodo on Buy Me a Coffee](https://buymeacoffee.com/Drodo)
 
 </div>
 
-> macOS builds are planned for a future release. Windows and Linux builds are available now.
+---
 
+## License
+
+Licensed under the [Business Source License 1.1](LICENSE). Personal and non-commercial use is permitted. Commercial use requires written permission from the author.
