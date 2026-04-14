@@ -63,9 +63,13 @@ function writeCargoTomlVersion(nextVersion) {
   writeText(cargoTomlPath, nextCargoToml)
 }
 
+function detectLineEnding(value) {
+  return value.includes('\r\n') ? '\r\n' : '\n'
+}
+
 function readCargoLockVersion() {
   const cargoLock = readText(cargoLockPath)
-  const match = cargoLock.match(/\[\[package\]\]\nname = "tauri-app"\nversion = "([^"]+)"/)
+  const match = cargoLock.match(/\[\[package\]\]\r?\nname = "tauri-app"\r?\nversion = "([^"]+)"/)
   if (!match) {
     throw new Error(`Could not find tauri-app package version in ${cargoLockPath}`)
   }
@@ -74,9 +78,10 @@ function readCargoLockVersion() {
 
 function writeCargoLockVersion(nextVersion) {
   const cargoLock = readText(cargoLockPath)
+  const eol = detectLineEnding(cargoLock)
   const nextCargoLock = cargoLock.replace(
-    /\[\[package\]\]\nname = "tauri-app"\nversion = "[^"]+"/,
-    `[[package]]\nname = "tauri-app"\nversion = "${nextVersion}"`,
+    /\[\[package\]\]\r?\nname = "tauri-app"\r?\nversion = "[^"]+"/,
+    `[[package]]${eol}name = "tauri-app"${eol}version = "${nextVersion}"`,
   )
 
   if (nextCargoLock === cargoLock) {
