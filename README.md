@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="docs/screenshots/Drodo_Main_Logo.png" alt="Drodo" width="90" />
-
-# Drodo
+<img src="docs/screenshots/Drodo_Main_Logo.png" alt="Drodo" width="300" />
 
 ### The AI Agent Platform Built for Everyone
 
