@@ -38,6 +38,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Verify release version matches tag
+          shell: powershell.exe
+          command: node scripts/release-version.mjs verify
+      - run:
           name: Install Node.js
           shell: powershell.exe
           command: |
@@ -194,6 +198,9 @@ jobs:
     resource_class: large
     steps:
       - checkout
+      - run:
+          name: Verify release version matches tag
+          command: node scripts/release-version.mjs verify
       - run:
           name: Install system dependencies
           command: |
