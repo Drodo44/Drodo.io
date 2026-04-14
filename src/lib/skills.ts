@@ -1,12 +1,11 @@
-import skillsIndexData from '../data/skills/skills-index.json'
-import skillsContentData from '../data/skills/skills-content.json'
-import skillCategoriesData from '../data/skills/skill-categories.json'
-import skillsByDomainData from '../data/skills/skills-by-domain.json'
+import { fetchCatalogJson, fetchCatalogText } from './catalogAssets'
 import type { Skill } from '../types'
 
-type SkillIndexRecord = Omit<Skill, 'content'>
+type SkillIndexRecord = Omit<Skill, 'content'> & {
+  contentFile: string
+}
 
-type RankedSkill = Skill & {
+type RankedSkill = SkillIndexRecord & {
   searchText: string
   tokenSet: Set<string>
   tagSet: Set<string>
@@ -22,10 +21,11 @@ type SkillCategorySummary = {
   source_repositories: Array<{ repo: string; stars: number; explicit_target: boolean; included_skills: number }>
 }
 
-const SKILLS_INDEX = skillsIndexData as SkillIndexRecord[]
-const SKILLS_CONTENT = skillsContentData as Record<string, string>
-const SKILLS_BY_DOMAIN = skillsByDomainData as Record<string, SkillIndexRecord[]>
-const SKILL_CATEGORIES = skillCategoriesData as SkillCategorySummary
+type SkillsCatalog = {
+  index: SkillIndexRecord[]
+  ranked: RankedSkill[]
+  categories: SkillCategorySummary
+}
 
 const DOMAIN_KEYWORDS: Record<string, string[]> = {
   coding: ['code', 'coding', 'implement', 'debug', 'fix', 'test', 'refactor', 'frontend', 'backend', 'typescript', 'javascript', 'python', 'react', 'api'],
@@ -63,103 +63,42 @@ const STOP_WORDS = new Set([
   'skill',
 ])
 
-const SKILLS: RankedSkill[] = SKILLS_INDEX.map(skill => {
-  const content = SKILLS_CONTENT[skill.id] ?? ''
-  const searchText = `${skill.name}\n${skill.description}\n${skill.tags.join(' ')}\n${skill.capability_domains.join(' ')}\n${content.slice(0, 2400)}`
-  return {
-    ...skill,
-    content,
-    searchText,
-    tokenSet: new Set(tokenize(searchText)),
-    tagSet: new Set(skill.tags.map(tag => tag.toLowerCase())),
-    domainSet: new Set(skill.capability_domains.map(domain => domain.toLowerCase())),
+let catalogPromise: Promise<SkillsCatalog> | null = null
+let catalogSnapshot: SkillsCatalog | null = null
+const skillContentCache = new Map<string, Promise<string>>()
+
+function tokenize(value: string): string[] {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(token => token.length > 2 && !STOP_WORDS.has(token))
+}
+
+function countPhraseMatches(task: string, searchText: string): number {
+  if (!task) return 0
+
+  const phrases = [
+    ...task.matchAll(/\b[a-z0-9]+\s+[a-z0-9]+\b/g),
+  ].map(match => match[0]).filter(phrase => phrase.length > 6)
+
+  let matches = 0
+  for (const phrase of phrases.slice(0, 12)) {
+    if (searchText.includes(phrase)) matches += 1
   }
-})
-
-export function getSkillsForTask(task: string): string {
-  const normalizedTask = task.trim()
-  const inferredDomains = inferDomains(normalizedTask)
-  const taskTokens = tokenize(normalizedTask)
-  const taskTokenSet = new Set(taskTokens)
-
-  const ranked = SKILLS
-    .map(skill => ({ skill, score: scoreSkill(skill, normalizedTask, taskTokenSet, inferredDomains) }))
-    .filter(entry => entry.score > 0)
-    .sort((left, right) => right.score - left.score)
-
-  const selected = ranked.slice(0, ranked.length > 0 ? 12 : 10).map(entry => entry.skill)
-  const fallback = selected.length > 0
-    ? selected
-    : SKILLS
-      .filter(skill => skill.capability_domains.includes('general') || skill.priority >= 9)
-      .slice(0, 10)
-
-  const skillsBlock = fallback
-    .slice(0, 15)
-    .map(skill => `### ${skill.name}\n${skill.content.trim()}`)
-    .join('\n\n')
-
-  return skillsBlock ? `## Available Skills\n\n${skillsBlock}` : ''
+  return matches
 }
 
-export function getAllSkillCategories(): string[] {
-  return SKILL_CATEGORIES.categories.map(category => category.name)
-}
+function inferDomains(task: string): Set<string> {
+  const lowerTask = task.toLowerCase()
+  const domains = new Set<string>()
 
-export function getAllSkills(): Skill[] {
-  return SKILLS.map(skill => ({
-    id: skill.id,
-    name: skill.name,
-    description: skill.description,
-    category: skill.category,
-    tags: skill.tags,
-    source_repo: skill.source_repo,
-    capability_domains: skill.capability_domains,
-    priority: skill.priority,
-    content: skill.content,
-  }))
-}
+  for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
+    const hits = keywords.filter(keyword => lowerTask.includes(keyword)).length
+    if (hits > 0) domains.add(domain)
+  }
 
-export function getSkillsByDomain(domain: string): Skill[] {
-  const normalizedDomain = domain.toLowerCase()
-  const entries = SKILLS_BY_DOMAIN[normalizedDomain] ?? []
-  return entries.map(entry => ({
-    ...entry,
-    content: SKILLS_CONTENT[entry.id] ?? '',
-  }))
-}
-
-export function getSkillCount(): number {
-  return SKILLS_INDEX.length
-}
-
-export function getAllSkillDomains(): string[] {
-  return Object.entries(SKILL_CATEGORIES.capability_domains)
-    .filter(([, count]) => count > 0)
-    .map(([domain]) => domain)
-}
-
-export function getTopSkillCategories(limit = 5): Array<{ name: string; count: number }> {
-  return SKILL_CATEGORIES.categories.slice(0, limit)
-}
-
-export function getSkillCatalogSummary(): string {
-  const categorySummary = getTopSkillCategories(6)
-    .map(item => `${item.name} (${item.count})`)
-    .join(', ')
-
-  const domainSummary = Object.entries(SKILL_CATEGORIES.capability_domains)
-    .filter(([, count]) => count > 0)
-    .sort((left, right) => right[1] - left[1])
-    .slice(0, 8)
-    .map(([domain, count]) => `${domain} (${count})`)
-    .join(', ')
-
-  return [
-    `Total bundled skills: ${getSkillCount()}`,
-    `Top categories: ${categorySummary}`,
-    `Capability domains: ${domainSummary}`,
-  ].join('\n')
+  if (domains.size === 0) domains.add('general')
+  return domains
 }
 
 function scoreSkill(
@@ -190,36 +129,157 @@ function scoreSkill(
   return score
 }
 
-function inferDomains(task: string): Set<string> {
-  const lowerTask = task.toLowerCase()
-  const domains = new Set<string>()
+function buildCatalog(index: SkillIndexRecord[], categories: SkillCategorySummary): SkillsCatalog {
+  const ranked = index.map(skill => {
+    const searchText = [
+      skill.name,
+      skill.description,
+      skill.tags.join(' '),
+      skill.capability_domains.join(' '),
+    ].join('\n')
 
-  for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
-    const hits = keywords.filter(keyword => lowerTask.includes(keyword)).length
-    if (hits > 0) domains.add(domain)
-  }
+    return {
+      ...skill,
+      searchText,
+      tokenSet: new Set(tokenize(searchText)),
+      tagSet: new Set(skill.tags.map(tag => tag.toLowerCase())),
+      domainSet: new Set(skill.capability_domains.map(domain => domain.toLowerCase())),
+    }
+  })
 
-  if (domains.size === 0) domains.add('general')
-  return domains
+  return { index, ranked, categories }
 }
 
-function countPhraseMatches(task: string, searchText: string): number {
-  if (!task) return 0
-
-  const phrases = [
-    ...task.matchAll(/\b[a-z0-9]+\s+[a-z0-9]+\b/g),
-  ].map(match => match[0]).filter(phrase => phrase.length > 6)
-
-  let matches = 0
-  for (const phrase of phrases.slice(0, 12)) {
-    if (searchText.includes(phrase)) matches += 1
+function getCatalog(): SkillsCatalog {
+  return catalogSnapshot ?? {
+    index: [],
+    ranked: [],
+    categories: {
+      generated_at: '',
+      total_skills: 0,
+      categories: [],
+      capability_domains: {},
+      top_tags: [],
+      source_repositories: [],
+    },
   }
-  return matches
 }
 
-function tokenize(value: string): string[] {
-  return value
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(token => token.length > 2 && !STOP_WORDS.has(token))
+async function loadSkillContent(skill: SkillIndexRecord): Promise<string> {
+  if (!skillContentCache.has(skill.id)) {
+    skillContentCache.set(skill.id, fetchCatalogText(`skills/${skill.contentFile}`))
+  }
+
+  try {
+    return await (skillContentCache.get(skill.id) as Promise<string>)
+  } catch {
+    return ''
+  }
+}
+
+export async function ensureSkillsCatalogLoaded(): Promise<void> {
+  if (!catalogPromise) {
+    catalogPromise = (async () => {
+      const [index, categories] = await Promise.all([
+        fetchCatalogJson<SkillIndexRecord[]>('skills/skills-index.json'),
+        fetchCatalogJson<SkillCategorySummary>('skills/skill-categories.json'),
+      ])
+
+      const catalog = buildCatalog(index, categories)
+      catalogSnapshot = catalog
+      return catalog
+    })()
+  }
+
+  await catalogPromise
+}
+
+export async function getSkillsForTask(task: string): Promise<string> {
+  await ensureSkillsCatalogLoaded()
+
+  const normalizedTask = task.trim()
+  const inferredDomains = inferDomains(normalizedTask)
+  const taskTokens = tokenize(normalizedTask)
+  const taskTokenSet = new Set(taskTokens)
+  const { ranked } = getCatalog()
+
+  const scored = ranked
+    .map(skill => ({ skill, score: scoreSkill(skill, normalizedTask, taskTokenSet, inferredDomains) }))
+    .filter(entry => entry.score > 0)
+    .sort((left, right) => right.score - left.score)
+
+  const selected = scored.slice(0, scored.length > 0 ? 12 : 10).map(entry => entry.skill)
+  const fallback = selected.length > 0
+    ? selected
+    : ranked
+      .filter(skill => skill.capability_domains.includes('general') || skill.priority >= 9)
+      .slice(0, 10)
+
+  const skillsWithContent = await Promise.all(
+    fallback.slice(0, 15).map(async skill => ({
+      skill,
+      content: await loadSkillContent(skill),
+    }))
+  )
+
+  const skillsBlock = skillsWithContent
+    .filter(entry => entry.content.trim().length > 0)
+    .map(entry => `### ${entry.skill.name}\n${entry.content.trim()}`)
+    .join('\n\n')
+
+  return skillsBlock ? `## Available Skills\n\n${skillsBlock}` : ''
+}
+
+export function getAllSkillCategories(): string[] {
+  return getCatalog().categories.categories.map(category => category.name)
+}
+
+export function getAllSkills(): Skill[] {
+  return getCatalog().index.map(skill => ({
+    ...skill,
+    content: '',
+  }))
+}
+
+export function getSkillsByDomain(domain: string): Skill[] {
+  const normalizedDomain = domain.toLowerCase()
+  return getCatalog().index
+    .filter(skill => skill.capability_domains.some(entry => entry.toLowerCase() === normalizedDomain))
+    .map(skill => ({
+      ...skill,
+      content: '',
+    }))
+}
+
+export function getSkillCount(): number {
+  return getCatalog().index.length
+}
+
+export function getAllSkillDomains(): string[] {
+  return Object.entries(getCatalog().categories.capability_domains)
+    .filter(([, count]) => count > 0)
+    .map(([domain]) => domain)
+}
+
+export function getTopSkillCategories(limit = 5): Array<{ name: string; count: number }> {
+  return getCatalog().categories.categories.slice(0, limit)
+}
+
+export function getSkillCatalogSummary(): string {
+  const categorySummary = getTopSkillCategories(6)
+    .map(item => `${item.name} (${item.count})`)
+    .join(', ')
+
+  const domainSummary = Object.entries(getCatalog().categories.capability_domains)
+    .filter(([, count]) => count > 0)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 8)
+    .map(([domain, count]) => `${domain} (${count})`)
+    .join(', ')
+
+  return [
+    `Total bundled skills: ${getSkillCount()}`,
+    `Top categories: ${categorySummary}`,
+    `Capability domains: ${domainSummary}`,
+  ].join('\n')
 }

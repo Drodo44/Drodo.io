@@ -4,7 +4,9 @@
   "version": "1.2.32",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-frontend-catalog-assets.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/prepare-frontend-catalog-assets.mjs",
     "build": "tsc && vite build",
     "prepare:windows-runtime": "node scripts/prepare-windows-automation-runtime.mjs",
     "prepare:linux-runtime": "node scripts/prepare-linux-automation-runtime.mjs",

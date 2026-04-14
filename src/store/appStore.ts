@@ -32,8 +32,8 @@ import {
 } from '../lib/dashboardData'
 import { buildOrchestrationPlan, runOrchestration } from '../lib/orchestrator'
 import { AGENT_TEMPLATE_NAMES } from '../lib/agentTemplates'
-import { getSkillsForTask } from '../lib/skills'
-import { findWorkflowForTask } from '../lib/workflows'
+import { ensureSkillsCatalogLoaded, getSkillsForTask } from '../lib/skills'
+import { ensureWorkflowCatalogLoaded, findWorkflowForTask } from '../lib/workflows'
 import {
   compressMemory,
   injectMemoryContext,
@@ -311,7 +311,8 @@ function pushSwarmFeed(
   return [...feed, next].slice(-3000)
 }
 
-function buildWorkflowHint(task: string): string {
+async function buildWorkflowHint(task: string): Promise<string> {
+  await ensureWorkflowCatalogLoaded()
   const workflowMatch = findWorkflowForTask(task)
   if (!workflowMatch || workflowMatch.confidence <= 0.7) return ''
 
@@ -324,10 +325,11 @@ function buildWorkflowHint(task: string): string {
   ].join('\n')
 }
 
-function buildAgentSystemPrompt(task: string, basePrompt: string): string {
+async function buildAgentSystemPrompt(task: string, basePrompt: string): Promise<string> {
+  await ensureSkillsCatalogLoaded()
   const memoryPrompt = injectMemoryContext(task)
-  const skillPrompt = getSkillsForTask(task)
-  const workflowPrompt = buildWorkflowHint(task)
+  const skillPrompt = await getSkillsForTask(task)
+  const workflowPrompt = await buildWorkflowHint(task)
 
   return [memoryPrompt, skillPrompt, basePrompt, workflowPrompt]
     .filter(section => section.trim().length > 0)
@@ -645,15 +647,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const basePlan = await buildOrchestrationPlan(task, provider, AGENT_TEMPLATE_NAMES, templateDetails, savedModels)
       const plan = {
         ...basePlan,
-        agents: basePlan.agents.map(step => {
+        agents: await Promise.all(basePlan.agents.map(async step => {
           const baseSystemPrompt = step.systemPrompt?.trim()
             || `You are a ${step.templateName}. ${step.templateTask}. Focus only on your specific assigned task and produce high quality output.`
-          const injectedPrompt = buildAgentSystemPrompt(step.specificTask, baseSystemPrompt)
+          const injectedPrompt = await buildAgentSystemPrompt(step.specificTask, baseSystemPrompt)
           return {
             ...step,
             systemPrompt: injectedPrompt,
           }
-        }),
+        })),
       }
 
       appendSessionMessage(`Starting multi-agent task: ${plan.taskSummary || task}. Agents are running — check the Agent Swarm tab for live progress.`)
@@ -1215,7 +1217,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const selectedProvider = selectProvider(providerId, state.activeProvider, agentCounter)
     const fallbackProvider = model ? { ...selectedProvider, model } : selectedProvider
     const provider = routeModelForTask(agentTask, fallbackProvider)
-    const resolvedSystemPrompt = buildAgentSystemPrompt(
+    const resolvedSystemPrompt = await buildAgentSystemPrompt(
       agentTask,
       systemPrompt ?? 'You are a Drodo swarm worker. Focus only on the assigned subtask.',
     )

@@ -9,6 +9,7 @@ export default defineConfig(async () => ({
   clearScreen: false,
   assetsInclude: ['**/*.ndjson'],
   build: {
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         manualChunks(id) {

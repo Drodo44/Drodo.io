@@ -2,9 +2,14 @@ import type { Message, OrchestrationPlan, OrchestrationRun, OrchestrationStep, P
 import { completeText, streamCompletion } from './streamChat'
 import { injectSkills } from './skillsInjector'
 import { getAppSettings } from './appSettings'
-import { getAllSkillCategories, getAllSkillDomains, getSkillCatalogSummary } from './skills'
+import {
+  ensureSkillsCatalogLoaded,
+  getAllSkillCategories,
+  getAllSkillDomains,
+  getSkillCatalogSummary,
+} from './skills'
 import { getToolCatalogPrompt } from './toolExecutor'
-import { findWorkflowForTask } from './workflows'
+import { ensureWorkflowCatalogLoaded, findWorkflowForTask } from './workflows'
 
 function msg(role: Message['role'], content: string): Message {
   return {
@@ -67,6 +72,11 @@ export async function buildOrchestrationPlan(
   templateDetails?: Array<{ name: string; category: string; systemPrompt?: string }>,
   savedModels?: string[],
 ): Promise<OrchestrationPlan> {
+  await Promise.all([
+    ensureSkillsCatalogLoaded(),
+    ensureWorkflowCatalogLoaded(),
+  ])
+
   const model = provider.model ?? 'claude-sonnet-4-6'
   const matchedWorkflow = findWorkflowForTask(task)
   const workflowHintSection = matchedWorkflow && matchedWorkflow.confidence > 0.7

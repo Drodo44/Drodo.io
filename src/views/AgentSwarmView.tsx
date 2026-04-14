@@ -7,7 +7,12 @@ import { getMemoryStats, onMemoryStatsChange, type MemoryStats } from '../lib/ag
 import { notify } from '../lib/notifications'
 import { getAllSavedModels } from '../lib/providerApi'
 import { streamCompletion } from '../lib/streamChat'
-import { findWorkflowForTask, getWorkflowTemplate, type WorkflowMatch } from '../lib/workflows'
+import {
+  ensureWorkflowCatalogLoaded,
+  findWorkflowForTask,
+  getWorkflowTemplate,
+  type WorkflowMatch,
+} from '../lib/workflows'
 import type { AgentInstance, OrchestrationRun, SwarmFeedEntry } from '../types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -686,9 +691,10 @@ export function AgentSwarmView() {
     setSpawnModalOpen(true)
   }
 
-  const openWorkflowModal = useCallback((agent: AgentInstance) => {
+  const openWorkflowModal = useCallback(async (agent: AgentInstance) => {
+    await ensureWorkflowCatalogLoaded()
     const matchedWorkflow = findWorkflowForTask(agent.task)
-    const template = matchedWorkflow ? getWorkflowTemplate(matchedWorkflow.workflow.id) : null
+    const template = matchedWorkflow ? await getWorkflowTemplate(matchedWorkflow.workflow.id) : null
 
     setGeneratedWorkflowJson('')
     setWorkflowGenerationError(null)
@@ -896,7 +902,7 @@ export function AgentSwarmView() {
                   key={agent.id}
                   agent={agent}
                   onStop={agent.status === 'running' ? () => stopAgentStore(agent.id) : undefined}
-                  onBuildWorkflow={agent.status === 'complete' ? () => openWorkflowModal(agent) : undefined}
+                  onBuildWorkflow={agent.status === 'complete' ? () => { void openWorkflowModal(agent) } : undefined}
                 />
               ))}
             </div>

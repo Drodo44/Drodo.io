@@ -26,7 +26,14 @@ import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
 import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
-import { getWorkflowCategories, getWorkflowCount, getWorkflowTemplate, searchWorkflows, type WorkflowIndex } from '../lib/workflows'
+import {
+  ensureWorkflowCatalogLoaded,
+  getWorkflowCategories,
+  getWorkflowCount,
+  getWorkflowTemplate,
+  searchWorkflows,
+  type WorkflowIndex,
+} from '../lib/workflows'
 import { useAppStore } from '../store/appStore'
 import type { Message, Provider } from '../types'
 
@@ -451,6 +458,7 @@ export function WorkflowsView() {
   const [templateImportStatus, setTemplateImportStatus] = useState<string | null>(null)
   const [n8nLaunchError, setN8nLaunchError] = useState<string | null>(null)
   const [templatePage, setTemplatePage] = useState(0)
+  const [templateCatalogReady, setTemplateCatalogReady] = useState(false)
   const TEMPLATES_PER_PAGE = 50
   const activeStreamRef = useRef<{ abort: () => void } | null>(null)
   const pendingStepAbortResolverRef = useRef<(() => void) | null>(null)
@@ -467,6 +475,20 @@ export function WorkflowsView() {
     setDraft(storedWorkflows[0] ? cloneWorkflow(storedWorkflows[0]) : null)
     setLoading(false)
   }, [initialProviderId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void ensureWorkflowCatalogLoaded().then(() => {
+      if (!cancelled) {
+        setTemplateCatalogReady(true)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     setTemplatePage(0)
@@ -808,9 +830,15 @@ export function WorkflowsView() {
   const selectedWorkflow = workflows.find(workflow => workflow.id === selectedId) ?? null
   const combinedOutput = buildRunOutput(stepRuns)
   const showOutputPanel = workflowRunning || stepRuns.length > 0
-  const allTemplates = useMemo(() => searchWorkflows(''), [])
-  const templateCategories = useMemo(() => ['All', ...getWorkflowCategories()], [])
-  const searchedTemplates = useMemo(() => searchWorkflows(templateQuery), [templateQuery])
+  const allTemplates = useMemo(() => templateCatalogReady ? searchWorkflows('') : [], [templateCatalogReady])
+  const templateCategories = useMemo(
+    () => templateCatalogReady ? ['All', ...getWorkflowCategories()] : ['All'],
+    [templateCatalogReady]
+  )
+  const searchedTemplates = useMemo(
+    () => templateCatalogReady ? searchWorkflows(templateQuery) : [],
+    [templateCatalogReady, templateQuery]
+  )
   const filteredTemplates = useMemo(() => {
     if (activeTemplateCategory === 'All') {
       return searchedTemplates
@@ -843,8 +871,8 @@ export function WorkflowsView() {
     throw new Error('n8n is still starting. Wait a moment and try again. If this persists, reinstall Drodo or check whether port 5678 is available.')
   }
 
-  const openTemplate = (template: WorkflowIndex) => {
-    const templateJson = getWorkflowTemplate(template.id)
+  const openTemplate = async (template: WorkflowIndex) => {
+    const templateJson = await getWorkflowTemplate(template.id)
     if (!templateJson) {
       setTemplateImportStatus('Template JSON could not be loaded.')
       return
@@ -1237,7 +1265,7 @@ export function WorkflowsView() {
                                   ))}
                                 </div>
                                 <button
-                                  onClick={() => openTemplate(template)}
+                                  onClick={() => { void openTemplate(template) }}
                                   className="mt-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white"
                                   style={{ background: '#7f77dd' }}
                                 >

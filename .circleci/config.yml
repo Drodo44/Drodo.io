@@ -191,7 +191,7 @@ jobs:
     environment:
       DEBIAN_FRONTEND: noninteractive
       NODE_OPTIONS: --max-old-space-size=8192
-    resource_class: medium
+    resource_class: large
     steps:
       - checkout
       - run:

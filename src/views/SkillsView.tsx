@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import {
   Puzzle, CheckCircle2, Circle, X, Key, Check, Search, Plug,
@@ -8,7 +8,13 @@ import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
 import type { Connector, ConnectorCategory, Skill } from '../types'
 import { loadConnectorKeys, removeConnectorKey, saveConnectorKey } from '../lib/connectorKeys'
-import { getAllSkillCategories, getAllSkills, getSkillCount, getTopSkillCategories } from '../lib/skills'
+import {
+  ensureSkillsCatalogLoaded,
+  getAllSkillCategories,
+  getAllSkills,
+  getSkillCount,
+  getTopSkillCategories,
+} from '../lib/skills'
 
 const CATEGORY_ORDER: ConnectorCategory[] = [
   'Social Media',
@@ -271,11 +277,28 @@ export function SkillsView() {
   const [activeTab, setActiveTab] = useState<SkillsTab>('skills')
   const [activeSkillCategory, setActiveSkillCategory] = useState('All')
   const [skillSearch, setSkillSearch] = useState('')
+  const [skillsReady, setSkillsReady] = useState(false)
+  const [allSkills, setAllSkills] = useState<Skill[]>([])
+  const [topCategories, setTopCategories] = useState<Array<{ name: string; count: number }>>([])
+  const [skillCategories, setSkillCategories] = useState<string[]>(['All'])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void ensureSkillsCatalogLoaded().then(() => {
+      if (cancelled) return
+      setAllSkills(getAllSkills())
+      setTopCategories(getTopSkillCategories(5))
+      setSkillCategories(['All', ...getAllSkillCategories()])
+      setSkillsReady(true)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const skillCount = getSkillCount()
-  const allSkills = useMemo(() => getAllSkills(), [])
-  const topCategories = useMemo(() => getTopSkillCategories(5), [])
-  const skillCategories = useMemo(() => ['All', ...getAllSkillCategories()], [])
   const connectedCount = connectors.filter(c => c.isConnected).length
 
   const filteredSkills = useMemo(() => {
@@ -337,6 +360,17 @@ export function SkillsView() {
 
       {activeTab === 'skills' ? (
         <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6">
+          {!skillsReady ? (
+            <section className="flex flex-1 items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-10 text-center">
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Loading skills catalog…</h2>
+                <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                  Preparing the bundled skills library for search and browsing.
+                </p>
+              </div>
+            </section>
+          ) : (
+            <>
           <section className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
             <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Skill Library</div>
@@ -408,6 +442,8 @@ export function SkillsView() {
               ))}
             </div>
           </section>
+            </>
+          )}
         </div>
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">

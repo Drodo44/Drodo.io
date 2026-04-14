@@ -1,5 +1,4 @@
-import workflowsIndexData from '../data/workflows/workflows-index.json'
-import workflowsByCategoryData from '../data/workflows/workflows-by-category.json'
+import { fetchCatalogJson } from './catalogAssets'
 
 export interface WorkflowIndex {
   id: string
@@ -27,56 +26,15 @@ type RankedWorkflow = WorkflowIndex & {
   keywordPhrases: string[]
 }
 
-const WORKFLOW_INDEX = workflowsIndexData as WorkflowIndex[]
-const WORKFLOWS_BY_CATEGORY = workflowsByCategoryData as Record<string, WorkflowIndex[]>
-
-const TEMPLATE_URLS = import.meta.glob('../data/workflows/workflow-templates/*.json', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-}) as Record<string, string>
-
-const TEMPLATE_URL_BY_ID = new Map<string, string>(
-  Object.entries(TEMPLATE_URLS).map(([modulePath, assetUrl]) => {
-    const segments = modulePath.split('/')
-    const fileName = segments[segments.length - 1] ?? ''
-    const id = fileName.replace(/\.json$/i, '')
-    return [id, assetUrl]
-  }),
-)
-
-const TEMPLATE_CACHE = new Map<string, object>()
 const STOP_WORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'build', 'by', 'for', 'from', 'how', 'in', 'into',
   'is', 'it', 'of', 'on', 'or', 'that', 'the', 'this', 'to', 'use', 'using', 'with', 'your',
 ])
 
-const RANKED_WORKFLOWS: RankedWorkflow[] = WORKFLOW_INDEX.map(workflow => {
-  const tokenSet = new Set(tokenize([
-    workflow.name,
-    workflow.description,
-    workflow.category,
-    workflow.tags.join(' '),
-    workflow.task_keywords.join(' '),
-    workflow.required_services.join(' '),
-  ].join(' ')))
-
-  return {
-    ...workflow,
-    searchText: normalizeText([
-      workflow.name,
-      workflow.description,
-      workflow.category,
-      workflow.tags.join(' '),
-      workflow.task_keywords.join(' '),
-      workflow.required_services.join(' '),
-    ].join(' ')),
-    tokenSet,
-    tagSet: new Set(workflow.tags.map(normalizeText).filter(Boolean)),
-    serviceSet: new Set(workflow.required_services.map(normalizeText).filter(Boolean)),
-    keywordPhrases: workflow.task_keywords.map(normalizeText).filter(Boolean),
-  }
-})
+let workflowCatalogPromise: Promise<WorkflowIndex[]> | null = null
+let workflowIndexSnapshot: WorkflowIndex[] = []
+let rankedWorkflowsSnapshot: RankedWorkflow[] = []
+const templateCache = new Map<string, Promise<object | null>>()
 
 function normalizeText(value: string): string {
   return value
@@ -144,40 +102,66 @@ function scoreWorkflow(query: string, workflow: RankedWorkflow): number {
   return Number(score.toFixed(4))
 }
 
-function getTemplateAssetUrl(id: string): string | null {
-  return TEMPLATE_URL_BY_ID.get(id) ?? null
+function buildRankedWorkflows(index: WorkflowIndex[]): RankedWorkflow[] {
+  return index.map(workflow => {
+    const tokenSet = new Set(tokenize([
+      workflow.name,
+      workflow.description,
+      workflow.category,
+      workflow.tags.join(' '),
+      workflow.task_keywords.join(' '),
+      workflow.required_services.join(' '),
+    ].join(' ')))
+
+    return {
+      ...workflow,
+      searchText: normalizeText([
+        workflow.name,
+        workflow.description,
+        workflow.category,
+        workflow.tags.join(' '),
+        workflow.task_keywords.join(' '),
+        workflow.required_services.join(' '),
+      ].join(' ')),
+      tokenSet,
+      tagSet: new Set(workflow.tags.map(normalizeText).filter(Boolean)),
+      serviceSet: new Set(workflow.required_services.map(normalizeText).filter(Boolean)),
+      keywordPhrases: workflow.task_keywords.map(normalizeText).filter(Boolean),
+    }
+  })
 }
 
-function loadTemplateRecord(id: string): Record<string, unknown> | null {
-  const cached = TEMPLATE_CACHE.get(id)
-  if (cached) {
-    return cached as Record<string, unknown>
-  }
+function getWorkflowIndex(): WorkflowIndex[] {
+  return workflowIndexSnapshot
+}
 
-  const assetUrl = getTemplateAssetUrl(id)
-  if (!assetUrl || typeof XMLHttpRequest === 'undefined') {
+function getRankedWorkflows(): RankedWorkflow[] {
+  return rankedWorkflowsSnapshot
+}
+
+function getTemplatePath(id: string): string | null {
+  const workflow = getWorkflowIndex().find(entry => entry.id === id)
+  if (!workflow) {
     return null
   }
+  return `workflows/${workflow.file}`
+}
 
-  try {
-    const request = new XMLHttpRequest()
-    request.open('GET', assetUrl, false)
-    request.send(null)
-
-    if (request.status < 200 || request.status >= 300 || !request.responseText) {
-      return null
-    }
-
-    const parsed = JSON.parse(request.responseText) as Record<string, unknown>
-    TEMPLATE_CACHE.set(id, parsed)
-    return parsed
-  } catch {
-    return null
+export async function ensureWorkflowCatalogLoaded(): Promise<void> {
+  if (!workflowCatalogPromise) {
+    workflowCatalogPromise = (async () => {
+      const index = await fetchCatalogJson<WorkflowIndex[]>('workflows/workflows-index.json')
+      workflowIndexSnapshot = index
+      rankedWorkflowsSnapshot = buildRankedWorkflows(index)
+      return index
+    })()
   }
+
+  await workflowCatalogPromise
 }
 
 export function findWorkflowForTask(task: string): WorkflowMatch | null {
-  const ranked = RANKED_WORKFLOWS
+  const ranked = getRankedWorkflows()
     .map(workflow => ({
       workflow,
       confidence: scoreWorkflow(task, workflow),
@@ -197,30 +181,44 @@ export function findWorkflowForTask(task: string): WorkflowMatch | null {
   }
 }
 
-export function getWorkflowTemplate(id: string): object | null {
-  const templateRecord = loadTemplateRecord(id)
-  if (!templateRecord) {
+export async function getWorkflowTemplate(id: string): Promise<object | null> {
+  const templatePath = getTemplatePath(id)
+  if (!templatePath) {
     return null
   }
 
-  return (templateRecord.workflow as object | undefined) ?? templateRecord
+  if (!templateCache.has(id)) {
+    templateCache.set(id, fetchCatalogJson<object>(templatePath).then(record => {
+      if (
+        record &&
+        typeof record === 'object' &&
+        'workflow' in record &&
+        (record as { workflow?: object }).workflow
+      ) {
+        return (record as { workflow: object }).workflow
+      }
+      return record
+    }).catch(() => null))
+  }
+
+  return templateCache.get(id) as Promise<object | null>
 }
 
 export function getWorkflowCategories(): string[] {
-  return Object.keys(WORKFLOWS_BY_CATEGORY).sort((left, right) => left.localeCompare(right))
+  return [...new Set(getWorkflowIndex().map(workflow => workflow.category))].sort((left, right) => left.localeCompare(right))
 }
 
 export function getWorkflowCount(): number {
-  return WORKFLOW_INDEX.length
+  return getWorkflowIndex().length
 }
 
 export function searchWorkflows(query: string): WorkflowIndex[] {
   const trimmedQuery = query.trim()
   if (!trimmedQuery) {
-    return WORKFLOW_INDEX.slice()
+    return getWorkflowIndex().slice()
   }
 
-  return RANKED_WORKFLOWS
+  return getRankedWorkflows()
     .map(workflow => ({
       workflow,
       score: scoreWorkflow(trimmedQuery, workflow),

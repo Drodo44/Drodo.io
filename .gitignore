@@ -13,6 +13,7 @@ dist-ssr
 *.local
 /.cache/automation-runtime/
 /artifacts/runtime/
+/public/catalog/
 /src-tauri/gen/automation-runtime/
 /src-tauri/gen/windows-automation-runtime.zip
 /.automation/
