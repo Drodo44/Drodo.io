@@ -15,6 +15,7 @@ use std::os::windows::process::CommandExt;
 
 const N8N_PORT: u16 = 5678;
 const N8N_URL: &str = "http://localhost:5678";
+const N8N_READY_URL: &str = "http://127.0.0.1:5678/healthz/readiness";
 
 #[cfg(target_os = "windows")]
 const DETACHED_PROCESS: u32 = 0x0000_0008;
@@ -60,8 +61,9 @@ fn probe_n8n_running() -> bool {
     reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(2))
         .build()
-        .and_then(|client| client.head(N8N_URL).send())
-        .is_ok()
+        .and_then(|client| client.get(N8N_READY_URL).send())
+        .map(|response| response.status().is_success())
+        .unwrap_or(false)
 }
 
 fn build_n8n_status(running: bool) -> serde_json::Value {
@@ -98,20 +100,51 @@ fn resolve_dependency_script_path(app: &tauri::AppHandle) -> Result<PathBuf, Str
         .ok_or_else(|| format!("Unable to locate the dependency bootstrap script: {file_name}"))
 }
 
+fn repo_root() -> Result<PathBuf, String> {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve the repository root.".to_string())
+}
+
+fn resolve_windows_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        if let Some(parent) = resource_dir.parent() {
+            return Ok(parent.join("automation"));
+        }
+    }
+
+    Ok(repo_root()?.join(".automation").join("windows"))
+}
+
+#[cfg(not(target_os = "windows"))]
+fn resolve_linux_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        return Ok(app_data_dir.join("automation"));
+    }
+
+    Ok(repo_root()?.join(".automation").join("linux"))
+}
+
 fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     let script_path = resolve_dependency_script_path(app)?;
 
     #[cfg(target_os = "windows")]
     {
+        let automation_home = resolve_windows_automation_home(app)?;
+        let app_version = app.package_info().version.to_string();
         let mut command = Command::new("powershell");
         command
             .args([
                 "-NoProfile",
+                "-NonInteractive",
                 "-ExecutionPolicy",
                 "Bypass",
                 "-File",
                 &stringify_path(&script_path),
             ])
+            .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
+            .env("DRODO_APP_VERSION", app_version)
             .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
 
         command
@@ -121,8 +154,12 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
 
     #[cfg(not(target_os = "windows"))]
     {
+        let automation_home = resolve_linux_automation_home(app)?;
+        let app_version = app.package_info().version.to_string();
         Command::new("sh")
             .arg(&script_path)
+            .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
+            .env("DRODO_APP_VERSION", app_version)
             .spawn()
             .map_err(|err| format!("Failed to start the dependency bootstrapper: {err}"))?;
     }

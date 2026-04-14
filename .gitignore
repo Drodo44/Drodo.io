@@ -11,6 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
+/.cache/automation-runtime/
+/artifacts/runtime/
+/src-tauri/gen/automation-runtime/
+/src-tauri/gen/windows-automation-runtime.zip
+/.automation/
 src-tauri/drodo.key
 src-tauri/drodo.key.pub
 

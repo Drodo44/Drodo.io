@@ -1,11 +1,13 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "1.2.31",
+  "version": "1.2.32",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "prepare:windows-runtime": "node scripts/prepare-windows-automation-runtime.mjs",
+    "prepare:linux-runtime": "node scripts/prepare-linux-automation-runtime.mjs",
     "preview": "vite preview",
     "tauri": "tauri",
     "fetch:workflows": "node scripts/fetch-n8n-workflows.mjs"

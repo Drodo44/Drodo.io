@@ -56,6 +56,11 @@ jobs:
           shell: powershell.exe
           command: npm install
       - run:
+          name: Build Windows runtime artifact
+          no_output_timeout: 90m
+          shell: powershell.exe
+          command: node scripts/prepare-windows-automation-runtime.mjs
+      - run:
           name: Build Tauri app
           no_output_timeout: 60m
           shell: powershell.exe
@@ -90,7 +95,40 @@ jobs:
             $tag = $env:CIRCLE_TAG
             $token = $env:GITHUB_TOKEN
 
-            # Find the installer file
+            function Remove-ExistingAsset {
+              param(
+                [Parameter(Mandatory = $true)]
+                [string]$Name
+              )
+
+              $existingAssets = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/$releaseId/assets" -Headers $headers
+              foreach ($existing in $existingAssets) {
+                if ($existing.name -eq $Name) {
+                  Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/assets/$($existing.id)" -Headers $headers -Method Delete
+                  Write-Host "Deleted existing asset: $($existing.name)"
+                }
+              }
+            }
+
+            function Upload-Asset {
+              param(
+                [Parameter(Mandatory = $true)]
+                [string]$Path
+              )
+
+              $name = Split-Path -Leaf $Path
+              Remove-ExistingAsset -Name $name
+              $uploadAssetUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$name"
+              Write-Host "Uploading asset: $name"
+              & curl.exe -sSfL `
+                -X POST `
+                -H "Authorization: token $token" `
+                -H "Accept: application/vnd.github+json" `
+                -H "Content-Type: application/octet-stream" `
+                --data-binary "@$Path" `
+                "$uploadAssetUrl" | Out-Null
+            }
+
             $installer = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
             if (-not $installer) {
               $installer = Get-ChildItem -Path "src-tauri/target/release/bundle/msi" -Filter "*.msi" -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -101,7 +139,7 @@ jobs:
             }
             $assetName = $installer.Name
             $assetPath = $installer.FullName
-            Write-Host "Uploading: $assetName from $assetPath"
+            Write-Host "Preparing uploads for: $assetName from $assetPath"
 
             # Create or get the GitHub release
             $headers = @{
@@ -124,27 +162,17 @@ jobs:
               Write-Host "Created release id: $releaseId"
             }
 
-            # Build upload URL directly from release ID — do NOT use upload_url from API response
-            $uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$assetName"
-            Write-Host "Upload URL: $uploadUrl"
-
-            $uploadHeaders = @{
-              Authorization = "token $token"
-              Accept = "application/vnd.github+json"
-              "Content-Type" = "application/octet-stream"
+            $runtimeAssets = Get-ChildItem -Path "artifacts/runtime" -File -ErrorAction SilentlyContinue
+            if (-not $runtimeAssets) {
+              Write-Error "No runtime assets found under artifacts/runtime"
+              exit 1
+            }
+            foreach ($runtimeAsset in $runtimeAssets) {
+              Upload-Asset -Path $runtimeAsset.FullName
             }
 
-            # Delete existing asset if it exists
-            $existingAssets = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/$releaseId/assets" -Headers $headers
-            foreach ($existing in $existingAssets) {
-              if ($existing.name -eq $assetName) {
-                Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/releases/assets/$($existing.id)" -Headers $headers -Method Delete
-                Write-Host "Deleted existing asset: $($existing.name)"
-              }
-            }
-
-            Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $uploadHeaders -InFile $assetPath
-            Write-Host "Upload complete."
+            Upload-Asset -Path $assetPath
+            Write-Host "Uploaded installer and runtime assets."
 
             # Upload NSIS .sig file for updater manifest (search recursively under bundle/)
             $sigFiles = Get-ChildItem -Path "src-tauri/target/release/bundle" -Filter "*.sig" -Recurse -ErrorAction SilentlyContinue
@@ -153,9 +181,8 @@ jobs:
               exit 1
             }
             foreach ($sig in $sigFiles) {
-              $sigUploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=$($sig.Name)"
-              $result = Invoke-RestMethod -Uri $sigUploadUrl -Method Post -Headers $uploadHeaders -InFile $sig.FullName
-              Write-Host "Uploaded sig: $($sig.Name) -> $($result.browser_download_url)"
+              Upload-Asset -Path $sig.FullName
+              Write-Host "Uploaded sig: $($sig.Name)"
             }
 
   build-linux:
@@ -183,7 +210,11 @@ jobs:
               wget \
               file \
               libxdo-dev \
-              libglib2.0-dev
+              libglib2.0-dev \
+              git \
+              xz-utils \
+              build-essential \
+              python3
       - node/install:
           node-version: '20'
       - run:
@@ -194,6 +225,10 @@ jobs:
       - run:
           name: Install dependencies
           command: npm install
+      - run:
+          name: Build Linux runtime artifact
+          no_output_timeout: 90m
+          command: node scripts/prepare-linux-automation-runtime.mjs
       - run:
           name: Build Tauri app
           no_output_timeout: 60m
@@ -252,22 +287,39 @@ jobs:
             UPLOAD_URL=$(echo "$RELEASE_BODY" | python3 -c "import sys,json,re; print(re.sub(r'\{[^}]*\}', '', json.load(sys.stdin)['upload_url']))")
             RELEASE_ID=$(echo "$RELEASE_BODY" | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
 
-            APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
-            if [ -n "$APPIMAGE" ]; then
-              FILENAME=$(basename $APPIMAGE)
-              # Delete existing asset with same name if present
+            upload_asset() {
+              local asset_path="$1"
+              local filename
+              filename=$(basename "$asset_path")
               EXISTING_ASSETS=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets")
-              EXISTING_ID=$(echo "$EXISTING_ASSETS" | python3 -c "import sys,json; assets=json.load(sys.stdin); match=[a['id'] for a in assets if a['name']==('$(basename $APPIMAGE)' if '$APPIMAGE' else '')]; print(match[0] if match else '')" 2>/dev/null || echo "")
+              EXISTING_ID=$(echo "$EXISTING_ASSETS" | python3 -c "import json,sys; assets=json.load(sys.stdin); name='$filename'; match=[str(a['id']) for a in assets if a['name']==name]; print(match[0] if match else '')")
               if [ -n "$EXISTING_ID" ]; then
-                curl -s -X DELETE -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$EXISTING_ID"
-                echo "Deleted existing asset"
+                curl -s -X DELETE -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$EXISTING_ID" >/dev/null
+                echo "Deleted existing asset: $filename"
               fi
-              curl -s -X POST \
+              curl -f -s -X POST \
                 -H "Authorization: Bearer $TOKEN" \
                 -H "Accept: application/vnd.github+json" \
                 -H "Content-Type: application/octet-stream" \
-                --data-binary @"$APPIMAGE" \
-                "$UPLOAD_URL?name=$FILENAME"
+                --data-binary @"$asset_path" \
+                "$UPLOAD_URL?name=$filename" >/dev/null
+              echo "Uploaded asset: $filename"
+            }
+
+            if [ ! -d "artifacts/runtime" ]; then
+              echo "Runtime artifact directory artifacts/runtime is missing."
+              exit 1
+            fi
+
+            for runtime_asset in artifacts/runtime/*; do
+              if [ -f "$runtime_asset" ]; then
+                upload_asset "$runtime_asset"
+              fi
+            done
+
+            APPIMAGE=$(find src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
+            if [ -n "$APPIMAGE" ]; then
+              upload_asset "$APPIMAGE"
             fi
 
             SIG_FILE=$(find src-tauri/target/release/bundle/appimage -name "*.sig" | head -1)
@@ -276,13 +328,7 @@ jobs:
               exit 1
             fi
             SIG_FILENAME=$(basename "$SIG_FILE")
-            curl -f -s -X POST \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @"$SIG_FILE" \
-              "$UPLOAD_URL?name=$SIG_FILENAME"
-            echo "Uploaded sig: $SIG_FILENAME"
+            upload_asset "$SIG_FILE"
 
   publish-updater:
     machine:
