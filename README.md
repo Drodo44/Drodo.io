@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src-tauri/icons/128x128.png" alt="Drodo" width="90" />
+<img src="docs/screenshots/Drodo_Main_Logo.png" alt="Drodo" width="90" />
 
 # Drodo
 
