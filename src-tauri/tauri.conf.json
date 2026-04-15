@@ -38,9 +38,7 @@
     "copyright": "Copyright © 2024 Drodo",
     "resources": [
       "../scripts/install-dependencies.ps1",
-      "../scripts/install-dependencies.sh",
-      "../artifacts/runtime/drodo-runtime-windows-x64-*.zip",
-      "../artifacts/runtime/drodo-runtime-windows-x64-*.zip.sha256"
+      "../scripts/install-dependencies.sh"
     ],
     "windows": {
       "nsis": {
