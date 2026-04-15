@@ -481,6 +481,30 @@ function Ensure-RuntimeInstalled {
         return
     }
 
+    # --- LOCAL BUNDLED RUNTIME (primary path) ---
+    $bundledRuntimeDir = $env:DRODO_BUNDLED_RUNTIME_DIR
+    if ($bundledRuntimeDir -and (Test-Path -LiteralPath $bundledRuntimeDir -PathType Container)) {
+        $bundledArchives = @(Get-ChildItem -LiteralPath $bundledRuntimeDir -Filter 'drodo-runtime-windows-x64-*.zip' -File -ErrorAction SilentlyContinue)
+        if ($bundledArchives.Count -gt 0) {
+            $bundledArchive = $bundledArchives[0].FullName
+            $bundledChecksum = "$bundledArchive.sha256"
+            Write-Log "Found bundled runtime archive: $bundledArchive"
+            if (Test-Path -LiteralPath $bundledChecksum) {
+                Verify-Checksum -FilePath $bundledArchive -ChecksumPath $bundledChecksum
+            }
+            Materialize-Runtime -SourcePath $bundledArchive
+            Migrate-LegacyN8nData
+            if (-not (Test-RuntimeInstalled)) {
+                Remove-Item -LiteralPath $AutomationHome -Recurse -Force -ErrorAction SilentlyContinue
+                throw 'Bundled runtime extraction completed, but the extracted runtime is incomplete or invalid.'
+            }
+            Write-Log "Pinned automation runtime is ready (from bundled archive) at $AutomationHome."
+            return
+        }
+        Write-Log "DRODO_BUNDLED_RUNTIME_DIR is set to $bundledRuntimeDir but no drodo-runtime-windows-x64-*.zip was found; falling back to network source."
+    }
+    # --- END LOCAL BUNDLED RUNTIME ---
+
     $runtimeSource = Resolve-RuntimeSource
     if (-not (Get-Item -LiteralPath $runtimeSource.source).PSIsContainer) {
         if (-not $runtimeSource.checksum) {

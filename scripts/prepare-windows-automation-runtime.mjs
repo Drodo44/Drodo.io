@@ -309,7 +309,7 @@ async function main() {
   rmSync(checksumPath, { force: true })
   run('tar.exe', [
     '--options',
-    'zip:compression=store',
+    'zip:compression=deflate',
     '-a',
     '-cf',
     assetPath,
