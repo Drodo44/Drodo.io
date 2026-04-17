@@ -20,6 +20,7 @@ import {
   getAllProviders,
   getSavedModels,
   loadProviderConfig,
+  MULTI_MODEL_PROVIDER_IDS,
   normalizeUrl,
   removeSavedModel,
   saveCustomProvider,
@@ -227,11 +228,22 @@ export function ConnectionsView() {
     if (!selected) return
     setTestState('testing')
     setTestMessage('')
+
+    let testModel = effectiveModel
+    if (MULTI_MODEL_PROVIDER_IDS.has(selected.id)) {
+      testModel = savedModels[0]?.id || effectiveModel
+      if (!testModel) {
+        setTestState('error')
+        setTestMessage('Add at least one model before testing the connection.')
+        return
+      }
+    }
+
     const result = await testConnection(
-      { ...selected, baseUrl: effectiveUrl, apiKey, model: effectiveModel },
+      { ...selected, baseUrl: effectiveUrl, apiKey, model: testModel },
       apiKey,
       effectiveUrl,
-      effectiveModel
+      testModel
     )
     setTestState(result.ok ? 'success' : 'error')
     setTestMessage(result.message)
@@ -251,6 +263,7 @@ export function ConnectionsView() {
       apiKey,
       baseUrl: effectiveUrl,
       model: effectiveModel,
+      modelDisplayName: provider.displayName,
     })
     setProviders(sortProviders(getAllProviders()))
     setSaved(true)

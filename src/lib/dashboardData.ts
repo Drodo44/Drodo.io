@@ -66,6 +66,26 @@ export function cycleProjectStatus(status: ProjectStatus): ProjectStatus {
   return 'active'
 }
 
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')           // headers
+    .replace(/\*\*([^*]+)\*\*/g, '$1')      // bold
+    .replace(/\*([^*]+)\*/g, '$1')          // italic
+    .replace(/__([^_]+)__/g, '$1')          // bold alt
+    .replace(/_([^_]+)_/g, '$1')            // italic alt
+    .replace(/~~([^~]+)~~/g, '$1')          // strikethrough
+    .replace(/`{3}[\s\S]*?`{3}/g, '')       // code blocks
+    .replace(/`([^`]+)`/g, '$1')            // inline code
+    .replace(/^\s*[-*+]\s+/gm, '')          // unordered list markers
+    .replace(/^\s*\d+\.\s+/gm, '')          // ordered list markers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1') // images
+    .replace(/^>\s+/gm, '')                 // blockquotes
+    .replace(/---+/g, '')                   // horizontal rules
+    .replace(/\n{2,}/g, '\n')              // collapse blank lines
+    .trim()
+}
+
 export function truncatePreview(content: string, maxLength = 80): string {
   const trimmed = content.trim()
   if (!trimmed) return ''
@@ -78,7 +98,7 @@ export function getLatestConversationPreview(messages: Message[]): string {
     .reverse()
     .find(message => (message.role === 'user' || message.role === 'assistant') && message.content.trim())
 
-  return latest ? truncatePreview(latest.content) : ''
+  return latest ? truncatePreview(stripMarkdown(latest.content)) : ''
 }
 
 export function getConversationMessageCount(messages: Message[]): number {

@@ -208,3 +208,45 @@ body {
 .glow-success {
   box-shadow: 0 0 12px rgba(29, 158, 117, 0.3);
 }
+
+/* ─── Markdown prose (chat bubbles, output modals) ────────────────────────── */
+.drodo-prose { word-break: break-word; }
+.drodo-prose h1, .drodo-prose h2, .drodo-prose h3, .drodo-prose h4 {
+  color: var(--text-primary); margin-top: 0.75em; margin-bottom: 0.35em; line-height: 1.35;
+}
+.drodo-prose h1 { font-size: 1.25rem; font-weight: 700; }
+.drodo-prose h2 { font-size: 1.1rem; font-weight: 600; }
+.drodo-prose h3 { font-size: 1rem; font-weight: 600; }
+.drodo-prose h4 { font-size: 0.9rem; font-weight: 600; }
+.drodo-prose p { margin-bottom: 0.5em; }
+.drodo-prose ul, .drodo-prose ol { padding-left: 1.5em; margin-bottom: 0.5em; }
+.drodo-prose ul { list-style-type: disc; }
+.drodo-prose ol { list-style-type: decimal; }
+.drodo-prose li { margin-bottom: 0.2em; }
+.drodo-prose li > ul, .drodo-prose li > ol { margin-top: 0.2em; }
+.drodo-prose table { width: 100%; border-collapse: collapse; margin: 0.5em 0; }
+.drodo-prose th, .drodo-prose td {
+  border: 1px solid var(--border-color); padding: 0.4em 0.6em;
+  text-align: left; font-size: 0.8125rem;
+}
+.drodo-prose th { background: var(--bg-tertiary); font-weight: 600; }
+.drodo-prose code:not(pre code) {
+  background: var(--bg-tertiary); padding: 0.15em 0.35em;
+  border-radius: 4px; font-size: 0.85em; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+.drodo-prose pre { overflow-x: auto; border-radius: 8px; margin: 0.5em 0; }
+.drodo-prose blockquote {
+  border-left: 3px solid var(--accent); padding-left: 1em;
+  color: var(--text-muted); margin: 0.5em 0; font-style: italic;
+}
+.drodo-prose strong { color: var(--text-primary); font-weight: 600; }
+.drodo-prose a { color: var(--accent); text-decoration: underline; }
+.drodo-prose hr { border: none; border-top: 1px solid var(--border-color); margin: 0.75em 0; }
+.drodo-prose > *:first-child { margin-top: 0; }
+.drodo-prose > *:last-child { margin-bottom: 0; }
+
+/* ─── Indeterminate progress bar ──────────────────────────────────────────── */
+@keyframes indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}

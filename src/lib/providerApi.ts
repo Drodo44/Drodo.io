@@ -220,7 +220,7 @@ function scoreModelForTask(modelId: string, task: string): number {
 function pickBestSavedModelForTask(
   task: string,
   savedModels: { providerId: string; providerName: string; model: SavedModel }[],
-): Provider | null {
+): { provider: Provider; score: number } | null {
   let best: { entry: { providerId: string; providerName: string; model: SavedModel }; score: number } | null = null
   for (const entry of savedModels) {
     const score = scoreModelForTask(entry.model.id, task)
@@ -229,15 +229,15 @@ function pickBestSavedModelForTask(
   if (!best) return null
   const provider = buildProvider(best.entry.providerId)
   if (!provider) return null
-  return { ...provider, model: best.entry.model.id, displayName: best.entry.model.label || undefined }
+  return { provider: { ...provider, model: best.entry.model.id, displayName: best.entry.model.label || undefined }, score: best.score }
 }
 
 export function routeModelForTask(task: string, fallback: Provider): Provider {
-  // Prefer user's explicitly saved models — only use the full registry as a last resort
+  // Prefer user's explicitly saved models — only override fallback when scoring found a meaningful match
   const savedModels = getAllSavedModels()
   if (savedModels.length > 0) {
-    const best = pickBestSavedModelForTask(task, savedModels)
-    if (best) return best
+    const result = pickBestSavedModelForTask(task, savedModels)
+    if (result && result.score > 0) return result.provider
   }
 
   // Fall back to connected-provider registry selection

@@ -268,6 +268,10 @@ function App() {
     )
   }
 
+  if (!user && !skipAuth) {
+    return <SafeAuthView />
+  }
+
   if (!onboardingDone) {
     return (
       <div
@@ -295,10 +299,6 @@ function App() {
         <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
       </div>
     )
-  }
-
-  if (!user && !skipAuth) {
-    return <SafeAuthView />
   }
 
   return (

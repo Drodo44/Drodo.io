@@ -1,4 +1,10 @@
+import { useState } from 'react'
 import { clsx } from 'clsx'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { Copy, Check } from 'lucide-react'
 import type { Message } from '../../types'
 
 interface MessageBubbleProps {
@@ -11,7 +17,6 @@ function formatTime(date: Date) {
 }
 
 function sanitizeChatContent(content: string): string {
-  // Strip XML tool call blocks the LLM may emit
   let out = content
     .replace(/<function_calls>[\s\S]*?<\/antml:function_calls>/g, '')
     .replace(/<function_calls>[\s\S]*?<\/function_calls>/g, '')
@@ -19,7 +24,6 @@ function sanitizeChatContent(content: string): string {
     .replace(/<tool_result>[\s\S]*?<\/tool_result>/g, '')
     .trim()
 
-  // Strip bare tool-call JSON lines: lines like {"tool":"...","arguments":{...}}
   out = out
     .split('\n')
     .filter(line => {
@@ -27,7 +31,6 @@ function sanitizeChatContent(content: string): string {
       if (!t.startsWith('{')) return true
       try {
         const parsed = JSON.parse(t) as Record<string, unknown>
-        // Drop lines that look like tool call objects
         if ('tool' in parsed && 'arguments' in parsed) return false
         if ('tool_name' in parsed) return false
       } catch {
@@ -39,6 +42,27 @@ function sanitizeChatContent(content: string): string {
     .trim()
 
   return out
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    void navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+      style={{ background: 'var(--bg-tertiary)', color: copied ? '#1d9e75' : 'var(--text-secondary)' }}
+      title="Copy message"
+    >
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+    </button>
+  )
 }
 
 export function MessageBubble({ message, isLast }: MessageBubbleProps) {
@@ -78,13 +102,48 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
         {/* Bubble */}
         <div
           className={clsx(
-            'px-4 py-3 rounded-2xl text-sm leading-relaxed',
+            'relative group px-4 py-3 rounded-2xl text-sm leading-relaxed',
             isUser
               ? 'bg-[#7f77dd]/15 border border-[#7f77dd]/25 text-[var(--text-primary)] rounded-tr-sm'
               : 'bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-sm'
           )}
         >
-          <span className="whitespace-pre-wrap break-words">{displayContent}</span>
+          {!isUser && <CopyButton text={displayContent} />}
+          {isUser ? (
+            <span className="whitespace-pre-wrap break-words">{displayContent}</span>
+          ) : (
+            <div className="drodo-prose">
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code({ className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    const codeString = String(children).replace(/\n$/, '')
+                    // Block code: has a language class or contains newlines
+                    if (match || (codeString.includes('\n') && !className)) {
+                      return (
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={match?.[1] ?? 'text'}
+                          PreTag="div"
+                          customStyle={{ margin: '0.5em 0', borderRadius: 8, fontSize: '0.8125rem' }}
+                        >
+                          {codeString}
+                        </SyntaxHighlighter>
+                      )
+                    }
+                    return (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
+                    )
+                  },
+                }}
+              >
+                {displayContent}
+              </Markdown>
+            </div>
+          )}
           {message.streaming && isLast && (
             <span className="inline-block w-0.5 h-4 bg-[#7f77dd] ml-0.5 -mb-0.5 animate-blink" />
           )}

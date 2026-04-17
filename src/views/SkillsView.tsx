@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import {
-  Puzzle, CheckCircle2, Circle, X, Key, Check, Search, Plug,
+  Puzzle, CheckCircle2, Circle, X, Key, Check, Search, Plug, ExternalLink,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -176,6 +176,22 @@ function ConnectModal({
               <p className="text-xs text-[var(--text-secondary)]">
                 Stored locally on your device. Never sent to Drodo servers.
               </p>
+              {connector.helpText && (
+                <p className="text-xs text-[var(--text-muted)] leading-relaxed mt-1">
+                  {connector.helpText}
+                </p>
+              )}
+              {connector.helpUrl && (
+                <a
+                  href={connector.helpUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-medium mt-1"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  Where do I get this key? <ExternalLink size={10} />
+                </a>
+              )}
             </div>
 
             {saved ? (
@@ -265,6 +281,55 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
       >
         {connector.isConnected ? 'Manage' : 'Connect'}
       </button>
+    </div>
+  )
+}
+
+function N8nStatusCard() {
+  const { n8nReady, refreshN8nStatus } = useAppStore(
+    useShallow(s => ({ n8nReady: s.n8nReady, refreshN8nStatus: s.refreshN8nStatus }))
+  )
+
+  return (
+    <div
+      className={clsx(
+        'flex items-center gap-3 rounded-xl border p-4 mb-4',
+        n8nReady
+          ? 'border-[#1d9e75]/30 bg-[#1d9e75]/5'
+          : 'border-[var(--border-color)] bg-[var(--bg-secondary)]'
+      )}
+    >
+      <div
+        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold"
+        style={{ background: '#ea4b7122', color: '#ea4b71' }}
+      >
+        N8
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-[var(--text-primary)]">n8n</div>
+        <div className="mt-1 flex items-center gap-1.5">
+          {n8nReady ? (
+            <>
+              <CheckCircle2 size={11} style={{ color: '#1d9e75' }} />
+              <span className="text-xs text-[#1d9e75]">Connected — Managed by Drodo</span>
+            </>
+          ) : (
+            <>
+              <Circle size={11} className="text-[var(--text-secondary)]" />
+              <span className="text-xs text-[var(--text-secondary)]">Not detected</span>
+            </>
+          )}
+        </div>
+      </div>
+      {!n8nReady && (
+        <button
+          onClick={() => void refreshN8nStatus()}
+          className="flex-shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition-colors"
+          style={{ background: '#ea4b71' }}
+        >
+          Repair Installation
+        </button>
+      )}
     </div>
   )
 }
@@ -460,6 +525,8 @@ export function SkillsView() {
               </div>
             </div>
           </section>
+
+          <N8nStatusCard />
 
           {byConnectorCategory.map(({ category, items }) => (
             <section key={category}>

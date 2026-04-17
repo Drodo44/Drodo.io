@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Workflow, Copy, X, Target } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
+import * as Dialog from '@radix-ui/react-dialog'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useAppStore } from '../store/appStore'
 import { getMemoryStats, onMemoryStatsChange, type MemoryStats } from '../lib/agentMemory'
 import { notify } from '../lib/notifications'
@@ -406,20 +409,30 @@ function ManagedAgentCard({
   onStop?: () => void
   onBuildWorkflow?: () => void
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const [outputOpen, setOutputOpen] = useState(false)
   const color = AGENT_STATUS_COLOR[agent.status] ?? 'var(--text-secondary)'
   const stepNum = agent.orchestrationStepIndex
 
   return (
     <div
       className={clsx(
-        'rounded-xl border flex flex-col transition-all duration-300 bg-[var(--bg-tertiary)]',
+        'rounded-xl border flex flex-col transition-all duration-300 bg-[var(--bg-tertiary)] overflow-hidden',
         agent.status === 'running' && 'border-[#7f77dd]/40 shadow-[0_0_16px_rgba(127,119,221,0.06)]',
         agent.status === 'complete' && 'border-[#1d9e75]/25',
         agent.status === 'idle' && 'border-[var(--border-color)]',
         agent.status === 'error' && 'border-[#e05050]/30',
       )}
     >
+      {/* Progress bar */}
+      {agent.status === 'running' && (
+        <div className="h-1 w-full overflow-hidden" style={{ background: color + '22' }}>
+          <div className="h-full w-1/4" style={{ background: color, animation: 'indeterminate 1.5s ease-in-out infinite' }} />
+        </div>
+      )}
+      {agent.status === 'complete' && (
+        <div className="h-1 w-full" style={{ background: color }} />
+      )}
+
       <div className="flex items-center gap-3 p-4 pb-3">
         {/* Avatar with step badge */}
         <div className="relative flex-shrink-0">
@@ -487,23 +500,53 @@ function ManagedAgentCard({
         </p>
       </div>
 
-      {/* Expandable summary for complete agents */}
+      {/* View output link for complete agents */}
       {agent.status === 'complete' && agent.summary && (
         <div className="border-t border-[var(--border-color)]">
           <button
-            onClick={() => setExpanded(e => !e)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors"
+            onClick={() => setOutputOpen(true)}
+            className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium hover:bg-[var(--bg-secondary)] transition-colors"
+            style={{ color }}
           >
-            {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-            <span>View Output</span>
+            <ChevronRight size={12} />
+            <span>View output &rarr;</span>
           </button>
-          {expanded && (
-            <div className="px-4 pb-3">
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto">
-                {agent.summary.slice(0, 600)}{agent.summary.length > 600 ? '…' : ''}
-              </p>
-            </div>
-          )}
+
+          <Dialog.Root open={outputOpen} onOpenChange={setOutputOpen}>
+            <Dialog.Portal>
+              <Dialog.Overlay
+                className="fixed inset-0 z-50"
+                style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
+              />
+              <Dialog.Content
+                className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl shadow-2xl overflow-hidden animate-fade-in flex flex-col"
+                style={{
+                  width: 640,
+                  maxHeight: '80vh',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                }}
+              >
+                {/* Modal header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
+                  <Dialog.Title className="text-sm font-semibold text-[var(--text-primary)]">
+                    {agent.name} — Output
+                  </Dialog.Title>
+                  <Dialog.Close asChild>
+                    <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors">
+                      <X size={16} />
+                    </button>
+                  </Dialog.Close>
+                </div>
+                {/* Modal body */}
+                <div className="flex-1 overflow-y-auto px-6 py-4">
+                  <div className="drodo-prose text-sm">
+                    <Markdown remarkPlugins={[remarkGfm]}>{agent.summary}</Markdown>
+                  </div>
+                </div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
         </div>
       )}
 
@@ -513,6 +556,48 @@ function ManagedAgentCard({
           {stepNum != null ? `Step ${stepNum}` : agent.providerName}
         </span>
       </div>
+    </div>
+  )
+}
+
+// ─── Consolidated Feed Group (collapsible earlier activity) ──────────────────
+
+function ConsolidatedGroupCard({ group }: { group: { summary: string; entries: SwarmFeedEntry[] } }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] mb-2">
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors"
+      >
+        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        <span>{'\uD83D\uDCCB'} {group.entries.length} earlier actions completed \u2014 click to expand</span>
+      </button>
+      {expanded && (
+        <div className="px-3 pb-2 space-y-1 max-h-60 overflow-y-auto border-t border-[var(--border-color)]">
+          {group.entries.map(entry => (
+            <div key={entry.id} className="flex items-start gap-2 text-xs py-0.5">
+              <span
+                className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+                style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
+              >
+                {entry.agentName}
+              </span>
+              <span className="flex-shrink-0">{feedIcon(entry.type)}</span>
+              <span className="flex-1 text-[var(--text-muted)] leading-relaxed break-all">
+                {entry.type === 'chunk'
+                  ? entry.content.slice(-300)
+                  : entry.content.slice(0, 300)}
+                {entry.content.length > 300 ? '\u2026' : ''}
+              </span>
+              <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
+                {formatTime(new Date(entry.timestamp))}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -531,7 +616,8 @@ export function AgentSwarmView() {
     }))
   )
 
-  const [feedEntries, setFeedEntries] = useState<SwarmFeedEntry[]>([])
+  const [visibleEntries, setVisibleEntries] = useState<SwarmFeedEntry[]>([])
+  const [consolidatedGroups, setConsolidatedGroups] = useState<Array<{ summary: string; entries: SwarmFeedEntry[] }>>([])
   const [memoryStats, setMemoryStats] = useState<MemoryStats>({ count: 0, lastUpdated: null })
   const [workflowModal, setWorkflowModal] = useState<WorkflowModalState | null>(null)
   const [generatedWorkflowJson, setGeneratedWorkflowJson] = useState('')
@@ -545,6 +631,8 @@ export function AgentSwarmView() {
   const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
   const feedRef = useRef<HTMLDivElement>(null)
   const previousAgentStateRef = useRef<Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>>(new Map())
+  const feedDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingEntriesRef = useRef<SwarmFeedEntry[]>([])
 
   // Auto-scroll live feed to bottom when new entries arrive
   useEffect(() => {
@@ -552,7 +640,7 @@ export function AgentSwarmView() {
     if (!el) return
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
     if (isNearBottom) el.scrollTop = el.scrollHeight
-  }, [feedEntries])
+  }, [visibleEntries])
 
   useEffect(() => {
     let mounted = true
@@ -570,86 +658,104 @@ export function AgentSwarmView() {
 
   useEffect(() => {
     const nextSnapshots = new Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>()
+    const newEntries: SwarmFeedEntry[] = []
 
-    setFeedEntries(current => {
-      const nextFeed = [...current]
-
-      for (const agent of storeAgents) {
-        const previous = previousAgentStateRef.current.get(agent.id)
-        const snapshot = {
-          status: agent.status,
-          tokens: agent.tokens,
-          lastUpdate: agent.lastUpdate,
-          summary: agent.summary,
-        }
-
-        nextSnapshots.set(agent.id, snapshot)
-
-        if (!previous) {
-          nextFeed.push({
-            id: `feed-${agent.id}-start-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            agentName: agent.name,
-            type: 'start',
-            content: agent.task,
-            timestamp: new Date(),
-          })
-          continue
-        }
-
-        if (previous.status !== agent.status) {
-          if (agent.status === 'running') {
-            nextFeed.push({
-              id: `feed-${agent.id}-resume-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-              agentName: agent.name,
-              type: 'start',
-              content: agent.lastUpdate || agent.task,
-              timestamp: new Date(),
-            })
-          } else if (agent.status === 'complete') {
-            nextFeed.push({
-              id: `feed-${agent.id}-complete-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-              agentName: agent.name,
-              type: 'complete',
-              content: agent.summary || agent.lastUpdate || agent.task,
-              timestamp: new Date(),
-            })
-          } else if (agent.status === 'error') {
-            nextFeed.push({
-              id: `feed-${agent.id}-error-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-              agentName: agent.name,
-              type: 'error',
-              content: agent.summary || agent.lastUpdate || agent.task,
-              timestamp: new Date(),
-            })
-          }
-          continue
-        }
-
-        if (
-          agent.status === 'running' &&
-          (previous.lastUpdate !== agent.lastUpdate || previous.tokens !== agent.tokens) &&
-          agent.lastUpdate
-        ) {
-          nextFeed.push({
-            id: `feed-${agent.id}-chunk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            agentName: agent.name,
-            type: 'chunk',
-            content: agent.lastUpdate,
-            timestamp: new Date(),
-          })
-        }
+    for (const agent of storeAgents) {
+      const previous = previousAgentStateRef.current.get(agent.id)
+      const snapshot = {
+        status: agent.status,
+        tokens: agent.tokens,
+        lastUpdate: agent.lastUpdate,
+        summary: agent.summary,
       }
 
-      return nextFeed.slice(-3000)
-    })
+      nextSnapshots.set(agent.id, snapshot)
+
+      if (!previous) {
+        newEntries.push({
+          id: `feed-${agent.id}-start-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          agentName: agent.name,
+          type: 'start',
+          content: agent.task,
+          timestamp: new Date(),
+        })
+        continue
+      }
+
+      if (previous.status !== agent.status) {
+        if (agent.status === 'running') {
+          newEntries.push({
+            id: `feed-${agent.id}-resume-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            agentName: agent.name,
+            type: 'start',
+            content: agent.lastUpdate || agent.task,
+            timestamp: new Date(),
+          })
+        } else if (agent.status === 'complete') {
+          newEntries.push({
+            id: `feed-${agent.id}-complete-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            agentName: agent.name,
+            type: 'complete',
+            content: agent.summary || agent.lastUpdate || agent.task,
+            timestamp: new Date(),
+          })
+        } else if (agent.status === 'error') {
+          newEntries.push({
+            id: `feed-${agent.id}-error-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            agentName: agent.name,
+            type: 'error',
+            content: agent.summary || agent.lastUpdate || agent.task,
+            timestamp: new Date(),
+          })
+        }
+        continue
+      }
+
+      if (
+        agent.status === 'running' &&
+        (previous.lastUpdate !== agent.lastUpdate || previous.tokens !== agent.tokens) &&
+        agent.lastUpdate
+      ) {
+        newEntries.push({
+          id: `feed-${agent.id}-chunk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          agentName: agent.name,
+          type: 'chunk',
+          content: agent.lastUpdate,
+          timestamp: new Date(),
+        })
+      }
+    }
 
     previousAgentStateRef.current = nextSnapshots
+
+    if (newEntries.length === 0) return
+
+    // Debounced flush — max one state update per 250ms
+    pendingEntriesRef.current = [...pendingEntriesRef.current, ...newEntries]
+    if (feedDebounceRef.current) clearTimeout(feedDebounceRef.current)
+    feedDebounceRef.current = setTimeout(() => {
+      const pending = pendingEntriesRef.current
+      pendingEntriesRef.current = []
+
+      setVisibleEntries(current => {
+        const merged = [...current, ...pending]
+        if (merged.length >= 100) {
+          setConsolidatedGroups(groups => [
+            ...groups,
+            { summary: `${merged.length} earlier actions completed`, entries: merged },
+          ])
+          return []
+        }
+        return merged
+      })
+    }, 250)
   }, [storeAgents])
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       workflowStreamRef.current?.abort()
+      if (feedDebounceRef.current) clearTimeout(feedDebounceRef.current)
     }
   }, [])
 
@@ -925,10 +1031,10 @@ export function AgentSwarmView() {
                 style={{ background: '#1d9e75', animation: 'pulse 1.5s infinite' }}
               />
             )}
-            <span className="text-xs text-[var(--text-secondary)]">({feedEntries.length})</span>
+            <span className="text-xs text-[var(--text-secondary)]">({consolidatedGroups.reduce((sum, g) => sum + g.entries.length, 0) + visibleEntries.length})</span>
           </div>
           <button
-            onClick={() => setFeedEntries([])}
+            onClick={() => { setVisibleEntries([]); setConsolidatedGroups([]) }}
             className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             Clear
@@ -937,7 +1043,7 @@ export function AgentSwarmView() {
 
         {/* Feed scroll area — real data from store */}
         <div ref={feedRef} className="flex-1 overflow-y-auto p-4 space-y-1.5">
-          {feedEntries.length === 0 ? (
+          {consolidatedGroups.length === 0 && visibleEntries.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
                 <Activity size={24} className="text-[var(--text-secondary)]" />
@@ -950,26 +1056,31 @@ export function AgentSwarmView() {
               </div>
             </div>
           ) : (
-            feedEntries.map(entry => (
-              <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
-                <span
-                  className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                  style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
-                >
-                  {entry.agentName}
-                </span>
-                <span className="flex-shrink-0">{feedIcon(entry.type)}</span>
-                <span className="flex-1 text-[var(--text-muted)] leading-relaxed break-all">
-                  {entry.type === 'chunk'
-                    ? entry.content.slice(-300)
-                    : entry.content.slice(0, 300)}
-                  {entry.content.length > 300 ? '…' : ''}
-                </span>
-                <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
-                  {formatTime(new Date(entry.timestamp))}
-                </span>
-              </div>
-            ))
+            <>
+              {consolidatedGroups.map((group, gi) => (
+                <ConsolidatedGroupCard key={`cg-${gi}`} group={group} />
+              ))}
+              {visibleEntries.map(entry => (
+                <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
+                  <span
+                    className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+                    style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
+                  >
+                    {entry.agentName}
+                  </span>
+                  <span className="flex-shrink-0">{feedIcon(entry.type)}</span>
+                  <span className="flex-1 text-[var(--text-muted)] leading-relaxed break-all">
+                    {entry.type === 'chunk'
+                      ? entry.content.slice(-300)
+                      : entry.content.slice(0, 300)}
+                    {entry.content.length > 300 ? '…' : ''}
+                  </span>
+                  <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
+                    {formatTime(new Date(entry.timestamp))}
+                  </span>
+                </div>
+              ))}
+            </>
           )}
         </div>
       </div>

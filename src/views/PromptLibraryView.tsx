@@ -520,8 +520,8 @@ function PromptCard({
   const [copied, setCopied] = useState(false)
   const catColor = (() => {
     const map: Record<string, string> = {
-      Business: '#7f77dd', Marketing: '#f97316', 'Content & Creative': '#e1306c',
-      Research: '#4285f4', Engineering: '#1d9e75', Finance: '#f59e0b',
+      Business: '#3b82f6', Marketing: '#f59e0b', 'Content & Creative': '#ec4899',
+      Research: '#8b5cf6', Engineering: '#22c55e', Finance: '#14b8a6',
       Legal: '#6366f1', Sales: '#ec4899', 'HR & Recruiting': '#a855f7',
       'Customer Support': '#229ed9', Education: '#0ea5e9', 'Health & Wellness': '#22c55e',
       'Real Estate': '#84cc16', 'E-commerce': '#635bff', 'Social Media': '#e1306c',
@@ -538,67 +538,72 @@ function PromptCard({
   }
 
   return (
-    <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col gap-3 hover:border-[var(--border-color)] transition-all duration-200">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{prompt.title}</div>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}28` }}
-            >
-              {prompt.category}
-            </span>
-            {prompt.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
-                #{tag}
+    <div className="overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col hover:border-[var(--border-color)] transition-all duration-200">
+      {/* Colored accent bar */}
+      <div className="h-1 w-full" style={{ background: catColor }} />
+
+      <div className="p-4 flex flex-col gap-3 flex-1">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{prompt.title}</div>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span
+                className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}28` }}
+              >
+                {prompt.category}
               </span>
-            ))}
+              {prompt.tags.slice(0, 3).map(tag => (
+                <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={onEdit}
+              className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              title="Edit"
+            >
+              <Edit3 size={13} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[var(--bg-tertiary)] transition-colors"
+              title="Delete"
+            >
+              <Trash2 size={13} />
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <button
-            onClick={onEdit}
-            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
-            title="Edit"
-          >
-            <Edit3 size={13} />
-          </button>
-          <button
-            onClick={onDelete}
-            className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[#e05050] hover:bg-[var(--bg-tertiary)] transition-colors"
-            title="Delete"
-          >
-            <Trash2 size={13} />
-          </button>
-        </div>
-      </div>
 
-      {/* Content preview */}
-      <p className="text-xs text-[var(--text-muted)] leading-relaxed line-clamp-3 flex-1 font-mono">
-        {prompt.content.slice(0, 180)}{prompt.content.length > 180 ? '…' : ''}
-      </p>
+        {/* Content preview — full text with scroll safety */}
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed flex-1 font-mono max-h-60 overflow-y-auto">
+          {prompt.content}
+        </p>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border-color)]">
-        <span className="text-xs text-[var(--text-muted)]">Used {prompt.usageCount}×</span>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
-          >
-            {copied ? <Check size={11} style={{ color: '#1d9e75' }} /> : <Copy size={11} />}
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
-          <button
-            onClick={onUseInChat}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all"
-            style={{ background: '#7f77dd' }}
-          >
-            <ArrowRight size={11} />
-            Use in Chat
-          </button>
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border-color)]">
+          <span className="text-xs text-[var(--text-muted)]">Used {prompt.usageCount}×</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] transition-colors"
+            >
+              {copied ? <Check size={11} style={{ color: '#1d9e75' }} /> : <Copy size={11} />}
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              onClick={onUseInChat}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all"
+              style={{ background: catColor }}
+            >
+              <ArrowRight size={11} />
+              Use in Chat
+            </button>
+          </div>
         </div>
       </div>
     </div>

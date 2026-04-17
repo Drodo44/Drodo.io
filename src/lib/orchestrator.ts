@@ -30,9 +30,9 @@ function scoreModelForTask(model: string, task: string): number {
   const analysisTask = /(analy|research|review|plan|design|architecture|strategy)/.test(t)
   const speedTask = /(quick|fast|short|brief|summarize|summary)/.test(t)
 
-  if (codingTask && /(code|coder|sonnet|gpt-4\.1|gpt-5|o1|o3)/.test(m)) score += 6
-  if (analysisTask && /(sonnet|opus|gpt-5|gpt-4|reason)/.test(m)) score += 5
-  if (speedTask && /(mini|haiku|flash|lite|small)/.test(m)) score += 4
+  if (codingTask && /(code|coder|sonnet|gpt-4\.1|gpt-5|o1|o3|gemini-2\.5)/.test(m)) score += 6
+  if (analysisTask && /(sonnet|opus|gpt-5|gpt-4|reason|gemini-2\.5)/.test(m)) score += 5
+  if (speedTask && /(mini|haiku|flash|lite|small|gemini-flash)/.test(m)) score += 4
 
   if (/(mini|haiku|flash|lite|small)/.test(m)) score += 1
   if (/(sonnet|opus|gpt|o1|o3|reason)/.test(m)) score += 2
@@ -46,13 +46,22 @@ function pickBestModel(task: string, savedModels: string[], usedModels: Set<stri
 
   let best = candidates[0]
   let bestScore = Number.NEGATIVE_INFINITY
+  let allZero = true
   for (const model of candidates) {
     const score = scoreModelForTask(model, task)
+    if (score > 0) allZero = false
     if (score > bestScore) {
       best = model
       bestScore = score
     }
   }
+
+  // Round-robin when scoring is uninformative — distribute models evenly across agents
+  if (allZero && candidates.length > 1) {
+    const rrIndex = usedModels.size % candidates.length
+    best = candidates[rrIndex]
+  }
+
   usedModels.add(best)
   return best
 }

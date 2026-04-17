@@ -18,7 +18,7 @@ import {
   Edit3, Link,
   PieChart, Code,
   Calendar, Filter,
-  Briefcase, Map, ShoppingCart,
+  Briefcase, Map, ShoppingCart, ChevronDown,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -74,12 +74,12 @@ const CATEGORIES = [
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Business: '#7f77dd',
-  Marketing: '#f97316',
-  'Content & Creative': '#e1306c',
-  Research: '#4285f4',
-  Engineering: '#1d9e75',
-  Finance: '#f59e0b',
+  Business: '#3b82f6',
+  Marketing: '#f59e0b',
+  'Content & Creative': '#ec4899',
+  Research: '#8b5cf6',
+  Engineering: '#22c55e',
+  Finance: '#14b8a6',
   Legal: '#6366f1',
   Sales: '#ec4899',
   'HR & Recruiting': '#a855f7',
@@ -293,51 +293,70 @@ function TemplateCard({
   const { Icon } = template
   const catColor = CATEGORY_COLORS[template.category] ?? '#7f77dd'
   const [selectedOption, setSelectedOption] = useState(modelOptions[0]?.key ?? '')
+  const [showModelMenu, setShowModelMenu] = useState(false)
   const activeOption = modelOptions.find(option => option.key === selectedOption) ?? modelOptions[0]
 
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
-      {/* Icon + name row */}
-      <div className="flex items-start gap-3">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: template.color + '22', color: template.color }}
-        >
-          <Icon size={18} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[var(--text-primary)] leading-tight">{template.name}</div>
-          <span
-            className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium"
-            style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}28` }}
-          >
-            {template.category}
-          </span>
-        </div>
-      </div>
+    <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
+      {/* Colored accent bar */}
+      <div className="h-1 w-full" style={{ background: catColor }} />
 
-      {/* Description */}
-      <p className="text-xs text-[var(--text-muted)] leading-relaxed flex-1 line-clamp-2">{template.description}</p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between gap-2 pt-1">
-        <span className="text-xs text-[var(--text-muted)] font-mono">Best with: {template.model}</span>
-        <div className="flex items-center gap-2">
-          <select
-            value={activeOption?.key ?? ''}
-            onChange={e => setSelectedOption(e.target.value)}
-            className="max-w-[180px] rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] px-2 py-1.5 text-xs text-[var(--text-primary)] outline-none"
+      <div className="flex flex-col gap-3 p-4 flex-1">
+        {/* Icon + name row */}
+        <div className="flex items-start gap-3">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: template.color + '22', color: template.color }}
           >
-            {modelOptions.map(option => (
-              <option key={option.key} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            <Icon size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-[var(--text-primary)] leading-tight">{template.name}</div>
+            <span
+              className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium"
+              style={{ background: catColor + '18', color: catColor, border: `1px solid ${catColor}28` }}
+            >
+              {template.category}
+            </span>
+          </div>
+        </div>
+
+        {/* Description — full text, no clamp */}
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed flex-1">{template.description}</p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-2 pt-1">
+          {/* Auto Assign pill with dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowModelMenu(prev => !prev)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-[#7f77dd]" />
+              {activeOption?.label?.replace('Default: ', '') ?? 'Auto Assign'}
+              <ChevronDown size={12} />
+            </button>
+            {showModelMenu && (
+              <div className="absolute left-0 top-full mt-1 z-20 min-w-[200px] max-h-48 overflow-y-auto rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg">
+                {modelOptions.map(option => (
+                  <button
+                    key={option.key}
+                    onClick={() => { setSelectedOption(option.key); setShowModelMenu(false) }}
+                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--bg-tertiary)] transition-colors ${
+                      option.key === selectedOption ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => activeOption && onDeploy(activeOption.key)}
             className="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-all active:scale-95"
-            style={{ background: template.color }}
+            style={{ background: catColor }}
           >
             Deploy →
           </button>

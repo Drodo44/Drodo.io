@@ -210,6 +210,8 @@ export interface Connector {
   isConnected: boolean
   requiresKey: boolean
   keyPlaceholder?: string
+  helpUrl?: string
+  helpText?: string
 }
 
 export interface Skill {

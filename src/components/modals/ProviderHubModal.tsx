@@ -75,11 +75,22 @@ export function ProviderHubModal() {
   const handleTest = async () => {
     setTestState('testing')
     setTestMessage('')
+
+    let testModel = effectiveModel
+    if (MULTI_MODEL_PROVIDER_IDS.has(selectedId)) {
+      testModel = savedModels[0]?.id || newModelId.trim() || effectiveModel
+      if (!testModel) {
+        setTestState('error')
+        setTestMessage('Add at least one model before testing the connection.')
+        return
+      }
+    }
+
     const result = await testConnection(
-      { ...selected, baseUrl: effectiveBaseUrl, apiKey, model: effectiveModel },
+      { ...selected, baseUrl: effectiveBaseUrl, apiKey, model: testModel },
       apiKey,
       effectiveBaseUrl,
-      effectiveModel
+      testModel
     )
     setTestState(result.ok ? 'success' : 'error')
     setTestMessage(result.message)

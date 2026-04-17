@@ -181,14 +181,15 @@ function persistSessionSnapshot(
   sessionId: string,
   sessionName: string,
   provider: Provider,
-  messages: Message[]
+  messages: Message[],
+  modelOverride?: string,
 ): void {
   upsertSession({
     id: sessionId,
     name: sessionName,
     createdAt: new Date().toISOString(),
     messageCount: getConversationMessageCount(messages),
-    model: provider.model ?? provider.name,
+    model: modelOverride ?? provider.model ?? provider.name,
     preview: getLatestConversationPreview(messages),
   })
 }
@@ -526,6 +527,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       apiKey: provider.apiKey ?? '',
       baseUrl: provider.baseUrl,
       model: provider.model ?? '',
+      modelDisplayName: provider.displayName,
     })
   },
 
@@ -621,6 +623,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           targetSession.name,
           targetProvider ? { ...targetProvider, model: targetSession.modelId || targetProvider.model } : latest.activeProvider,
           targetSession.messages,
+          'Multi-Agent',
         )
       }
     }
@@ -842,14 +845,52 @@ export const useAppStore = create<AppState>((set, get) => ({
           const finalChecklist = buildChecklist(plan.agents, new Set(plan.agents.map(a => a.id)), null, plan.taskSummary || task)
           upsertSessionMessage(checklistMsgId, finalChecklist)
 
-          // Build synthesized summary and append as a new assistant message
+          // Build synthesized summary and stream it incrementally to avoid UI freeze
           const summaryParts = completedRun.plan.agents.map(step => {
             const output = completedRun.stepOutputs[step.outputVar] ?? ''
             return output.trim() ? `### ${step.templateName}\n\n${output.trim()}` : ''
           }).filter(Boolean)
           const synthesized = summaryParts.join('\n\n---\n\n')
           if (synthesized) {
-            appendSessionMessage(synthesized)
+            const streamMsgId = createId('swarm-result')
+            upsertSessionMessage(streamMsgId, '')
+            set(current => ({
+              messages: current.messages.map(m =>
+                m.id === streamMsgId ? { ...m, streaming: true } : m
+              ),
+              chatSessions: current.chatSessions.map(session =>
+                session.id === originSessionId
+                  ? { ...session, messages: session.messages.map(m =>
+                      m.id === streamMsgId ? { ...m, streaming: true } : m
+                    )}
+                  : session
+              ),
+            }))
+
+            const CHUNK_SIZE = 120
+            let offset = 0
+            const streamTimer = setInterval(() => {
+              offset = Math.min(offset + CHUNK_SIZE, synthesized.length)
+              upsertSessionMessage(streamMsgId, synthesized.slice(0, offset))
+
+              if (offset >= synthesized.length) {
+                clearInterval(streamTimer)
+                set(current => ({
+                  messages: current.messages.map(m =>
+                    m.id === streamMsgId ? { ...m, streaming: false } : m
+                  ),
+                  chatSessions: current.chatSessions.map(session =>
+                    session.id === originSessionId
+                      ? { ...session, messages: session.messages.map(m =>
+                          m.id === streamMsgId ? { ...m, streaming: false } : m
+                        )}
+                      : session
+                  ),
+                }))
+                const final = get()
+                persistChatSessions(final.chatSessions, final.activeChatSessionId)
+              }
+            }, 16)
           }
 
           set(current => ({

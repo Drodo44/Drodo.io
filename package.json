@@ -1,7 +1,7 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "1.2.37",
+  "version": "1.2.38",
   "type": "module",
   "scripts": {
     "predev": "node scripts/prepare-frontend-catalog-assets.mjs",
@@ -37,7 +37,9 @@
     "lucide-react": "^1.7.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^16.1.1",
+    "remark-gfm": "^4.0.1",
     "sql.js": "^1.14.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
