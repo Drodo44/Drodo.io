@@ -33,6 +33,7 @@ import { getSession, onAuthStateChange } from './lib/auth'
 import { supabase } from './lib/supabase'
 import { syncUserData } from './lib/syncToSupabase'
 import { startBotPolling, stopBotPolling } from './lib/botRunner'
+import { checkForUpdates } from './lib/updater'
 
 function AgentWorkspace() {
   return (
@@ -237,7 +238,8 @@ function App() {
 
   useEffect(() => {
     if (!authReady) return
-    // void checkForUpdates() — disabled until updater pubkey is configured
+
+    void checkForUpdates()
   }, [authReady])
 
   useEffect(() => {

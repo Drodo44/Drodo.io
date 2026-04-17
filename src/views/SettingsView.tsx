@@ -136,6 +136,8 @@ export function SettingsView() {
   const [updateInfo, setUpdateInfo] = useState<StoredUpdateInfo | null>(() => getStoredUpdateInfo())
   const [checkingUpdates, setCheckingUpdates] = useState(false)
   const [installingUpdate, setInstallingUpdate] = useState(false)
+  const [updateError, setUpdateError] = useState<string | null>(null)
+  const [currentVersion, setCurrentVersion] = useState<string>('')
   const [showDanger, setShowDanger] = useState(false)
   const [resetInput, setResetInput] = useState('')
 
@@ -162,21 +164,62 @@ export function SettingsView() {
     setUpdateInfo(getStoredUpdateInfo())
   }
 
+  useEffect(() => {
+    let cancelled = false
+
+    void getVersion()
+      .then(version => {
+        if (!cancelled) {
+          setCurrentVersion(version)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCurrentVersion('')
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const handleCheckForUpdates = async () => {
     setCheckingUpdates(true)
-    await checkForUpdates()
-    refreshUpdateInfo()
-    setCheckingUpdates(false)
+    setUpdateError(null)
+
+    try {
+      const result = await checkForUpdates()
+      refreshUpdateInfo()
+      if (result.status === 'error') {
+        setUpdateError(result.error ?? 'Updater check failed.')
+      }
+    } finally {
+      setCheckingUpdates(false)
+    }
   }
 
   const handleInstallUpdate = async () => {
     setInstallingUpdate(true)
+    setUpdateError(null)
+
     try {
       const update = await check()
       if (update?.available) {
         await update.downloadAndInstall()
-        await relaunch()
+        const isWindows = navigator.userAgent.toLowerCase().includes('windows')
+        if (!isWindows) {
+          await relaunch()
+        }
+      } else {
+        refreshUpdateInfo()
+        setUpdateError('No update is currently available for this installation.')
       }
+    } catch (error) {
+      const message = error instanceof Error && error.message.trim()
+        ? error.message.trim()
+        : 'Failed to install the update.'
+      setUpdateError(message)
     } finally {
       setInstallingUpdate(false)
     }
@@ -345,6 +388,11 @@ export function SettingsView() {
         <section>
           <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Updates</h2>
           <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+            {currentVersion && (
+              <p className="text-xs text-[var(--text-secondary)] mb-3">
+                Current version: <span className="font-mono text-[var(--text-primary)]">{currentVersion}</span>
+              </p>
+            )}
             {updateInfo?.version ? (
               <div
                 className="rounded-xl border px-4 py-3 mb-4"
@@ -359,6 +407,15 @@ export function SettingsView() {
               </div>
             ) : (
               <p className="text-sm text-[var(--text-muted)] mb-4">Drodo is up to date</p>
+            )}
+
+            {updateError && (
+              <div
+                className="rounded-xl border px-4 py-3 mb-4 text-sm"
+                style={{ background: '#e0505012', borderColor: '#e0505030', color: '#e05050' }}
+              >
+                {updateError}
+              </div>
             )}
 
             <div className="flex gap-2">

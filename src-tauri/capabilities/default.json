@@ -10,7 +10,9 @@
     "fs:allow-localdata-read-recursive",
     "fs:allow-localdata-write-recursive",
     "notification:default",
+    "process:default",
     "shell:default",
-    "opener:default"
+    "opener:default",
+    "updater:default"
   ]
 }

@@ -8,21 +8,43 @@ export interface StoredUpdateInfo {
   date?: string
 }
 
-export async function checkForUpdates(): Promise<void> {
+export interface UpdateCheckResult {
+  error?: string
+  status: 'available' | 'up-to-date' | 'error'
+  updateInfo?: StoredUpdateInfo
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message.trim()
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error.trim()
+  }
+
+  return 'Updater check failed.'
+}
+
+export async function checkForUpdates(): Promise<UpdateCheckResult> {
   try {
     const update = await check()
     if (update?.available) {
-      localStorage.setItem(UPDATE_STORAGE_KEY, JSON.stringify({
+      const updateInfo: StoredUpdateInfo = {
         version: update.version,
         body: update.body,
         date: update.date,
-      }))
-      return
+      }
+
+      localStorage.setItem(UPDATE_STORAGE_KEY, JSON.stringify(updateInfo))
+      return { status: 'available', updateInfo }
     }
 
     localStorage.removeItem(UPDATE_STORAGE_KEY)
-  } catch {
-    // Fail silently — updater not critical
+    return { status: 'up-to-date' }
+  } catch (error) {
+    localStorage.removeItem(UPDATE_STORAGE_KEY)
+    return { status: 'error', error: getErrorMessage(error) }
   }
 }
 
