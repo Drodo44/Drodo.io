@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { invoke } from '@tauri-apps/api/core'
+import { useAppStore } from '../store/appStore'
 import type { MCPServer } from '../types'
 
 const STORAGE_KEY = 'drodo_mcp_servers'
@@ -426,6 +427,7 @@ function EmptyServersState({ onAddCustom }: { onAddCustom: () => void }) {
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function MCPServersView() {
+  const n8nReady = useAppStore(state => state.n8nReady)
   const [servers, setServers] = useState<MCPServer[]>([])
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [nameInput, setNameInput] = useState('')
@@ -524,7 +526,7 @@ export function MCPServersView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+    <div className="flex w-full flex-1 flex-col min-h-0 min-w-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <div
         className="flex items-center justify-between px-6 py-4 flex-shrink-0"
         style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
@@ -563,7 +565,8 @@ export function MCPServersView() {
           <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {FEATURED_SERVERS.map(server => {
               const alreadyAdded = addedIds.has(server.id)
-              const connected = hasCreds(server.id)
+              const autoConnected = server.id === 'n8n-mcp' && n8nReady
+              const connected = hasCreds(server.id) || autoConnected
 
               return (
                 <div key={server.id} className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col gap-3">
@@ -594,12 +597,19 @@ export function MCPServersView() {
 
                     {connected ? (
                       <button
-                        onClick={() => setCredModal({ serverId: server.id, serverName: server.name, credType: server.credType })}
+                        onClick={() => {
+                          if (!autoConnected) {
+                            setCredModal({ serverId: server.id, serverName: server.name, credType: server.credType })
+                          }
+                        }}
                         className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
                         style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}
-                        title="Reconfigure credentials"
+                        title={autoConnected ? 'n8n detected locally' : 'Reconfigure credentials'}
                       >
-                        <CheckCircle2 size={11} />
+                        <span className="flex items-center gap-1.5">
+                          <CheckCircle2 size={11} />
+                          {autoConnected && <span className="w-1.5 h-1.5 rounded-full bg-[#1d9e75]" />}
+                        </span>
                         Connected
                       </button>
                     ) : alreadyAdded ? (

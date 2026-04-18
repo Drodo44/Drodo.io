@@ -21,6 +21,7 @@ interface SavedConfig {
   model: string
   modelDisplayName?: string
   savedModels?: SavedModel[]
+  name?: string
 }
 
 const CUSTOM_PROVIDERS_KEY = 'drodo_custom_providers'
@@ -119,6 +120,46 @@ export function loadProviderConfig(id: string): SavedConfig | null {
   return all[id] ?? null
 }
 
+function getSavedModelDisplayNameFromConfig(config: SavedConfig | null | undefined, modelId: string | undefined): string | undefined {
+  const normalizedModelId = modelId?.trim()
+  if (!config || !normalizedModelId) return undefined
+
+  const savedModelLabel = config.savedModels?.find(model => model.id === normalizedModelId)?.label?.trim()
+  if (savedModelLabel) return savedModelLabel
+
+  if (config.model?.trim() === normalizedModelId) {
+    return config.modelDisplayName?.trim() || config.name?.trim() || undefined
+  }
+
+  return undefined
+}
+
+export function getSavedModelDisplayName(providerId: string | undefined, modelId: string | undefined): string | undefined {
+  if (!providerId || !modelId) return undefined
+  return getSavedModelDisplayNameFromConfig(loadProviderConfig(providerId), modelId)
+}
+
+export function getSavedModelDisplayNameMap(): Record<string, string> {
+  const all = loadAllSavedConfigs()
+  const map: Record<string, string> = {}
+
+  for (const config of Object.values(all)) {
+    for (const savedModel of config.savedModels ?? []) {
+      const label = savedModel.label.trim()
+      if (savedModel.id && label) {
+        map[savedModel.id] = label
+      }
+    }
+
+    const defaultLabel = config.modelDisplayName?.trim() || config.name?.trim()
+    if (config.model?.trim() && defaultLabel) {
+      map[config.model.trim()] = defaultLabel
+    }
+  }
+
+  return map
+}
+
 function loadRawSavedConfigs(): Record<string, SavedConfig> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -137,12 +178,14 @@ export function buildProvider(id: string): Provider | null {
   if (!base) return null
 
   const saved = loadProviderConfig(id)
+  const resolvedModel = saved?.model || base.model || saved?.savedModels?.[0]?.id || ''
+
   return {
     ...base,
     baseUrl: saved?.baseUrl || base.baseUrl,
     apiKey: saved?.apiKey || '',
-    model: saved?.model || base.model || saved?.savedModels?.[0]?.id || '',
-    displayName: saved?.modelDisplayName || undefined,
+    model: resolvedModel,
+    displayName: getSavedModelDisplayNameFromConfig(saved, resolvedModel) || undefined,
     isConnected: base.isLocal || !!saved?.apiKey,
   }
 }

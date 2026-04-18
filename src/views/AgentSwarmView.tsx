@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm'
 import { useAppStore } from '../store/appStore'
 import { getMemoryStats, onMemoryStatsChange, type MemoryStats } from '../lib/agentMemory'
 import { notify } from '../lib/notifications'
-import { getAllSavedModels } from '../lib/providerApi'
+import { getAllSavedModels, getSavedModelDisplayName, getSavedModelDisplayNameMap } from '../lib/providerApi'
 import { streamCompletion } from '../lib/streamChat'
 import {
   ensureWorkflowCatalogLoaded,
@@ -402,10 +402,12 @@ const AGENT_STATUS_COLOR: Record<string, string> = {
 
 function ManagedAgentCard({
   agent,
+  modelLabel,
   onStop,
   onBuildWorkflow,
 }: {
   agent: AgentInstance
+  modelLabel: string
   onStop?: () => void
   onBuildWorkflow?: () => void
 }) {
@@ -551,7 +553,7 @@ function ManagedAgentCard({
       )}
 
       <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--border-color)]">
-        <span className="text-xs text-[var(--text-muted)] font-mono">{agent.model}</span>
+        <span className="text-xs text-[var(--text-muted)] font-mono">{modelLabel}</span>
         <span className="text-xs text-[var(--text-muted)]">
           {stepNum != null ? `Step ${stepNum}` : agent.providerName}
         </span>
@@ -633,6 +635,7 @@ export function AgentSwarmView() {
   const previousAgentStateRef = useRef<Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>>(new Map())
   const feedDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingEntriesRef = useRef<SwarmFeedEntry[]>([])
+  const savedModelDisplayNames = useMemo(() => getSavedModelDisplayNameMap(), [activeProvider.id, activeProvider.model, storeAgents])
 
   // Auto-scroll live feed to bottom when new entries arrive
   useEffect(() => {
@@ -761,12 +764,13 @@ export function AgentSwarmView() {
 
   const modelOptions = useMemo(() => {
     const defaultModel = activeProvider.model ?? activeProvider.name
+    const defaultModelLabel = getSavedModelDisplayName(activeProvider.id, defaultModel) || activeProvider.displayName || defaultModel
     const options: ModelOption[] = [
       {
         key: `${activeProvider.id}::${defaultModel}`,
         providerId: activeProvider.id,
         modelId: defaultModel,
-        label: `${activeProvider.name} — ${defaultModel}`,
+        label: `${activeProvider.name} — ${defaultModelLabel}`,
       },
     ]
 
@@ -920,7 +924,7 @@ export function AgentSwarmView() {
     : 'No memory yet'
 
   return (
-    <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
+    <div className="flex w-full flex-1 min-h-0 min-w-0 overflow-hidden flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
       {/* ── Left panel: Agent grid ─────────────────────── */}
       <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-[1.7_1_0] border-r border-[var(--border-color)]">
         {/* Header */}
@@ -1002,11 +1006,12 @@ export function AgentSwarmView() {
               </button>
             </div>
           ) : (
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {visibleStoreAgents.map(agent => (
                 <ManagedAgentCard
                   key={agent.id}
                   agent={agent}
+                  modelLabel={savedModelDisplayNames[agent.model] || agent.model}
                   onStop={agent.status === 'running' ? () => stopAgentStore(agent.id) : undefined}
                   onBuildWorkflow={agent.status === 'complete' ? () => { void openWorkflowModal(agent) } : undefined}
                 />

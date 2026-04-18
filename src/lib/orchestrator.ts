@@ -66,14 +66,6 @@ function pickBestModel(task: string, savedModels: string[], usedModels: Set<stri
   return best
 }
 
-// Soft hints passed to the LLM — it makes the final call
-const MODEL_HINT_MAP =
-  'Soft model hints (use your judgment, not a rule): ' +
-  'deepseek→reasoning/math, qwen→coding, gemini→research/multimodal, ' +
-  'mistral→speed, claude-opus→complex analysis, ' +
-  'claude-haiku/flash/mini/small→quick or simple tasks, ' +
-  'gpt-4/o1/o3→complex reasoning, gpt-4-mini/3.5→fast tasks'
-
 export async function buildOrchestrationPlan(
   task: string,
   provider: Provider,
@@ -93,7 +85,7 @@ export async function buildOrchestrationPlan(
     : ''
 
   const modelsSection = savedModels && savedModels.length > 0
-    ? `\nAvailable models (use the exact string in the "model" field — pick the best fit per agent):\n${savedModels.join('\n')}\n\n${MODEL_HINT_MAP}`
+    ? `\nAvailable models (use the exact string in the "model" field — pick the best fit per agent):\n${savedModels.join('\n')}`
     : ''
 
   const templatesSection = templateDetails && templateDetails.length > 0
@@ -109,7 +101,7 @@ export async function buildOrchestrationPlan(
 Extended agent fields to include in each agent object:
 - "systemPrompt": if the template has a known system prompt, copy it here; otherwise omit
 - "skills": array of skill ids most relevant to this agent's role (e.g. researcher → ["web-search","memory"], coder → ["code-execution","file-reader"])
-- "model": choose from the available models list — pick based on task complexity and the soft hints above`
+- "model": choose from the available models list using one exact model id per agent`
     : ''
 
   const systemPrompt = `You are an AI orchestration engine. Your job is to analyze a user task and decide which specialist AI agents are needed to complete it optimally. You must respond with ONLY valid JSON, no other text.
@@ -141,7 +133,7 @@ Rules:
 - Order agents logically — research before writing, writing before editing
 - For simple tasks that only need one agent, return just one agent
 - The specificTask must be concrete and actionable
-- Choose the best model for each agent from the available list independently — use the soft hints as guidance, not hard rules`
+- Choose the best model for each agent from the available list independently and use the exact model id string`
 
   try {
     const response = await completeText(provider, [
@@ -162,11 +154,9 @@ Rules:
     // Clamp to 5 agents
     parsed.agents = parsed.agents.slice(0, 5)
 
-    // Only fill in model via fallback scorer if the LLM left it blank or invalid
     if (savedModels && savedModels.length > 0) {
       const used = new Set<string>()
       parsed.agents = parsed.agents.map(agent => {
-        // If LLM picked a valid model, keep it; otherwise use fallback scorer
         const llmModel = agent.model?.trim()
         if (llmModel && savedModels.includes(llmModel)) {
           used.add(llmModel)

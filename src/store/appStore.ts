@@ -17,6 +17,7 @@ import {
   buildProvider,
   getConnectedProviders,
   getAllSavedModels,
+  getSavedModelDisplayName,
   loadAllSavedConfigs,
   routeModelForTask,
   saveProviderConfig,
@@ -242,7 +243,11 @@ function initChatSessions(defaultProvider: Provider, defaultMessages: Message[])
     const activeSession = sessions.find(s => s.id === validActiveId)!
     const sessionProvider = buildProvider(activeSession.providerId)
     const resolvedProvider = sessionProvider
-      ? { ...sessionProvider, model: activeSession.modelId || sessionProvider.model }
+      ? {
+          ...sessionProvider,
+          model: activeSession.modelId || sessionProvider.model,
+          displayName: getSavedModelDisplayName(activeSession.providerId, activeSession.modelId || sessionProvider.model),
+        }
       : defaultProvider
     return { chatSessions: sessions, activeChatSessionId: validActiveId, messages: activeSession.messages, activeProvider: resolvedProvider }
   }
@@ -1692,7 +1697,11 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const sessionProvider = buildProvider(target.providerId)
     const resolvedProvider = sessionProvider
-      ? { ...sessionProvider, model: target.modelId || sessionProvider.model }
+      ? {
+          ...sessionProvider,
+          model: target.modelId || sessionProvider.model,
+          displayName: getSavedModelDisplayName(target.providerId, target.modelId || sessionProvider.model),
+        }
       : state.activeProvider
 
     set({
@@ -1771,12 +1780,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     const state = get()
     const base = buildProvider(providerId)
     if (!base) return
-    const provider = { ...base, model: modelId }
+    const displayName = getSavedModelDisplayName(providerId, modelId)
+    const provider = { ...base, model: modelId, displayName }
     const updated = state.chatSessions.map(s =>
       s.id === state.activeChatSessionId ? { ...s, providerId, modelId } : s
     )
     set({ activeProvider: provider, chatSessions: updated })
-    saveProviderConfig(providerId, { apiKey: base.apiKey ?? '', baseUrl: base.baseUrl, model: modelId })
+    saveProviderConfig(providerId, {
+      apiKey: base.apiKey ?? '',
+      baseUrl: base.baseUrl,
+      model: modelId,
+      modelDisplayName: displayName,
+    })
     persistChatSessions(updated, state.activeChatSessionId)
   },
 }))

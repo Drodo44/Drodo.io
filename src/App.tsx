@@ -37,7 +37,7 @@ import { checkForUpdates } from './lib/updater'
 
 function AgentWorkspace() {
   return (
-    <div className="app-shell__content flex min-w-0 min-h-0 flex-1 overflow-hidden flex-col lg:flex-row">
+    <div className="app-shell__content flex w-full min-w-0 min-h-0 flex-1 overflow-hidden flex-col lg:flex-row">
       <ChatPanel />
       <RightPanel />
     </div>
@@ -285,7 +285,7 @@ function App() {
         </div>
         <div className="app-shell__main">
           <TopBar />
-          <main className="app-shell__content">
+          <main className="app-shell__content flex-1 min-w-0 overflow-auto">
             <SafeOnboardingScreen
               onComplete={() => {
                 setOnboardingDone(true)
@@ -314,7 +314,7 @@ function App() {
 
       <div className="app-shell__main">
         <TopBar />
-        <main className="app-shell__content">
+        <main className="app-shell__content flex-1 min-w-0 overflow-auto">
           <MainContent />
         </main>
       </div>

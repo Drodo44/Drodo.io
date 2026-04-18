@@ -389,7 +389,7 @@ export function SkillsView() {
   }))
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+    <div className="flex w-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
       <div
         className="flex flex-shrink-0 flex-wrap items-center gap-3 px-6 py-4"
         style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
@@ -440,8 +440,11 @@ export function SkillsView() {
             <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Skill Library</div>
               <div className="mt-3 text-2xl font-bold text-[var(--text-primary)]">
-                {skillCount.toLocaleString()} AI skills available - automatically matched to your tasks
+                {skillCount.toLocaleString()} AI Skills Available
               </div>
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                Choose a skill to deploy manually, or Drodo will auto-assign the best match for your task.
+              </p>
             </div>
             <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Top Categories</div>

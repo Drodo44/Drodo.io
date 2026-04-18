@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
-import { getAllSavedModels, getConnectedProviders } from '../../lib/providerApi'
+import { getAllSavedModels, getConnectedProviders, getSavedModelDisplayName } from '../../lib/providerApi'
 
 export function ModelSwitcher() {
   const { activeProvider, setSessionModel } = useAppStore(
@@ -31,7 +31,7 @@ export function ModelSwitcher() {
           providerColor: p.color,
           providerInitials: p.initials,
           modelId: p.model,
-          modelLabel: p.displayName || p.model,
+          modelLabel: getSavedModelDisplayName(p.id, p.model) || p.displayName || p.model,
         })
       }
     }
@@ -57,7 +57,7 @@ export function ModelSwitcher() {
   }
 
   const options = buildOptions()
-  const currentLabel = activeProvider.displayName || activeProvider.model || activeProvider.name
+  const currentLabel = getSavedModelDisplayName(activeProvider.id, activeProvider.model) || activeProvider.displayName || activeProvider.model || activeProvider.name
 
   // Close on outside click
   useEffect(() => {

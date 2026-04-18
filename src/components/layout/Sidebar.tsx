@@ -141,7 +141,7 @@ export function Sidebar() {
             {activeProvider.initials}
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <div className="text-xs font-medium text-[var(--text-primary)] truncate">{activeProvider.model ?? activeProvider.name}</div>
+            <div className="text-xs font-medium text-[var(--text-primary)] truncate">{activeProvider.displayName ?? activeProvider.model ?? activeProvider.name}</div>
             <div className="text-xs text-[var(--text-secondary)] truncate">{activeProvider.name}</div>
           </div>
           <ChevronRight size={12} className="text-[var(--text-secondary)] group-hover:text-[var(--text-muted)] flex-shrink-0" />
