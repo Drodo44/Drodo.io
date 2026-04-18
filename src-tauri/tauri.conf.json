@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Drodo",
-  "version": "1.2.40",
+  "version": "1.2.41",
   "identifier": "io.drodo.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -68,7 +68,7 @@
     },
     "updater": {
       "active": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFNTUxNUNBQ0QyQkExMEUKUldRT29Tdk55aFZWUHBiek9HdWJOQjRtbXVEeW9HN0c1QnhzQTU3TkZmMW1qYjFpcXp4aGVSaXAK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJBNDg0NzZEMjZFOTNDRUUKUldUdVBPa21iVWRJS2xkWmFNS0diTDlGYTlJaVNqdXpjczkxRTAvSWgySitXT0JNM1J2b2NFRVIK",
       "endpoints": [
         "https://github.com/Drodo44/Drodo.io/releases/latest/download/latest.json"
       ]
