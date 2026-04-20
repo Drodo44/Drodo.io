@@ -299,17 +299,7 @@ jobs:
               local filename
               filename=$(basename "$asset_path")
               EXISTING_ASSETS=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/$RELEASE_ID/assets")
-              EXISTING_ID=$(echo "$EXISTING_ASSETS" | python3 -c "
-import json,sys
-try:
-    data=json.load(sys.stdin)
-    assets=data if isinstance(data,list) else data.get('assets',data.get('items',[]))
-    name='$filename'
-    match=[str(a['id']) for a in assets if isinstance(a,dict) and a.get('name')==name]
-    print(match[0] if match else '')
-except Exception:
-    print('')
-")
+              EXISTING_ID=$(echo "$EXISTING_ASSETS" | python3 -c "import json,sys; data=json.load(sys.stdin); assets=data if isinstance(data,list) else []; match=[str(a['id']) for a in assets if isinstance(a,dict) and a.get('name')=='$filename']; print(match[0] if match else '')" 2>/dev/null || echo "")
               if [ -n "$EXISTING_ID" ]; then
                 curl -s -X DELETE -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$OWNER/$REPO/releases/assets/$EXISTING_ID" >/dev/null
                 echo "Deleted existing asset: $filename"
