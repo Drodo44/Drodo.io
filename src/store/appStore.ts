@@ -685,7 +685,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         const step = plan.agents[i]
         const agentId = `orch-${runId}-step-${i}`
         const fallbackProvider = resolveProviderForModel(step.model, selectProvider(undefined, provider, i))
-        const agentProvider = routeModelForTask(step.specificTask, fallbackProvider)
+        const agentProvider = routeModelForTask(step.specificTask, fallbackProvider, i)
         stepProviders.set(step.id, agentProvider)
         const agent: AgentInstance = {
           id: agentId,
@@ -935,7 +935,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           }))
           appendSessionMessage(`❌ Multi-agent task failed: ${errorMessage}`, 'system')
         },
-        step => stepProviders.get(step.id) ?? provider,
+        (step, stepIndex) => stepProviders.get(step.id) ?? selectProvider(undefined, provider, stepIndex),
       )
 
       activeOrchestrationAbort = abort
@@ -1262,7 +1262,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const agentId = `agent-${agentCounter++}`
     const selectedProvider = selectProvider(providerId, state.activeProvider, agentCounter)
     const fallbackProvider = model ? { ...selectedProvider, model } : selectedProvider
-    const provider = routeModelForTask(agentTask, fallbackProvider)
+    const provider = routeModelForTask(agentTask, fallbackProvider, agentCounter - 1)
     const resolvedSystemPrompt = await buildAgentSystemPrompt(
       agentTask,
       systemPrompt ?? 'You are a Drodo swarm worker. Focus only on the assigned subtask.',
@@ -1581,7 +1581,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       for (let index = 0; index < subtasks.length; index += 1) {
         const taskEntry = subtasks[index]
-        const assignedProvider = routeModelForTask(taskEntry.task, state.activeProvider)
+        const assignedProvider = routeModelForTask(taskEntry.task, state.activeProvider, index)
         await get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name, assignedProvider.model)
       }
     } catch (error: unknown) {

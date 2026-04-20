@@ -12,14 +12,8 @@
   Pop $0
 
   StrCmp $0 "0" drodo_postinstall_done
-
-  StrCpy $1 "BootstrapFailure"
-  IfFileExists "$INSTDIR\automation\last-error.txt" 0 +4
-    FileOpen $2 "$INSTDIR\automation\last-error.txt" r
-    FileRead $2 $1
-    FileClose $2
-
-  MessageBox MB_OK|MB_ICONEXCLAMATION "Drodo could not finish installing automation dependencies (Node.js, Git, n8n). Reason: $1 See $INSTDIR\automation\logs\bootstrap.log for details."
+  DetailPrint "Automation setup will complete on first launch."
+  Goto drodo_postinstall_done
 
 drodo_postinstall_done:
 !macroend

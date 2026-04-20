@@ -28,8 +28,6 @@ import { decryptStoredKey } from '../lib/encryption'
 import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
 import {
   ensureWorkflowCatalogLoaded,
-  getWorkflowCategories,
-  getWorkflowCount,
   getWorkflowTemplate,
   searchWorkflows,
   type WorkflowIndex,
@@ -115,6 +113,19 @@ function getWorkflowAccentColor(category?: string): string {
     if (normalized.includes(keyword)) return color
   }
   return '#6b7280'
+}
+
+const PLACEHOLDER_TEMPLATE_NAME_REGEX = /^Template \d+$/i
+
+function isDisplayableTemplate(template: WorkflowIndex): boolean {
+  const name = template.name.trim()
+  const description = template.description.trim()
+
+  if (!name || !description) return false
+  if (PLACEHOLDER_TEMPLATE_NAME_REGEX.test(name)) return false
+  if (description.toLowerCase().startsWith('n8n workflow template from')) return false
+
+  return true
 }
 
 function cloneSteps(steps: WorkflowStep[]): WorkflowStep[] {
@@ -831,13 +842,16 @@ export function WorkflowsView() {
   const selectedWorkflow = workflows.find(workflow => workflow.id === selectedId) ?? null
   const combinedOutput = buildRunOutput(stepRuns)
   const showOutputPanel = workflowRunning || stepRuns.length > 0
-  const allTemplates = useMemo(() => templateCatalogReady ? searchWorkflows('') : [], [templateCatalogReady])
-  const templateCategories = useMemo(
-    () => templateCatalogReady ? ['All', ...getWorkflowCategories()] : ['All'],
+  const allTemplates = useMemo(
+    () => templateCatalogReady ? searchWorkflows('').filter(isDisplayableTemplate) : [],
     [templateCatalogReady]
   )
+  const templateCategories = useMemo(
+    () => ['All', ...new Set(allTemplates.map(template => template.category))],
+    [allTemplates]
+  )
   const searchedTemplates = useMemo(
-    () => templateCatalogReady ? searchWorkflows(templateQuery) : [],
+    () => templateCatalogReady ? searchWorkflows(templateQuery).filter(isDisplayableTemplate) : [],
     [templateCatalogReady, templateQuery]
   )
   const filteredTemplates = useMemo(() => {
@@ -970,7 +984,7 @@ export function WorkflowsView() {
           <div>
             <h1 className="font-bold text-[var(--text-primary)] text-lg">Workflows</h1>
             <p className="text-xs text-[var(--text-secondary)]">
-              {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(getWorkflowCount(), 'template')} · {getWorkflowCountLabel(runs.length, 'run')}
+              {getWorkflowCountLabel(workflows.length, 'workflow')} · {getWorkflowCountLabel(allTemplates.length, 'template')} · {getWorkflowCountLabel(runs.length, 'run')}
             </p>
           </div>
         </div>
@@ -1113,7 +1127,7 @@ export function WorkflowsView() {
                       <div>
                         <h2 className="text-base font-semibold text-[var(--text-primary)]">Template Library</h2>
                         <p className="text-xs text-[var(--text-secondary)]">
-                          Browse {getWorkflowCountLabel(getWorkflowCount(), 'bundled template')} across official and starred public n8n sources.
+                          Browse {getWorkflowCountLabel(allTemplates.length, 'bundled template')} across official and starred public n8n sources.
                         </p>
                       </div>
                     </div>

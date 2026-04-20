@@ -10,10 +10,7 @@ import type { Connector, ConnectorCategory, Skill } from '../types'
 import { loadConnectorKeys, removeConnectorKey, saveConnectorKey } from '../lib/connectorKeys'
 import {
   ensureSkillsCatalogLoaded,
-  getAllSkillCategories,
   getAllSkills,
-  getSkillCount,
-  getTopSkillCategories,
 } from '../lib/skills'
 
 const CATEGORY_ORDER: ConnectorCategory[] = [
@@ -48,6 +45,25 @@ const SKILL_CATEGORY_COLORS: Record<string, string> = {
 }
 
 type SkillsTab = 'skills' | 'connectors'
+
+const NON_ASCII_REGEX = /[^\x00-\x7F]/
+
+function isEnglishSkill(skill: Skill): boolean {
+  return !NON_ASCII_REGEX.test(skill.name) && !NON_ASCII_REGEX.test(skill.description)
+}
+
+function buildTopSkillCategories(skills: Skill[], limit: number): Array<{ name: string; count: number }> {
+  const counts = new Map<string, number>()
+
+  for (const skill of skills) {
+    counts.set(skill.category, (counts.get(skill.category) ?? 0) + 1)
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([name, count]) => ({ name, count }))
+}
 
 function SkillCard({ skill }: { skill: Skill }) {
   const color = SKILL_CATEGORY_COLORS[skill.category] ?? '#6b7280'
@@ -352,9 +368,12 @@ export function SkillsView() {
 
     void ensureSkillsCatalogLoaded().then(() => {
       if (cancelled) return
-      setAllSkills(getAllSkills())
-      setTopCategories(getTopSkillCategories(5))
-      setSkillCategories(['All', ...getAllSkillCategories()])
+      const englishSkills = getAllSkills().filter(isEnglishSkill)
+      const categories = [...new Set(englishSkills.map(skill => skill.category))].sort((a, b) => a.localeCompare(b))
+
+      setAllSkills(englishSkills)
+      setTopCategories(buildTopSkillCategories(englishSkills, 5))
+      setSkillCategories(['All', ...categories])
       setSkillsReady(true)
     })
 
@@ -363,7 +382,7 @@ export function SkillsView() {
     }
   }, [])
 
-  const skillCount = getSkillCount()
+  const skillCount = allSkills.length
   const connectedCount = connectors.filter(c => c.isConnected).length
 
   const filteredSkills = useMemo(() => {

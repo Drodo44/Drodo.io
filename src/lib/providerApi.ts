@@ -263,24 +263,37 @@ function scoreModelForTask(modelId: string, task: string): number {
 function pickBestSavedModelForTask(
   task: string,
   savedModels: { providerId: string; providerName: string; model: SavedModel }[],
-): { provider: Provider; score: number } | null {
+  tieBreakerIndex = 0,
+): { provider: Provider; score: number; allScoresZero: boolean } | null {
   let best: { entry: { providerId: string; providerName: string; model: SavedModel }; score: number } | null = null
+  let allScoresZero = true
   for (const entry of savedModels) {
     const score = scoreModelForTask(entry.model.id, task)
+    if (score > 0) allScoresZero = false
     if (!best || score > best.score) best = { entry, score }
   }
   if (!best) return null
-  const provider = buildProvider(best.entry.providerId)
+  const normalizedIndex = ((tieBreakerIndex % savedModels.length) + savedModels.length) % savedModels.length
+  const selectedEntry = allScoresZero ? savedModels[normalizedIndex] : best.entry
+  const provider = buildProvider(selectedEntry.providerId)
   if (!provider) return null
-  return { provider: { ...provider, model: best.entry.model.id, displayName: best.entry.model.label || undefined }, score: best.score }
+  return {
+    provider: {
+      ...provider,
+      model: selectedEntry.model.id,
+      displayName: selectedEntry.model.label || undefined,
+    },
+    score: best.score,
+    allScoresZero,
+  }
 }
 
-export function routeModelForTask(task: string, fallback: Provider): Provider {
+export function routeModelForTask(task: string, fallback: Provider, tieBreakerIndex = 0): Provider {
   // Prefer user's explicitly saved models — only override fallback when scoring found a meaningful match
   const savedModels = getAllSavedModels()
   if (savedModels.length > 0) {
-    const result = pickBestSavedModelForTask(task, savedModels)
-    if (result && result.score > 0) return result.provider
+    const result = pickBestSavedModelForTask(task, savedModels, tieBreakerIndex)
+    if (result && (result.score > 0 || result.allScoresZero)) return result.provider
   }
 
   // Fall back to connected-provider registry selection

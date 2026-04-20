@@ -2,6 +2,7 @@ import type { Message, OrchestrationPlan, OrchestrationRun, OrchestrationStep, P
 import { completeText, streamCompletion } from './streamChat'
 import { injectSkills } from './skillsInjector'
 import { getAppSettings } from './appSettings'
+import { buildProvider, getAllSavedModels } from './providerApi'
 import {
   ensureSkillsCatalogLoaded,
   getAllSkillCategories,
@@ -64,6 +65,36 @@ function pickBestModel(task: string, savedModels: string[], usedModels: Set<stri
 
   usedModels.add(best)
   return best
+}
+
+function resolveReviewProvider(stepProvider: Provider, stepIndex: number): Provider | null {
+  const savedModels = getAllSavedModels()
+  if (savedModels.length < 2) return null
+
+  const currentIndex = savedModels.findIndex(entry =>
+    entry.providerId === stepProvider.id && entry.model.id === stepProvider.model
+  )
+  const baseIndex = currentIndex >= 0
+    ? currentIndex
+    : ((stepIndex % savedModels.length) + savedModels.length) % savedModels.length
+
+  for (let offset = 1; offset < savedModels.length; offset += 1) {
+    const candidate = savedModels[(baseIndex + offset) % savedModels.length]
+    if (candidate.providerId === stepProvider.id && candidate.model.id === stepProvider.model) {
+      continue
+    }
+
+    const provider = buildProvider(candidate.providerId)
+    if (!provider) continue
+
+    return {
+      ...provider,
+      model: candidate.model.id,
+      displayName: candidate.model.label || undefined,
+    }
+  }
+
+  return null
 }
 
 export async function buildOrchestrationPlan(
@@ -196,7 +227,7 @@ export async function runOrchestration(
   onStepComplete: (stepId: string, output: string) => void,
   onComplete: (run: OrchestrationRun) => void,
   onError: (error: string) => void,
-  resolveProvider?: (step: OrchestrationStep) => Provider,
+  resolveProvider?: (step: OrchestrationStep, stepIndex: number) => Provider,
 ): Promise<() => void> {
   let aborted = false
   let currentAbort: (() => void) | null = null
@@ -208,7 +239,7 @@ export async function runOrchestration(
 
   const execute = async () => {
     try {
-      for (const step of run.plan.agents) {
+      for (const [stepIndex, step] of run.plan.agents.entries()) {
         if (aborted) return
 
         onStepStart(step.id, step.templateName)
@@ -222,7 +253,7 @@ export async function runOrchestration(
           ? `${step.systemPrompt}\n\nYou must complete the task autonomously. Make reasonable assumptions. Never ask the user for clarification. Deliver finished output only.`
           : `You are a ${step.templateName}. ${step.templateTask}. Focus only on your specific assigned task and produce high quality output. You must complete the task autonomously. Make reasonable assumptions. Never ask the user for clarification. Deliver finished output only.`
 
-        const stepProvider = resolveProvider?.(step) ?? provider
+        const stepProvider = resolveProvider?.(step, stepIndex) ?? provider
 
         const enabledSkillsForStep = Object.fromEntries((step.skills ?? []).map(s => [s, true]))
         const baseMessages: Message[] = [
@@ -261,20 +292,22 @@ export async function runOrchestration(
 
         if (aborted) return
 
-        // ── Self-review pass ──────────────────────────────────────────────────
-        onStepReviewing(step.id)
-
         let finalOutput = accumulated
+        const reviewProvider = resolveReviewProvider(stepProvider, stepIndex)
         try {
-          const reviewMessages: Message[] = [
-            msg('system', 'You are a quality reviewer. Evaluate the following agent response.'),
-            msg(
-              'user',
-              `Task: ${step.specificTask}\n\nResponse to review:\n${accumulated}\n\nIs this response complete, accurate, and fully addressing the task? If yes, respond with exactly "APPROVED". If no, provide an improved version.`,
-            ),
-          ]
-          const reviewResult = await completeText(stepProvider, reviewMessages)
-          finalOutput = reviewResult.trim() === 'APPROVED' ? accumulated : reviewResult
+          if (reviewProvider) {
+            // Use a different saved model for review; otherwise skip the pass.
+            onStepReviewing(step.id)
+            const reviewMessages: Message[] = [
+              msg('system', 'You are a quality reviewer. Evaluate the following agent response.'),
+              msg(
+                'user',
+                `Task: ${step.specificTask}\n\nResponse to review:\n${accumulated}\n\nIs this response complete, accurate, and fully addressing the task? If yes, respond with exactly "APPROVED". If no, provide an improved version.`,
+              ),
+            ]
+            const reviewResult = await completeText(reviewProvider, reviewMessages)
+            finalOutput = reviewResult.trim() === 'APPROVED' ? accumulated : reviewResult
+          }
         } catch {
           // review failed — use original output
         }
