@@ -4,7 +4,7 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Paperclip } from 'lucide-react'
 import type { Message } from '../../types'
 
 interface MessageBubbleProps {
@@ -68,6 +68,8 @@ function CopyButton({ text }: { text: string }) {
 export function MessageBubble({ message, isLast }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isSystem = message.role === 'system'
+  const attachments = message.attachments ?? []
+  const hasAttachments = attachments.length > 0
 
   if (isSystem) {
     return (
@@ -80,6 +82,7 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
   }
 
   const displayContent = isUser ? message.content : sanitizeChatContent(message.content)
+  const hasTextContent = displayContent.trim().length > 0
 
   return (
     <div
@@ -110,7 +113,25 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
         >
           {!isUser && <CopyButton text={displayContent} />}
           {isUser ? (
-            <span className="whitespace-pre-wrap break-words">{displayContent}</span>
+            <div className="space-y-2">
+              {hasTextContent && (
+                <span className="whitespace-pre-wrap break-words block">{displayContent}</span>
+              )}
+              {hasAttachments && (
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map(attachment => (
+                    <span
+                      key={attachment.path}
+                      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
+                      style={{ borderColor: '#7f77dd33', background: '#7f77dd14', color: 'var(--text-primary)' }}
+                    >
+                      <Paperclip size={11} />
+                      {attachment.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="drodo-prose">
               <Markdown

@@ -11,6 +11,10 @@ export async function readFile(path: string): Promise<string> {
   return invoke<string>('read_file', { path })
 }
 
+export async function pickFiles(): Promise<string[]> {
+  return invoke<string[]>('pick_files')
+}
+
 export async function writeFile(path: string, content: string): Promise<void> {
   await invoke('write_file', { path, content })
 }

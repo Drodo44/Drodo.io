@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type {
   AgentInstance,
+  Attachment,
   ChatSession,
   Message,
   NavView,
@@ -116,12 +117,46 @@ function createId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-function createMessage(role: Message['role'], content: string): Message {
+function buildAttachmentSummary(attachments: Attachment[]): string {
+  if (attachments.length === 0) return ''
+  if (attachments.length === 1) return `Attached ${attachments[0].name}`
+  return `Attached ${attachments.length} files: ${attachments.map(attachment => attachment.name).join(', ')}`
+}
+
+function summarizeUserTurn(content: string, attachments: Attachment[]): string {
+  const trimmed = content.trim()
+  const attachmentSummary = buildAttachmentSummary(attachments)
+  if (!trimmed) return attachmentSummary
+  if (attachments.length === 0 || trimmed === attachmentSummary) return trimmed
+  return `${trimmed}\n\n${attachmentSummary}`
+}
+
+function attachmentToPromptBlock(attachment: Attachment): string {
+  return `[File: ${attachment.name}]\n${attachment.content}`
+}
+
+function serializeMessageForModel(message: Message): Message {
+  if (!message.attachments || message.attachments.length === 0) return message
+
+  const attachmentSummary = buildAttachmentSummary(message.attachments)
+  const promptSections = [
+    message.content.trim() === attachmentSummary ? '' : message.content.trim(),
+    ...message.attachments.map(attachmentToPromptBlock),
+  ].filter(section => section.length > 0)
+
+  return {
+    ...message,
+    content: promptSections.join('\n\n'),
+  }
+}
+
+function createMessage(role: Message['role'], content: string, attachments?: Attachment[]): Message {
   return {
     id: createId(role),
     role,
     content,
     timestamp: new Date(),
+    attachments,
   }
 }
 
@@ -393,7 +428,7 @@ interface AppState {
   setActiveProvider: (provider: Provider) => void
   setProviderHubOpen: (open: boolean) => void
   addMessage: (message: Message) => void
-  sendMessage: (content: string) => void
+  sendMessage: (content: string, attachments?: Attachment[]) => void
   stopAll: () => void
   spawnAgent: (task?: string, providerId?: string, name?: string, model?: string, systemPrompt?: string) => Promise<void>
   launchSwarm: (goal?: string) => Promise<void>
@@ -1088,8 +1123,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     persistChatSessions(s.chatSessions, s.activeChatSessionId)
   },
 
-  sendMessage: content => {
+  sendMessage: (content, attachments = []) => {
     const state = get()
+    const normalizedAttachments = attachments.filter(attachment => (
+      attachment.path.trim().length > 0 &&
+      attachment.name.trim().length > 0 &&
+      attachment.content.length > 0
+    ))
+    const userMessageContent = content || buildAttachmentSummary(normalizedAttachments)
 
     activePrimaryRun?.abort()
     activePrimaryRun = null
@@ -1100,7 +1141,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     const provider = state.activeProvider
-    const userMessage = createMessage('user', content)
+    const userMessage = createMessage(
+      'user',
+      userMessageContent,
+      normalizedAttachments.length > 0 ? normalizedAttachments : undefined,
+    )
     const assistantId = createId('assistant')
     const assistantMessage: Message = {
       id: assistantId,
@@ -1115,8 +1160,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     const history = state.messages.filter(m => !m.streaming)
     const apiMessages: Message[] = [
       createMessage('system', `${DRODO_IDENTITY_PROMPT} Be direct, concise, and helpful.`),
-      ...history.filter(m => m.role === 'user' || m.role === 'assistant'),
-      userMessage,
+      ...history
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .map(serializeMessageForModel),
+      serializeMessageForModel(userMessage),
     ]
 
     set(current => ({
@@ -1125,7 +1172,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       taskSteps: updateTaskStep(createTaskSteps(), 'respond', 'running'),
       terminalEntries: [
         ...current.terminalEntries,
-        createTerminalEntry('info', 'User', content),
+        createTerminalEntry('info', 'User', summarizeUserTurn(userMessageContent, normalizedAttachments)),
       ],
     }))
     persistSessionSnapshot(state.sessionId, state.sessionName, provider, nextMessages)

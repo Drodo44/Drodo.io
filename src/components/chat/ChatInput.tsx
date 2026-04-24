@@ -1,12 +1,16 @@
 import { useRef, useState, useEffect } from 'react'
-import { Send, Paperclip, Code2, Zap, Square, Users } from 'lucide-react'
+import { Send, Paperclip, Code2, Zap, Square, Users, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
+import { pickFiles, readFile } from '../../lib/tauri'
+import type { Attachment } from '../../types'
 import { ModelSwitcher } from './ModelSwitcher'
 
 export function ChatInput() {
   const [value, setValue] = useState('')
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [pickingFiles, setPickingFiles] = useState(false)
   const {
     sendMessage,
     autonomousMode,
@@ -20,6 +24,7 @@ export function ChatInput() {
     toggleMultiAgentMode,
     startOrchestration,
     orchestrationRun,
+    activeChatSessionId,
   } = useAppStore(
     useShallow(s => ({
       sendMessage: s.sendMessage,
@@ -34,6 +39,7 @@ export function ChatInput() {
       toggleMultiAgentMode: s.toggleMultiAgentMode,
       startOrchestration: s.startOrchestration,
       orchestrationRun: s.orchestrationRun,
+      activeChatSessionId: s.activeChatSessionId,
     }))
   )
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -43,17 +49,27 @@ export function ChatInput() {
     setValue(chatDraft)
   }, [chatDraft, setChatDraft])
 
+  useEffect(() => {
+    setAttachments([])
+  }, [activeChatSessionId])
+
+  const buildOrchestrationPayload = (content: string, nextAttachments: Attachment[]) => {
+    const attachmentBlocks = nextAttachments.map(attachment => `[File: ${attachment.name}]\n${attachment.content}`)
+    return [content, ...attachmentBlocks].filter(Boolean).join('\n\n')
+  }
+
   const handleSend = () => {
     const trimmed = value.trim()
-    if (!trimmed || agentRunning) return
+    if ((!trimmed && attachments.length === 0) || agentRunning) return
 
     if (multiAgentMode) {
-      void startOrchestration(trimmed)
+      void startOrchestration(buildOrchestrationPayload(trimmed, attachments))
     } else {
-      sendMessage(trimmed)
+      sendMessage(trimmed, attachments)
     }
 
     setValue('')
+    setAttachments([])
     setChatDraft('')
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
@@ -74,6 +90,36 @@ export function ChatInput() {
     const ta = e.target
     ta.style.height = 'auto'
     ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'
+  }
+
+  const handlePickFiles = async () => {
+    if (agentRunning || pickingFiles) return
+
+    setPickingFiles(true)
+    try {
+      const pickedPaths = await pickFiles()
+      if (pickedPaths.length === 0) return
+
+      const existingPaths = new Set(attachments.map(attachment => attachment.path))
+      const nextPaths = pickedPaths.filter(path => !existingPaths.has(path))
+      if (nextPaths.length === 0) return
+
+      const nextAttachments = await Promise.all(
+        nextPaths.map(async path => ({
+          path,
+          name: path.split(/[/\\]/).pop() || path,
+          content: await readFile(path),
+        }))
+      )
+
+      setAttachments(current => [...current, ...nextAttachments])
+    } finally {
+      setPickingFiles(false)
+    }
+  }
+
+  const handleRemoveAttachment = (path: string) => {
+    setAttachments(current => current.filter(attachment => attachment.path !== path))
   }
 
   const planningActive = orchestrationRun?.status === 'planning'
@@ -143,10 +189,37 @@ export function ChatInput() {
           style={{ maxHeight: 120, minHeight: 44 }}
         />
 
+        {attachments.length > 0 && (
+          <div className="flex flex-wrap gap-2 px-4 pb-2">
+            {attachments.map(attachment => (
+              <span
+                key={attachment.path}
+                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
+                style={{ borderColor: '#7f77dd33', background: '#7f77dd14', color: 'var(--text-primary)' }}
+              >
+                <Paperclip size={11} />
+                <span className="max-w-[220px] truncate">{attachment.name}</span>
+                <button
+                  onClick={() => handleRemoveAttachment(attachment.path)}
+                  className="rounded-full p-0.5 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                  title={`Remove ${attachment.name}`}
+                >
+                  <X size={10} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex items-center justify-between px-3 pb-2.5 gap-2">
           <div className="flex items-center gap-1.5">
-            <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
+            <button
+              onClick={() => void handlePickFiles()}
+              disabled={agentRunning || pickingFiles}
+              className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title={pickingFiles ? 'Opening file picker…' : 'Attach files'}
+            >
               <Paperclip size={15} />
             </button>
             <button className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-muted)] hover:bg-[var(--border-color)] transition-colors">
@@ -216,10 +289,10 @@ export function ChatInput() {
             {!agentRunning && (
               <button
                 onClick={handleSend}
-                disabled={!value.trim()}
+                disabled={!value.trim() && attachments.length === 0}
                 className={clsx(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200',
-                  value.trim()
+                  value.trim() || attachments.length > 0
                     ? 'bg-[#7f77dd] text-white hover:bg-[#6a63c8] shadow-[0_2px_8px_rgba(127,119,221,0.3)]'
                     : 'bg-[var(--border-color)] text-[var(--text-secondary)] cursor-not-allowed'
                 )}

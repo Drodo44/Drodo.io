@@ -87,12 +87,19 @@ export interface SwarmFeedEntry {
   timestamp: Date
 }
 
+export interface Attachment {
+  path: string
+  name: string
+  content: string
+}
+
 export interface Message {
   id: string
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp: Date
   streaming?: boolean
+  attachments?: Attachment[]
 }
 
 export interface Session {

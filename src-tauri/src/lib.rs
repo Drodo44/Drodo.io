@@ -9,6 +9,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 use tauri::Manager;
+use tauri_plugin_dialog::DialogExt;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -170,18 +171,44 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
 #[tauri::command]
 fn read_file(path: String) -> Result<String, String> {
     let path = path_from_input(&path)?;
-    let bytes = fs::read(&path).map_err(|err| format!("Failed to read {}: {}", stringify_path(&path), err))?;
+    let bytes = fs::read(&path)
+        .map_err(|err| format!("Failed to read {}: {}", stringify_path(&path), err))?;
     Ok(String::from_utf8_lossy(&bytes).into_owned())
+}
+
+#[tauri::command]
+async fn pick_files(app: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let picked = app
+        .dialog()
+        .file()
+        .blocking_pick_files()
+        .unwrap_or_default();
+
+    picked
+        .into_iter()
+        .map(|file_path| {
+            file_path
+                .into_path()
+                .map(|path| stringify_path(&path))
+                .map_err(|err| format!("Failed to resolve a selected file path: {err}"))
+        })
+        .collect()
 }
 
 #[tauri::command]
 fn write_file(path: String, content: String) -> Result<(), String> {
     let path = path_from_input(&path)?;
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)
-            .map_err(|err| format!("Failed to create parent directories for {}: {}", stringify_path(&path), err))?;
+        fs::create_dir_all(parent).map_err(|err| {
+            format!(
+                "Failed to create parent directories for {}: {}",
+                stringify_path(&path),
+                err
+            )
+        })?;
     }
-    fs::write(&path, content).map_err(|err| format!("Failed to write {}: {}", stringify_path(&path), err))?;
+    fs::write(&path, content)
+        .map_err(|err| format!("Failed to write {}: {}", stringify_path(&path), err))?;
     Ok(())
 }
 
@@ -202,7 +229,11 @@ fn list_directory(path: String) -> Result<Vec<DirectoryEntry>, String> {
                 name: entry.file_name().to_string_lossy().to_string(),
                 path: stringify_path(&entry.path()),
                 is_directory: metadata.is_dir(),
-                size: if metadata.is_file() { Some(metadata.len()) } else { None },
+                size: if metadata.is_file() {
+                    Some(metadata.len())
+                } else {
+                    None
+                },
                 modified_at,
             })
         })
@@ -332,6 +363,7 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
@@ -357,6 +389,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             read_file,
+            pick_files,
             write_file,
             list_directory,
             execute_command,

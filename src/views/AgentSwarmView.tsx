@@ -926,7 +926,7 @@ export function AgentSwarmView() {
   return (
     <div className="flex w-full flex-1 min-h-0 min-w-0 overflow-hidden flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
       {/* ── Left panel: Agent grid ─────────────────────── */}
-      <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-[1.7_1_0] border-r border-[var(--border-color)]">
+      <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-[1.2_1_0] border-r border-[var(--border-color)]">
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 flex-shrink-0"
@@ -1006,7 +1006,7 @@ export function AgentSwarmView() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {visibleStoreAgents.map(agent => (
                 <ManagedAgentCard
                   key={agent.id}
