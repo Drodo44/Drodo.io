@@ -68,7 +68,7 @@ export function Sidebar() {
         data-tutorial={tutorialId}
         onClick={() => setView(view)}
         className={clsx(
-          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
+          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-[background-color,color] duration-150 relative',
           isActive
             ? 'text-[var(--text-primary)] bg-[#7f77dd]/12'
             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'

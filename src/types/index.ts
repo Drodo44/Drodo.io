@@ -72,7 +72,7 @@ export interface OrchestrationRun {
   id: string
   originalTask: string
   plan: OrchestrationPlan
-  status: 'planning' | 'running' | 'complete' | 'error'
+  status: 'planning' | 'running' | 'complete' | 'error' | 'cancelled'
   stepOutputs: Record<string, string>
   startedAt: Date
   finishedAt?: Date
@@ -91,6 +91,7 @@ export interface Attachment {
   path: string
   name: string
   content: string
+  size?: number
   binary?: boolean
 }
 

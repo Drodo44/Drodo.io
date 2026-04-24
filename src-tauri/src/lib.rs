@@ -4,12 +4,13 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    process::Command,
+    process::Command as StdCommand,
     time::Duration,
     time::UNIX_EPOCH,
 };
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
+use tokio::{process::Command as TokioCommand, time::timeout};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -58,11 +59,19 @@ fn stringify_path(path: &Path) -> String {
     path.to_string_lossy().to_string()
 }
 
-fn probe_n8n_running() -> bool {
-    reqwest::blocking::Client::builder()
+async fn probe_n8n_running() -> bool {
+    let client = match reqwest::Client::builder()
         .timeout(Duration::from_secs(2))
         .build()
-        .and_then(|client| client.get(N8N_READY_URL).send())
+    {
+        Ok(client) => client,
+        Err(_) => return false,
+    };
+
+    client
+        .get(N8N_READY_URL)
+        .send()
+        .await
         .map(|response| response.status().is_success())
         .unwrap_or(false)
 }
@@ -134,7 +143,7 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     {
         let automation_home = resolve_windows_automation_home(app)?;
         let app_version = app.package_info().version.to_string();
-        let mut command = Command::new("powershell");
+        let mut command = StdCommand::new("powershell");
         command
             .args([
                 "-NoProfile",
@@ -157,7 +166,7 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     {
         let automation_home = resolve_linux_automation_home(app)?;
         let app_version = app.package_info().version.to_string();
-        Command::new("sh")
+        StdCommand::new("sh")
             .arg(&script_path)
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
@@ -250,7 +259,7 @@ fn list_directory(path: String) -> Result<Vec<DirectoryEntry>, String> {
 }
 
 #[tauri::command]
-fn execute_command(command: String) -> Result<CommandExecutionResult, String> {
+async fn execute_command(command: String) -> Result<CommandExecutionResult, String> {
     let trimmed = command.trim();
     if trimmed.is_empty() {
         return Err("Command cannot be empty.".to_string());
@@ -259,20 +268,30 @@ fn execute_command(command: String) -> Result<CommandExecutionResult, String> {
     #[cfg(target_os = "windows")]
     let (shell, output) = {
         let shell = "cmd";
-        let output = Command::new(shell)
-            .args(["/C", trimmed])
-            .output()
-            .map_err(|err| format!("Failed to execute command: {}", err))?;
+        let mut command = TokioCommand::new(shell);
+        command.kill_on_drop(true);
+        let output = timeout(
+            Duration::from_secs(300),
+            command.args(["/C", trimmed]).output(),
+        )
+        .await
+        .map_err(|_| format!("Command timed out after 300 seconds: {trimmed}"))?
+        .map_err(|err| format!("Failed to execute command: {}", err))?;
         (shell.to_string(), output)
     };
 
     #[cfg(not(target_os = "windows"))]
     let (shell, output) = {
         let shell = "sh";
-        let output = Command::new(shell)
-            .args(["-lc", trimmed])
-            .output()
-            .map_err(|err| format!("Failed to execute command: {}", err))?;
+        let mut command = TokioCommand::new(shell);
+        command.kill_on_drop(true);
+        let output = timeout(
+            Duration::from_secs(300),
+            command.args(["-lc", trimmed]).output(),
+        )
+        .await
+        .map_err(|_| format!("Command timed out after 300 seconds: {trimmed}"))?
+        .map_err(|err| format!("Failed to execute command: {}", err))?;
         (shell.to_string(), output)
     };
 
@@ -315,7 +334,7 @@ fn start_mcp_server(
 
     #[cfg(target_os = "windows")]
     {
-        Command::new("powershell")
+        StdCommand::new("powershell")
             .args(["-NoProfile", "-Command", trimmed])
             .envs(&env_vars)
             .spawn()
@@ -324,7 +343,7 @@ fn start_mcp_server(
 
     #[cfg(not(target_os = "windows"))]
     {
-        Command::new("sh")
+        StdCommand::new("sh")
             .args(["-c", trimmed])
             .envs(&env_vars)
             .spawn()
@@ -335,8 +354,8 @@ fn start_mcp_server(
 }
 
 #[tauri::command]
-fn get_n8n_status() -> Result<serde_json::Value, String> {
-    Ok(build_n8n_status(probe_n8n_running()))
+async fn get_n8n_status() -> Result<serde_json::Value, String> {
+    Ok(build_n8n_status(probe_n8n_running().await))
 }
 
 #[tauri::command]
@@ -373,7 +392,7 @@ pub fn run() {
         .setup(|app| {
             let app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                if !probe_n8n_running() {
+                if !probe_n8n_running().await {
                     if let Err(err) = spawn_dependency_bootstrap(&app_handle) {
                         eprintln!("{err}");
                     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
 import { useAppStore } from './store/appStore'
 import { Sidebar } from './components/layout/Sidebar'
@@ -26,7 +26,6 @@ import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
 import { CommandPalette } from './components/ui/CommandPalette'
 import { withErrorBoundary } from './components/ui/ErrorBoundary'
-import { Logo } from './components/ui/Logo'
 import { Loader2 } from 'lucide-react'
 import { applyThemeClass, getStoredTheme } from './lib/theme'
 import { getSession, onAuthStateChange } from './lib/auth'
@@ -85,6 +84,27 @@ function MainContent() {
   return null
 }
 
+function LoadingShell({ label }: { label: string }) {
+  return (
+    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-6">
+      <div
+        className="w-full max-w-md rounded-2xl border p-6"
+        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+      >
+        <div className="flex items-center gap-3">
+          <Loader2 size={18} className="animate-spin" style={{ color: '#7f77dd' }} />
+          <div>
+            <div className="text-sm font-semibold text-[var(--text-primary)]">{label}</div>
+            <div className="mt-1 text-xs text-[var(--text-secondary)]">
+              The shell is ready. Background initialization is still running.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Skill library URLs fetched once at startup ───────────────────────────────
 const SKILL_LIBRARY_URLS = [
   'https://raw.githubusercontent.com/wshobson/agents/main/README.md',
@@ -114,18 +134,23 @@ function refreshSkillLibrary() {
       .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && !!r.value)
       .map(r => r.value)
     if (parts.length === 0) return
-    // Deduplicate lines
-    const raw = parts.join('\n')
-    const deduped = [...new Set(raw.split('\n'))].join('\n')
-    try {
-      localStorage.setItem(SKILL_LIBRARY_KEY, JSON.stringify({ content: deduped, fetchedAt: Date.now() }))
-    } catch { /* storage full */ }
+
+    window.setTimeout(() => {
+      const raw = parts.join('\n')
+      const deduped = [...new Set(raw.split('\n'))].join('\n')
+      try {
+        localStorage.setItem(SKILL_LIBRARY_KEY, JSON.stringify({ content: deduped, fetchedAt: Date.now() }))
+      } catch { /* storage full */ }
+    }, 0)
   })
 }
 
 function App() {
   const user = useAppStore(s => s.user)
   const setUser = useAppStore(s => s.setUser)
+  const initStore = useAppStore(s => s.init)
+  const isInitializing = useAppStore(s => s.isInitializing)
+  const isInitialized = useAppStore(s => s.isInitialized)
   const startN8nStatusPolling = useAppStore(s => s.startN8nStatusPolling)
   const stopN8nStatusPolling = useAppStore(s => s.stopN8nStatusPolling)
   const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
@@ -136,6 +161,10 @@ function App() {
   useEffect(() => {
     applyThemeClass(getStoredTheme())
   }, [])
+
+  useEffect(() => {
+    initStore()
+  }, [initStore])
 
   // Fetch skill library once on startup (cached for 24h)
   useEffect(() => {
@@ -253,54 +282,26 @@ function App() {
 
   const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
 
-  if (!authReady) {
-    return (
-      <div
-        className="app-shell flex items-center justify-center"
-        style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-      >
-        <div className="flex flex-col items-center gap-6">
-          <Logo size={96} showText />
-          <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-            <Loader2 size={16} className="animate-spin" style={{ color: '#7f77dd' }} />
-            Loading session…
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const authPending = !authReady && !skipAuth
+  let content: ReactNode
 
-  if (!user && !skipAuth) {
-    return <SafeAuthView />
-  }
-
-  if (!onboardingDone) {
-    return (
-      <div
-        className="app-shell"
-        style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-      >
-        <div className="app-shell__sidebar">
-          <Sidebar />
-        </div>
-        <div className="app-shell__main">
-          <TopBar />
-          <main className="app-shell__content flex-1 min-w-0 overflow-auto">
-            <SafeOnboardingScreen
-              onComplete={() => {
-                setOnboardingDone(true)
-                if (!isTutorialComplete()) {
-                  setTimeout(() => setShowTutorial(true), 500)
-                }
-              }}
-            />
-          </main>
-        </div>
-        <ProviderHubModal />
-        <PermissionWarningModal />
-        <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
-      </div>
+  if (!isInitialized || isInitializing) {
+    content = <LoadingShell label="Loading chats…" />
+  } else if (!user && !skipAuth && authReady) {
+    content = <SafeAuthView />
+  } else if (!onboardingDone) {
+    content = (
+      <SafeOnboardingScreen
+        onComplete={() => {
+          setOnboardingDone(true)
+          if (!isTutorialComplete()) {
+            setTimeout(() => setShowTutorial(true), 500)
+          }
+        }}
+      />
     )
+  } else {
+    content = <MainContent />
   }
 
   return (
@@ -314,8 +315,17 @@ function App() {
 
       <div className="app-shell__main">
         <TopBar />
+        {authPending && (
+          <div
+            className="flex items-center gap-2 px-5 py-2 text-xs"
+            style={{ background: '#7f77dd12', color: '#a09ae8', borderBottom: '1px solid #7f77dd22' }}
+          >
+            <Loader2 size={12} className="animate-spin" style={{ color: '#7f77dd' }} />
+            Restoring your session in the background…
+          </div>
+        )}
         <main className="app-shell__content flex-1 min-w-0 overflow-auto">
-          <MainContent />
+          {content}
         </main>
       </div>
 

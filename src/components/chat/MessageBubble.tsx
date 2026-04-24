@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { clsx } from 'clsx'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -10,6 +10,7 @@ import type { Message } from '../../types'
 interface MessageBubbleProps {
   message: Message
   isLast?: boolean
+  isNew?: boolean
 }
 
 function formatTime(date: Date) {
@@ -65,7 +66,7 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
-export function MessageBubble({ message, isLast }: MessageBubbleProps) {
+export const MessageBubble = memo(function MessageBubble({ message, isLast, isNew = true }: MessageBubbleProps) {
   const isUser = message.role === 'user'
   const isSystem = message.role === 'system'
   const attachments = message.attachments ?? []
@@ -81,13 +82,47 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
     )
   }
 
-  const displayContent = isUser ? message.content : sanitizeChatContent(message.content)
+  const displayContent = useMemo(
+    () => (isUser ? message.content : sanitizeChatContent(message.content)),
+    [isUser, message.content]
+  )
   const hasTextContent = displayContent.trim().length > 0
+  const markdownContent = useMemo(() => (
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        code({ className, children, ...props }) {
+          const match = /language-(\w+)/.exec(className || '')
+          const codeString = String(children).replace(/\n$/, '')
+          if (match || (codeString.includes('\n') && !className)) {
+            return (
+              <SyntaxHighlighter
+                style={oneDark}
+                language={match?.[1] ?? 'text'}
+                PreTag="div"
+                customStyle={{ margin: '0.5em 0', borderRadius: 8, fontSize: '0.8125rem' }}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            )
+          }
+          return (
+            <code className={className} {...props}>
+              {children}
+            </code>
+          )
+        },
+      }}
+    >
+      {displayContent}
+    </Markdown>
+  ), [displayContent])
 
   return (
     <div
       className={clsx(
-        'flex gap-3 mb-4 animate-fade-in',
+        'flex gap-3 mb-4',
+        isNew && 'animate-fade-in',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
     >
@@ -134,35 +169,7 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
             </div>
           ) : (
             <div className="drodo-prose">
-              <Markdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  code({ className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || '')
-                    const codeString = String(children).replace(/\n$/, '')
-                    // Block code: has a language class or contains newlines
-                    if (match || (codeString.includes('\n') && !className)) {
-                      return (
-                        <SyntaxHighlighter
-                          style={oneDark}
-                          language={match?.[1] ?? 'text'}
-                          PreTag="div"
-                          customStyle={{ margin: '0.5em 0', borderRadius: 8, fontSize: '0.8125rem' }}
-                        >
-                          {codeString}
-                        </SyntaxHighlighter>
-                      )
-                    }
-                    return (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    )
-                  },
-                }}
-              >
-                {displayContent}
-              </Markdown>
+              {markdownContent}
             </div>
           )}
           {message.streaming && isLast && (
@@ -177,4 +184,4 @@ export function MessageBubble({ message, isLast }: MessageBubbleProps) {
       </div>
     </div>
   )
-}
+})

@@ -206,7 +206,7 @@ Rules:
     }
     return parsed
   } catch (error) {
-    if (isAbortError(error)) {
+    if (signal?.aborted || isAbortError(error)) {
       throw error
     }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { Plus, Zap, Activity, ChevronDown, ChevronRight, Square, Workflow, Copy, X, Target } from 'lucide-react'
+import { Plus, Zap, Activity, ChevronRight, Square, Workflow, Copy, X, Target } from 'lucide-react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import * as Dialog from '@radix-ui/react-dialog'
@@ -50,6 +51,23 @@ function feedIcon(type: SwarmFeedEntry['type']): string {
     case 'summary': return '🏁'
     case 'chunk': return '💬'
     default: return '•'
+  }
+}
+
+function formatFeedContent(content: string): { text: string; isJson: boolean } {
+  const trimmed = content.trim()
+  if (!trimmed) return { text: content, isJson: false }
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return { text: content, isJson: false }
+  }
+
+  try {
+    return {
+      text: JSON.stringify(JSON.parse(trimmed), null, 2),
+      isJson: true,
+    }
+  } catch {
+    return { text: content, isJson: false }
   }
 }
 
@@ -325,6 +343,7 @@ const STATUS_LABEL: Record<OrchestrationRun['status'], string> = {
   running: 'Running',
   complete: 'Complete',
   error: 'Error',
+  cancelled: 'Cancelled',
 }
 
 const STATUS_COLOR: Record<OrchestrationRun['status'], string> = {
@@ -332,6 +351,7 @@ const STATUS_COLOR: Record<OrchestrationRun['status'], string> = {
   running: '#f97316',
   complete: '#1d9e75',
   error: '#e05050',
+  cancelled: '#e05050',
 }
 
 function OrchestrationBanner({
@@ -562,44 +582,32 @@ function ManagedAgentCard({
   )
 }
 
-// ─── Consolidated Feed Group (collapsible earlier activity) ──────────────────
-
-function ConsolidatedGroupCard({ group }: { group: { summary: string; entries: SwarmFeedEntry[] } }) {
-  const [expanded, setExpanded] = useState(false)
+function FeedEntryRow({ entry }: { entry: SwarmFeedEntry }) {
+  const formatted = formatFeedContent(entry.content)
 
   return (
-    <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] mb-2">
-      <button
-        onClick={() => setExpanded(e => !e)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] transition-colors"
+    <div className="flex items-start gap-2 rounded-lg border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-color)', background: 'var(--bg-secondary)' }}>
+      <span
+        className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
+        style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
       >
-        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        <span>{'\uD83D\uDCCB'} {group.entries.length} earlier actions completed \u2014 click to expand</span>
-      </button>
-      {expanded && (
-        <div className="px-3 pb-2 space-y-1 max-h-60 overflow-y-auto border-t border-[var(--border-color)]">
-          {group.entries.map(entry => (
-            <div key={entry.id} className="flex items-start gap-2 text-xs py-0.5">
-              <span
-                className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
-              >
-                {entry.agentName}
-              </span>
-              <span className="flex-shrink-0">{feedIcon(entry.type)}</span>
-              <span className="flex-1 text-[var(--text-muted)] leading-relaxed break-all">
-                {entry.type === 'chunk'
-                  ? entry.content.slice(-300)
-                  : entry.content.slice(0, 300)}
-                {entry.content.length > 300 ? '\u2026' : ''}
-              </span>
-              <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
-                {formatTime(new Date(entry.timestamp))}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+        {entry.agentName}
+      </span>
+      <span className="flex-shrink-0 pt-0.5">{feedIcon(entry.type)}</span>
+      <div className="min-w-0 flex-1">
+        {formatted.isJson ? (
+          <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md bg-[var(--bg-primary)] px-2 py-1.5 font-mono text-[11px] text-[var(--text-muted)]">
+            {formatted.text}
+          </pre>
+        ) : (
+          <div className="whitespace-pre-wrap break-words leading-relaxed text-[var(--text-muted)]">
+            {formatted.text}
+          </div>
+        )}
+      </div>
+      <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
+        {formatTime(new Date(entry.timestamp))}
+      </span>
     </div>
   )
 }
@@ -607,19 +615,19 @@ function ConsolidatedGroupCard({ group }: { group: { summary: string; entries: S
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 export function AgentSwarmView() {
-  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, setOrchestrationRun } = useAppStore(
+  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, swarmFeed, clearSwarmFeed, setOrchestrationRun } = useAppStore(
     useShallow(s => ({
       stopAgentStore: s.stopAgent,
       spawnAgentStore: s.spawnAgent,
       activeProvider: s.activeProvider,
       orchestrationRun: s.orchestrationRun,
       storeAgents: s.agents,
+      swarmFeed: s.swarmFeed,
+      clearSwarmFeed: s.clearSwarmFeed,
       setOrchestrationRun: s.setOrchestrationRun,
     }))
   )
 
-  const [visibleEntries, setVisibleEntries] = useState<SwarmFeedEntry[]>([])
-  const [consolidatedGroups, setConsolidatedGroups] = useState<Array<{ summary: string; entries: SwarmFeedEntry[] }>>([])
   const [memoryStats, setMemoryStats] = useState<MemoryStats>({ count: 0, lastUpdated: null })
   const [workflowModal, setWorkflowModal] = useState<WorkflowModalState | null>(null)
   const [generatedWorkflowJson, setGeneratedWorkflowJson] = useState('')
@@ -631,19 +639,24 @@ export function AgentSwarmView() {
   const [spawnTask, setSpawnTask] = useState('')
   const [selectedModelKey, setSelectedModelKey] = useState('')
   const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
-  const feedRef = useRef<HTMLDivElement>(null)
-  const previousAgentStateRef = useRef<Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>>(new Map())
-  const feedDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pendingEntriesRef = useRef<SwarmFeedEntry[]>([])
+  const feedParentRef = useRef<HTMLDivElement>(null)
   const savedModelDisplayNames = useMemo(() => getSavedModelDisplayNameMap(), [activeProvider.id, activeProvider.model, storeAgents])
+  const feedVirtualizer = useVirtualizer({
+    count: swarmFeed.length,
+    getScrollElement: () => feedParentRef.current,
+    estimateSize: () => 88,
+    overscan: 10,
+  })
 
-  // Auto-scroll live feed to bottom when new entries arrive
   useEffect(() => {
-    const el = feedRef.current
+    const el = feedParentRef.current
     if (!el) return
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
-    if (isNearBottom) el.scrollTop = el.scrollHeight
-  }, [visibleEntries])
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 160
+    if (!isNearBottom) return
+    window.requestAnimationFrame(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
+    })
+  }, [swarmFeed])
 
   useEffect(() => {
     let mounted = true
@@ -660,105 +673,8 @@ export function AgentSwarmView() {
   }, [])
 
   useEffect(() => {
-    const nextSnapshots = new Map<string, Pick<AgentInstance, 'status' | 'tokens' | 'lastUpdate' | 'summary'>>()
-    const newEntries: SwarmFeedEntry[] = []
-
-    for (const agent of storeAgents) {
-      const previous = previousAgentStateRef.current.get(agent.id)
-      const snapshot = {
-        status: agent.status,
-        tokens: agent.tokens,
-        lastUpdate: agent.lastUpdate,
-        summary: agent.summary,
-      }
-
-      nextSnapshots.set(agent.id, snapshot)
-
-      if (!previous) {
-        newEntries.push({
-          id: `feed-${agent.id}-start-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          agentName: agent.name,
-          type: 'start',
-          content: agent.task,
-          timestamp: new Date(),
-        })
-        continue
-      }
-
-      if (previous.status !== agent.status) {
-        if (agent.status === 'running') {
-          newEntries.push({
-            id: `feed-${agent.id}-resume-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            agentName: agent.name,
-            type: 'start',
-            content: agent.lastUpdate || agent.task,
-            timestamp: new Date(),
-          })
-        } else if (agent.status === 'complete') {
-          newEntries.push({
-            id: `feed-${agent.id}-complete-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            agentName: agent.name,
-            type: 'complete',
-            content: agent.summary || agent.lastUpdate || agent.task,
-            timestamp: new Date(),
-          })
-        } else if (agent.status === 'error') {
-          newEntries.push({
-            id: `feed-${agent.id}-error-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            agentName: agent.name,
-            type: 'error',
-            content: agent.summary || agent.lastUpdate || agent.task,
-            timestamp: new Date(),
-          })
-        }
-        continue
-      }
-
-      if (
-        agent.status === 'running' &&
-        (previous.lastUpdate !== agent.lastUpdate || previous.tokens !== agent.tokens) &&
-        agent.lastUpdate
-      ) {
-        newEntries.push({
-          id: `feed-${agent.id}-chunk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          agentName: agent.name,
-          type: 'chunk',
-          content: agent.lastUpdate,
-          timestamp: new Date(),
-        })
-      }
-    }
-
-    previousAgentStateRef.current = nextSnapshots
-
-    if (newEntries.length === 0) return
-
-    // Debounced flush — max one state update per 250ms
-    pendingEntriesRef.current = [...pendingEntriesRef.current, ...newEntries]
-    if (feedDebounceRef.current) clearTimeout(feedDebounceRef.current)
-    feedDebounceRef.current = setTimeout(() => {
-      const pending = pendingEntriesRef.current
-      pendingEntriesRef.current = []
-
-      setVisibleEntries(current => {
-        const merged = [...current, ...pending]
-        if (merged.length >= 100) {
-          setConsolidatedGroups(groups => [
-            ...groups,
-            { summary: `${merged.length} earlier actions completed`, entries: merged },
-          ])
-          return []
-        }
-        return merged
-      })
-    }, 250)
-  }, [storeAgents])
-
-  // Cleanup on unmount
-  useEffect(() => {
     return () => {
       workflowStreamRef.current?.abort()
-      if (feedDebounceRef.current) clearTimeout(feedDebounceRef.current)
     }
   }, [])
 
@@ -1036,19 +952,18 @@ export function AgentSwarmView() {
                 style={{ background: '#1d9e75', animation: 'pulse 1.5s infinite' }}
               />
             )}
-            <span className="text-xs text-[var(--text-secondary)]">({consolidatedGroups.reduce((sum, g) => sum + g.entries.length, 0) + visibleEntries.length})</span>
+            <span className="text-xs text-[var(--text-secondary)]">({swarmFeed.length})</span>
           </div>
           <button
-            onClick={() => { setVisibleEntries([]); setConsolidatedGroups([]) }}
+            onClick={clearSwarmFeed}
             className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             Clear
           </button>
         </div>
 
-        {/* Feed scroll area — real data from store */}
-        <div ref={feedRef} className="flex-1 overflow-y-auto p-4 space-y-1.5">
-          {consolidatedGroups.length === 0 && visibleEntries.length === 0 ? (
+        <div ref={feedParentRef} className="flex-1 overflow-y-auto p-4">
+          {swarmFeed.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
                 <Activity size={24} className="text-[var(--text-secondary)]" />
@@ -1061,31 +976,25 @@ export function AgentSwarmView() {
               </div>
             </div>
           ) : (
-            <>
-              {consolidatedGroups.map((group, gi) => (
-                <ConsolidatedGroupCard key={`cg-${gi}`} group={group} />
-              ))}
-              {visibleEntries.map(entry => (
-                <div key={entry.id} className="flex items-start gap-2 text-xs py-1">
-                  <span
-                    className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-                    style={{ background: 'var(--bg-tertiary)', color: '#7f77dd', fontSize: 10 }}
+            <div
+              className="relative w-full"
+              style={{ height: `${feedVirtualizer.getTotalSize()}px` }}
+            >
+              {feedVirtualizer.getVirtualItems().map(virtualRow => {
+                const entry = swarmFeed[virtualRow.index]
+                return (
+                  <div
+                    key={entry.id}
+                    ref={feedVirtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    className="absolute left-0 top-0 w-full pb-1.5"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
                   >
-                    {entry.agentName}
-                  </span>
-                  <span className="flex-shrink-0">{feedIcon(entry.type)}</span>
-                  <span className="flex-1 text-[var(--text-muted)] leading-relaxed break-all">
-                    {entry.type === 'chunk'
-                      ? entry.content.slice(-300)
-                      : entry.content.slice(0, 300)}
-                    {entry.content.length > 300 ? '…' : ''}
-                  </span>
-                  <span className="flex-shrink-0 text-[var(--text-muted)] font-mono text-[10px]">
-                    {formatTime(new Date(entry.timestamp))}
-                  </span>
-                </div>
-              ))}
-            </>
+                    <FeedEntryRow entry={entry} />
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
       </div>

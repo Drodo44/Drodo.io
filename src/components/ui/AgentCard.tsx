@@ -1,5 +1,6 @@
 import { Square, Cpu, Wrench } from 'lucide-react'
 import { clsx } from 'clsx'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import { StatusBadge } from './StatusBadge'
 import type { AgentInstance } from '../../types'
@@ -16,7 +17,11 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent }: AgentCardProps) {
-  const stopAgent = useAppStore(s => s.stopAgent)
+  const { stopAgent } = useAppStore(
+    useShallow(s => ({
+      stopAgent: s.stopAgent,
+    }))
+  )
 
   const formatTokens = (n: number) => {
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
@@ -26,7 +31,7 @@ export function AgentCard({ agent }: AgentCardProps) {
   return (
     <div
       className={clsx(
-        'rounded-xl border p-4 flex flex-col gap-3 transition-all duration-300',
+        'rounded-xl border p-4 flex flex-col gap-3 transition-[background-color,border-color,color,box-shadow] duration-150',
         'bg-[var(--bg-tertiary)]',
         STATUS_BORDER[agent.status],
         agent.status === 'running' && 'shadow-[0_0_16px_rgba(127,119,221,0.08)]'

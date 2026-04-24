@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Plug } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
@@ -7,20 +8,53 @@ import { ChatInput } from '../chat/ChatInput'
 import { ChatSessionTabs } from '../chat/ChatSessionTabs'
 
 export function ChatPanel() {
-  const { messages, agentRunning, activeProvider, setView } = useAppStore(
+  const { messages, agentRunning, activeProvider, setView, activeChatSessionId } = useAppStore(
     useShallow(s => ({
       messages: s.messages,
       agentRunning: s.agentRunning,
       activeProvider: s.activeProvider,
       setView: s.setView,
+      activeChatSessionId: s.activeChatSessionId,
     }))
   )
   const noProvider = !activeProvider.isLocal && !activeProvider.apiKey
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const parentRef = useRef<HTMLDivElement>(null)
+  const sessionMountTimeRef = useRef(Date.now())
+  const virtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: index => {
+      const message = messages[index]
+      const base = message.role === 'assistant' ? 120 : 88
+      const contentWeight = Math.min(message.content.length, 2400) / 12
+      const attachmentWeight = (message.attachments?.length ?? 0) * 28
+      return base + contentWeight + attachmentWeight
+    },
+    overscan: 8,
+  })
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    sessionMountTimeRef.current = Date.now()
+  }, [activeChatSessionId])
+
+  useEffect(() => {
+    const scrollElement = parentRef.current
+    const lastMessage = messages[messages.length - 1]
+    if (!scrollElement || !lastMessage) return
+
+    const isNearBottom = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight < 160
+    if (!isNearBottom && !lastMessage.streaming) {
+      return
+    }
+
+    const behavior: ScrollBehavior = lastMessage.streaming ? 'auto' : 'smooth'
+    window.requestAnimationFrame(() => {
+      scrollElement.scrollTo({
+        top: scrollElement.scrollHeight,
+        behavior,
+      })
+    })
+  }, [messages, virtualizer])
 
   return (
     <div className="flex flex-col flex-1 min-w-0 min-h-0" style={{ background: 'var(--bg-primary)' }}>
@@ -28,14 +62,30 @@ export function ChatPanel() {
       <ChatSessionTabs />
 
       {/* Messages scroll area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4" style={{ scrollbarGutter: 'stable' }}>
-        {messages.map((msg, i) => (
-          <MessageBubble
-            key={msg.id}
-            message={msg}
-            isLast={i === messages.length - 1}
-          />
-        ))}
+      <div ref={parentRef} className="flex-1 overflow-y-auto px-6 py-4" style={{ scrollbarGutter: 'stable' }}>
+        <div
+          className="relative w-full"
+          style={{ height: `${virtualizer.getTotalSize()}px` }}
+        >
+          {virtualizer.getVirtualItems().map(virtualRow => {
+            const msg = messages[virtualRow.index]
+            return (
+              <div
+                key={msg.id}
+                ref={virtualizer.measureElement}
+                data-index={virtualRow.index}
+                className="absolute left-0 top-0 w-full"
+                style={{ transform: `translateY(${virtualRow.start}px)` }}
+              >
+                <MessageBubble
+                  message={msg}
+                  isLast={virtualRow.index === messages.length - 1}
+                  isNew={msg.timestamp.getTime() > sessionMountTimeRef.current}
+                />
+              </div>
+            )
+          })}
+        </div>
 
         {/* No provider inline card */}
         {noProvider && (
@@ -80,7 +130,6 @@ export function ChatPanel() {
           </div>
         )}
 
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}

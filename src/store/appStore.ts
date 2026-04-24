@@ -48,8 +48,12 @@ let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
 let n8nStatusPollTimer: ReturnType<typeof setInterval> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
-let activeOrchestrationAbort: (() => void) | null = null
+let activeOrchestrationAbort: { abort: () => void; runId: string; cancelled: boolean } | null = null
+let storeInitStarted = false
 const ORCHESTRATION_PLANNING_TIMEOUT_MS = 60_000
+const SWARM_FEED_LIMIT = 500
+const SWARM_FEED_CHUNK_LIMIT = 300
+const SWARM_FEED_MESSAGE_LIMIT = 1200
 
 function clearN8nStatusPollTimer() {
   if (n8nStatusPollTimer) {
@@ -102,6 +106,17 @@ const DONE_PHRASES = [
 ]
 
 const DRODO_IDENTITY_PROMPT = 'You are Drodo, an AI agent platform built by Drodo. Do not identify yourself as any specific AI model or company. You are Drodo.'
+const DEFAULT_PROVIDER: Provider = {
+  id: 'anthropic',
+  name: 'Anthropic',
+  baseUrl: 'api.anthropic.com',
+  model: 'claude-sonnet-4-6',
+  apiKey: '',
+  color: '#cc785c',
+  initials: 'AN',
+  isConnected: false,
+}
+const DEFAULT_MESSAGES = [createMessage('system', 'Session started. Drodo is ready.')]
 
 const INITIAL_TASK_STEPS: TaskStep[] = [
   { id: 'plan', label: 'Analyze request', status: 'pending' },
@@ -186,6 +201,28 @@ function createTaskSteps(): TaskStep[] {
 
 function createSessionId(): string {
   return crypto.randomUUID()
+}
+
+function createDefaultChatState(provider: Provider = DEFAULT_PROVIDER): {
+  chatSessions: ChatSession[]
+  activeChatSessionId: string
+  messages: Message[]
+  activeProvider: Provider
+} {
+  const session: ChatSession = {
+    id: createSessionId(),
+    name: 'Chat 1',
+    messages: DEFAULT_MESSAGES,
+    providerId: provider.id,
+    modelId: provider.model ?? '',
+  }
+
+  return {
+    chatSessions: [session],
+    activeChatSessionId: session.id,
+    messages: session.messages,
+    activeProvider: provider,
+  }
 }
 
 function updateTaskStep(steps: TaskStep[], id: TaskStep['id'], status: TaskStep['status']): TaskStep[] {
@@ -365,11 +402,22 @@ function fallbackSubtasks(goal: string) {
 
 let agentCounter = 1
 
+function truncateSwarmContent(type: SwarmFeedEntry['type'], content: string): string {
+  const limit = type === 'chunk' ? SWARM_FEED_CHUNK_LIMIT : SWARM_FEED_MESSAGE_LIMIT
+  return content.length > limit ? `${content.slice(0, limit)}…` : content
+}
+
 function pushSwarmFeed(
   feed: SwarmFeedEntry[],
   next: SwarmFeedEntry,
 ): SwarmFeedEntry[] {
-  return [...feed, next].slice(-3000)
+  return [
+    ...feed,
+    {
+      ...next,
+      content: truncateSwarmContent(next.type, next.content),
+    },
+  ].slice(-SWARM_FEED_LIMIT)
 }
 
 async function buildWorkflowHint(task: string): Promise<string> {
@@ -398,6 +446,8 @@ async function buildAgentSystemPrompt(task: string, basePrompt: string): Promise
 }
 
 interface AppState {
+  isInitializing: boolean
+  isInitialized: boolean
   activeView: NavView
   user: any | null
   sessionId: string
@@ -435,6 +485,7 @@ interface AppState {
   n8nReady: boolean
   n8nUrl: string
 
+  init: () => void
   setView: (view: NavView) => void
   setUser: (user: any | null) => void
   startNewSession: () => void
@@ -474,11 +525,11 @@ interface AppState {
   stopN8nStatusPolling: () => void
 }
 
-const _defaultProvider = buildDefaultProvider()
-const _defaultMessages = [createMessage('system', 'Session started. Drodo is ready.')]
-const _chatInit = initChatSessions(_defaultProvider, _defaultMessages)
+const _chatInit = createDefaultChatState()
 
 export const useAppStore = create<AppState>((set, get) => ({
+  isInitializing: true,
+  isInitialized: false,
   activeView: 'agent',
   user: null,
   sessionId: _chatInit.activeChatSessionId,
@@ -517,6 +568,38 @@ export const useAppStore = create<AppState>((set, get) => ({
   activeChatSessionId: _chatInit.activeChatSessionId,
   n8nReady: false,
   n8nUrl: 'http://localhost:5678',
+
+  init: () => {
+    if (storeInitStarted) return
+    storeInitStarted = true
+
+    void Promise.resolve().then(() => {
+      const defaultProvider = buildDefaultProvider()
+      const hydrated = initChatSessions(defaultProvider, DEFAULT_MESSAGES)
+      const sessionName =
+        hydrated.chatSessions.find(session => session.id === hydrated.activeChatSessionId)?.name
+        ?? 'Chat 1'
+      const nextDraft = get().chatDraftBySession[hydrated.activeChatSessionId] ?? ''
+
+      set({
+        isInitializing: false,
+        isInitialized: true,
+        activeProvider: hydrated.activeProvider,
+        messages: hydrated.messages,
+        chatSessions: hydrated.chatSessions,
+        activeChatSessionId: hydrated.activeChatSessionId,
+        sessionId: hydrated.activeChatSessionId,
+        sessionName,
+        chatDraft: nextDraft,
+        chatDraftBySession: {
+          ...get().chatDraftBySession,
+          [hydrated.activeChatSessionId]: nextDraft,
+        },
+      })
+    }).catch(() => {
+      set({ isInitializing: false, isInitialized: true })
+    })
+  },
 
   setView: view => set({ activeView: view }),
   setUser: user => set({ user }),
@@ -704,37 +787,44 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     appendSessionMessage(task, 'user')
 
-    let planningTimedOut = false
     let planningTimeout: ReturnType<typeof setTimeout> | null = null
 
     try {
       const templateDetails = TEMPLATES.map(t => ({ name: t.name, category: t.category, systemPrompt: t.systemPrompt }))
       const savedModels = getAllSavedModels().map(m => `${m.providerId}::${m.model.id}`)
       const planningController = new AbortController()
+      const planningAbortState = {
+        runId,
+        cancelled: false,
+        abort: () => planningController.abort(),
+      }
       planningTimeout = setTimeout(() => {
-        planningTimedOut = true
+        if (planningAbortState.cancelled) return
+        planningAbortState.cancelled = true
         planningController.abort()
-        activeOrchestrationAbort = null
+        if (activeOrchestrationAbort === planningAbortState) {
+          activeOrchestrationAbort = null
+        }
         set(current => ({
-          orchestrationRun: current.orchestrationRun
-            ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
-            : null,
+          orchestrationRun: current.orchestrationRun?.id === runId
+            ? { ...current.orchestrationRun, status: 'cancelled', finishedAt: new Date() }
+            : current.orchestrationRun,
           terminalEntries: [
             ...current.terminalEntries,
-            createTerminalEntry('error', 'Planning timed out', 'Planning timed out — please try again.'),
+            createTerminalEntry('error', 'Planning timed out', 'Planning timed out and was cancelled.'),
           ],
           swarmFeed: pushSwarmFeed(current.swarmFeed, {
             id: createId('swarm-feed'),
             agentName: 'Swarm',
             type: 'error',
-            content: 'Planning timed out — please try again.',
+            content: 'Planning timed out and was cancelled.',
             timestamp: new Date(),
           }),
         }))
-        appendSessionMessage('❌ Planning timed out — please try again.', 'system')
+        appendSessionMessage('❌ Planning timed out and was cancelled.', 'system')
       }, ORCHESTRATION_PLANNING_TIMEOUT_MS)
 
-      activeOrchestrationAbort = () => planningController.abort()
+      activeOrchestrationAbort = planningAbortState
 
       const basePlan = await buildOrchestrationPlan(
         task,
@@ -744,9 +834,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         savedModels,
         planningController.signal,
       )
-      clearTimeout(planningTimeout)
-      planningTimeout = null
-      activeOrchestrationAbort = null
+      if (planningTimeout) {
+        clearTimeout(planningTimeout)
+        planningTimeout = null
+      }
+      if (activeOrchestrationAbort === planningAbortState) {
+        activeOrchestrationAbort = null
+      }
+      if (planningAbortState.cancelled) {
+        return
+      }
       const plan = {
         ...basePlan,
         agents: await Promise.all(basePlan.agents.map(async step => {
@@ -763,7 +860,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       appendSessionMessage(`Starting multi-agent task: ${plan.taskSummary || task}. Agents are running — check the Agent Swarm tab for live progress.`)
 
       const runningRun: OrchestrationRun = { ...run, plan, status: 'running' }
-      set({ orchestrationRun: runningRun })
+      set(current => ({
+        orchestrationRun: current.orchestrationRun?.id === runId
+          ? { ...runningRun, finishedAt: undefined }
+          : current.orchestrationRun,
+      }))
 
       // Post the initial checklist message (all waiting)
       const completedStepIds = new Set<string>()
@@ -938,7 +1039,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           }
         },
         completedRun => {
-          activeOrchestrationAbort = null
+          if (activeOrchestrationAbort?.runId === runId) {
+            activeOrchestrationAbort = null
+          }
 
           // Finalize checklist to all-done
           const finalChecklist = buildChecklist(plan.agents, new Set(plan.agents.map(a => a.id)), null, plan.taskSummary || task)
@@ -947,11 +1050,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           appendSessionMessage(summarizeOrchestrationResult(completedRun))
 
           set(current => ({
-            orchestrationRun: {
-              ...completedRun,
-              status: 'complete',
-              finishedAt: new Date(),
-            },
+            orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status !== 'cancelled'
+              ? {
+                  ...completedRun,
+                  status: 'complete',
+                  finishedAt: new Date(),
+                }
+              : current.orchestrationRun,
             swarmRunning: current.agents.some(a => a.status === 'running'),
             swarmFeed: pushSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
@@ -964,11 +1069,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           void notify('Drodo', 'Multi-agent task complete')
         },
         errorMessage => {
-          activeOrchestrationAbort = null
+          if (activeOrchestrationAbort?.runId === runId) {
+            activeOrchestrationAbort = null
+          }
           set(current => ({
-            orchestrationRun: current.orchestrationRun
-              ? { ...current.orchestrationRun, status: 'error' }
-              : null,
+            orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status !== 'cancelled'
+              ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
+              : current.orchestrationRun,
             terminalEntries: [
               ...current.terminalEntries,
               createTerminalEntry('error', 'Orchestration failed', errorMessage),
@@ -986,7 +1093,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         (step, stepIndex) => stepProviders.get(step.id) ?? selectProvider(undefined, provider, stepIndex),
       )
 
-      activeOrchestrationAbort = abort
+      activeOrchestrationAbort = {
+        runId,
+        cancelled: false,
+        abort,
+      }
     } catch (error: unknown) {
       if (planningTimeout) {
         clearTimeout(planningTimeout)
@@ -994,23 +1105,29 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
 
       if (isAbortError(error)) {
-        activeOrchestrationAbort = null
+        if (activeOrchestrationAbort?.runId === runId) {
+          activeOrchestrationAbort = null
+        }
         set(current => ({
-          orchestrationRun: planningTimedOut
-            ? current.orchestrationRun
-            : current.orchestrationRun?.status === 'planning'
-            ? null
+          orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status === 'planning'
+            ? {
+                ...current.orchestrationRun,
+                status: 'cancelled',
+                finishedAt: current.orchestrationRun.finishedAt ?? new Date(),
+              }
             : current.orchestrationRun,
         }))
         return
       }
 
       const message = error instanceof Error ? error.message : String(error)
-      activeOrchestrationAbort = null
+      if (activeOrchestrationAbort?.runId === runId) {
+        activeOrchestrationAbort = null
+      }
       set(current => ({
-        orchestrationRun: current.orchestrationRun
+        orchestrationRun: current.orchestrationRun?.id === runId
           ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
-          : null,
+          : current.orchestrationRun,
         terminalEntries: [
           ...current.terminalEntries,
           createTerminalEntry('error', 'Orchestration failed', message),
@@ -1120,8 +1237,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
     activeSwarmRuns.clear()
 
-    activeOrchestrationAbort?.()
-    activeOrchestrationAbort = null
+    const orchestrationAbort = activeOrchestrationAbort
+    if (orchestrationAbort) {
+      orchestrationAbort.cancelled = true
+    }
 
     if (autonomousLoopTimer) {
       clearTimeout(autonomousLoopTimer)
@@ -1140,6 +1259,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         autonomousLoopCount: 0,
         swarmRunning: false,
         messages: stoppedMessages,
+        orchestrationRun: state.orchestrationRun &&
+          (state.orchestrationRun.status === 'planning' || state.orchestrationRun.status === 'running')
+          ? { ...state.orchestrationRun, status: 'cancelled', finishedAt: new Date() }
+          : state.orchestrationRun,
         chatSessions: state.chatSessions.map(s =>
           s.id === state.activeChatSessionId ? { ...s, messages: stoppedMessages } : s
         ),
@@ -1154,6 +1277,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         ],
       }
     })
+    orchestrationAbort?.abort()
+    if (activeOrchestrationAbort === orchestrationAbort) {
+      activeOrchestrationAbort = null
+    }
     const s = get()
     persistChatSessions(s.chatSessions, s.activeChatSessionId)
   },
@@ -1373,6 +1500,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     set(current => ({
       agents: [...current.agents, agent],
       swarmRunning: true,
+      swarmFeed: pushSwarmFeed(current.swarmFeed, {
+        id: createId('swarm-feed'),
+        agentName: agent.name,
+        type: 'start',
+        content: agentTask,
+        timestamp: new Date(),
+      }),
       terminalEntries: [
         ...current.terminalEntries,
         createTerminalEntry('info', `${agent.name} started`, `${provider.name} · ${agent.model}\n${agentTask}`, agentId),
@@ -1478,6 +1612,13 @@ export const useAppStore = create<AppState>((set, get) => ({
               ? { ...item, tokens: estimateTokens(accumulated), lastUpdate: accumulated.slice(-120) || item.lastUpdate }
               : item
           ),
+          swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            id: createId('swarm-feed'),
+            agentName: agent.name,
+            type: 'chunk',
+            content: chunk,
+            timestamp: new Date(),
+          }),
         }))
         void writeMemoryEntry({
           session_id: state.activeChatSessionId,
@@ -1508,6 +1649,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           return {
             agents,
             swarmRunning: agents.some(item => item.status === 'running'),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              agentName: agent.name,
+              type: 'complete',
+              content: message,
+              timestamp: new Date(),
+            }),
             terminalEntries: [
               ...current.terminalEntries,
               createTerminalEntry('info', `${agent.name} complete`, message, agentId),
@@ -1536,6 +1684,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           return {
             agents,
             swarmRunning: agents.some(item => item.status === 'running'),
+            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+              id: createId('swarm-feed'),
+              agentName: agent.name,
+              type: 'error',
+              content: error.message,
+              timestamp: new Date(),
+            }),
             terminalEntries: [
               ...current.terminalEntries,
               createTerminalEntry('error', `${agent.name} error`, error.message, agentId),

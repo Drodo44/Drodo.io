@@ -3,7 +3,7 @@ import { Send, Paperclip, Code2, Zap, Square, Users, X } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
-import { pickFiles, readFile } from '../../lib/tauri'
+import { listDirectory, pickFiles, readFile } from '../../lib/tauri'
 import type { Attachment } from '../../types'
 import { ModelSwitcher } from './ModelSwitcher'
 
@@ -12,6 +12,7 @@ const TEXT_ATTACHMENT_EXTENSIONS = new Set([
   '.xml', '.yaml', '.yml', '.toml', '.sh', '.rs', '.go', '.java', '.c', '.cpp', '.h',
   '.csv', '.log',
 ])
+const MAX_INLINE_ATTACHMENT_BYTES = 2 * 1024 * 1024
 
 function isReadableTextAttachment(path: string): boolean {
   const name = path.split(/[/\\]/).pop() || path
@@ -27,6 +28,25 @@ function attachmentToPayloadBlock(attachment: Attachment): string {
   }
 
   return `[File: ${attachment.name}]\n${attachment.content}`
+}
+
+function getParentPath(path: string): string {
+  const normalized = path.replace(/\\/g, '/')
+  const slashIndex = normalized.lastIndexOf('/')
+  return slashIndex > 0 ? normalized.slice(0, slashIndex) : ''
+}
+
+async function getAttachmentSize(path: string): Promise<number | undefined> {
+  const parent = getParentPath(path)
+  if (!parent) return undefined
+
+  try {
+    const entries = await listDirectory(parent)
+    const entry = entries.find(item => item.path.replace(/\\/g, '/') === path.replace(/\\/g, '/'))
+    return typeof entry?.size === 'number' ? entry.size : undefined
+  } catch {
+    return undefined
+  }
 }
 
 export function ChatInput() {
@@ -129,12 +149,31 @@ export function ChatInput() {
       const nextAttachments = await Promise.all(
         nextPaths.map(async path => {
           const name = path.split(/[/\\]/).pop() || path
+          const size = await getAttachmentSize(path)
+
           if (!isReadableTextAttachment(path)) {
             return {
               path,
               name,
               content: '',
+              size,
               binary: true,
+            }
+          }
+
+          if (typeof size === 'number' && size > MAX_INLINE_ATTACHMENT_BYTES) {
+            const shouldInline = window.confirm(
+              `${name} is larger than 2 MB. Click OK to read and attach its text content, or Cancel to attach it as a file only.`
+            )
+
+            if (!shouldInline) {
+              return {
+                path,
+                name,
+                content: '',
+                size,
+                binary: true,
+              }
             }
           }
 
@@ -142,6 +181,7 @@ export function ChatInput() {
             path,
             name,
             content: await readFile(path),
+            size,
           }
         })
       )
