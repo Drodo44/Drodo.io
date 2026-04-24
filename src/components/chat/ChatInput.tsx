@@ -7,6 +7,28 @@ import { pickFiles, readFile } from '../../lib/tauri'
 import type { Attachment } from '../../types'
 import { ModelSwitcher } from './ModelSwitcher'
 
+const TEXT_ATTACHMENT_EXTENSIONS = new Set([
+  '.txt', '.md', '.json', '.js', '.ts', '.tsx', '.jsx', '.py', '.lua', '.css', '.html',
+  '.xml', '.yaml', '.yml', '.toml', '.sh', '.rs', '.go', '.java', '.c', '.cpp', '.h',
+  '.csv', '.log',
+])
+
+function isReadableTextAttachment(path: string): boolean {
+  const name = path.split(/[/\\]/).pop() || path
+  const dotIndex = name.lastIndexOf('.')
+  if (dotIndex < 0) return false
+
+  return TEXT_ATTACHMENT_EXTENSIONS.has(name.slice(dotIndex).toLowerCase())
+}
+
+function attachmentToPayloadBlock(attachment: Attachment): string {
+  if (attachment.binary) {
+    return `[File: ${attachment.name} (binary, not included)]`
+  }
+
+  return `[File: ${attachment.name}]\n${attachment.content}`
+}
+
 export function ChatInput() {
   const [value, setValue] = useState('')
   const [attachments, setAttachments] = useState<Attachment[]>([])
@@ -54,7 +76,7 @@ export function ChatInput() {
   }, [activeChatSessionId])
 
   const buildOrchestrationPayload = (content: string, nextAttachments: Attachment[]) => {
-    const attachmentBlocks = nextAttachments.map(attachment => `[File: ${attachment.name}]\n${attachment.content}`)
+    const attachmentBlocks = nextAttachments.map(attachmentToPayloadBlock)
     return [content, ...attachmentBlocks].filter(Boolean).join('\n\n')
   }
 
@@ -105,11 +127,23 @@ export function ChatInput() {
       if (nextPaths.length === 0) return
 
       const nextAttachments = await Promise.all(
-        nextPaths.map(async path => ({
-          path,
-          name: path.split(/[/\\]/).pop() || path,
-          content: await readFile(path),
-        }))
+        nextPaths.map(async path => {
+          const name = path.split(/[/\\]/).pop() || path
+          if (!isReadableTextAttachment(path)) {
+            return {
+              path,
+              name,
+              content: '',
+              binary: true,
+            }
+          }
+
+          return {
+            path,
+            name,
+            content: await readFile(path),
+          }
+        })
       )
 
       setAttachments(current => [...current, ...nextAttachments])
@@ -129,11 +163,21 @@ export function ChatInput() {
       {/* Orchestration planning banner */}
       {planningActive && (
         <div
-          className="mb-2 px-4 py-2 rounded-xl flex items-center gap-2 text-xs animate-fade-in"
+          className="mb-2 px-4 py-2 rounded-xl flex items-center justify-between gap-3 text-xs animate-fade-in"
           style={{ background: '#7f77dd18', border: '1px solid #7f77dd33' }}
         >
-          <Users size={12} className="text-[#7f77dd] animate-pulse-dot flex-shrink-0" />
-          <span className="font-medium text-[#a09ae8]">Planning your agent team…</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <Users size={12} className="text-[#7f77dd] animate-pulse-dot flex-shrink-0" />
+            <span className="font-medium text-[#a09ae8]">Planning your agent team…</span>
+          </div>
+          <button
+            onClick={stopAll}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-white transition-all hover:opacity-90"
+            style={{ background: '#e05050' }}
+          >
+            <Square size={10} fill="currentColor" />
+            Cancel
+          </button>
         </div>
       )}
 

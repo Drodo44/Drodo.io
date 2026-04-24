@@ -91,6 +91,7 @@ export interface Attachment {
   path: string
   name: string
   content: string
+  binary?: boolean
 }
 
 export interface Message {

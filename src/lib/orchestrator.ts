@@ -67,6 +67,10 @@ function pickBestModel(task: string, savedModels: string[], usedModels: Set<stri
   return best
 }
 
+function isAbortError(error: unknown): boolean {
+  return (error as { name?: string } | null)?.name === 'AbortError'
+}
+
 function resolveReviewProvider(stepProvider: Provider, stepIndex: number): Provider | null {
   const savedModels = getAllSavedModels()
   if (savedModels.length < 2) return null
@@ -103,6 +107,7 @@ export async function buildOrchestrationPlan(
   availableTemplates: string[],
   templateDetails?: Array<{ name: string; category: string; systemPrompt?: string }>,
   savedModels?: string[],
+  signal?: AbortSignal,
 ): Promise<OrchestrationPlan> {
   await Promise.all([
     ensureSkillsCatalogLoaded(),
@@ -170,7 +175,7 @@ Rules:
     const response = await completeText(provider, [
       msg('system', systemPrompt),
       msg('user', `Task: ${task}`),
-    ])
+    ], signal)
 
     const normalized = response
       .trim()
@@ -200,7 +205,11 @@ Rules:
       })
     }
     return parsed
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) {
+      throw error
+    }
+
     // Fallback: single agent using first available template
     return {
       taskSummary: task,

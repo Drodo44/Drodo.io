@@ -49,6 +49,7 @@ let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
 let n8nStatusPollTimer: ReturnType<typeof setInterval> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: (() => void) | null = null
+const ORCHESTRATION_PLANNING_TIMEOUT_MS = 60_000
 
 function clearN8nStatusPollTimer() {
   if (n8nStatusPollTimer) {
@@ -132,7 +133,26 @@ function summarizeUserTurn(content: string, attachments: Attachment[]): string {
 }
 
 function attachmentToPromptBlock(attachment: Attachment): string {
+  if (attachment.binary) {
+    return `[File: ${attachment.name} (binary, not included)]`
+  }
+
   return `[File: ${attachment.name}]\n${attachment.content}`
+}
+
+function isAbortError(error: unknown): boolean {
+  return (error as { name?: string } | null)?.name === 'AbortError'
+}
+
+function summarizeOrchestrationResult(run: OrchestrationRun): string {
+  const agentCount = run.plan.agents.length
+  const agentNames = run.plan.agents.map(agent => agent.templateName).join(', ')
+  const agentLabel = agentCount === 1 ? 'agent' : 'agents'
+  const ranLine = agentNames
+    ? `✅ Task complete — ${agentCount} ${agentLabel} ran (${agentNames}).`
+    : `✅ Task complete — ${agentCount} ${agentLabel} ran.`
+
+  return `${ranLine}\n\nSee the Agent Swarm tab for full output and details.`
 }
 
 function serializeMessageForModel(message: Message): Message {
@@ -684,10 +704,49 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     appendSessionMessage(task, 'user')
 
+    let planningTimedOut = false
+    let planningTimeout: ReturnType<typeof setTimeout> | null = null
+
     try {
       const templateDetails = TEMPLATES.map(t => ({ name: t.name, category: t.category, systemPrompt: t.systemPrompt }))
       const savedModels = getAllSavedModels().map(m => `${m.providerId}::${m.model.id}`)
-      const basePlan = await buildOrchestrationPlan(task, provider, AGENT_TEMPLATE_NAMES, templateDetails, savedModels)
+      const planningController = new AbortController()
+      planningTimeout = setTimeout(() => {
+        planningTimedOut = true
+        planningController.abort()
+        activeOrchestrationAbort = null
+        set(current => ({
+          orchestrationRun: current.orchestrationRun
+            ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
+            : null,
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('error', 'Planning timed out', 'Planning timed out — please try again.'),
+          ],
+          swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            id: createId('swarm-feed'),
+            agentName: 'Swarm',
+            type: 'error',
+            content: 'Planning timed out — please try again.',
+            timestamp: new Date(),
+          }),
+        }))
+        appendSessionMessage('❌ Planning timed out — please try again.', 'system')
+      }, ORCHESTRATION_PLANNING_TIMEOUT_MS)
+
+      activeOrchestrationAbort = () => planningController.abort()
+
+      const basePlan = await buildOrchestrationPlan(
+        task,
+        provider,
+        AGENT_TEMPLATE_NAMES,
+        templateDetails,
+        savedModels,
+        planningController.signal,
+      )
+      clearTimeout(planningTimeout)
+      planningTimeout = null
+      activeOrchestrationAbort = null
       const plan = {
         ...basePlan,
         agents: await Promise.all(basePlan.agents.map(async step => {
@@ -885,53 +944,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           const finalChecklist = buildChecklist(plan.agents, new Set(plan.agents.map(a => a.id)), null, plan.taskSummary || task)
           upsertSessionMessage(checklistMsgId, finalChecklist)
 
-          // Build synthesized summary and stream it incrementally to avoid UI freeze
-          const summaryParts = completedRun.plan.agents.map(step => {
-            const output = completedRun.stepOutputs[step.outputVar] ?? ''
-            return output.trim() ? `### ${step.templateName}\n\n${output.trim()}` : ''
-          }).filter(Boolean)
-          const synthesized = summaryParts.join('\n\n---\n\n')
-          if (synthesized) {
-            const streamMsgId = createId('swarm-result')
-            upsertSessionMessage(streamMsgId, '')
-            set(current => ({
-              messages: current.messages.map(m =>
-                m.id === streamMsgId ? { ...m, streaming: true } : m
-              ),
-              chatSessions: current.chatSessions.map(session =>
-                session.id === originSessionId
-                  ? { ...session, messages: session.messages.map(m =>
-                      m.id === streamMsgId ? { ...m, streaming: true } : m
-                    )}
-                  : session
-              ),
-            }))
-
-            const CHUNK_SIZE = 120
-            let offset = 0
-            const streamTimer = setInterval(() => {
-              offset = Math.min(offset + CHUNK_SIZE, synthesized.length)
-              upsertSessionMessage(streamMsgId, synthesized.slice(0, offset))
-
-              if (offset >= synthesized.length) {
-                clearInterval(streamTimer)
-                set(current => ({
-                  messages: current.messages.map(m =>
-                    m.id === streamMsgId ? { ...m, streaming: false } : m
-                  ),
-                  chatSessions: current.chatSessions.map(session =>
-                    session.id === originSessionId
-                      ? { ...session, messages: session.messages.map(m =>
-                          m.id === streamMsgId ? { ...m, streaming: false } : m
-                        )}
-                      : session
-                  ),
-                }))
-                const final = get()
-                persistChatSessions(final.chatSessions, final.activeChatSessionId)
-              }
-            }, 16)
-          }
+          appendSessionMessage(summarizeOrchestrationResult(completedRun))
 
           set(current => ({
             orchestrationRun: {
@@ -975,10 +988,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       activeOrchestrationAbort = abort
     } catch (error: unknown) {
+      if (planningTimeout) {
+        clearTimeout(planningTimeout)
+        planningTimeout = null
+      }
+
+      if (isAbortError(error)) {
+        activeOrchestrationAbort = null
+        set(current => ({
+          orchestrationRun: planningTimedOut
+            ? current.orchestrationRun
+            : current.orchestrationRun?.status === 'planning'
+            ? null
+            : current.orchestrationRun,
+        }))
+        return
+      }
+
       const message = error instanceof Error ? error.message : String(error)
+      activeOrchestrationAbort = null
       set(current => ({
         orchestrationRun: current.orchestrationRun
-          ? { ...current.orchestrationRun, status: 'error' }
+          ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
           : null,
         terminalEntries: [
           ...current.terminalEntries,
@@ -992,6 +1023,10 @@ export const useAppStore = create<AppState>((set, get) => ({
           timestamp: new Date(),
         }),
       }))
+    } finally {
+      if (planningTimeout) {
+        clearTimeout(planningTimeout)
+      }
     }
   },
 
@@ -1127,8 +1162,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const state = get()
     const normalizedAttachments = attachments.filter(attachment => (
       attachment.path.trim().length > 0 &&
-      attachment.name.trim().length > 0 &&
-      attachment.content.length > 0
+      attachment.name.trim().length > 0
     ))
     const userMessageContent = content || buildAttachmentSummary(normalizedAttachments)
 
