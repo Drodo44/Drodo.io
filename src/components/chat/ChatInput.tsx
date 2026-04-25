@@ -13,6 +13,7 @@ const TEXT_ATTACHMENT_EXTENSIONS = new Set([
   '.csv', '.log',
 ])
 const MAX_INLINE_ATTACHMENT_BYTES = 2 * 1024 * 1024
+const LARGE_PASTE_THRESHOLD = 2_000
 
 function isReadableTextAttachment(path: string): boolean {
   const name = path.split(/[/\\]/).pop() || path
@@ -22,9 +23,18 @@ function isReadableTextAttachment(path: string): boolean {
   return TEXT_ATTACHMENT_EXTENSIONS.has(name.slice(dotIndex).toLowerCase())
 }
 
+function isPasteAttachment(attachment: Attachment): boolean {
+  return attachment.path.startsWith('paste://')
+}
+
 function attachmentToPayloadBlock(attachment: Attachment): string {
   if (attachment.binary) {
     return `[File: ${attachment.name} (binary, not included)]`
+  }
+
+  if (attachment.content.length > LARGE_PASTE_THRESHOLD) {
+    const preview = attachment.content.slice(0, LARGE_PASTE_THRESHOLD)
+    return `[File: ${attachment.name} — ${attachment.content.length.toLocaleString()} chars total, first 2,000 shown]\n${preview}\n… [truncated]`
   }
 
   return `[File: ${attachment.name}]\n${attachment.content}`
@@ -53,6 +63,7 @@ export function ChatInput() {
   const [value, setValue] = useState('')
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [pickingFiles, setPickingFiles] = useState(false)
+  const [expandedPasteId, setExpandedPasteId] = useState<string | null>(null)
   const {
     sendMessage,
     autonomousMode,
@@ -125,8 +136,41 @@ export function ChatInput() {
     }
   }
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pasted = e.clipboardData.getData('text')
+    if (!pasted) return
+
+    const ta = e.currentTarget
+    const combined =
+      value.slice(0, ta.selectionStart) + pasted + value.slice(ta.selectionEnd)
+
+    if (combined.length > LARGE_PASTE_THRESHOLD) {
+      e.preventDefault()
+      const syntheticAttachment: Attachment = {
+        path: `paste://${Date.now()}`,
+        name: 'Pasted text',
+        content: pasted,
+        size: pasted.length,
+      }
+      setAttachments(prev => [...prev, syntheticAttachment])
+    }
+  }
+
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const next = e.target.value
+    if (next.length > LARGE_PASTE_THRESHOLD) {
+      const syntheticAttachment: Attachment = {
+        path: `paste://${Date.now()}`,
+        name: 'Large text',
+        content: next,
+        size: next.length,
+      }
+      setValue('')
+      setChatDraft('')
+      setAttachments(prev => [...prev, syntheticAttachment])
+      if (textareaRef.current) textareaRef.current.style.height = 'auto'
+      return
+    }
     setValue(next)
     setChatDraft(next)
     const ta = e.target
@@ -257,6 +301,7 @@ export function ChatInput() {
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={
             agentRunning
               ? 'Agent is working...'
@@ -274,24 +319,61 @@ export function ChatInput() {
         />
 
         {attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2 px-4 pb-2">
-            {attachments.map(attachment => (
-              <span
-                key={attachment.path}
-                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
-                style={{ borderColor: '#7f77dd33', background: '#7f77dd14', color: 'var(--text-primary)' }}
-              >
-                <Paperclip size={11} />
-                <span className="max-w-[220px] truncate">{attachment.name}</span>
-                <button
-                  onClick={() => handleRemoveAttachment(attachment.path)}
-                  className="rounded-full p-0.5 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
-                  title={`Remove ${attachment.name}`}
-                >
-                  <X size={10} />
-                </button>
-              </span>
-            ))}
+          <div className="flex flex-col gap-1 px-4 pb-2">
+            <div className="flex flex-wrap gap-2">
+              {attachments.map(attachment => {
+                if (isPasteAttachment(attachment)) {
+                  const isExpanded = expandedPasteId === attachment.path
+                  return (
+                    <span key={attachment.path} className="flex flex-col gap-1 max-w-full">
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs cursor-pointer select-none"
+                        style={{ borderColor: '#7f77dd55', background: '#7f77dd1e', color: 'var(--text-primary)' }}
+                        onClick={() => setExpandedPasteId(isExpanded ? null : attachment.path)}
+                        title={isExpanded ? 'Click to collapse preview' : 'Click to preview content'}
+                      >
+                        <span>📄</span>
+                        <span>{attachment.name} ({attachment.content.length.toLocaleString()} chars)</span>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleRemoveAttachment(attachment.path) }}
+                          className="rounded-full p-0.5 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                          title="Remove"
+                        >
+                          <X size={10} />
+                        </button>
+                      </span>
+                      {isExpanded && (
+                        <pre
+                          className="text-xs rounded-lg px-3 py-2 overflow-auto max-h-48 whitespace-pre-wrap break-words"
+                          style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
+                        >
+                          {attachment.content.slice(0, 3000)}
+                          {attachment.content.length > 3000 && '\n… [preview truncated]'}
+                        </pre>
+                      )}
+                    </span>
+                  )
+                }
+
+                return (
+                  <span
+                    key={attachment.path}
+                    className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs"
+                    style={{ borderColor: '#7f77dd33', background: '#7f77dd14', color: 'var(--text-primary)' }}
+                  >
+                    <Paperclip size={11} />
+                    <span className="max-w-[220px] truncate">{attachment.name}</span>
+                    <button
+                      onClick={() => handleRemoveAttachment(attachment.path)}
+                      className="rounded-full p-0.5 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                      title={`Remove ${attachment.name}`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                )
+              })}
+            </div>
           </div>
         )}
 
