@@ -905,6 +905,15 @@ export const useAppStore = create<AppState>((set, get) => ({
         }))
       }
 
+      // Register the abort handle BEFORE runOrchestration fires execute(), so any
+      // cancelOrchestration call that arrives during the microtask gap still works.
+      const orchestrationAbortState = {
+        runId,
+        cancelled: false,
+        abort: () => { /* replaced below once runOrchestration returns */ },
+      }
+      activeOrchestrationAbort = orchestrationAbortState
+
       const abort = await runOrchestration(
         runningRun,
         provider,
@@ -1093,11 +1102,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         (step, stepIndex) => stepProviders.get(step.id) ?? selectProvider(undefined, provider, stepIndex),
       )
 
-      activeOrchestrationAbort = {
-        runId,
-        cancelled: false,
-        abort,
-      }
+      // Wire the real abort function into the already-registered state object
+      orchestrationAbortState.abort = abort
     } catch (error: unknown) {
       if (planningTimeout) {
         clearTimeout(planningTimeout)
