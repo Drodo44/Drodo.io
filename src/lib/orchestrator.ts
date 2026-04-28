@@ -3,13 +3,7 @@ import { completeText, streamCompletion } from './streamChat'
 import { injectSkills } from './skillsInjector'
 import { getAppSettings } from './appSettings'
 import { buildProvider, getAllSavedModels } from './providerApi'
-import {
-  ensureSkillsCatalogLoaded,
-  getAllSkillCategories,
-  getAllSkillDomains,
-  getSkillCatalogSummary,
-} from './skills'
-import { getToolCatalogPrompt } from './toolExecutor'
+import { ensureSkillsCatalogLoaded } from './skills'
 import { ensureWorkflowCatalogLoaded, findWorkflowForTask } from './workflows'
 
 function msg(role: Message['role'], content: string): Message {
@@ -105,7 +99,6 @@ export async function buildOrchestrationPlan(
   task: string,
   provider: Provider,
   availableTemplates: string[],
-  templateDetails?: Array<{ name: string; category: string; systemPrompt?: string }>,
   savedModels?: string[],
   signal?: AbortSignal,
 ): Promise<OrchestrationPlan> {
@@ -121,55 +114,38 @@ export async function buildOrchestrationPlan(
     : ''
 
   const modelsSection = savedModels && savedModels.length > 0
-    ? `\nAvailable models (use the exact string in the "model" field — pick the best fit per agent):\n${savedModels.join('\n')}`
+    ? `\nAvailable models (pick the best fit per agent, use the exact string):\n${savedModels.join('\n')}`
     : ''
 
-  const templatesSection = templateDetails && templateDetails.length > 0
-    ? `\nAgent template details by category:\n${templateDetails.map(t => `- ${t.name} [${t.category}]`).join('\n')}`
+  const extendedModelField = savedModels && savedModels.length > 0
+    ? `\n      "model": "${savedModels[0]}",`
     : ''
 
-  const skillsSection = `\nBundled skill intelligence summary:\n${getSkillCatalogSummary()}\nRelevant skill content will be prepended automatically to each agent system prompt based on its specific task.`
-  const skillCategoriesSection = `\nAvailable skill categories: ${getAllSkillCategories().join(', ')}\nAvailable capability domains: ${getAllSkillDomains().join(', ')}`
-  const toolsSection = `\nAgents can use these tools while executing:\n${getToolCatalogPrompt()}`
-
-  const extendedFields = (savedModels || templateDetails)
-    ? `
-Extended agent fields to include in each agent object:
-- "systemPrompt": if the template has a known system prompt, copy it here; otherwise omit
-- "skills": array of skill ids most relevant to this agent's role (e.g. researcher → ["web-search","memory"], coder → ["code-execution","file-reader"])
-- "model": choose from the available models list using one exact model id per agent`
-    : ''
-
-  const systemPrompt = `You are an AI orchestration engine. Your job is to analyze a user task and decide which specialist AI agents are needed to complete it optimally. You must respond with ONLY valid JSON, no other text.
+  const systemPrompt = `You are an AI orchestration planner. Analyze the task and decide which specialist agents are needed. Respond with ONLY valid JSON, no other text.
 
 Available agent templates: ${availableTemplates.join(', ')}
-${modelsSection}${templatesSection}${skillsSection}${skillCategoriesSection}${toolsSection}
-${workflowHintSection}
+${modelsSection}${workflowHintSection}
 
 Respond with this exact JSON structure:
 {
-  "taskSummary": "brief description of what needs to be done",
+  "taskSummary": "brief description",
   "agents": [
     {
       "id": "step_1",
       "templateName": "exact template name from available list",
-      "templateTask": "the template role description",
-      "model": "${savedModels?.[0] ?? model}",
-      "specificTask": "specific instruction for this agent for THIS task",
+      "templateTask": "the template role description",${extendedModelField}
+      "specificTask": "concrete instruction for this agent",
       "outputVar": "step_1_output"
     }
   ]
 }
-${extendedFields}
 
 Rules:
-- Use 2-5 agents maximum. Never more.
+- Use 2-5 agents maximum
 - Only use templates from the available list
-- Each agent should have a focused, specific sub-task
-- Order agents logically — research before writing, writing before editing
-- For simple tasks that only need one agent, return just one agent
-- The specificTask must be concrete and actionable
-- Choose the best model for each agent from the available list independently and use the exact model id string`
+- Order agents logically — research before writing
+- For simple tasks use just one agent
+- specificTask must be concrete and actionable`
 
   try {
     const response = await completeText(provider, [

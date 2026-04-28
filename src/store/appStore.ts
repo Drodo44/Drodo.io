@@ -42,7 +42,6 @@ import {
   initializeAgentMemory,
   writeMemoryEntry,
 } from '../lib/agentMemory'
-import { TEMPLATES } from '../views/AgentTemplatesView'
 
 let activePrimaryRun: AgentRunHandle | null = null
 let autonomousLoopTimer: ReturnType<typeof setTimeout> | null = null
@@ -50,7 +49,7 @@ let n8nStatusPollTimer: ReturnType<typeof setInterval> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: { abort: () => void; runId: string; cancelled: boolean } | null = null
 let storeInitStarted = false
-const ORCHESTRATION_PLANNING_TIMEOUT_MS = 60_000
+const ORCHESTRATION_PLANNING_TIMEOUT_MS = 180_000
 const SWARM_FEED_LIMIT = 500
 const SWARM_FEED_CHUNK_LIMIT = 300
 const SWARM_FEED_MESSAGE_LIMIT = 1200
@@ -790,7 +789,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     let planningTimeout: ReturnType<typeof setTimeout> | null = null
 
     try {
-      const templateDetails = TEMPLATES.map(t => ({ name: t.name, category: t.category, systemPrompt: t.systemPrompt }))
       const savedModels = getAllSavedModels().map(m => `${m.providerId}::${m.model.id}`)
       const planningController = new AbortController()
       const planningAbortState = {
@@ -830,7 +828,6 @@ export const useAppStore = create<AppState>((set, get) => ({
         task,
         provider,
         AGENT_TEMPLATE_NAMES,
-        templateDetails,
         savedModels,
         planningController.signal,
       )
