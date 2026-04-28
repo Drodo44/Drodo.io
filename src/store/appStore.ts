@@ -50,9 +50,21 @@ const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: { abort: () => void; runId: string; cancelled: boolean } | null = null
 let storeInitStarted = false
 const ORCHESTRATION_PLANNING_TIMEOUT_MS = 180_000
-const SWARM_FEED_LIMIT = 500
+const SWARM_FEED_LIMIT = 50
 const SWARM_FEED_CHUNK_LIMIT = 300
 const SWARM_FEED_MESSAGE_LIMIT = 1200
+const SWARM_STREAM_FLUSH_INTERVAL_MS = 120
+
+type PendingSwarmStream = {
+  agentId: string
+  agentName: string
+  stepId?: string
+  total: string
+  pending: string
+}
+
+const pendingSwarmStreams = new Map<string, PendingSwarmStream>()
+let pendingSwarmFlushTimer: ReturnType<typeof setTimeout> | null = null
 
 function clearN8nStatusPollTimer() {
   if (n8nStatusPollTimer) {
@@ -419,6 +431,57 @@ function pushSwarmFeed(
   ].slice(-SWARM_FEED_LIMIT)
 }
 
+function upsertSwarmFeed(
+  feed: SwarmFeedEntry[],
+  next: SwarmFeedEntry,
+): SwarmFeedEntry[] {
+  if (next.agentId) {
+    const existingIndex = feed.findIndex(entry => entry.agentId === next.agentId)
+    if (existingIndex >= 0) {
+      const updated = [...feed]
+      updated[existingIndex] = {
+        ...updated[existingIndex],
+        ...next,
+        id: updated[existingIndex].id,
+        content: truncateSwarmContent(next.type, next.content),
+      }
+      return updated
+    }
+  }
+  return pushSwarmFeed(feed, next)
+}
+
+function extractReadableChunk(buffer: string, force = false): { emit: string; rest: string } {
+  if (!buffer) return { emit: '', rest: '' }
+  if (force) return { emit: buffer, rest: '' }
+
+  const paragraphBreak = buffer.lastIndexOf('\n\n')
+  if (paragraphBreak >= 0) {
+    const boundary = paragraphBreak + 2
+    return { emit: buffer.slice(0, boundary), rest: buffer.slice(boundary) }
+  }
+
+  let sentenceBoundary = -1
+  for (let i = buffer.length - 1; i >= 1; i -= 1) {
+    const ch = buffer[i]
+    const prev = buffer[i - 1]
+    if ((ch === ' ' || ch === '\n') && (prev === '.' || prev === '!' || prev === '?')) {
+      sentenceBoundary = i
+      break
+    }
+  }
+  if (sentenceBoundary > 0) {
+    return { emit: buffer.slice(0, sentenceBoundary), rest: buffer.slice(sentenceBoundary) }
+  }
+
+  // Avoid indefinitely holding content if punctuation is sparse.
+  if (buffer.length >= 240) {
+    return { emit: buffer, rest: '' }
+  }
+
+  return { emit: '', rest: buffer }
+}
+
 async function buildWorkflowHint(task: string): Promise<string> {
   await ensureWorkflowCatalogLoaded()
   const workflowMatch = findWorkflowForTask(task)
@@ -526,7 +589,73 @@ interface AppState {
 
 const _chatInit = createDefaultChatState()
 
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set, get) => {
+  const flushPendingSwarmStreams = (force = false) => {
+    if (pendingSwarmStreams.size === 0) return
+    const updates: Array<{
+      agentId: string
+      agentName: string
+      stepId?: string
+      content: string
+      tokens: number
+      lastUpdate: string
+    }> = []
+
+    for (const [agentId, state] of pendingSwarmStreams.entries()) {
+      const { emit, rest } = extractReadableChunk(state.pending, force)
+      if (!emit && !force) continue
+
+      const nextTotal = state.total + emit
+      const nextPending = force ? '' : rest
+      const nextLastLine = (nextTotal.slice(-120) || state.agentName).trim()
+      updates.push({
+        agentId,
+        agentName: state.agentName,
+        stepId: state.stepId,
+        content: nextTotal,
+        tokens: estimateTokens(nextTotal),
+        lastUpdate: nextLastLine,
+      })
+
+      if (nextPending.length > 0) {
+        pendingSwarmStreams.set(agentId, { ...state, total: nextTotal, pending: nextPending })
+      } else {
+        pendingSwarmStreams.delete(agentId)
+      }
+    }
+
+    if (updates.length === 0) return
+
+    set(current => ({
+      agents: current.agents.map(agent => {
+        const update = updates.find(item => item.agentId === agent.id)
+        if (!update) return agent
+        return { ...agent, tokens: update.tokens, lastUpdate: update.lastUpdate }
+      }),
+      swarmFeed: updates.reduce((feed, update) => upsertSwarmFeed(feed, {
+        id: createId('swarm-feed'),
+        agentId: update.agentId,
+        stepId: update.stepId,
+        agentName: update.agentName,
+        type: 'chunk',
+        content: update.content,
+        timestamp: new Date(),
+      }), current.swarmFeed),
+    }))
+  }
+
+  const scheduleSwarmStreamFlush = () => {
+    if (pendingSwarmFlushTimer) return
+    pendingSwarmFlushTimer = setTimeout(() => {
+      pendingSwarmFlushTimer = null
+      flushPendingSwarmStreams(false)
+      if (pendingSwarmStreams.size > 0) {
+        scheduleSwarmStreamFlush()
+      }
+    }, SWARM_STREAM_FLUSH_INTERVAL_MS)
+  }
+
+  return ({
   isInitializing: true,
   isInitialized: false,
   activeView: 'agent',
@@ -683,7 +812,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       [state.activeChatSessionId]: draft,
     },
   })),
-  clearSwarmFeed: () => set({ swarmFeed: [] }),
+  clearSwarmFeed: () => {
+    pendingSwarmStreams.clear()
+    if (pendingSwarmFlushTimer) {
+      clearTimeout(pendingSwarmFlushTimer)
+      pendingSwarmFlushTimer = null
+    }
+    set({ swarmFeed: [] })
+  },
   toggleMultiAgentMode: () => set(state => ({ multiAgentMode: !state.multiAgentMode })),
   setOrchestrationRun: run => set({ orchestrationRun: run }),
 
@@ -924,8 +1060,9 @@ export const useAppStore = create<AppState>((set, get) => ({
                 ? { ...a, status: 'running' as const, startedAt: new Date(), lastUpdate: `${agentName} started…` }
                 : a
             ),
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
+              agentId,
               stepId,
               agentName,
               type: 'start',
@@ -955,21 +1092,14 @@ export const useAppStore = create<AppState>((set, get) => ({
           if (!agentId) return
           const step = plan.agents.find(item => item.id === stepId)
           const agentName = step?.templateName ?? 'Agent'
-          set(current => ({
-            agents: current.agents.map(a =>
-              a.id === agentId
-                ? { ...a, tokens: a.tokens + Math.ceil(chunk.length / 4), lastUpdate: chunk.slice(-120) }
-                : a
-            ),
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
-              id: createId('swarm-feed'),
-              stepId,
-              agentName,
-              type: 'chunk',
-              content: chunk,
-              timestamp: new Date(),
-            }),
-          }))
+          const pending = pendingSwarmStreams.get(agentId)
+          if (pending) {
+            pending.total += chunk
+            pending.pending += chunk
+          } else {
+            pendingSwarmStreams.set(agentId, { agentId, agentName, stepId, total: '', pending: chunk })
+          }
+          scheduleSwarmStreamFlush()
           if (step) {
             void writeMemoryEntry({
               session_id: originSessionId,
@@ -999,14 +1129,16 @@ export const useAppStore = create<AppState>((set, get) => ({
           const step = plan.agents.find(item => item.id === stepId)
           const agentName = step?.templateName ?? 'Agent'
           completedStepIds.add(stepId)
+          flushPendingSwarmStreams(true)
           set(current => ({
             agents: current.agents.map(a =>
               a.id === agentId
                 ? { ...a, status: 'complete' as const, summary: output, lastUpdate: output.slice(0, 120) }
                 : a
             ),
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
+              agentId,
               stepId,
               agentName,
               type: 'complete',
@@ -1522,8 +1654,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     set(current => ({
       agents: [...current.agents, agent],
       swarmRunning: true,
-      swarmFeed: pushSwarmFeed(current.swarmFeed, {
+      swarmFeed: upsertSwarmFeed(current.swarmFeed, {
         id: createId('swarm-feed'),
+        agentId,
         agentName: agent.name,
         type: 'start',
         content: agentTask,
@@ -1628,20 +1761,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
       onFinalChunk: chunk => {
         accumulated += chunk
-        set(current => ({
-          agents: current.agents.map(item =>
-            item.id === agentId
-              ? { ...item, tokens: estimateTokens(accumulated), lastUpdate: accumulated.slice(-120) || item.lastUpdate }
-              : item
-          ),
-          swarmFeed: pushSwarmFeed(current.swarmFeed, {
-            id: createId('swarm-feed'),
-            agentName: agent.name,
-            type: 'chunk',
-            content: chunk,
-            timestamp: new Date(),
-          }),
-        }))
+        const pending = pendingSwarmStreams.get(agentId)
+        if (pending) {
+          pending.total += chunk
+          pending.pending += chunk
+        } else {
+          pendingSwarmStreams.set(agentId, { agentId, agentName: agent.name, total: '', pending: chunk })
+        }
+        scheduleSwarmStreamFlush()
         void writeMemoryEntry({
           session_id: state.activeChatSessionId,
           agent_id: agentId,
@@ -1654,6 +1781,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
       onFinal: message => {
         activeSwarmRuns.delete(agentId)
+        flushPendingSwarmStreams(true)
         set(current => {
           const agents = current.agents.map(item =>
             item.id === agentId
@@ -1671,8 +1799,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           return {
             agents,
             swarmRunning: agents.some(item => item.status === 'running'),
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
+              agentId,
               agentName: agent.name,
               type: 'complete',
               content: message,
@@ -1696,6 +1825,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
       onError: error => {
         activeSwarmRuns.delete(agentId)
+        flushPendingSwarmStreams(true)
         set(current => {
           const agents = current.agents.map(item =>
             item.id === agentId
@@ -1706,8 +1836,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           return {
             agents,
             swarmRunning: agents.some(item => item.status === 'running'),
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
+              agentId,
               agentName: agent.name,
               type: 'error',
               content: error.message,
@@ -2056,4 +2187,5 @@ export const useAppStore = create<AppState>((set, get) => ({
     })
     persistChatSessions(updated, state.activeChatSessionId)
   },
-}))
+  })
+})

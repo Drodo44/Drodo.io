@@ -80,6 +80,7 @@ export interface OrchestrationRun {
 
 export interface SwarmFeedEntry {
   id: string
+  agentId?: string
   stepId?: string
   agentName: string
   type: 'start' | 'chunk' | 'complete' | 'summary' | 'error'
