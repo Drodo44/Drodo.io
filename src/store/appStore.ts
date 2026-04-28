@@ -692,7 +692,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // ── Complexity guard ───────────────────────────────────────────────────────
     // Simple messages (< 20 words, no task keywords) route to regular chat.
-    const TASK_KEYWORDS = /\b(build|create|write|research|analyze|generate|make|design|develop|find|compare|summarize|plan|implement|draft|produce|explain|code|debug|review|evaluate|investigate|gather)\b/i
+    const TASK_KEYWORDS = /\b(build|create|write|research|analyze|generate|make|design|develop|find|compare|summarize|plan|implement|draft|produce|explain|code|debug|review|evaluate|investigate|gather|run|fix|improve|organize|update|help|set up|launch|deploy|test|optimize|refactor|document|migrate|integrate|automate)\b/i
     const wordCount = task.trim().split(/\s+/).length
     if (wordCount < 20 && !TASK_KEYWORDS.test(task)) {
       get().sendMessage(task)
@@ -1082,6 +1082,12 @@ export const useAppStore = create<AppState>((set, get) => ({
             orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status !== 'cancelled'
               ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
               : current.orchestrationRun,
+            agents: current.agents.map(a =>
+              a.id.startsWith(`orch-${runId}`) && a.status === 'running'
+                ? { ...a, status: 'error' as const, lastUpdate: 'Task failed.' }
+                : a
+            ),
+            swarmRunning: false,
             terminalEntries: [
               ...current.terminalEntries,
               createTerminalEntry('error', 'Orchestration failed', errorMessage),
@@ -1119,6 +1125,8 @@ export const useAppStore = create<AppState>((set, get) => ({
                 finishedAt: current.orchestrationRun.finishedAt ?? new Date(),
               }
             : current.orchestrationRun,
+          agents: current.agents.filter(a => !a.id.startsWith(`orch-${runId}`)),
+          swarmRunning: false,
         }))
         return
       }
@@ -1131,6 +1139,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         orchestrationRun: current.orchestrationRun?.id === runId
           ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
           : current.orchestrationRun,
+        agents: current.agents.map(a =>
+          a.id.startsWith(`orch-${runId}`) && (a.status === 'running' || a.status === 'idle')
+            ? { ...a, status: 'error' as const, lastUpdate: 'Task failed.' }
+            : a
+        ),
+        swarmRunning: false,
         terminalEntries: [
           ...current.terminalEntries,
           createTerminalEntry('error', 'Orchestration failed', message),
@@ -1438,6 +1452,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
       error => {
         activePrimaryRun = null
+        if (autonomousLoopTimer) {
+          clearTimeout(autonomousLoopTimer)
+          autonomousLoopTimer = null
+        }
         set(current => ({
           messages: current.messages.map(m =>
             m.id === assistantId
@@ -1446,6 +1464,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           ),
           agentRunning: false,
           autonomousLoopActive: false,
+          autonomousLoopCount: 0,
           taskSteps: updateTaskStep(current.taskSteps, 'respond', 'error'),
           terminalEntries: [
             ...current.terminalEntries,
@@ -1826,17 +1845,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error: unknown) {
       activeSwarmRuns.delete(orchestratorId)
       const message = error instanceof Error ? error.message : String(error)
-      set(current => ({
-        agents: current.agents.map(agent =>
+      set(current => {
+        const agents = current.agents.map(agent =>
           agent.id === orchestratorId
             ? { ...agent, status: 'error' as const, summary: message, lastUpdate: message }
             : agent
-        ),
-        terminalEntries: [
-          ...current.terminalEntries,
-          createTerminalEntry('error', 'Swarm orchestration failed', message, orchestratorId),
-        ],
-      }))
+        )
+        return {
+          agents,
+          swarmRunning: agents.some(a => a.status === 'running'),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('error', 'Swarm orchestration failed', message, orchestratorId),
+          ],
+        }
+      })
     }
   },
 
