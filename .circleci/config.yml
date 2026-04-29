@@ -12,6 +12,14 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - upload-release:
+          requires:
+            - build-windows
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - build-linux:
           filters:
             tags:
@@ -20,7 +28,7 @@ workflows:
               ignore: /.*/
       - publish-updater:
           requires:
-            - build-windows
+            - upload-release
             - build-linux
           filters:
             tags:
@@ -88,6 +96,19 @@ jobs:
             Write-Host "=== src-tauri/target/release/bundle/ ==="
             Get-ChildItem -Path "src-tauri/target/release/bundle" -Recurse -ErrorAction SilentlyContinue |
               Select-Object FullName, Length | Format-Table -AutoSize
+      - persist_to_workspace:
+          root: .
+          paths:
+            - artifacts/runtime
+            - src-tauri/target/release/bundle
+
+  upload-release:
+    machine:
+      image: windows-server-2022-gui:current
+    resource_class: windows.medium
+    steps:
+      - attach_workspace:
+          at: .
       - run:
           name: Upload to GitHub Release
           shell: powershell.exe
