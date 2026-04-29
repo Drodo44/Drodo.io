@@ -203,8 +203,6 @@ Rules:
   }
 }
 
-const STEP_EXECUTION_TIMEOUT_MS = 90_000
-
 export async function runOrchestration(
   run: OrchestrationRun,
   provider: Provider,
@@ -257,59 +255,27 @@ export async function runOrchestration(
 
         let accumulated = ''
 
-        // Per-step timeout: abort the stream if no completion within STEP_EXECUTION_TIMEOUT_MS
-        const stepController = new AbortController()
-        let stepTimeout: ReturnType<typeof setTimeout> | null = setTimeout(() => {
-          stepController.abort()
-        }, STEP_EXECUTION_TIMEOUT_MS)
-
-        const clearStepTimeout = () => {
-          if (stepTimeout) {
-            clearTimeout(stepTimeout)
-            stepTimeout = null
+        await new Promise<void>((resolve, reject) => {
+          const handle = streamCompletion(
+            stepProvider,
+            messages,
+            chunk => {
+              accumulated += chunk
+              run.stepOutputs[step.outputVar] = accumulated
+              onStepChunk(step.id, chunk)
+            },
+            fullText => {
+              accumulated = fullText || accumulated
+              resolve()
+            },
+            err => {
+              reject(err)
+            },
+          )
+          currentAbort = () => {
+            handle.abort()
           }
-        }
-
-        try {
-          await new Promise<void>((resolve, reject) => {
-            if (stepController.signal.aborted) {
-              reject(new DOMException('Step timed out', 'AbortError'))
-              return
-            }
-            const onAbort = () => {
-              reject(new DOMException('Step timed out', 'AbortError'))
-            }
-            stepController.signal.addEventListener('abort', onAbort, { once: true })
-
-            const handle = streamCompletion(
-              stepProvider,
-              messages,
-              chunk => {
-                accumulated += chunk
-                run.stepOutputs[step.outputVar] = accumulated
-                onStepChunk(step.id, chunk)
-              },
-              fullText => {
-                stepController.signal.removeEventListener('abort', onAbort)
-                accumulated = fullText || accumulated
-                resolve()
-              },
-              err => {
-                stepController.signal.removeEventListener('abort', onAbort)
-                reject(err)
-              },
-            )
-            // Wire step abort → stream abort
-            const abortStream = () => handle.abort()
-            stepController.signal.addEventListener('abort', abortStream, { once: true })
-            currentAbort = () => {
-              clearStepTimeout()
-              handle.abort()
-            }
-          })
-        } finally {
-          clearStepTimeout()
-        }
+        })
 
         currentAbort = null
 
@@ -328,15 +294,8 @@ export async function runOrchestration(
                 `Task: ${step.specificTask}\n\nResponse to review:\n${accumulated}\n\nIs this response complete, accurate, and fully addressing the task? If yes, respond with exactly "APPROVED". If no, provide an improved version.`,
               ),
             ]
-            // Pass abort signal so a hung review doesn't stall the pipeline
-            const reviewController = new AbortController()
-            const reviewTimeout = setTimeout(() => reviewController.abort(), STEP_EXECUTION_TIMEOUT_MS)
-            try {
-              const reviewResult = await completeText(reviewProvider, reviewMessages, reviewController.signal)
-              finalOutput = reviewResult.trim() === 'APPROVED' ? accumulated : reviewResult
-            } finally {
-              clearTimeout(reviewTimeout)
-            }
+            const reviewResult = await completeText(reviewProvider, reviewMessages)
+            finalOutput = reviewResult.trim() === 'APPROVED' ? accumulated : reviewResult
           }
         } catch {
           // review failed — use original output

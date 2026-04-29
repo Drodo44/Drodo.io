@@ -51,7 +51,7 @@ let n8nStatusPollTimer: ReturnType<typeof setInterval> | null = null
 const activeSwarmRuns = new Map<string, AgentRunHandle>()
 let activeOrchestrationAbort: { abort: () => void; runId: string; cancelled: boolean } | null = null
 let storeInitStarted = false
-const ORCHESTRATION_PLANNING_TIMEOUT_MS = 180_000
+const ORCHESTRATION_PLANNING_TIMEOUT_MS = 1_800_000
 const SWARM_FEED_LIMIT = 50
 const SWARM_FEED_CHUNK_LIMIT = 300
 const SWARM_FEED_MESSAGE_LIMIT = 1200
