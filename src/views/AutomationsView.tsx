@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { Workflow, ExternalLink, RefreshCw, Circle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Workflow, RefreshCw, Circle } from 'lucide-react'
 import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
+import { openN8nWindow } from '../lib/n8nWindow'
 
 const N8N_URL = 'http://localhost:5678'
 
@@ -8,11 +9,8 @@ type Status = 'idle' | 'launching' | 'running' | 'error'
 
 export function AutomationsView() {
   const [status, setStatus] = useState<Status>('idle')
-  const [iframeLoaded, setIframeLoaded] = useState(false)
-  const [iframeError, setIframeError] = useState(false)
   const [launchError, setLaunchError] = useState('')
   const [hasAutoStarted, setHasAutoStarted] = useState(false)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const waitForN8nReady = async (timeoutMs = 60_000) => {
     const deadline = Date.now() + timeoutMs
@@ -36,36 +34,13 @@ export function AutomationsView() {
     try {
       await startDependencyBootstrap()
       const readyStatus = await waitForN8nReady()
+      await openN8nWindow(readyStatus.url || N8N_URL)
       setStatus('running')
-      setIframeError(false)
-      setIframeLoaded(false)
-      if (iframeRef.current) {
-        iframeRef.current.src = readyStatus.url || N8N_URL
-      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to start n8n. Try again in a moment.'
       setLaunchError(message)
       setStatus('error')
     }
-  }
-
-  const handleRetry = () => {
-    setIframeError(false)
-    setIframeLoaded(false)
-    if (iframeRef.current) {
-      iframeRef.current.src = N8N_URL
-    }
-  }
-
-  const handleIframeLoad = () => {
-    setIframeLoaded(true)
-    setIframeError(false)
-  }
-
-  const handleIframeError = () => {
-    setIframeError(true)
-    setIframeLoaded(false)
-    setStatus('idle')
   }
 
   useEffect(() => {
@@ -105,17 +80,7 @@ export function AutomationsView() {
           </div>
         </div>
 
-        {status === 'running' && (
-          <a
-            href={N8N_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)] transition-colors"
-          >
-            <ExternalLink size={12} />
-            Open in browser
-          </a>
-        )}
+        {status === 'running' && null}
       </div>
 
       {/* Body */}
@@ -192,39 +157,21 @@ export function AutomationsView() {
       )}
 
       {status === 'running' && (
-        <div className="flex-1 relative min-h-0">
-          {!iframeLoaded && !iframeError && (
-            <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'var(--bg-primary)' }}>
-              <div className="text-center space-y-3">
-                <RefreshCw size={20} className="text-[var(--text-secondary)] animate-spin mx-auto" />
-                <p className="text-xs text-[var(--text-secondary)]">Loading n8n…</p>
-              </div>
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center space-y-4" style={{ maxWidth: 460 }}>
+            <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#1d9e7522' }}>
+              <Workflow size={22} style={{ color: '#1d9e75' }} />
             </div>
-          )}
-          {iframeError && (
-            <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'var(--bg-primary)' }}>
-              <div className="text-center space-y-3">
-                <p className="text-sm text-[var(--text-muted)]">n8n is not responding</p>
-                <button
-                  onClick={handleRetry}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
-                  style={{ background: '#f59e0b' }}
-                >
-                  <RefreshCw size={13} />
-                  Retry
-                </button>
-              </div>
-            </div>
-          )}
-          <iframe
-            ref={iframeRef}
-            src={N8N_URL}
-            title="n8n"
-            className="w-full h-full border-none"
-            onLoad={handleIframeLoad}
-            onError={handleIframeError}
-            style={{ display: iframeLoaded ? 'block' : 'block', background: '#fff' }}
-          />
+            <p className="text-sm font-medium text-[var(--text-primary)]">n8n is running in a dedicated window</p>
+            <button
+              onClick={() => void handleLaunch()}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
+              style={{ background: '#f59e0b' }}
+            >
+              <Workflow size={13} />
+              Open n8n window
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -33,6 +33,7 @@ import { supabase } from './lib/supabase'
 import { syncUserData } from './lib/syncToSupabase'
 import { startBotPolling, stopBotPolling } from './lib/botRunner'
 import { checkForUpdates } from './lib/updater'
+import { closeN8nWindow } from './lib/n8nWindow'
 
 function AgentWorkspace() {
   return (
@@ -146,6 +147,7 @@ function refreshSkillLibrary() {
 }
 
 function App() {
+  const activeView = useAppStore(s => s.activeView)
   const user = useAppStore(s => s.user)
   const setUser = useAppStore(s => s.setUser)
   const initStore = useAppStore(s => s.init)
@@ -270,6 +272,11 @@ function App() {
 
     void checkForUpdates()
   }, [authReady])
+
+  useEffect(() => {
+    if (activeView === 'automations') return
+    void closeN8nWindow().catch(() => {})
+  }, [activeView])
 
   useEffect(() => {
     if (!authReady) return
