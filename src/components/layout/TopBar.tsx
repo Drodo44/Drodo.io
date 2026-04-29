@@ -9,7 +9,7 @@ export function TopBar() {
   const {
     sessionName, setSessionName, agentRunning,
     autonomousMode, autonomousLoopActive, autonomousLoopCount, autonomousMaxLoops,
-    agents, stopAll,
+    runningAgentCount, totalAgentTokens, stopAll,
   } = useAppStore(
     useShallow(s => ({
       sessionName: s.sessionName,
@@ -19,15 +19,13 @@ export function TopBar() {
       autonomousLoopActive: s.autonomousLoopActive,
       autonomousLoopCount: s.autonomousLoopCount,
       autonomousMaxLoops: s.autonomousMaxLoops,
-      agents: s.agents,
+      runningAgentCount: s.runningAgentCount,
+      totalAgentTokens: s.totalAgentTokens,
       stopAll: s.stopAll,
     }))
   )
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(sessionName)
-
-  const runningCount = agents.filter(a => a.status === 'running').length
-  const totalTokens = agents.reduce((sum, a) => sum + a.tokens, 0)
 
   const commitName = () => {
     setSessionName(nameInput.trim() || sessionName)
@@ -127,10 +125,10 @@ export function TopBar() {
         )}
 
         {/* Running swarm agents */}
-        {runningCount > 0 && (
+        {runningAgentCount > 0 && (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--border-color)] text-[var(--text-muted)]">
             <Activity size={11} className="text-[#7f77dd]" />
-            {runningCount} agent{runningCount !== 1 ? 's' : ''} active
+            {runningAgentCount} agent{runningAgentCount !== 1 ? 's' : ''} active
           </span>
         )}
       </div>
@@ -138,8 +136,8 @@ export function TopBar() {
       {/* Right: Permission + Usage */}
       <div className="flex items-center gap-2.5">
         <div className="text-xs text-[var(--text-secondary)] font-mono tabular-nums">
-          {totalTokens > 0
-            ? `${(totalTokens / 1000).toFixed(1)}k tokens`
+          {totalAgentTokens > 0
+            ? `${(totalAgentTokens / 1000).toFixed(1)}k tokens`
             : '0 tokens'
           }
         </div>

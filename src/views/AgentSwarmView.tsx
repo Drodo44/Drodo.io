@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { memo, useState, useEffect, useRef, useCallback, useMemo, type RefObject } from 'react'
 import { Plus, Zap, Activity, ChevronRight, Square, Workflow, Copy, X, Target } from 'lucide-react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { clsx } from 'clsx'
@@ -356,16 +356,25 @@ const STATUS_COLOR: Record<OrchestrationRun['status'], string> = {
 
 function OrchestrationBanner({
   run,
-  storeAgents,
   onDismiss,
 }: {
   run: OrchestrationRun
-  storeAgents: AgentInstance[]
   onDismiss: () => void
 }) {
-  const orchAgents = storeAgents.filter(a => a.orchestrationStepIndex != null)
-  const completedSteps = orchAgents.filter(a => a.status === 'complete').length
-  const totalSteps = run.plan.agents.length || orchAgents.length
+  const { completedSteps, orchAgentCount } = useAppStore(
+    useShallow(s => {
+      let completed = 0
+      let total = 0
+      for (const id of s.agentIds) {
+        const agent = s.agentsById[id]
+        if (!agent || agent.orchestrationStepIndex == null) continue
+        total += 1
+        if (agent.status === 'complete') completed += 1
+      }
+      return { completedSteps: completed, orchAgentCount: total }
+    })
+  )
+  const totalSteps = run.plan.agents.length || orchAgentCount
   const statusColor = STATUS_COLOR[run.status]
 
   return (
@@ -420,7 +429,7 @@ const AGENT_STATUS_COLOR: Record<string, string> = {
   error: '#e05050',
 }
 
-function ManagedAgentCard({
+const ManagedAgentCard = memo(function ManagedAgentCard({
   agent,
   modelLabel,
   onStop,
@@ -580,10 +589,10 @@ function ManagedAgentCard({
       </div>
     </div>
   )
-}
+})
 
-function FeedEntryRow({ entry }: { entry: SwarmFeedEntry }) {
-  const formatted = formatFeedContent(entry.content)
+const FeedEntryRow = memo(function FeedEntryRow({ entry }: { entry: SwarmFeedEntry }) {
+  const formatted = useMemo(() => formatFeedContent(entry.content), [entry.content])
 
   return (
     <div className="flex items-start gap-2 rounded-lg border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-color)', background: 'var(--bg-secondary)' }}>
@@ -610,37 +619,214 @@ function FeedEntryRow({ entry }: { entry: SwarmFeedEntry }) {
       </span>
     </div>
   )
+})
+
+const AGENT_CARD_ESTIMATED_HEIGHT = 236
+const AGENT_GRID_GAP = 16
+
+function useResponsiveColumns(ref: RefObject<HTMLElement | null>) {
+  const [columns, setColumns] = useState(1)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const updateColumns = () => {
+      const width = element.clientWidth
+      setColumns(width >= 1180 ? 3 : width >= 720 ? 2 : 1)
+    }
+
+    updateColumns()
+    const observer = new ResizeObserver(updateColumns)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [ref])
+
+  return columns
 }
 
-// ─── Main View ────────────────────────────────────────────────────────────────
-
-export function AgentSwarmView() {
-  const { stopAgentStore, spawnAgentStore, activeProvider, orchestrationRun, storeAgents, swarmFeed, clearSwarmFeed, setOrchestrationRun } = useAppStore(
+function SwarmHeader({ onSpawn }: { onSpawn: () => void }) {
+  const { runningAgentCount, totalCount } = useAppStore(
     useShallow(s => ({
-      stopAgentStore: s.stopAgent,
-      spawnAgentStore: s.spawnAgent,
-      activeProvider: s.activeProvider,
-      orchestrationRun: s.orchestrationRun,
-      storeAgents: s.agents,
-      swarmFeed: s.swarmFeed,
-      clearSwarmFeed: s.clearSwarmFeed,
-      setOrchestrationRun: s.setOrchestrationRun,
+      runningAgentCount: s.runningAgentCount,
+      totalCount: s.visibleAgentIds.length,
     }))
   )
 
-  const [memoryStats, setMemoryStats] = useState<MemoryStats>({ count: 0, lastUpdated: null })
-  const [workflowModal, setWorkflowModal] = useState<WorkflowModalState | null>(null)
-  const [generatedWorkflowJson, setGeneratedWorkflowJson] = useState('')
-  const [workflowGenerationRunning, setWorkflowGenerationRunning] = useState(false)
-  const [workflowGenerationError, setWorkflowGenerationError] = useState<string | null>(null)
-  const [n8nImportStatus, setN8nImportStatus] = useState<string | null>(null)
-  const [spawnModalOpen, setSpawnModalOpen] = useState(false)
-  const [spawnName, setSpawnName] = useState('')
-  const [spawnTask, setSpawnTask] = useState('')
-  const [selectedModelKey, setSelectedModelKey] = useState('')
-  const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
+  return (
+    <div
+      className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+      style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
+          <Zap size={18} style={{ color: '#7f77dd' }} />
+        </div>
+        <div>
+          <h1 className="font-bold text-[var(--text-primary)] text-lg">Agent Swarm</h1>
+          <div className="flex items-center gap-2 mt-0.5">
+            <Activity size={11} className="text-[var(--text-secondary)]" />
+            <span className="text-xs text-[var(--text-secondary)]">
+              {runningAgentCount} running · {totalCount} total
+            </span>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={onSpawn}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+        style={{ background: '#7f77dd', boxShadow: '0 2px 12px rgba(127,119,221,0.35)' }}
+      >
+        <Plus size={15} />
+        Spawn Agent
+      </button>
+    </div>
+  )
+}
+
+const MemoryPanel = memo(function MemoryPanel({ memoryStats }: { memoryStats: MemoryStats }) {
+  const formattedMemoryUpdated = memoryStats.lastUpdated
+    ? new Date(memoryStats.lastUpdated).toLocaleString()
+    : 'No memory yet'
+
+  return (
+    <div
+      className="rounded-2xl border px-4 py-3 flex-shrink-0"
+      style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">Memory</div>
+          <div className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
+            {memoryStats.count.toLocaleString()} persistent entries
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-[var(--text-secondary)]">Last updated</div>
+          <div className="mt-1 text-xs text-[var(--text-muted)]">{formattedMemoryUpdated}</div>
+        </div>
+      </div>
+    </div>
+  )
+})
+
+const AgentCardContainer = memo(function AgentCardContainer({
+  agentId,
+  modelLabel,
+  onOpenWorkflow,
+}: {
+  agentId: string
+  modelLabel: string
+  onOpenWorkflow: (agent: AgentInstance) => void
+}) {
+  const agent = useAppStore(s => s.agentsById[agentId])
+  const stopAgent = useAppStore(s => s.stopAgent)
+  const onStop = useCallback(() => stopAgent(agentId), [agentId, stopAgent])
+  const onBuildWorkflow = useCallback(() => {
+    if (agent) onOpenWorkflow(agent)
+  }, [agent, onOpenWorkflow])
+
+  if (!agent) return null
+
+  return (
+    <ManagedAgentCard
+      agent={agent}
+      modelLabel={modelLabel}
+      onStop={agent.status === 'running' ? onStop : undefined}
+      onBuildWorkflow={agent.status === 'complete' ? onBuildWorkflow : undefined}
+    />
+  )
+})
+
+function AgentGrid({
+  modelLabels,
+  onOpenWorkflow,
+  onSpawn,
+}: {
+  modelLabels: Record<string, string>
+  onOpenWorkflow: (agent: AgentInstance) => void
+  onSpawn: () => void
+}) {
+  const visibleAgentIds = useAppStore(s => s.visibleAgentIds)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const columns = useResponsiveColumns(scrollRef)
+  const rowCount = Math.ceil(visibleAgentIds.length / columns)
+  const virtualizer = useVirtualizer({
+    count: rowCount,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => AGENT_CARD_ESTIMATED_HEIGHT + AGENT_GRID_GAP,
+    overscan: 4,
+  })
+
+  if (visibleAgentIds.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center text-center gap-4 p-5">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+          <Zap size={28} className="text-[var(--text-secondary)]" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">No agents yet</h2>
+          <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
+            Spawn an agent to start parallel work, or enable Multi-Agent mode in chat to start an orchestrated run.
+          </p>
+        </div>
+        <button
+          onClick={onSpawn}
+          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+          style={{ background: '#7f77dd' }}
+        >
+          <Plus size={14} />
+          Spawn Agent
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-5 pb-5">
+      <div className="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+        {virtualizer.getVirtualItems().map(virtualRow => {
+          const startIndex = virtualRow.index * columns
+          const rowIds = visibleAgentIds.slice(startIndex, startIndex + columns)
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={virtualizer.measureElement}
+              className="absolute left-0 top-0 grid w-full gap-4 pb-4"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+                gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+              }}
+            >
+              {rowIds.map(agentId => {
+                const model = useAppStore.getState().agentsById[agentId]?.model ?? ''
+                return (
+                  <AgentCardContainer
+                    key={agentId}
+                    agentId={agentId}
+                    modelLabel={modelLabels[model] || model}
+                    onOpenWorkflow={onOpenWorkflow}
+                  />
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function LiveFeedPanel() {
+  const { swarmFeed, clearSwarmFeed, runningAgentCount } = useAppStore(
+    useShallow(s => ({
+      swarmFeed: s.swarmFeed,
+      clearSwarmFeed: s.clearSwarmFeed,
+      runningAgentCount: s.runningAgentCount,
+    }))
+  )
   const feedParentRef = useRef<HTMLDivElement>(null)
-  const savedModelDisplayNames = useMemo(() => getSavedModelDisplayNameMap(), [activeProvider.id, activeProvider.model, storeAgents])
   const feedVirtualizer = useVirtualizer({
     count: swarmFeed.length,
     getScrollElement: () => feedParentRef.current,
@@ -657,6 +843,94 @@ export function AgentSwarmView() {
       el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
     })
   }, [swarmFeed])
+
+  return (
+    <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-1 border-t lg:border-t-0 lg:border-l lg:border-l-[var(--border-color)]">
+      <div
+        className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+        style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-[var(--text-primary)]">Live Feed</span>
+          {runningAgentCount > 0 && (
+            <span
+              className="w-2 h-2 rounded-full"
+              style={{ background: '#1d9e75', animation: 'pulse 1.5s infinite' }}
+            />
+          )}
+          <span className="text-xs text-[var(--text-secondary)]">({swarmFeed.length})</span>
+        </div>
+        <button
+          onClick={clearSwarmFeed}
+          className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+
+      <div ref={feedParentRef} className="flex-1 overflow-y-auto p-4">
+        {swarmFeed.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
+              <Activity size={24} className="text-[var(--text-secondary)]" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-[var(--text-primary)]">No live activity yet</h2>
+              <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                Agent events will stream here as soon as one starts running.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="relative w-full"
+            style={{ height: `${feedVirtualizer.getTotalSize()}px` }}
+          >
+            {feedVirtualizer.getVirtualItems().map(virtualRow => {
+              const entry = swarmFeed[virtualRow.index]
+              return (
+                <div
+                  key={entry.id}
+                  ref={feedVirtualizer.measureElement}
+                  data-index={virtualRow.index}
+                  className="absolute left-0 top-0 w-full pb-1.5"
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                >
+                  <FeedEntryRow entry={entry} />
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main View ────────────────────────────────────────────────────────────────
+
+export function AgentSwarmView() {
+  const { spawnAgentStore, activeProvider, orchestrationRun, setOrchestrationRun } = useAppStore(
+    useShallow(s => ({
+      spawnAgentStore: s.spawnAgent,
+      activeProvider: s.activeProvider,
+      orchestrationRun: s.orchestrationRun,
+      setOrchestrationRun: s.setOrchestrationRun,
+    }))
+  )
+
+  const [memoryStats, setMemoryStats] = useState<MemoryStats>({ count: 0, lastUpdated: null })
+  const [workflowModal, setWorkflowModal] = useState<WorkflowModalState | null>(null)
+  const [generatedWorkflowJson, setGeneratedWorkflowJson] = useState('')
+  const [workflowGenerationRunning, setWorkflowGenerationRunning] = useState(false)
+  const [workflowGenerationError, setWorkflowGenerationError] = useState<string | null>(null)
+  const [n8nImportStatus, setN8nImportStatus] = useState<string | null>(null)
+  const [spawnModalOpen, setSpawnModalOpen] = useState(false)
+  const [spawnName, setSpawnName] = useState('')
+  const [spawnTask, setSpawnTask] = useState('')
+  const [selectedModelKey, setSelectedModelKey] = useState('')
+  const workflowStreamRef = useRef<{ abort: () => void } | null>(null)
+  const savedModelDisplayNames = useMemo(() => getSavedModelDisplayNameMap(), [activeProvider.id, activeProvider.model])
 
   useEffect(() => {
     let mounted = true
@@ -833,171 +1107,39 @@ export function AgentSwarmView() {
     setSpawnTask('')
   }
 
-  const visibleStoreAgents = storeAgents.filter(agent => !agent.orchestrator)
-  const runningCount = visibleStoreAgents.filter(a => a.status === 'running').length
-  const formattedMemoryUpdated = memoryStats.lastUpdated
-    ? new Date(memoryStats.lastUpdated).toLocaleString()
-    : 'No memory yet'
+  const handleOpenWorkflow = useCallback((agent: AgentInstance) => {
+    void openWorkflowModal(agent)
+  }, [openWorkflowModal])
 
   return (
     <div className="flex w-full flex-1 min-h-0 min-w-0 overflow-hidden flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
       {/* ── Left panel: Agent grid ─────────────────────── */}
       <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-[1.2_1_0] border-r border-[var(--border-color)]">
-        {/* Header */}
-        <div
-          className="flex items-center justify-between px-6 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#7f77dd22' }}>
-              <Zap size={18} style={{ color: '#7f77dd' }} />
-            </div>
-            <div>
-              <h1 className="font-bold text-[var(--text-primary)] text-lg">Agent Swarm</h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <Activity size={11} className="text-[var(--text-secondary)]" />
-                <span className="text-xs text-[var(--text-secondary)]">
-                  {runningCount} running · {visibleStoreAgents.length} total
-                </span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleSpawnAgent}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-            style={{ background: '#7f77dd', boxShadow: '0 2px 12px rgba(127,119,221,0.35)' }}
-          >
-            <Plus size={15} />
-            Spawn Agent
-          </button>
-        </div>
+        <SwarmHeader onSpawn={handleSpawnAgent} />
 
         {/* Orchestration banner */}
         {orchestrationRun && (
           <OrchestrationBanner
             run={orchestrationRun}
-            storeAgents={storeAgents}
             onDismiss={() => setOrchestrationRun(null)}
           />
         )}
 
         {/* Agent grid */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          <div
-            className="rounded-2xl border px-4 py-3"
-            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-secondary)]">Memory</div>
-                <div className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
-                  {memoryStats.count.toLocaleString()} persistent entries
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-[var(--text-secondary)]">Last updated</div>
-                <div className="mt-1 text-xs text-[var(--text-muted)]">{formattedMemoryUpdated}</div>
-              </div>
-            </div>
+        <div className="flex flex-1 min-h-0 flex-col gap-4 overflow-hidden pt-5">
+          <div className="px-5">
+            <MemoryPanel memoryStats={memoryStats} />
           </div>
-
-          {visibleStoreAgents.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
-                <Zap size={28} className="text-[var(--text-secondary)]" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-[var(--text-primary)]">No agents yet</h2>
-                <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
-                  Spawn an agent to start parallel work, or enable Multi-Agent mode in chat to start an orchestrated run.
-                </p>
-              </div>
-              <button
-                onClick={handleSpawnAgent}
-                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white"
-                style={{ background: '#7f77dd' }}
-              >
-                <Plus size={14} />
-                Spawn Agent
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {visibleStoreAgents.map(agent => (
-                <ManagedAgentCard
-                  key={agent.id}
-                  agent={agent}
-                  modelLabel={savedModelDisplayNames[agent.model] || agent.model}
-                  onStop={agent.status === 'running' ? () => stopAgentStore(agent.id) : undefined}
-                  onBuildWorkflow={agent.status === 'complete' ? () => { void openWorkflowModal(agent) } : undefined}
-                />
-              ))}
-            </div>
-          )}
+          <AgentGrid
+            modelLabels={savedModelDisplayNames}
+            onOpenWorkflow={handleOpenWorkflow}
+            onSpawn={handleSpawnAgent}
+          />
         </div>
       </div>
 
       {/* ── Right panel: Live Feed ─────────────────────── */}
-      <div className="flex flex-col min-h-0 min-w-0 overflow-hidden flex-1 border-t lg:border-t-0 lg:border-l lg:border-l-[var(--border-color)]">
-        {/* Header */}
-        <div
-          className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-[var(--text-primary)]">Live Feed</span>
-            {runningCount > 0 && (
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: '#1d9e75', animation: 'pulse 1.5s infinite' }}
-              />
-            )}
-            <span className="text-xs text-[var(--text-secondary)]">({swarmFeed.length})</span>
-          </div>
-          <button
-            onClick={clearSwarmFeed}
-            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
-          >
-            Clear
-          </button>
-        </div>
-
-        <div ref={feedParentRef} className="flex-1 overflow-y-auto p-4">
-          {swarmFeed.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-10">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--bg-tertiary)]">
-                <Activity size={24} className="text-[var(--text-secondary)]" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-[var(--text-primary)]">No live activity yet</h2>
-                <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                  Agent events will stream here as soon as one starts running.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div
-              className="relative w-full"
-              style={{ height: `${feedVirtualizer.getTotalSize()}px` }}
-            >
-              {feedVirtualizer.getVirtualItems().map(virtualRow => {
-                const entry = swarmFeed[virtualRow.index]
-                return (
-                  <div
-                    key={entry.id}
-                    ref={feedVirtualizer.measureElement}
-                    data-index={virtualRow.index}
-                    className="absolute left-0 top-0 w-full pb-1.5"
-                    style={{ transform: `translateY(${virtualRow.start}px)` }}
-                  >
-                    <FeedEntryRow entry={entry} />
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+      <LiveFeedPanel />
 
       {workflowModal && (
         <WorkflowHandoffModal

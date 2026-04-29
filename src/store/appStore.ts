@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useShallow } from 'zustand/react/shallow'
 import type {
   AgentInstance,
   Attachment,
@@ -41,6 +42,7 @@ import {
   injectMemoryContext,
   initializeAgentMemory,
   writeMemoryEntry,
+  type MemoryEntry,
 } from '../lib/agentMemory'
 
 let activePrimaryRun: AgentRunHandle | null = null
@@ -53,7 +55,8 @@ const ORCHESTRATION_PLANNING_TIMEOUT_MS = 180_000
 const SWARM_FEED_LIMIT = 50
 const SWARM_FEED_CHUNK_LIMIT = 300
 const SWARM_FEED_MESSAGE_LIMIT = 1200
-const SWARM_STREAM_FLUSH_INTERVAL_MS = 120
+const SWARM_STREAM_FLUSH_INTERVAL_MS = 250
+const SWARM_MEMORY_FLUSH_INTERVAL_MS = 3000
 
 type PendingSwarmStream = {
   agentId: string
@@ -65,12 +68,106 @@ type PendingSwarmStream = {
 
 const pendingSwarmStreams = new Map<string, PendingSwarmStream>()
 let pendingSwarmFlushTimer: ReturnType<typeof setTimeout> | null = null
+let latestAgentIndexes: AgentIndexes | undefined
+
+type AgentPaletteItem = {
+  id: string
+  name: string
+  status: AgentInstance['status']
+}
+
+type AgentIndexes = {
+  agentIds: string[]
+  agentsById: Record<string, AgentInstance>
+  visibleAgentIds: string[]
+  runningAgentCount: number
+  totalAgentTokens: number
+  agentPaletteItems: AgentPaletteItem[]
+}
+
+type MemoryObservationInput = Omit<MemoryEntry, 'id' | 'timestamp'> & Partial<Pick<MemoryEntry, 'id' | 'timestamp'>>
+
+type PendingMemoryObservation = Omit<MemoryObservationInput, 'content'> & {
+  content: string
+  timer: ReturnType<typeof setTimeout> | null
+}
+
+const pendingMemoryObservations = new Map<string, PendingMemoryObservation>()
 
 function clearN8nStatusPollTimer() {
   if (n8nStatusPollTimer) {
     clearInterval(n8nStatusPollTimer)
     n8nStatusPollTimer = null
   }
+}
+
+function sameStringArray(left: string[] | undefined, right: string[]): boolean {
+  if (!left || left.length !== right.length) return false
+  return left.every((value, index) => value === right[index])
+}
+
+function sameAgentPaletteItems(left: AgentPaletteItem[] | undefined, right: AgentPaletteItem[]): boolean {
+  if (!left || left.length !== right.length) return false
+  return left.every((value, index) => {
+    const next = right[index]
+    return value.id === next.id && value.name === next.name && value.status === next.status
+  })
+}
+
+function buildAgentIndexes(agents: AgentInstance[], previous: Partial<AgentIndexes> | undefined = latestAgentIndexes): AgentIndexes {
+  const agentsById: Record<string, AgentInstance> = {}
+  let runningAgentCount = 0
+  let totalAgentTokens = 0
+  const agentIds: string[] = []
+  const visibleAgentIds: string[] = []
+  const agentPaletteItems: AgentPaletteItem[] = []
+
+  for (const agent of agents) {
+    agentIds.push(agent.id)
+    agentsById[agent.id] = agent
+    totalAgentTokens += agent.tokens
+    if (agent.status === 'running') runningAgentCount += 1
+    if (!agent.orchestrator) visibleAgentIds.push(agent.id)
+    agentPaletteItems.push({ id: agent.id, name: agent.name, status: agent.status })
+  }
+
+  const indexes = {
+    agentIds: sameStringArray(previous?.agentIds, agentIds) ? previous!.agentIds! : agentIds,
+    agentsById,
+    visibleAgentIds: sameStringArray(previous?.visibleAgentIds, visibleAgentIds) ? previous!.visibleAgentIds! : visibleAgentIds,
+    runningAgentCount,
+    totalAgentTokens,
+    agentPaletteItems: sameAgentPaletteItems(previous?.agentPaletteItems, agentPaletteItems)
+      ? previous!.agentPaletteItems!
+      : agentPaletteItems,
+  }
+  latestAgentIndexes = indexes
+  return indexes
+}
+
+function flushMemoryObservation(agentId: string): void {
+  const pending = pendingMemoryObservations.get(agentId)
+  if (!pending) return
+  if (pending.timer) clearTimeout(pending.timer)
+  pendingMemoryObservations.delete(agentId)
+  const { timer: _timer, ...entry } = pending
+  void writeMemoryEntry(entry)
+}
+
+function queueMemoryObservation(entry: MemoryObservationInput): void {
+  const existing = pendingMemoryObservations.get(entry.agent_id)
+  if (existing) {
+    existing.content += entry.content
+    return
+  }
+
+  const pending: PendingMemoryObservation = {
+    ...entry,
+    content: entry.content,
+    timer: null,
+  }
+  pending.timer = setTimeout(() => flushMemoryObservation(entry.agent_id), SWARM_MEMORY_FLUSH_INTERVAL_MS)
+  pendingMemoryObservations.set(entry.agent_id, pending)
 }
 
 // ─── Chat session persistence ─────────────────────────────────────────────────
@@ -526,6 +623,12 @@ interface AppState {
   providerHubOpen: boolean
   messages: Message[]
   agents: AgentInstance[]
+  agentIds: string[]
+  agentsById: Record<string, AgentInstance>
+  visibleAgentIds: string[]
+  runningAgentCount: number
+  totalAgentTokens: number
+  agentPaletteItems: AgentPaletteItem[]
   taskSteps: TaskStep[]
   connectors: ReturnType<typeof loadConnectors>
   terminalEntries: TerminalEntry[]
@@ -626,22 +729,28 @@ export const useAppStore = create<AppState>((set, get) => {
 
     if (updates.length === 0) return
 
-    set(current => ({
-      agents: current.agents.map(agent => {
-        const update = updates.find(item => item.agentId === agent.id)
+    set(current => {
+      const updatesById = new Map(updates.map(update => [update.agentId, update]))
+      const agents = current.agents.map(agent => {
+        const update = updatesById.get(agent.id)
         if (!update) return agent
         return { ...agent, tokens: update.tokens, lastUpdate: update.lastUpdate }
-      }),
-      swarmFeed: updates.reduce((feed, update) => upsertSwarmFeed(feed, {
-        id: createId('swarm-feed'),
-        agentId: update.agentId,
-        stepId: update.stepId,
-        agentName: update.agentName,
-        type: 'chunk',
-        content: update.content,
-        timestamp: new Date(),
-      }), current.swarmFeed),
-    }))
+      })
+
+      return {
+        agents,
+        ...buildAgentIndexes(agents),
+        swarmFeed: updates.reduce((feed, update) => upsertSwarmFeed(feed, {
+          id: createId('swarm-feed'),
+          agentId: update.agentId,
+          stepId: update.stepId,
+          agentName: update.agentName,
+          type: 'chunk',
+          content: update.content,
+          timestamp: new Date(),
+        }), current.swarmFeed),
+      }
+    })
   }
 
   const scheduleSwarmStreamFlush = () => {
@@ -674,6 +783,7 @@ export const useAppStore = create<AppState>((set, get) => {
   providerHubOpen: false,
   messages: _chatInit.messages,
   agents: [],
+  ...buildAgentIndexes([]),
   taskSteps: createTaskSteps(),
   connectors: loadConnectors(),
   terminalEntries: [
@@ -1032,10 +1142,14 @@ export const useAppStore = create<AppState>((set, get) => {
           orchestrationStepIndex: i + 1,
         }
         stepAgentIds[step.id] = agentId
-        set(current => ({
-          agents: [...current.agents, agent],
-          swarmRunning: true,
-        }))
+        set(current => {
+          const agents = [...current.agents, agent]
+          return {
+            agents,
+            ...buildAgentIndexes(agents),
+            swarmRunning: true,
+          }
+        })
       }
 
       // Register the abort handle BEFORE runOrchestration fires execute(), so any
@@ -1054,24 +1168,28 @@ export const useAppStore = create<AppState>((set, get) => {
           const agentId = stepAgentIds[stepId]
           const step = plan.agents.find(item => item.id === stepId)
           if (!agentId) return
-          set(current => ({
-            agents: current.agents.map(a =>
+          set(current => {
+            const agents = current.agents.map(a =>
               a.id === agentId
-                ? { ...a, status: 'running' as const, startedAt: new Date(), lastUpdate: `${agentName} started…` }
+                ? { ...a, status: 'running' as const, startedAt: new Date(), lastUpdate: `${agentName} started...` }
                 : a
-            ),
-            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
-              id: createId('swarm-feed'),
-              agentId,
-              stepId,
-              agentName,
-              type: 'start',
-              content: plan.agents.find(s => s.id === stepId)?.specificTask ?? '',
-              timestamp: new Date(),
-            }),
-          }))
+            )
+            return {
+              agents,
+              ...buildAgentIndexes(agents),
+              swarmFeed: upsertSwarmFeed(current.swarmFeed, {
+                id: createId('swarm-feed'),
+                agentId,
+                stepId,
+                agentName,
+                type: 'start',
+                content: plan.agents.find(s => s.id === stepId)?.specificTask ?? '',
+                timestamp: new Date(),
+              }),
+            }
+          })
           if (step) {
-            void writeMemoryEntry({
+            queueMemoryObservation({
               session_id: originSessionId,
               agent_id: agentId,
               agent_name: agentName,
@@ -1101,7 +1219,7 @@ export const useAppStore = create<AppState>((set, get) => {
           }
           scheduleSwarmStreamFlush()
           if (step) {
-            void writeMemoryEntry({
+            queueMemoryObservation({
               session_id: originSessionId,
               agent_id: agentId,
               agent_name: agentName,
@@ -1115,13 +1233,14 @@ export const useAppStore = create<AppState>((set, get) => {
         stepId => {
           const agentId = stepAgentIds[stepId]
           if (!agentId) return
-          set(current => ({
-            agents: current.agents.map(a =>
+          set(current => {
+            const agents = current.agents.map(a =>
               a.id === agentId
-                ? { ...a, lastUpdate: 'Reviewing…', status: 'running' as const }
+                ? { ...a, lastUpdate: 'Reviewing...', status: 'running' as const }
                 : a
-            ),
-          }))
+            )
+            return { agents, ...buildAgentIndexes(agents) }
+          })
         },
         (stepId, output) => {
           const agentId = stepAgentIds[stepId]
@@ -1130,22 +1249,27 @@ export const useAppStore = create<AppState>((set, get) => {
           const agentName = step?.templateName ?? 'Agent'
           completedStepIds.add(stepId)
           flushPendingSwarmStreams(true)
-          set(current => ({
-            agents: current.agents.map(a =>
+          flushMemoryObservation(agentId)
+          set(current => {
+            const agents = current.agents.map(a =>
               a.id === agentId
                 ? { ...a, status: 'complete' as const, summary: output, lastUpdate: output.slice(0, 120) }
                 : a
-            ),
-            swarmFeed: upsertSwarmFeed(current.swarmFeed, {
-              id: createId('swarm-feed'),
-              agentId,
-              stepId,
-              agentName,
-              type: 'complete',
-              content: output,
-              timestamp: new Date(),
-            }),
-          }))
+            )
+            return {
+              agents,
+              ...buildAgentIndexes(agents),
+              swarmFeed: upsertSwarmFeed(current.swarmFeed, {
+                id: createId('swarm-feed'),
+                agentId,
+                stepId,
+                agentName,
+                type: 'complete',
+                content: output,
+                timestamp: new Date(),
+              }),
+            }
+          })
           // Update checklist: mark this step as done
           upsertSessionMessage(
             checklistMsgId,
@@ -1210,28 +1334,32 @@ export const useAppStore = create<AppState>((set, get) => {
           if (activeOrchestrationAbort?.runId === runId) {
             activeOrchestrationAbort = null
           }
-          set(current => ({
-            orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status !== 'cancelled'
-              ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
-              : current.orchestrationRun,
-            agents: current.agents.map(a =>
+          set(current => {
+            const agents = current.agents.map(a =>
               a.id.startsWith(`orch-${runId}`) && a.status === 'running'
                 ? { ...a, status: 'error' as const, lastUpdate: 'Task failed.' }
                 : a
-            ),
-            swarmRunning: false,
-            terminalEntries: [
-              ...current.terminalEntries,
-              createTerminalEntry('error', 'Orchestration failed', errorMessage),
-            ],
-            swarmFeed: pushSwarmFeed(current.swarmFeed, {
-              id: createId('swarm-feed'),
-              agentName: 'Swarm',
-              type: 'error',
-              content: errorMessage,
-              timestamp: new Date(),
-            }),
-          }))
+            )
+            return {
+              orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status !== 'cancelled'
+                ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
+                : current.orchestrationRun,
+              agents,
+              ...buildAgentIndexes(agents),
+              swarmRunning: false,
+              terminalEntries: [
+                ...current.terminalEntries,
+                createTerminalEntry('error', 'Orchestration failed', errorMessage),
+              ],
+              swarmFeed: pushSwarmFeed(current.swarmFeed, {
+                id: createId('swarm-feed'),
+                agentName: 'Swarm',
+                type: 'error',
+                content: errorMessage,
+                timestamp: new Date(),
+              }),
+            }
+          })
           appendSessionMessage(`❌ Multi-agent task failed: ${errorMessage}`, 'system')
         },
         (step, stepIndex) => stepProviders.get(step.id) ?? selectProvider(undefined, provider, stepIndex),
@@ -1249,17 +1377,21 @@ export const useAppStore = create<AppState>((set, get) => {
         if (activeOrchestrationAbort?.runId === runId) {
           activeOrchestrationAbort = null
         }
-        set(current => ({
-          orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status === 'planning'
-            ? {
-                ...current.orchestrationRun,
-                status: 'cancelled',
-                finishedAt: current.orchestrationRun.finishedAt ?? new Date(),
-              }
-            : current.orchestrationRun,
-          agents: current.agents.filter(a => !a.id.startsWith(`orch-${runId}`)),
-          swarmRunning: false,
-        }))
+        set(current => {
+          const agents = current.agents.filter(a => !a.id.startsWith(`orch-${runId}`))
+          return {
+            orchestrationRun: current.orchestrationRun?.id === runId && current.orchestrationRun.status === 'planning'
+              ? {
+                  ...current.orchestrationRun,
+                  status: 'cancelled',
+                  finishedAt: current.orchestrationRun.finishedAt ?? new Date(),
+                }
+              : current.orchestrationRun,
+            agents,
+            ...buildAgentIndexes(agents),
+            swarmRunning: false,
+          }
+        })
         return
       }
 
@@ -1267,28 +1399,32 @@ export const useAppStore = create<AppState>((set, get) => {
       if (activeOrchestrationAbort?.runId === runId) {
         activeOrchestrationAbort = null
       }
-      set(current => ({
-        orchestrationRun: current.orchestrationRun?.id === runId
-          ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
-          : current.orchestrationRun,
-        agents: current.agents.map(a =>
+      set(current => {
+        const agents = current.agents.map(a =>
           a.id.startsWith(`orch-${runId}`) && (a.status === 'running' || a.status === 'idle')
             ? { ...a, status: 'error' as const, lastUpdate: 'Task failed.' }
             : a
-        ),
-        swarmRunning: false,
-        terminalEntries: [
-          ...current.terminalEntries,
-          createTerminalEntry('error', 'Orchestration failed', message),
-        ],
-        swarmFeed: pushSwarmFeed(current.swarmFeed, {
-          id: createId('swarm-feed'),
-          agentName: 'Swarm',
-          type: 'error',
-          content: message,
-          timestamp: new Date(),
-        }),
-      }))
+        )
+        return {
+          orchestrationRun: current.orchestrationRun?.id === runId
+            ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
+            : current.orchestrationRun,
+          agents,
+          ...buildAgentIndexes(agents),
+          swarmRunning: false,
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry('error', 'Orchestration failed', message),
+          ],
+          swarmFeed: pushSwarmFeed(current.swarmFeed, {
+            id: createId('swarm-feed'),
+            agentName: 'Swarm',
+            type: 'error',
+            content: message,
+            timestamp: new Date(),
+          }),
+        }
+      })
     } finally {
       if (planningTimeout) {
         clearTimeout(planningTimeout)
@@ -1385,6 +1521,9 @@ export const useAppStore = create<AppState>((set, get) => {
       handle.abort()
     }
     activeSwarmRuns.clear()
+    for (const agentId of Array.from(pendingMemoryObservations.keys())) {
+      flushMemoryObservation(agentId)
+    }
 
     const orchestrationAbort = activeOrchestrationAbort
     if (orchestrationAbort) {
@@ -1402,6 +1541,11 @@ export const useAppStore = create<AppState>((set, get) => {
           ? { ...message, streaming: false, content: `${message.content} [stopped]`.trim() }
           : message
       )
+      const agents = state.agents.map(agent =>
+        agent.status === 'running'
+          ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
+          : agent
+      )
       return {
         agentRunning: false,
         autonomousLoopActive: false,
@@ -1415,11 +1559,8 @@ export const useAppStore = create<AppState>((set, get) => {
         chatSessions: state.chatSessions.map(s =>
           s.id === state.activeChatSessionId ? { ...s, messages: stoppedMessages } : s
         ),
-        agents: state.agents.map(agent =>
-          agent.status === 'running'
-            ? { ...agent, status: 'complete' as const, lastUpdate: 'Stopped by user.' }
-            : agent
-        ),
+        agents,
+        ...buildAgentIndexes(agents),
         terminalEntries: [
           ...state.terminalEntries,
           createTerminalEntry('info', 'Stopped', 'Active agent runs were stopped.'),
@@ -1651,31 +1792,36 @@ export const useAppStore = create<AppState>((set, get) => {
       startedAt: new Date(),
     }
 
-    set(current => ({
-      agents: [...current.agents, agent],
-      swarmRunning: true,
-      swarmFeed: upsertSwarmFeed(current.swarmFeed, {
-        id: createId('swarm-feed'),
-        agentId,
-        agentName: agent.name,
-        type: 'start',
-        content: agentTask,
-        timestamp: new Date(),
-      }),
-      terminalEntries: [
-        ...current.terminalEntries,
-        createTerminalEntry('info', `${agent.name} started`, `${provider.name} · ${agent.model}\n${agentTask}`, agentId),
-      ],
-    }))
+    set(current => {
+      const agents = [...current.agents, agent]
+      return {
+        agents,
+        ...buildAgentIndexes(agents),
+        swarmRunning: true,
+        swarmFeed: upsertSwarmFeed(current.swarmFeed, {
+          id: createId('swarm-feed'),
+          agentId,
+          agentName: agent.name,
+          type: 'start',
+          content: agentTask,
+          timestamp: new Date(),
+        }),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('info', `${agent.name} started`, `${provider.name} · ${agent.model}\n${agentTask}`, agentId),
+        ],
+      }
+    })
 
     if (!provider.isLocal && !provider.apiKey) {
-      set(current => ({
-        agents: current.agents.map(item =>
+      set(current => {
+        const agents = current.agents.map(item =>
           item.id === agentId
             ? { ...item, status: 'error' as const, lastUpdate: `Missing API key for ${provider.name}.` }
             : item
-        ),
-      }))
+        )
+        return { agents, ...buildAgentIndexes(agents) }
+      })
       return
     }
 
@@ -1696,25 +1842,30 @@ export const useAppStore = create<AppState>((set, get) => {
       provider,
       conversation,
       onPlanning: round => {
-        set(current => ({
-          agents: current.agents.map(item =>
-            item.id === agentId ? { ...item, lastUpdate: `Planning round ${round}…` } : item
-          ),
-        }))
+        set(current => {
+          const agents = current.agents.map(item =>
+            item.id === agentId ? { ...item, lastUpdate: `Planning round ${round}...` } : item
+          )
+          return { agents, ...buildAgentIndexes(agents) }
+        })
       },
       onToolStart: call => {
         usedTools = true
-        set(current => ({
-          agents: current.agents.map(item =>
+        set(current => {
+          const agents = current.agents.map(item =>
             item.id === agentId
-              ? { ...item, toolCalls: item.toolCalls + 1, lastUpdate: `Running ${call.tool}…` }
+              ? { ...item, toolCalls: item.toolCalls + 1, lastUpdate: `Running ${call.tool}...` }
               : item
-          ),
-          terminalEntries: [
-            ...current.terminalEntries,
-            createTerminalEntry('tool', `${agent.name}: ${call.tool}`, JSON.stringify(call.arguments, null, 2), agentId),
-          ],
-        }))
+          )
+          return {
+            agents,
+            ...buildAgentIndexes(agents),
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('tool', `${agent.name}: ${call.tool}`, JSON.stringify(call.arguments, null, 2), agentId),
+            ],
+          }
+        })
         void writeMemoryEntry({
           session_id: state.activeChatSessionId,
           agent_id: agentId,
@@ -1726,8 +1877,8 @@ export const useAppStore = create<AppState>((set, get) => {
         })
       },
       onToolResult: result => {
-        set(current => ({
-          agents: current.agents.map(item =>
+        set(current => {
+          const agents = current.agents.map(item =>
             item.id === agentId
               ? {
                   ...item,
@@ -1736,12 +1887,16 @@ export const useAppStore = create<AppState>((set, get) => {
                   summary: result.summary,
                 }
               : item
-          ),
-          terminalEntries: [
-            ...current.terminalEntries,
-            createTerminalEntry('output', `${agent.name}: ${result.summary}`, result.contentForModel, agentId),
-          ],
-        }))
+          )
+          return {
+            agents,
+            ...buildAgentIndexes(agents),
+            terminalEntries: [
+              ...current.terminalEntries,
+              createTerminalEntry('output', `${agent.name}: ${result.summary}`, result.contentForModel, agentId),
+            ],
+          }
+        })
         void writeMemoryEntry({
           session_id: state.activeChatSessionId,
           agent_id: agentId,
@@ -1753,11 +1908,12 @@ export const useAppStore = create<AppState>((set, get) => {
         })
       },
       onFinalStart: () => {
-        set(current => ({
-          agents: current.agents.map(item =>
-            item.id === agentId ? { ...item, lastUpdate: usedTools ? 'Summarizing work…' : 'Responding…' } : item
-          ),
-        }))
+        set(current => {
+          const agents = current.agents.map(item =>
+            item.id === agentId ? { ...item, lastUpdate: usedTools ? 'Summarizing work...' : 'Responding...' } : item
+          )
+          return { agents, ...buildAgentIndexes(agents) }
+        })
       },
       onFinalChunk: chunk => {
         accumulated += chunk
@@ -1769,7 +1925,7 @@ export const useAppStore = create<AppState>((set, get) => {
           pendingSwarmStreams.set(agentId, { agentId, agentName: agent.name, total: '', pending: chunk })
         }
         scheduleSwarmStreamFlush()
-        void writeMemoryEntry({
+        queueMemoryObservation({
           session_id: state.activeChatSessionId,
           agent_id: agentId,
           agent_name: agent.name,
@@ -1782,6 +1938,7 @@ export const useAppStore = create<AppState>((set, get) => {
       onFinal: message => {
         activeSwarmRuns.delete(agentId)
         flushPendingSwarmStreams(true)
+        flushMemoryObservation(agentId)
         set(current => {
           const agents = current.agents.map(item =>
             item.id === agentId
@@ -1798,6 +1955,7 @@ export const useAppStore = create<AppState>((set, get) => {
 
           return {
             agents,
+            ...buildAgentIndexes(agents),
             swarmRunning: agents.some(item => item.status === 'running'),
             swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
@@ -1826,6 +1984,7 @@ export const useAppStore = create<AppState>((set, get) => {
       onError: error => {
         activeSwarmRuns.delete(agentId)
         flushPendingSwarmStreams(true)
+        flushMemoryObservation(agentId)
         set(current => {
           const agents = current.agents.map(item =>
             item.id === agentId
@@ -1835,6 +1994,7 @@ export const useAppStore = create<AppState>((set, get) => {
 
           return {
             agents,
+            ...buildAgentIndexes(agents),
             swarmRunning: agents.some(item => item.status === 'running'),
             swarmFeed: upsertSwarmFeed(current.swarmFeed, {
               id: createId('swarm-feed'),
@@ -1886,15 +2046,19 @@ export const useAppStore = create<AppState>((set, get) => {
       startedAt: new Date(),
     }
 
-    set(current => ({
-      swarmGoal: targetGoal,
-      swarmRunning: true,
-      agents: [...current.agents, orchestrator],
-      terminalEntries: [
-        ...current.terminalEntries,
-        createTerminalEntry('info', 'Swarm orchestrator', targetGoal, orchestratorId),
-      ],
-    }))
+    set(current => {
+      const agents = [...current.agents, orchestrator]
+      return {
+        swarmGoal: targetGoal,
+        swarmRunning: true,
+        agents,
+        ...buildAgentIndexes(agents),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('info', 'Swarm orchestrator', targetGoal, orchestratorId),
+        ],
+      }
+    })
 
     const plannerProvider = (!provider.isLocal && !provider.apiKey)
       ? getConnectedProviders()[0] ?? provider
@@ -1945,8 +2109,8 @@ export const useAppStore = create<AppState>((set, get) => {
 
       activeSwarmRuns.delete(orchestratorId)
 
-      set(current => ({
-        agents: current.agents.map(agent =>
+      set(current => {
+        const agents = current.agents.map(agent =>
           agent.id === orchestratorId
             ? {
                 ...agent,
@@ -1956,17 +2120,21 @@ export const useAppStore = create<AppState>((set, get) => {
                 tokens: estimateTokens(JSON.stringify(subtasks)),
               }
             : agent
-        ),
-        terminalEntries: [
-          ...current.terminalEntries,
-          createTerminalEntry(
-            'info',
-            'Swarm plan ready',
-            subtasks.map(item => `${item.name}: ${item.task}`).join('\n'),
-            orchestratorId
-          ),
-        ],
-      }))
+        )
+        return {
+          agents,
+          ...buildAgentIndexes(agents),
+          terminalEntries: [
+            ...current.terminalEntries,
+            createTerminalEntry(
+              'info',
+              'Swarm plan ready',
+              subtasks.map(item => `${item.name}: ${item.task}`).join('\n'),
+              orchestratorId
+            ),
+          ],
+        }
+      })
 
       for (let index = 0; index < subtasks.length; index += 1) {
         const taskEntry = subtasks[index]
@@ -1984,6 +2152,7 @@ export const useAppStore = create<AppState>((set, get) => {
         )
         return {
           agents,
+          ...buildAgentIndexes(agents),
           swarmRunning: agents.some(a => a.status === 'running'),
           terminalEntries: [
             ...current.terminalEntries,
@@ -1997,6 +2166,7 @@ export const useAppStore = create<AppState>((set, get) => {
   stopAgent: id => {
     activeSwarmRuns.get(id)?.abort()
     activeSwarmRuns.delete(id)
+    flushMemoryObservation(id)
 
     set(current => {
       const agents = current.agents.map(agent =>
@@ -2007,6 +2177,7 @@ export const useAppStore = create<AppState>((set, get) => {
 
       return {
         agents,
+        ...buildAgentIndexes(agents),
         swarmRunning: agents.some(agent => agent.status === 'running'),
         terminalEntries: [
           ...current.terminalEntries,
@@ -2189,3 +2360,35 @@ export const useAppStore = create<AppState>((set, get) => {
   },
   })
 })
+
+export function useAgentIds() {
+  return useAppStore(state => state.agentIds)
+}
+
+export function useAgentCardData(agentId: string) {
+  return useAppStore(state => state.agentsById[agentId])
+}
+
+export function useSwarmSummary() {
+  return useAppStore(
+    useShallow(state => ({
+      runningAgentCount: state.runningAgentCount,
+      totalAgentCount: state.visibleAgentIds.length,
+      totalAgentTokens: state.totalAgentTokens,
+    }))
+  )
+}
+
+export function useSwarmFeedMeta() {
+  return useAppStore(
+    useShallow(state => ({
+      feedCount: state.swarmFeed.length,
+      runningAgentCount: state.runningAgentCount,
+      clearSwarmFeed: state.clearSwarmFeed,
+    }))
+  )
+}
+
+export function useSwarmFeedEntries() {
+  return useAppStore(state => state.swarmFeed)
+}

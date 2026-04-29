@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Square, Cpu, Wrench } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -16,7 +17,7 @@ interface AgentCardProps {
   agent: AgentInstance
 }
 
-export function AgentCard({ agent }: AgentCardProps) {
+export const AgentCard = memo(function AgentCard({ agent }: AgentCardProps) {
   const { stopAgent } = useAppStore(
     useShallow(s => ({
       stopAgent: s.stopAgent,
@@ -103,4 +104,4 @@ export function AgentCard({ agent }: AgentCardProps) {
       </div>
     </div>
   )
-}
+})

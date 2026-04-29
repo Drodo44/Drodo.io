@@ -48,17 +48,16 @@ function BrandLogo() {
 }
 
 export function Sidebar() {
-  const { activeView, setView, activeProvider, agentRunning, setProviderHubOpen, agents } = useAppStore(
+  const { activeView, setView, activeProvider, agentRunning, setProviderHubOpen, runningAgentCount } = useAppStore(
     useShallow(s => ({
       activeView: s.activeView,
       setView: s.setView,
       activeProvider: s.activeProvider,
       agentRunning: s.agentRunning,
       setProviderHubOpen: s.setProviderHubOpen,
-      agents: s.agents,
+      runningAgentCount: s.runningAgentCount,
     }))
   )
-  const runningAgents = agents.filter(a => a.status === 'running').length
 
   const navButton = (view: NavView, label: string, Icon: typeof Bot, badge?: number, tutorialId?: string) => {
     const isActive = activeView === view
@@ -123,7 +122,7 @@ export function Sidebar() {
 
         {/* Swarm + Settings */}
         <div className="px-2 space-y-0.5">
-          {navButton('swarm', 'Agent Swarm', Zap, runningAgents > 0 ? runningAgents : undefined, 'nav-swarm')}
+          {navButton('swarm', 'Agent Swarm', Zap, runningAgentCount > 0 ? runningAgentCount : undefined, 'nav-swarm')}
           {navButton('settings', 'Settings', Settings2)}
         </div>
       </nav>

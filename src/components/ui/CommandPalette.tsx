@@ -72,6 +72,8 @@ const STATUS_COLOR: Record<string, string> = {
   error: '#e05050',
 }
 
+const EMPTY_AGENT_ITEMS: Array<{ id: string; name: string; status: string }> = []
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface CommandPaletteProps {
@@ -80,8 +82,8 @@ interface CommandPaletteProps {
 }
 
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
-  const { setView, agents } = useAppStore(
-    useShallow(s => ({ setView: s.setView, agents: s.agents }))
+  const { setView, agentItems } = useAppStore(
+    useShallow(s => ({ setView: s.setView, agentItems: open ? s.agentPaletteItems : EMPTY_AGENT_ITEMS }))
   )
 
   const [query, setQuery] = useState('')
@@ -117,7 +119,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     })
 
     // Agents
-    agents.forEach(a => {
+    agentItems.forEach(a => {
       items.push({
         id: `agent-${a.id}`,
         label: a.name,
@@ -152,7 +154,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     })
 
     return items
-  }, [agents, workflowNames, sessionNames, setView, onClose])
+  }, [agentItems, workflowNames, sessionNames, setView, onClose])
 
   const filtered = useMemo(() => {
     if (!query.trim()) return allItems
