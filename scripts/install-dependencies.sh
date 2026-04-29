@@ -414,10 +414,13 @@ ensure_n8n_running() {
   rm -f "$RUNTIME_LOG_FILE" "$RUNTIME_ERR_LOG_FILE"
   nohup env \
     N8N_USER_FOLDER="$AUTOMATION_DATA_DIR" \
+    N8N_SAMESITE_COOKIE="none" \
+    N8N_SECURE_COOKIE="true" \
     TMPDIR="$AUTOMATION_TEMP_DIR" \
     TEMP="$AUTOMATION_TEMP_DIR" \
     TMP="$AUTOMATION_TEMP_DIR" \
     "$(node_path)" "$(n8n_cli_path)" start >>"$RUNTIME_LOG_FILE" 2>>"$RUNTIME_ERR_LOG_FILE" &
+  log "n8n cookie policy configured: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true."
   echo $! >"$PID_FILE"
   log "Started pinned n8n process $(cat "$PID_FILE")."
 

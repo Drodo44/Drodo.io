@@ -721,11 +721,16 @@ function Ensure-N8nRunning {
 
     $originalPath = $env:PATH
     $originalN8nUserFolder = $env:N8N_USER_FOLDER
+    $originalN8nSameSiteCookie = $env:N8N_SAMESITE_COOKIE
+    $originalN8nSecureCookie = $env:N8N_SECURE_COOKIE
     $originalTemp = $env:TEMP
     $originalTmp = $env:TMP
     $env:N8N_USER_FOLDER = $AutomationDataDir
+    $env:N8N_SAMESITE_COOKIE = 'none'
+    $env:N8N_SECURE_COOKIE = 'true'
     $env:TEMP = $AutomationTempDir
     $env:TMP = $AutomationTempDir
+    Write-Log "n8n cookie policy configured: N8N_SAMESITE_COOKIE=$($env:N8N_SAMESITE_COOKIE), N8N_SECURE_COOKIE=$($env:N8N_SECURE_COOKIE)."
 
     $pathPrefix = @((Split-Path -Parent $nodePath))
     if ($gitPath) {
@@ -749,6 +754,8 @@ function Ensure-N8nRunning {
     } finally {
         $env:PATH = $originalPath
         $env:N8N_USER_FOLDER = $originalN8nUserFolder
+        $env:N8N_SAMESITE_COOKIE = $originalN8nSameSiteCookie
+        $env:N8N_SECURE_COOKIE = $originalN8nSecureCookie
         $env:TEMP = $originalTemp
         $env:TMP = $originalTmp
     }

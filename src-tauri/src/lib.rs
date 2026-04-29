@@ -215,6 +215,9 @@ fn build_n8n_status_for_app(
 
 fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     log_n8n("Bootstrap requested.");
+    log_n8n(
+        "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true.",
+    );
     let script_path = resolve_dependency_script_path(app)?;
     log_n8n(&format!(
         "Resolved bootstrap script path: {}",
@@ -543,7 +546,7 @@ pub fn run() {
             tauri::async_runtime::spawn(async move {
                 if !probe_n8n_running().await {
                     if let Err(err) = spawn_dependency_bootstrap(&app_handle) {
-                        eprintln!("{err}");
+                        log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
                     }
                 }
             });
