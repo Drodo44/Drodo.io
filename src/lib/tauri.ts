@@ -5,6 +5,12 @@ export interface N8nStatus {
   running: boolean
   url: string
   port: number
+  bootstrapInProgress?: boolean
+  lastErrorCategory?: string | null
+  lastErrorMessage?: string | null
+  logPath?: string | null
+  runtimeLogPath?: string | null
+  runtimeErrorLogPath?: string | null
 }
 
 export async function readFile(path: string): Promise<string> {

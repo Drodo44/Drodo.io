@@ -649,6 +649,8 @@ interface AppState {
   activeChatSessionId: string
   n8nReady: boolean
   n8nUrl: string
+  n8nLastErrorCategory: string | null
+  n8nLastErrorMessage: string | null
 
   init: () => void
   setView: (view: NavView) => void
@@ -806,6 +808,8 @@ export const useAppStore = create<AppState>((set, get) => {
   activeChatSessionId: _chatInit.activeChatSessionId,
   n8nReady: false,
   n8nUrl: 'http://localhost:5678',
+  n8nLastErrorCategory: null,
+  n8nLastErrorMessage: null,
 
   init: () => {
     if (storeInitStarted) return
@@ -851,6 +855,8 @@ export const useAppStore = create<AppState>((set, get) => {
       set({
         n8nReady: status.running,
         n8nUrl: status.url || 'http://localhost:5678',
+        n8nLastErrorCategory: status.lastErrorCategory ?? null,
+        n8nLastErrorMessage: status.lastErrorMessage ?? null,
       })
 
       if (status.running) {
@@ -860,6 +866,8 @@ export const useAppStore = create<AppState>((set, get) => {
       set(state => ({
         n8nReady: false,
         n8nUrl: state.n8nUrl || 'http://localhost:5678',
+        n8nLastErrorCategory: state.n8nLastErrorCategory,
+        n8nLastErrorMessage: state.n8nLastErrorMessage,
       }))
     }
   },

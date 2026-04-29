@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Workflow, ExternalLink, RefreshCw, Circle } from 'lucide-react'
 import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
 
@@ -11,6 +11,7 @@ export function AutomationsView() {
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [iframeError, setIframeError] = useState(false)
   const [launchError, setLaunchError] = useState('')
+  const [hasAutoStarted, setHasAutoStarted] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const waitForN8nReady = async (timeoutMs = 60_000) => {
@@ -18,11 +19,14 @@ export function AutomationsView() {
     while (Date.now() < deadline) {
       const nextStatus = await getN8nStatus().catch(() => null)
       if (nextStatus?.running) {
-        return true
+        return nextStatus
+      }
+      if (nextStatus?.lastErrorMessage) {
+        throw new Error(nextStatus.lastErrorMessage)
       }
       await new Promise(resolve => window.setTimeout(resolve, 2000))
     }
-    return false
+    throw new Error('n8n is still starting. Wait a moment and try again. If this persists, check the n8n runtime logs.')
   }
 
   const handleLaunch = async () => {
@@ -31,15 +35,12 @@ export function AutomationsView() {
 
     try {
       await startDependencyBootstrap()
-      const isReady = await waitForN8nReady()
-      if (!isReady) {
-        throw new Error('n8n is still starting. Wait a moment and try again. If this persists, reinstall Drodo or check whether port 5678 is available.')
-      }
+      const readyStatus = await waitForN8nReady()
       setStatus('running')
       setIframeError(false)
       setIframeLoaded(false)
       if (iframeRef.current) {
-        iframeRef.current.src = N8N_URL
+        iframeRef.current.src = readyStatus.url || N8N_URL
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to start n8n. Try again in a moment.'
@@ -66,6 +67,12 @@ export function AutomationsView() {
     setIframeLoaded(false)
     setStatus('idle')
   }
+
+  useEffect(() => {
+    if (hasAutoStarted) return
+    setHasAutoStarted(true)
+    void handleLaunch()
+  }, [hasAutoStarted])
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>

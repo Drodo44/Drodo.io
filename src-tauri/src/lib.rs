@@ -5,6 +5,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::Command as StdCommand,
+    sync::atomic::{AtomicBool, Ordering},
     time::Duration,
     time::UNIX_EPOCH,
 };
@@ -18,6 +19,7 @@ use std::os::windows::process::CommandExt;
 const N8N_PORT: u16 = 5678;
 const N8N_URL: &str = "http://localhost:5678";
 const N8N_READY_URL: &str = "http://127.0.0.1:5678/healthz/readiness";
+static BOOTSTRAP_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
 
 #[cfg(target_os = "windows")]
 const DETACHED_PROCESS: u32 = 0x0000_0008;
@@ -45,6 +47,35 @@ struct CommandExecutionResult {
     combined: String,
     exit_code: i32,
     success: bool,
+}
+
+#[derive(Debug, Serialize, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+struct N8nStatusPayload {
+    running: bool,
+    url: String,
+    port: u16,
+    bootstrap_in_progress: bool,
+    last_error_category: Option<String>,
+    last_error_message: Option<String>,
+    log_path: Option<String>,
+    runtime_log_path: Option<String>,
+    runtime_error_log_path: Option<String>,
+}
+
+#[derive(Debug, serde::Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+struct RuntimeStatusFile {
+    running: Option<bool>,
+    error_category: Option<String>,
+    error_message: Option<String>,
+    log_path: Option<String>,
+    runtime_log_path: Option<String>,
+    runtime_error_log_path: Option<String>,
+}
+
+fn log_n8n(message: &str) {
+    println!("[n8n] {}", message);
 }
 
 fn path_from_input(path: &str) -> Result<PathBuf, String> {
@@ -76,12 +107,18 @@ async fn probe_n8n_running() -> bool {
         .unwrap_or(false)
 }
 
-fn build_n8n_status(running: bool) -> serde_json::Value {
-    json!({
-        "running": running,
-        "url": N8N_URL,
-        "port": N8N_PORT,
-    })
+fn default_n8n_status() -> N8nStatusPayload {
+    N8nStatusPayload {
+        running: false,
+        url: N8N_URL.to_string(),
+        port: N8N_PORT,
+        bootstrap_in_progress: false,
+        last_error_category: None,
+        last_error_message: None,
+        log_path: None,
+        runtime_log_path: None,
+        runtime_error_log_path: None,
+    }
 }
 
 fn resolve_dependency_script_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -117,6 +154,7 @@ fn repo_root() -> Result<PathBuf, String> {
         .ok_or_else(|| "Failed to resolve the repository root.".to_string())
 }
 
+#[cfg(target_os = "windows")]
 fn resolve_windows_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     if let Ok(resource_dir) = app.path().resource_dir() {
         if let Some(parent) = resource_dir.parent() {
@@ -136,12 +174,60 @@ fn resolve_linux_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, Stri
     Ok(repo_root()?.join(".automation").join("linux"))
 }
 
+fn resolve_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    #[cfg(target_os = "windows")]
+    {
+        resolve_windows_automation_home(app)
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        resolve_linux_automation_home(app)
+    }
+}
+
+fn read_runtime_status_from_disk(app: &tauri::AppHandle) -> Option<RuntimeStatusFile> {
+    let automation_home = resolve_automation_home(app).ok()?;
+    let status_path = automation_home.join("n8n-status.json");
+    let raw = fs::read_to_string(status_path).ok()?;
+    serde_json::from_str::<RuntimeStatusFile>(&raw).ok()
+}
+
+fn build_n8n_status_for_app(
+    app: &tauri::AppHandle,
+    probe_running: bool,
+    bootstrap_in_progress: bool,
+) -> N8nStatusPayload {
+    let mut payload = default_n8n_status();
+    payload.bootstrap_in_progress = bootstrap_in_progress;
+
+    if let Some(file_status) = read_runtime_status_from_disk(app) {
+        payload.running = file_status.running.unwrap_or(false);
+        payload.last_error_category = file_status.error_category;
+        payload.last_error_message = file_status.error_message;
+        payload.log_path = file_status.log_path;
+        payload.runtime_log_path = file_status.runtime_log_path;
+        payload.runtime_error_log_path = file_status.runtime_error_log_path;
+    }
+
+    payload.running = probe_running || payload.running;
+    payload
+}
+
 fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
+    log_n8n("Bootstrap requested.");
     let script_path = resolve_dependency_script_path(app)?;
+    log_n8n(&format!(
+        "Resolved bootstrap script path: {}",
+        stringify_path(&script_path)
+    ));
 
     #[cfg(target_os = "windows")]
     {
         let automation_home = resolve_windows_automation_home(app)?;
+        log_n8n(&format!(
+            "Resolved automation home: {}",
+            stringify_path(&automation_home)
+        ));
         let app_version = app.package_info().version.to_string();
         let mut command = StdCommand::new("powershell");
         command
@@ -157,21 +243,39 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
             .env("DRODO_APP_VERSION", app_version)
             .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
 
-        command
-            .spawn()
-            .map_err(|err| format!("Failed to start the dependency bootstrapper: {err}"))?;
+        command.spawn().map_err(|err| {
+            format!(
+                "Failed to start the dependency bootstrapper (script={}, automation_home={}): {}",
+                stringify_path(&script_path),
+                stringify_path(&automation_home),
+                err
+            )
+        })?;
+        log_n8n("Bootstrap process spawned (Windows).");
     }
 
     #[cfg(not(target_os = "windows"))]
     {
         let automation_home = resolve_linux_automation_home(app)?;
+        log_n8n(&format!(
+            "Resolved automation home: {}",
+            stringify_path(&automation_home)
+        ));
         let app_version = app.package_info().version.to_string();
         StdCommand::new("sh")
             .arg(&script_path)
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
             .spawn()
-            .map_err(|err| format!("Failed to start the dependency bootstrapper: {err}"))?;
+            .map_err(|err| {
+                format!(
+                    "Failed to start the dependency bootstrapper (script={}, automation_home={}): {}",
+                    stringify_path(&script_path),
+                    stringify_path(&automation_home),
+                    err
+                )
+            })?;
+        log_n8n("Bootstrap process spawned (Linux/macOS).");
     }
 
     Ok(())
@@ -354,13 +458,58 @@ fn start_mcp_server(
 }
 
 #[tauri::command]
-async fn get_n8n_status() -> Result<serde_json::Value, String> {
-    Ok(build_n8n_status(probe_n8n_running().await))
+async fn get_n8n_status(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    let running = probe_n8n_running().await;
+    let status = build_n8n_status_for_app(
+        &app,
+        running,
+        BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst),
+    );
+    log_n8n(&format!(
+        "Status requested: running={}, in_flight={}, last_error={}",
+        status.running,
+        status.bootstrap_in_progress,
+        status
+            .last_error_message
+            .as_deref()
+            .unwrap_or("none")
+    ));
+    Ok(json!(status))
 }
 
 #[tauri::command]
 fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
-    spawn_dependency_bootstrap(&app)
+    if BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst) {
+        log_n8n("Bootstrap already in flight; skipping duplicate request.");
+        return Ok(());
+    }
+
+    let is_running = tauri::async_runtime::block_on(probe_n8n_running());
+    if is_running {
+        log_n8n("n8n already healthy; skipping bootstrap.");
+        return Ok(());
+    }
+
+    BOOTSTRAP_IN_FLIGHT.store(true, Ordering::SeqCst);
+    if let Err(err) = spawn_dependency_bootstrap(&app) {
+        BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+        log_n8n(&format!("Bootstrap spawn failed: {err}"));
+        return Err(err);
+    }
+
+    log_n8n("Bootstrap handoff completed.");
+    tauri::async_runtime::spawn(async move {
+        for _ in 0..30 {
+            if probe_n8n_running().await {
+                log_n8n("n8n readiness probe succeeded after bootstrap.");
+                break;
+            }
+            tokio::time::sleep(Duration::from_secs(2)).await;
+        }
+        BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+    });
+
+    Ok(())
 }
 
 #[tauri::command]

@@ -902,9 +902,12 @@ export function WorkflowsView() {
       if (status?.running) {
         return status
       }
+      if (status?.lastErrorMessage) {
+        throw new Error(status.lastErrorMessage)
+      }
       await new Promise(resolve => window.setTimeout(resolve, 2000))
     }
-    throw new Error('n8n is still starting. Wait a moment and try again. If this persists, reinstall Drodo or check whether port 5678 is available.')
+    throw new Error('n8n is still starting. Wait a moment and try again. If this persists, check the n8n runtime logs.')
   }
 
   const openTemplate = async (template: WorkflowIndex) => {
