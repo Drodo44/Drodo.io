@@ -544,10 +544,8 @@ pub fn run() {
         .setup(|app| {
             let app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                if !probe_n8n_running().await {
-                    if let Err(err) = spawn_dependency_bootstrap(&app_handle) {
-                        log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
-                    }
+                if let Err(err) = start_dependency_bootstrap(app_handle) {
+                    log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
                 }
             });
 
