@@ -133,6 +133,7 @@ fn resolve_dependency_script_path(app: &tauri::AppHandle) -> Result<PathBuf, Str
     if let Ok(resource_dir) = app.path().resource_dir() {
         candidates.push(resource_dir.join(file_name));
         candidates.push(resource_dir.join("scripts").join(file_name));
+        candidates.push(resource_dir.join("_up_").join("scripts").join(file_name));
     }
 
     let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
