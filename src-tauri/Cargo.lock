@@ -4043,7 +4043,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-app"
-version = "1.2.58"
+version = "1.2.59"
 dependencies = [
  "reqwest 0.12.28",
  "serde",

@@ -1,7 +1,7 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "1.2.58",
+  "version": "1.2.59",
   "type": "module",
   "scripts": {
     "predev": "node scripts/prepare-frontend-catalog-assets.mjs",
@@ -25,7 +25,7 @@
     "@supabase/supabase-js": "^2.101.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-virtual": "^3.13.24",
-    "@tauri-apps/api": "^2",
+    "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/plugin-deep-link": "^2.4.8",
     "@tauri-apps/plugin-fs": "^2.5.0",
     "@tauri-apps/plugin-notification": "^2.3.3",
@@ -47,7 +47,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2",
+    "@tauri-apps/cli": "^2.11.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/sql.js": "^1.4.11",
