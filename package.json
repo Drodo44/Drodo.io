@@ -1,7 +1,7 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "1.2.57",
+  "version": "1.2.58",
   "type": "module",
   "scripts": {
     "predev": "node scripts/prepare-frontend-catalog-assets.mjs",
