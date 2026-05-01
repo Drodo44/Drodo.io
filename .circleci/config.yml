@@ -88,6 +88,12 @@ jobs:
             Expand-Archive -Path $nodeZip -DestinationPath $nodeDir -Force
             Remove-Item $nodeZip
             Rename-Item "$nodeDir\node-v20.19.1-win-x64" "node"
+            $windowsConfig = Get-Content "src-tauri\tauri.conf.json" -Raw | ConvertFrom-Json
+            $windowsConfig.bundle.resources = @($windowsConfig.bundle.resources + @(
+              "resources/n8n-bundle/**/*",
+              "resources/node-win/node/**/*"
+            ))
+            $windowsConfig | ConvertTo-Json -Depth 100 | Set-Content "src-tauri\tauri-windows.conf.json"
       - run:
           name: Build Tauri app
           no_output_timeout: 60m
@@ -104,7 +110,7 @@ jobs:
             if (-not $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD) {
               $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "Drodo4492!"
             }
-            npm run tauri build -- --bundles nsis
+            npm run tauri build -- --config src-tauri/tauri-windows.conf.json --bundles nsis
       - run:
           name: Debug - List bundle output
           shell: powershell.exe

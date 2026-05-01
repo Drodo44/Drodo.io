@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Drodo",
-  "version": "1.2.62",
+  "version": "1.2.63",
   "identifier": "io.drodo.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -38,9 +38,7 @@
     "copyright": "Copyright © 2024 Drodo",
     "resources": [
       "../scripts/install-dependencies.ps1",
-      "../scripts/install-dependencies.sh",
-      "resources/n8n-bundle/**/*",
-      "resources/node-win/node/**/*"
+      "../scripts/install-dependencies.sh"
     ],
     "windows": {
       "nsis": {
