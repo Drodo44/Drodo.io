@@ -16,6 +16,8 @@ dist-ssr
 /public/catalog/
 /src-tauri/gen/automation-runtime/
 /src-tauri/gen/windows-automation-runtime.zip
+/src-tauri/resources/n8n-bundle/
+/src-tauri/resources/node-win/
 /.automation/
 src-tauri/drodo.key
 src-tauri/drodo.key.pub

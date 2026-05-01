@@ -4,8 +4,9 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    process::Command as StdCommand,
+    process::{Command as StdCommand, Stdio},
     sync::atomic::{AtomicBool, Ordering},
+    thread,
     time::Duration,
     time::UNIX_EPOCH,
 };
@@ -219,14 +220,137 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     log_n8n(
         "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true.",
     );
-    let script_path = resolve_dependency_script_path(app)?;
-    log_n8n(&format!(
-        "Resolved bootstrap script path: {}",
-        stringify_path(&script_path)
-    ));
 
     #[cfg(target_os = "windows")]
     {
+        if let Ok(resource_dir) = app.path().resource_dir() {
+            let node_exe = resource_dir.join("node-win").join("node").join("node.exe");
+            let n8n_main = resource_dir
+                .join("n8n-bundle")
+                .join("node_modules")
+                .join("n8n")
+                .join("bin")
+                .join("n8n");
+
+            log_n8n(&format!(
+                "Resolved bundled Node path: {}",
+                stringify_path(&node_exe)
+            ));
+            log_n8n(&format!(
+                "Resolved bundled n8n path: {}",
+                stringify_path(&n8n_main)
+            ));
+
+            if node_exe.exists() && n8n_main.exists() {
+                let automation_home = resolve_windows_automation_home(app)?;
+                let logs_dir = automation_home.join("logs");
+                let runtime_log_path = logs_dir.join("n8n-runtime.out.log");
+                let runtime_error_log_path = logs_dir.join("n8n-runtime.err.log");
+                let n8n_user_folder = std::env::var_os("APPDATA")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(|| automation_home.join("data"))
+                    .join("Drodo")
+                    .join("n8n");
+
+                log_n8n(&format!(
+                    "Using bundled n8n runtime with user folder: {}",
+                    stringify_path(&n8n_user_folder)
+                ));
+                log_n8n(&format!(
+                    "Bundled n8n stdout log: {}",
+                    stringify_path(&runtime_log_path)
+                ));
+                log_n8n(&format!(
+                    "Bundled n8n stderr log: {}",
+                    stringify_path(&runtime_error_log_path)
+                ));
+
+                thread::spawn(move || {
+                    if let Err(err) = fs::create_dir_all(&logs_dir) {
+                        log_n8n(&format!(
+                            "Failed to create bundled n8n log directory ({}): {}",
+                            stringify_path(&logs_dir),
+                            err
+                        ));
+                        return;
+                    }
+                    if let Err(err) = fs::create_dir_all(&n8n_user_folder) {
+                        log_n8n(&format!(
+                            "Failed to create bundled n8n user folder ({}): {}",
+                            stringify_path(&n8n_user_folder),
+                            err
+                        ));
+                        return;
+                    }
+
+                    let stdout = match fs::File::create(&runtime_log_path) {
+                        Ok(file) => file,
+                        Err(err) => {
+                            log_n8n(&format!(
+                                "Failed to open bundled n8n stdout log ({}): {}",
+                                stringify_path(&runtime_log_path),
+                                err
+                            ));
+                            return;
+                        }
+                    };
+                    let stderr = match fs::File::create(&runtime_error_log_path) {
+                        Ok(file) => file,
+                        Err(err) => {
+                            log_n8n(&format!(
+                                "Failed to open bundled n8n stderr log ({}): {}",
+                                stringify_path(&runtime_error_log_path),
+                                err
+                            ));
+                            return;
+                        }
+                    };
+
+                    let mut command = StdCommand::new(&node_exe);
+                    command
+                        .arg(&n8n_main)
+                        .args(["start", "--port", "5678"])
+                        .env("N8N_USER_FOLDER", stringify_path(&n8n_user_folder))
+                        .env("N8N_SAMESITE_COOKIE", "none")
+                        .env("N8N_SECURE_COOKIE", "true")
+                        .stdout(Stdio::from(stdout))
+                        .stderr(Stdio::from(stderr))
+                        .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
+
+                    match command.spawn() {
+                        Ok(child) => {
+                            log_n8n(&format!(
+                                "Bundled n8n process spawned (PID {}).",
+                                child.id()
+                            ));
+                        }
+                        Err(err) => {
+                            log_n8n(&format!(
+                                "Failed to start bundled n8n runtime (node={}, n8n={}): {}",
+                                stringify_path(&node_exe),
+                                stringify_path(&n8n_main),
+                                err
+                            ));
+                        }
+                    }
+                });
+
+                log_n8n("Bundled n8n bootstrap thread spawned (Windows).");
+                return Ok(());
+            }
+
+            log_n8n("Bundled n8n runtime files are incomplete; falling back to bootstrap script.");
+        } else {
+            log_n8n(
+                "Unable to resolve Tauri resource directory; falling back to bootstrap script.",
+            );
+        }
+
+        let script_path = resolve_dependency_script_path(app)?;
+        log_n8n(&format!(
+            "Resolved bootstrap script path: {}",
+            stringify_path(&script_path)
+        ));
         let automation_home = resolve_windows_automation_home(app)?;
         log_n8n(&format!(
             "Resolved automation home: {}",
@@ -260,6 +384,11 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
 
     #[cfg(not(target_os = "windows"))]
     {
+        let script_path = resolve_dependency_script_path(app)?;
+        log_n8n(&format!(
+            "Resolved bootstrap script path: {}",
+            stringify_path(&script_path)
+        ));
         let automation_home = resolve_linux_automation_home(app)?;
         log_n8n(&format!(
             "Resolved automation home: {}",
@@ -464,19 +593,13 @@ fn start_mcp_server(
 #[tauri::command]
 async fn get_n8n_status(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
     let running = probe_n8n_running().await;
-    let status = build_n8n_status_for_app(
-        &app,
-        running,
-        BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst),
-    );
+    let status =
+        build_n8n_status_for_app(&app, running, BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst));
     log_n8n(&format!(
         "Status requested: running={}, in_flight={}, last_error={}",
         status.running,
         status.bootstrap_in_progress,
-        status
-            .last_error_message
-            .as_deref()
-            .unwrap_or("none")
+        status.last_error_message.as_deref().unwrap_or("none")
     ));
     Ok(json!(status))
 }

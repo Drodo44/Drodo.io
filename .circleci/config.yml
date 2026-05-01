@@ -73,6 +73,22 @@ jobs:
           shell: powershell.exe
           command: node scripts/prepare-windows-automation-runtime.mjs
       - run:
+          name: Bundle n8n runtime
+          shell: powershell.exe
+          command: |
+            $bundleDir = "src-tauri\resources\n8n-bundle"
+            New-Item -ItemType Directory -Force -Path $bundleDir | Out-Null
+            Set-Location $bundleDir
+            npm install --save-exact n8n@2.15.0 --omit=dev --no-fund --no-audit
+            Set-Location "C:\Users\circleci\project"
+            $nodeDir = "src-tauri\resources\node-win"
+            New-Item -ItemType Directory -Force -Path $nodeDir | Out-Null
+            $nodeZip = "$nodeDir\node.zip"
+            Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.1/node-v20.19.1-win-x64.zip" -OutFile $nodeZip
+            Expand-Archive -Path $nodeZip -DestinationPath $nodeDir -Force
+            Remove-Item $nodeZip
+            Rename-Item "$nodeDir\node-v20.19.1-win-x64" "node"
+      - run:
           name: Build Tauri app
           no_output_timeout: 60m
           shell: powershell.exe
