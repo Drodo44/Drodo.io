@@ -27,6 +27,18 @@ export function AutomationsView() {
   const handleInstall = async () => {
     setLaunchError('')
     setHasOpenedN8n(false)
+    setN8nStatus(current => ({
+      running: false,
+      url: current?.url || N8N_URL,
+      port: current?.port || 5678,
+      bootstrapInProgress: true,
+      installComplete: false,
+      lastErrorCategory: null,
+      lastErrorMessage: null,
+      logPath: current?.logPath ?? null,
+      runtimeLogPath: current?.runtimeLogPath ?? null,
+      runtimeErrorLogPath: current?.runtimeErrorLogPath ?? null,
+    }))
     await startDependencyBootstrap()
     await refreshStatus()
   }
@@ -146,7 +158,10 @@ export function AutomationsView() {
               </p>
             )}
             <button
-              onClick={() => void handleInstall()}
+              onClick={event => {
+                event.preventDefault()
+                void handleInstall()
+              }}
               className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90 active:scale-[0.98]"
               style={{ background: '#f59e0b' }}
             >
