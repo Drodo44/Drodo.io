@@ -302,9 +302,20 @@ function ConnectorCard({ connector, onConnect }: { connector: Connector; onConne
 }
 
 function N8nStatusCard() {
-  const { n8nReady, refreshN8nStatus } = useAppStore(
-    useShallow(s => ({ n8nReady: s.n8nReady, refreshN8nStatus: s.refreshN8nStatus }))
+  const { n8nReady, n8nInstallComplete, refreshN8nStatus, setView } = useAppStore(
+    useShallow(s => ({
+      n8nReady: s.n8nReady,
+      n8nInstallComplete: s.n8nInstallComplete,
+      refreshN8nStatus: s.refreshN8nStatus,
+      setView: s.setView,
+    }))
   )
+
+  useEffect(() => {
+    void refreshN8nStatus()
+  }, [refreshN8nStatus])
+
+  const isStarting = n8nInstallComplete && !n8nReady
 
   return (
     <div
@@ -327,23 +338,28 @@ function N8nStatusCard() {
           {n8nReady ? (
             <>
               <CheckCircle2 size={11} style={{ color: '#1d9e75' }} />
-              <span className="text-xs text-[#1d9e75]">Connected — Managed by Drodo</span>
+              <span className="text-xs text-[#1d9e75]">Connected</span>
+            </>
+          ) : isStarting ? (
+            <>
+              <Circle size={11} className="text-[#f59e0b] animate-pulse" />
+              <span className="text-xs text-[#f59e0b]">Starting...</span>
             </>
           ) : (
             <>
               <Circle size={11} className="text-[var(--text-secondary)]" />
-              <span className="text-xs text-[var(--text-secondary)]">Not detected</span>
+              <span className="text-xs text-[var(--text-secondary)]">Not installed</span>
             </>
           )}
         </div>
       </div>
-      {!n8nReady && (
+      {!n8nReady && !n8nInstallComplete && (
         <button
-          onClick={() => void refreshN8nStatus()}
+          onClick={() => setView('automations')}
           className="flex-shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition-colors"
           style={{ background: '#ea4b71' }}
         >
-          Repair Installation
+          Set Up
         </button>
       )}
     </div>

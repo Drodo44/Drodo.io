@@ -73,28 +73,6 @@ jobs:
           shell: powershell.exe
           command: node scripts/prepare-windows-automation-runtime.mjs
       - run:
-          name: Bundle n8n runtime
-          shell: powershell.exe
-          command: |
-            $bundleDir = "src-tauri\resources\n8n-bundle"
-            New-Item -ItemType Directory -Force -Path $bundleDir | Out-Null
-            Set-Location $bundleDir
-            npm install --save-exact n8n@2.15.0 --omit=dev --no-fund --no-audit
-            Set-Location "C:\Users\circleci\project"
-            $nodeDir = "src-tauri\resources\node-win"
-            New-Item -ItemType Directory -Force -Path $nodeDir | Out-Null
-            $nodeZip = "$nodeDir\node.zip"
-            Invoke-WebRequest -Uri "https://nodejs.org/dist/v20.19.1/node-v20.19.1-win-x64.zip" -OutFile $nodeZip
-            Expand-Archive -Path $nodeZip -DestinationPath $nodeDir -Force
-            Remove-Item $nodeZip
-            Rename-Item "$nodeDir\node-v20.19.1-win-x64" "node"
-            $windowsConfig = Get-Content "src-tauri\tauri.conf.json" -Raw | ConvertFrom-Json
-            $windowsConfig.bundle.resources = @($windowsConfig.bundle.resources + @(
-              "resources/n8n-bundle/**/*",
-              "resources/node-win/node/**/*"
-            ))
-            $windowsConfig | ConvertTo-Json -Depth 100 | Set-Content "src-tauri\tauri-windows.conf.json"
-      - run:
           name: Build Tauri app
           no_output_timeout: 60m
           shell: powershell.exe
@@ -110,7 +88,7 @@ jobs:
             if (-not $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD) {
               $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "Drodo4492!"
             }
-            npm run tauri build -- --config src-tauri/tauri-windows.conf.json --bundles nsis
+            npm run tauri build -- --bundles nsis
       - run:
           name: Debug - List bundle output
           shell: powershell.exe

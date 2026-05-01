@@ -1,57 +1,99 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Workflow, RefreshCw, Circle } from 'lucide-react'
-import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
+import { getN8nInstallLog, getN8nStatus, startDependencyBootstrap, type N8nStatus } from '../lib/tauri'
 import { openN8nWindow } from '../lib/n8nWindow'
 
 const N8N_URL = 'http://localhost:5678'
 
-type Status = 'idle' | 'launching' | 'running' | 'error'
-
 export function AutomationsView() {
-  const [status, setStatus] = useState<Status>('idle')
+  const [n8nStatus, setN8nStatus] = useState<N8nStatus | null>(null)
+  const [installLog, setInstallLog] = useState<string[]>([])
   const [launchError, setLaunchError] = useState('')
-  const [hasAutoStarted, setHasAutoStarted] = useState(false)
+  const [hasOpenedN8n, setHasOpenedN8n] = useState(false)
 
-  const waitForN8nReady = async (timeoutMs = 60_000) => {
-    const deadline = Date.now() + timeoutMs
-    while (Date.now() < deadline) {
-      const nextStatus = await getN8nStatus().catch(() => null)
-      if (nextStatus?.running) {
-        return nextStatus
-      }
-      if (nextStatus?.lastErrorMessage) {
-        throw new Error(nextStatus.lastErrorMessage)
-      }
-      await new Promise(resolve => window.setTimeout(resolve, 2000))
+  const running = Boolean(n8nStatus?.running)
+  const bootstrapInProgress = Boolean(n8nStatus?.bootstrapInProgress)
+  const installComplete = Boolean(n8nStatus?.installComplete)
+  const visibleLogLines = useMemo(() => installLog.slice(-10), [installLog])
+
+  const refreshStatus = async () => {
+    const status = await getN8nStatus()
+    setN8nStatus(status)
+    if (status.lastErrorMessage) {
+      setLaunchError(status.lastErrorMessage)
     }
-    throw new Error('n8n is still starting. Wait a moment and try again. If this persists, check the n8n runtime logs.')
   }
 
-  const handleLaunch = async () => {
-    setStatus('launching')
+  const handleInstall = async () => {
     setLaunchError('')
-
-    try {
-      await startDependencyBootstrap()
-      const readyStatus = await waitForN8nReady()
-      await openN8nWindow(readyStatus.url || N8N_URL)
-      setStatus('running')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to start n8n. Try again in a moment.'
-      setLaunchError(message)
-      setStatus('error')
-    }
+    setHasOpenedN8n(false)
+    await startDependencyBootstrap()
+    await refreshStatus()
   }
 
   useEffect(() => {
-    if (hasAutoStarted) return
-    setHasAutoStarted(true)
-    void handleLaunch()
-  }, [hasAutoStarted])
+    let cancelled = false
+
+    const poll = async () => {
+      try {
+        const status = await getN8nStatus()
+        if (!cancelled) {
+          setN8nStatus(status)
+          if (status.lastErrorMessage) {
+            setLaunchError(status.lastErrorMessage)
+          }
+        }
+      } catch (error) {
+        if (!cancelled) {
+          const message = error instanceof Error ? error.message : 'Unable to read n8n status.'
+          setLaunchError(message)
+        }
+      }
+    }
+
+    void poll()
+    const timer = window.setInterval(() => void poll(), 2000)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!bootstrapInProgress) return
+    let cancelled = false
+
+    const pollLog = async () => {
+      try {
+        const lines = await getN8nInstallLog()
+        if (!cancelled) {
+          setInstallLog(lines)
+        }
+      } catch {
+        if (!cancelled) {
+          setInstallLog([])
+        }
+      }
+    }
+
+    void pollLog()
+    const timer = window.setInterval(() => void pollLog(), 2000)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [bootstrapInProgress])
+
+  useEffect(() => {
+    if (!running || hasOpenedN8n) return
+    setHasOpenedN8n(true)
+    void openN8nWindow(n8nStatus?.url || N8N_URL)
+  }, [hasOpenedN8n, n8nStatus?.url, running])
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
-      {/* Header */}
       <div
         className="flex items-center justify-between px-6 py-4 flex-shrink-0"
         style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}
@@ -63,15 +105,20 @@ export function AutomationsView() {
           <div>
             <h1 className="font-bold text-[var(--text-primary)] text-lg">Automations</h1>
             <div className="flex items-center gap-2 mt-0.5">
-              {status === 'running' ? (
+              {running ? (
                 <>
                   <Circle size={8} style={{ color: '#1d9e75', fill: '#1d9e75' }} className="animate-pulse" />
                   <span className="text-xs text-[#1d9e75]">n8n running</span>
                 </>
-              ) : status === 'launching' ? (
+              ) : !installComplete && bootstrapInProgress ? (
                 <>
                   <RefreshCw size={11} className="text-[#f59e0b] animate-spin" />
-                  <span className="text-xs text-[#f59e0b]">Starting n8n…</span>
+                  <span className="text-xs text-[#f59e0b]">Installing automation engine...</span>
+                </>
+              ) : installComplete ? (
+                <>
+                  <RefreshCw size={11} className="text-[#f59e0b] animate-spin" />
+                  <span className="text-xs text-[#f59e0b]">Starting n8n...</span>
                 </>
               ) : (
                 <span className="text-xs text-[var(--text-secondary)]">Visual workflow automation</span>
@@ -79,84 +126,78 @@ export function AutomationsView() {
             </div>
           </div>
         </div>
-
-        {status === 'running' && null}
       </div>
 
-      {/* Body */}
-      {status === 'idle' && (
+      {!installComplete && !bootstrapInProgress && !running && (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center space-y-6" style={{ maxWidth: 480 }}>
             <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center" style={{ background: '#f59e0b22' }}>
               <Workflow size={30} style={{ color: '#f59e0b' }} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Automate anything with n8n</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Set Up Automations</h2>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-                Connect Drodo agents to hundreds of apps and services with visual, no-code workflows powered by n8n.
+                Drodo&apos;s automation engine needs to be installed once. This takes 2-5 minutes and only happens on first launch.
               </p>
             </div>
-            <ul className="text-left space-y-2.5">
-              {[
-                'Trigger agents from webhooks, schedules, or app events',
-                'Connect to Slack, GitHub, Google Sheets, Notion, and 400+ more',
-                'Chain multiple AI agents in a single workflow',
-                'Run automations locally — your data never leaves your machine',
-              ].map(item => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-[var(--text-muted)]">
-                  <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center" style={{ background: '#f59e0b22', color: '#f59e0b' }}>✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {launchError && (
+              <p className="rounded-lg border border-[#e05050]/25 bg-[#e05050]/10 px-3 py-2 text-xs text-[#e05050]">
+                {launchError}
+              </p>
+            )}
             <button
-              onClick={() => void handleLaunch()}
+              onClick={() => void handleInstall()}
               className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90 active:scale-[0.98]"
               style={{ background: '#f59e0b' }}
             >
               <Workflow size={16} />
-              Launch n8n
+              Install Now
             </button>
-            <p className="text-xs text-[var(--text-muted)]">
-              Drodo will start n8n locally at localhost:5678.
-            </p>
           </div>
         </div>
       )}
 
-      {status === 'error' && (
+      {!installComplete && bootstrapInProgress && (
         <div className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center space-y-4" style={{ maxWidth: 460 }}>
-            <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#e0505022' }}>
-              <Workflow size={22} style={{ color: '#e05050' }} />
+          <div className="w-full text-center space-y-5" style={{ maxWidth: 640 }}>
+            <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#f59e0b22' }}>
+              <RefreshCw size={22} style={{ color: '#f59e0b' }} className="animate-spin" />
             </div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">n8n did not start</p>
-            <p className="text-xs text-[var(--text-secondary)]">{launchError}</p>
-            <button
-              onClick={() => void handleLaunch()}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
-              style={{ background: '#f59e0b' }}
+            <div>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Installing Automation Engine...</h2>
+              <p className="text-sm text-[var(--text-secondary)]">This only happens once. Do not close the app.</p>
+            </div>
+            <div
+              className="max-h-56 overflow-y-auto rounded-xl border p-4 text-left font-mono text-xs leading-relaxed"
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
             >
-              <RefreshCw size={13} />
-              Try Again
-            </button>
+              {visibleLogLines.length > 0 ? (
+                visibleLogLines.map((line, index) => (
+                  <div key={`${index}-${line}`} className="whitespace-pre-wrap break-words">
+                    {line}
+                  </div>
+                ))
+              ) : (
+                <div>Preparing installer...</div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {status === 'launching' && (
+      {installComplete && !running && (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center space-y-4">
             <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#f59e0b22' }}>
               <RefreshCw size={22} style={{ color: '#f59e0b' }} className="animate-spin" />
             </div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">Starting n8n…</p>
-            <p className="text-xs text-[var(--text-secondary)]">This may take 10–30 seconds on first run.</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">Starting n8n...</p>
+            <p className="text-xs text-[var(--text-secondary)]">This may take a few seconds</p>
           </div>
         </div>
       )}
 
-      {status === 'running' && (
+      {running && (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center space-y-4" style={{ maxWidth: 460 }}>
             <div className="w-12 h-12 rounded-xl mx-auto flex items-center justify-center" style={{ background: '#1d9e7522' }}>
@@ -164,7 +205,7 @@ export function AutomationsView() {
             </div>
             <p className="text-sm font-medium text-[var(--text-primary)]">n8n is running in a dedicated window</p>
             <button
-              onClick={() => void handleLaunch()}
+              onClick={() => void openN8nWindow(n8nStatus?.url || N8N_URL)}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white mx-auto transition-all hover:opacity-90"
               style={{ background: '#f59e0b' }}
             >

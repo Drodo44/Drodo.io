@@ -649,6 +649,8 @@ interface AppState {
   activeChatSessionId: string
   n8nReady: boolean
   n8nUrl: string
+  n8nInstallComplete: boolean
+  n8nBootstrapInProgress: boolean
   n8nLastErrorCategory: string | null
   n8nLastErrorMessage: string | null
 
@@ -808,6 +810,8 @@ export const useAppStore = create<AppState>((set, get) => {
   activeChatSessionId: _chatInit.activeChatSessionId,
   n8nReady: false,
   n8nUrl: 'http://localhost:5678',
+  n8nInstallComplete: false,
+  n8nBootstrapInProgress: false,
   n8nLastErrorCategory: null,
   n8nLastErrorMessage: null,
 
@@ -855,6 +859,8 @@ export const useAppStore = create<AppState>((set, get) => {
       set({
         n8nReady: status.running,
         n8nUrl: status.url || 'http://localhost:5678',
+        n8nInstallComplete: Boolean(status.installComplete),
+        n8nBootstrapInProgress: Boolean(status.bootstrapInProgress),
         n8nLastErrorCategory: status.lastErrorCategory ?? null,
         n8nLastErrorMessage: status.lastErrorMessage ?? null,
       })
@@ -866,6 +872,8 @@ export const useAppStore = create<AppState>((set, get) => {
       set(state => ({
         n8nReady: false,
         n8nUrl: state.n8nUrl || 'http://localhost:5678',
+        n8nInstallComplete: state.n8nInstallComplete,
+        n8nBootstrapInProgress: state.n8nBootstrapInProgress,
         n8nLastErrorCategory: state.n8nLastErrorCategory,
         n8nLastErrorMessage: state.n8nLastErrorMessage,
       }))

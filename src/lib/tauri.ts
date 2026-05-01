@@ -6,6 +6,7 @@ export interface N8nStatus {
   url: string
   port: number
   bootstrapInProgress?: boolean
+  installComplete?: boolean
   lastErrorCategory?: string | null
   lastErrorMessage?: string | null
   logPath?: string | null
@@ -35,6 +36,10 @@ export async function executeCommand(command: string): Promise<CommandExecutionR
 
 export async function getN8nStatus(): Promise<N8nStatus> {
   return invoke<N8nStatus>('get_n8n_status')
+}
+
+export async function getN8nInstallLog(): Promise<string[]> {
+  return invoke<string[]>('get_n8n_install_log')
 }
 
 export async function startDependencyBootstrap(): Promise<void> {

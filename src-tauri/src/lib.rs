@@ -4,7 +4,7 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    process::{Command as StdCommand, Stdio},
+    process::Command as StdCommand,
     sync::atomic::{AtomicBool, Ordering},
     thread,
     time::Duration,
@@ -22,8 +22,6 @@ const N8N_URL: &str = "http://localhost:5678";
 const N8N_READY_URL: &str = "http://127.0.0.1:5678/healthz/readiness";
 static BOOTSTRAP_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
 
-#[cfg(target_os = "windows")]
-const DETACHED_PROCESS: u32 = 0x0000_0008;
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
@@ -57,6 +55,7 @@ struct N8nStatusPayload {
     url: String,
     port: u16,
     bootstrap_in_progress: bool,
+    install_complete: bool,
     last_error_category: Option<String>,
     last_error_message: Option<String>,
     log_path: Option<String>,
@@ -114,6 +113,7 @@ fn default_n8n_status() -> N8nStatusPayload {
         url: N8N_URL.to_string(),
         port: N8N_PORT,
         bootstrap_in_progress: false,
+        install_complete: false,
         last_error_category: None,
         last_error_message: None,
         log_path: None,
@@ -187,6 +187,72 @@ fn resolve_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     }
 }
 
+fn resolve_n8n_install_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(app_data) = std::env::var_os("APPDATA") {
+            return Ok(PathBuf::from(app_data).join("Drodo").join("n8n"));
+        }
+    }
+
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        return Ok(app_data_dir.join("n8n"));
+    }
+
+    Ok(resolve_automation_home(app)?.join("data").join("n8n"))
+}
+
+fn resolve_n8n_install_marker(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(resolve_n8n_install_dir(app)?.join(".installed"))
+}
+
+fn is_n8n_install_complete(app: &tauri::AppHandle) -> bool {
+    resolve_n8n_install_marker(app)
+        .map(|path| path.exists())
+        .unwrap_or(false)
+}
+
+fn write_n8n_install_marker(app: &tauri::AppHandle) -> Result<(), String> {
+    let marker_path = resolve_n8n_install_marker(app)?;
+    if let Some(parent) = marker_path.parent() {
+        fs::create_dir_all(parent).map_err(|err| {
+            format!(
+                "Failed to create n8n install marker directory ({}): {}",
+                stringify_path(parent),
+                err
+            )
+        })?;
+    }
+    fs::write(&marker_path, b"").map_err(|err| {
+        format!(
+            "Failed to write n8n install marker ({}): {}",
+            stringify_path(&marker_path),
+            err
+        )
+    })?;
+    Ok(())
+}
+
+fn resolve_n8n_bootstrap_log_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(resolve_automation_home(app)?
+        .join("logs")
+        .join("bootstrap.log"))
+}
+
+fn read_last_lines(path: &Path, max_lines: usize) -> Vec<String> {
+    let Ok(raw) = fs::read_to_string(path) else {
+        return Vec::new();
+    };
+    let mut lines = raw
+        .lines()
+        .map(ToString::to_string)
+        .collect::<Vec<String>>();
+    if lines.len() > max_lines {
+        lines = lines.split_off(lines.len() - max_lines);
+    }
+    lines
+}
+
 fn read_runtime_status_from_disk(app: &tauri::AppHandle) -> Option<RuntimeStatusFile> {
     let automation_home = resolve_automation_home(app).ok()?;
     let status_path = automation_home.join("n8n-status.json");
@@ -201,6 +267,7 @@ fn build_n8n_status_for_app(
 ) -> N8nStatusPayload {
     let mut payload = default_n8n_status();
     payload.bootstrap_in_progress = bootstrap_in_progress;
+    payload.install_complete = is_n8n_install_complete(app);
 
     if let Some(file_status) = read_runtime_status_from_disk(app) {
         payload.running = file_status.running.unwrap_or(false);
@@ -221,195 +288,71 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
         "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true.",
     );
 
-    #[cfg(target_os = "windows")]
-    {
-        if let Ok(resource_dir) = app.path().resource_dir() {
-            let node_exe = resource_dir.join("node-win").join("node").join("node.exe");
-            let n8n_main = resource_dir
-                .join("n8n-bundle")
-                .join("node_modules")
-                .join("n8n")
-                .join("bin")
-                .join("n8n");
+    let script_path = resolve_dependency_script_path(app)?;
+    log_n8n(&format!(
+        "Resolved bootstrap script path: {}",
+        stringify_path(&script_path)
+    ));
+    let automation_home = resolve_automation_home(app)?;
+    log_n8n(&format!(
+        "Resolved automation home: {}",
+        stringify_path(&automation_home)
+    ));
+    let app_version = app.package_info().version.to_string();
+    let app_handle = app.clone();
 
-            log_n8n(&format!(
-                "Resolved bundled Node path: {}",
-                stringify_path(&node_exe)
-            ));
-            log_n8n(&format!(
-                "Resolved bundled n8n path: {}",
-                stringify_path(&n8n_main)
-            ));
+    thread::spawn(move || {
+        #[cfg(target_os = "windows")]
+        let mut command = {
+            let mut command = StdCommand::new("powershell");
+            command
+                .args([
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    &stringify_path(&script_path),
+                ])
+                .creation_flags(CREATE_NO_WINDOW);
+            command
+        };
 
-            if node_exe.exists() && n8n_main.exists() {
-                let automation_home = resolve_windows_automation_home(app)?;
-                let logs_dir = automation_home.join("logs");
-                let runtime_log_path = logs_dir.join("n8n-runtime.out.log");
-                let runtime_error_log_path = logs_dir.join("n8n-runtime.err.log");
-                let n8n_user_folder = std::env::var_os("APPDATA")
-                    .map(PathBuf::from)
-                    .unwrap_or_else(|| automation_home.join("data"))
-                    .join("Drodo")
-                    .join("n8n");
+        #[cfg(not(target_os = "windows"))]
+        let mut command = {
+            let mut command = StdCommand::new("sh");
+            command.arg(&script_path);
+            command
+        };
 
-                log_n8n(&format!(
-                    "Using bundled n8n runtime with user folder: {}",
-                    stringify_path(&n8n_user_folder)
-                ));
-                log_n8n(&format!(
-                    "Bundled n8n stdout log: {}",
-                    stringify_path(&runtime_log_path)
-                ));
-                log_n8n(&format!(
-                    "Bundled n8n stderr log: {}",
-                    stringify_path(&runtime_error_log_path)
-                ));
+        let status = command
+            .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
+            .env("DRODO_APP_VERSION", app_version)
+            .status();
 
-                thread::spawn(move || {
-                    if let Err(err) = fs::create_dir_all(&logs_dir) {
-                        log_n8n(&format!(
-                            "Failed to create bundled n8n log directory ({}): {}",
-                            stringify_path(&logs_dir),
-                            err
-                        ));
-                        return;
-                    }
-                    if let Err(err) = fs::create_dir_all(&n8n_user_folder) {
-                        log_n8n(&format!(
-                            "Failed to create bundled n8n user folder ({}): {}",
-                            stringify_path(&n8n_user_folder),
-                            err
-                        ));
-                        return;
-                    }
-
-                    let stdout = match fs::File::create(&runtime_log_path) {
-                        Ok(file) => file,
-                        Err(err) => {
-                            log_n8n(&format!(
-                                "Failed to open bundled n8n stdout log ({}): {}",
-                                stringify_path(&runtime_log_path),
-                                err
-                            ));
-                            return;
-                        }
-                    };
-                    let stderr = match fs::File::create(&runtime_error_log_path) {
-                        Ok(file) => file,
-                        Err(err) => {
-                            log_n8n(&format!(
-                                "Failed to open bundled n8n stderr log ({}): {}",
-                                stringify_path(&runtime_error_log_path),
-                                err
-                            ));
-                            return;
-                        }
-                    };
-
-                    let mut command = StdCommand::new(&node_exe);
-                    command
-                        .arg(&n8n_main)
-                        .args(["start", "--port", "5678"])
-                        .env("N8N_USER_FOLDER", stringify_path(&n8n_user_folder))
-                        .env("N8N_SAMESITE_COOKIE", "none")
-                        .env("N8N_SECURE_COOKIE", "true")
-                        .stdout(Stdio::from(stdout))
-                        .stderr(Stdio::from(stderr))
-                        .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
-
-                    match command.spawn() {
-                        Ok(child) => {
-                            log_n8n(&format!(
-                                "Bundled n8n process spawned (PID {}).",
-                                child.id()
-                            ));
-                        }
-                        Err(err) => {
-                            log_n8n(&format!(
-                                "Failed to start bundled n8n runtime (node={}, n8n={}): {}",
-                                stringify_path(&node_exe),
-                                stringify_path(&n8n_main),
-                                err
-                            ));
-                        }
-                    }
-                });
-
-                log_n8n("Bundled n8n bootstrap thread spawned (Windows).");
-                return Ok(());
+        match status {
+            Ok(status) if status.success() => {
+                log_n8n("Dependency bootstrap script completed successfully.");
+                if let Err(err) = write_n8n_install_marker(&app_handle) {
+                    log_n8n(&format!("{err}"));
+                } else {
+                    log_n8n("n8n install marker written.");
+                }
             }
-
-            log_n8n("Bundled n8n runtime files are incomplete; falling back to bootstrap script.");
-        } else {
-            log_n8n(
-                "Unable to resolve Tauri resource directory; falling back to bootstrap script.",
-            );
+            Ok(status) => {
+                log_n8n(&format!(
+                    "Dependency bootstrap script failed with status: {}",
+                    status
+                ));
+            }
+            Err(err) => {
+                log_n8n(&format!("Dependency bootstrap script failed to run: {err}"));
+            }
         }
 
-        let script_path = resolve_dependency_script_path(app)?;
-        log_n8n(&format!(
-            "Resolved bootstrap script path: {}",
-            stringify_path(&script_path)
-        ));
-        let automation_home = resolve_windows_automation_home(app)?;
-        log_n8n(&format!(
-            "Resolved automation home: {}",
-            stringify_path(&automation_home)
-        ));
-        let app_version = app.package_info().version.to_string();
-        let mut command = StdCommand::new("powershell");
-        command
-            .args([
-                "-NoProfile",
-                "-NonInteractive",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                &stringify_path(&script_path),
-            ])
-            .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
-            .env("DRODO_APP_VERSION", app_version)
-            .creation_flags(DETACHED_PROCESS | CREATE_NO_WINDOW);
-
-        command.spawn().map_err(|err| {
-            format!(
-                "Failed to start the dependency bootstrapper (script={}, automation_home={}): {}",
-                stringify_path(&script_path),
-                stringify_path(&automation_home),
-                err
-            )
-        })?;
-        log_n8n("Bootstrap process spawned (Windows).");
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        let script_path = resolve_dependency_script_path(app)?;
-        log_n8n(&format!(
-            "Resolved bootstrap script path: {}",
-            stringify_path(&script_path)
-        ));
-        let automation_home = resolve_linux_automation_home(app)?;
-        log_n8n(&format!(
-            "Resolved automation home: {}",
-            stringify_path(&automation_home)
-        ));
-        let app_version = app.package_info().version.to_string();
-        StdCommand::new("sh")
-            .arg(&script_path)
-            .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
-            .env("DRODO_APP_VERSION", app_version)
-            .spawn()
-            .map_err(|err| {
-                format!(
-                    "Failed to start the dependency bootstrapper (script={}, automation_home={}): {}",
-                    stringify_path(&script_path),
-                    stringify_path(&automation_home),
-                    err
-                )
-            })?;
-        log_n8n("Bootstrap process spawned (Linux/macOS).");
-    }
+        BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+    });
+    log_n8n("Bootstrap process spawned in background.");
 
     Ok(())
 }
@@ -605,6 +548,12 @@ async fn get_n8n_status(app: tauri::AppHandle) -> Result<serde_json::Value, Stri
 }
 
 #[tauri::command]
+fn get_n8n_install_log(app: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let log_path = resolve_n8n_bootstrap_log_path(&app)?;
+    Ok(read_last_lines(&log_path, 50))
+}
+
+#[tauri::command]
 fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
     if BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst) {
         log_n8n("Bootstrap already in flight; skipping duplicate request.");
@@ -614,6 +563,9 @@ fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
     let is_running = tauri::async_runtime::block_on(probe_n8n_running());
     if is_running {
         log_n8n("n8n already healthy; skipping bootstrap.");
+        if !is_n8n_install_complete(&app) {
+            write_n8n_install_marker(&app)?;
+        }
         return Ok(());
     }
 
@@ -625,16 +577,6 @@ fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
     }
 
     log_n8n("Bootstrap handoff completed.");
-    tauri::async_runtime::spawn(async move {
-        for _ in 0..30 {
-            if probe_n8n_running().await {
-                log_n8n("n8n readiness probe succeeded after bootstrap.");
-                break;
-            }
-            tokio::time::sleep(Duration::from_secs(2)).await;
-        }
-        BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
-    });
 
     Ok(())
 }
@@ -666,12 +608,16 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            let app_handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                if let Err(err) = start_dependency_bootstrap(app_handle) {
-                    log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
-                }
-            });
+            if is_n8n_install_complete(app.handle()) {
+                let app_handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = start_dependency_bootstrap(app_handle) {
+                        log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
+                    }
+                });
+            } else {
+                log_n8n("n8n install marker not found; waiting for user-initiated setup.");
+            }
 
             #[cfg(debug_assertions)]
             {
@@ -688,6 +634,7 @@ pub fn run() {
             execute_command,
             get_home_dir,
             get_n8n_status,
+            get_n8n_install_log,
             start_dependency_bootstrap,
             start_mcp_server
         ])
