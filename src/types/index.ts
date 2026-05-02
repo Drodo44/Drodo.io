@@ -1,6 +1,12 @@
 export type PermissionTier = 'sandboxed' | 'standard' | 'wide-open'
 export type AgentStatus = 'idle' | 'running' | 'complete' | 'error'
-export type ToolName = 'read_file' | 'write_file' | 'list_directory' | 'execute_command' | 'get_home_dir'
+export type ToolName =
+  | 'read_file'
+  | 'write_file'
+  | 'list_directory'
+  | 'execute_command'
+  | 'get_home_dir'
+  | 'create_n8n_workflow'
 export type TerminalEntryType = 'info' | 'tool' | 'command' | 'output' | 'error'
 export type NavView =
   | 'agent'

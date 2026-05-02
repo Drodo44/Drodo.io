@@ -598,8 +598,16 @@ async function buildAgentSystemPrompt(task: string, basePrompt: string): Promise
   const memoryPrompt = injectMemoryContext(task)
   const skillPrompt = await getSkillsForTask(task)
   const workflowPrompt = await buildWorkflowHint(task)
+  const n8nExecutionPrompt = /\bn8n\b/i.test(task) && /\bworkflow\b/i.test(task)
+    ? [
+        '## n8n Execution Requirement',
+        'When producing an n8n workflow, do not stop at JSON output.',
+        'Use the create_n8n_workflow tool to create and activate the workflow in n8n.',
+        'If n8n is unavailable or API key is missing, return a clear actionable error.',
+      ].join('\n')
+    : ''
 
-  return [memoryPrompt, skillPrompt, basePrompt, workflowPrompt]
+  return [memoryPrompt, skillPrompt, basePrompt, workflowPrompt, n8nExecutionPrompt]
     .filter(section => section.trim().length > 0)
     .join('\n\n')
 }
@@ -761,9 +769,16 @@ export const useAppStore = create<AppState>((set, get) => {
     if (pendingSwarmFlushTimer) return
     pendingSwarmFlushTimer = setTimeout(() => {
       pendingSwarmFlushTimer = null
-      flushPendingSwarmStreams(false)
-      if (pendingSwarmStreams.size > 0) {
-        scheduleSwarmStreamFlush()
+      const runFlush = () => {
+        flushPendingSwarmStreams(false)
+        if (pendingSwarmStreams.size > 0) {
+          scheduleSwarmStreamFlush()
+        }
+      }
+      if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => runFlush(), { timeout: SWARM_STREAM_FLUSH_INTERVAL_MS })
+      } else {
+        runFlush()
       }
     }, SWARM_STREAM_FLUSH_INTERVAL_MS)
   }
@@ -2152,11 +2167,12 @@ export const useAppStore = create<AppState>((set, get) => {
         }
       })
 
-      for (let index = 0; index < subtasks.length; index += 1) {
-        const taskEntry = subtasks[index]
-        const assignedProvider = routeModelForTask(taskEntry.task, state.activeProvider, index)
-        await get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name, assignedProvider.model)
-      }
+      subtasks.forEach((taskEntry, index) => {
+        setTimeout(() => {
+          const assignedProvider = routeModelForTask(taskEntry.task, get().activeProvider, index)
+          void get().spawnAgent(taskEntry.task, assignedProvider.id, taskEntry.name, assignedProvider.model)
+        }, 0)
+      })
     } catch (error: unknown) {
       activeSwarmRuns.delete(orchestratorId)
       const message = error instanceof Error ? error.message : String(error)

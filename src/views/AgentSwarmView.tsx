@@ -17,6 +17,7 @@ import {
   getWorkflowTemplate,
   type WorkflowMatch,
 } from '../lib/workflows'
+import { createAndActivateN8nWorkflow } from '../lib/n8nApi'
 import type { AgentInstance, OrchestrationRun, SwarmFeedEntry } from '../types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1073,18 +1074,8 @@ export function AgentSwarmView() {
     if (!generatedWorkflowJson.trim()) return
     try {
       const parsed = JSON.parse(generatedWorkflowJson)
-      const response = await fetch('http://localhost:5678/rest/workflows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed),
-      })
-      if (!response.ok) {
-        const message = await response.text()
-        throw new Error(message || `HTTP ${response.status}`)
-      }
-      const imported = await response.json().catch(() => null)
-      const workflowName = imported?.name || parsed?.name || 'workflow'
-      setN8nImportStatus(`Imported to n8n successfully: ${workflowName}`)
+      const created = await createAndActivateN8nWorkflow(parsed)
+      setN8nImportStatus(`Imported to n8n successfully: ${created.name} (${created.id})`)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
       setN8nImportStatus(`Import failed: ${message}`)

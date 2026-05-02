@@ -26,6 +26,7 @@ import { getAllProviders, loadAllSavedConfigs } from '../lib/providerApi'
 import { notify } from '../lib/notifications'
 import { decryptStoredKey } from '../lib/encryption'
 import { getN8nStatus, startDependencyBootstrap } from '../lib/tauri'
+import { createAndActivateN8nWorkflow } from '../lib/n8nApi'
 import {
   ensureWorkflowCatalogLoaded,
   getWorkflowTemplate,
@@ -953,19 +954,8 @@ export function WorkflowsView() {
 
     try {
       const parsed = JSON.parse(selectedTemplateJson)
-      const response = await fetch('http://localhost:5678/rest/workflows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed),
-      })
-
-      if (!response.ok) {
-        const message = await response.text()
-        throw new Error(message || `HTTP ${response.status}`)
-      }
-
-      const imported = await response.json().catch(() => null)
-      const workflowName = imported?.name || parsed?.name || selectedTemplate?.name || 'workflow'
+      const created = await createAndActivateN8nWorkflow(parsed)
+      const workflowName = created.name || parsed?.name || selectedTemplate?.name || 'workflow'
       setTemplateImportStatus(`Imported to n8n successfully: ${workflowName}`)
       void notify('Drodo', `Template deployed: ${workflowName}`)
     } catch (error: unknown) {

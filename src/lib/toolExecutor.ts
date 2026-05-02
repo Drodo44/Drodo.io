@@ -6,6 +6,7 @@ import type {
   ToolName,
 } from '../types'
 import { executeCommand, getHomeDir, listDirectory, readFile, writeFile } from './tauri'
+import { createAndActivateN8nWorkflow } from './n8nApi'
 
 const TOOL_NAMES: ToolName[] = [
   'read_file',
@@ -13,6 +14,7 @@ const TOOL_NAMES: ToolName[] = [
   'list_directory',
   'execute_command',
   'get_home_dir',
+  'create_n8n_workflow',
 ]
 
 const MAX_MODEL_PAYLOAD = 12000
@@ -60,6 +62,11 @@ export function getToolCatalogPrompt(): string {
       arguments: { path: 'C:\\Users\\name\\file.txt' },
     }),
     stringifyJson({
+      type: 'tool',
+      tool: 'create_n8n_workflow',
+      arguments: { workflow: { name: 'My workflow', nodes: [], connections: {} } },
+    }),
+    stringifyJson({
       type: 'final',
       message: 'Short answer to the user summarizing what you did and what happened.',
     }),
@@ -69,6 +76,7 @@ export function getToolCatalogPrompt(): string {
     '- list_directory(path): List files and folders in a directory.',
     '- execute_command(command): Run a shell command and return stdout, stderr, and exit code.',
     '- get_home_dir(): Return the current user home directory.',
+    '- create_n8n_workflow(workflow): Create a workflow in n8n and activate it.',
     'Rules:',
     '- Respond with raw JSON and nothing else.',
     '- Use tools when you need file contents, filesystem state, or shell output.',
@@ -181,6 +189,21 @@ export async function executeToolCall(call: ToolCall): Promise<ToolExecutionResu
         summary: `Resolved home directory: ${path}`,
         contentForModel: path,
         raw: path,
+      }
+    }
+
+    case 'create_n8n_workflow': {
+      const workflow = call.arguments.workflow
+      if (!workflow || typeof workflow !== 'object') {
+        throw new Error('Tool argument "workflow" must be a JSON object.')
+      }
+      const created = await createAndActivateN8nWorkflow(workflow)
+      return {
+        tool: call.tool,
+        arguments: { workflow },
+        summary: `Created and activated n8n workflow "${created.name}" (${created.id})`,
+        contentForModel: `Workflow created and activated successfully.\nID: ${created.id}\nName: ${created.name}\nActive: ${created.active}`,
+        raw: created,
       }
     }
   }
