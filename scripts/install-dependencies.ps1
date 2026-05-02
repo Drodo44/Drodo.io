@@ -20,6 +20,10 @@ function Resolve-AutomationHome {
         return [System.IO.Path]::GetFullPath($env:DRODO_AUTOMATION_HOME)
     }
 
+    if ($env:APPDATA) {
+        return Join-Path $env:APPDATA 'Drodo\n8n'
+    }
+
     $parentDir = Split-Path -Parent $PSScriptRoot
     if ((Split-Path -Leaf $parentDir) -ieq '_up_') {
         return Join-Path (Split-Path -Parent $parentDir) 'automation'
@@ -37,20 +41,23 @@ $AutomationLogsDir = Join-Path $AutomationHome 'logs'
 $AutomationDownloadsDir = Join-Path $AutomationHome 'downloads'
 $AutomationTempDir = Join-Path $AutomationHome 'tmp'
 $AutomationDataDir = Join-Path $AutomationHome 'data'
+$AutomationRuntimeDir = Join-Path $AutomationHome 'runtime'
 $StatusFile = Join-Path $AutomationHome 'n8n-status.json'
 $LastErrorFile = Join-Path $AutomationHome 'last-error.txt'
 $LogFile = if ($env:DRODO_BOOTSTRAP_LOG_PATH) {
     [System.IO.Path]::GetFullPath($env:DRODO_BOOTSTRAP_LOG_PATH)
 } else {
-    Join-Path $AutomationLogsDir 'bootstrap.log'
+    Join-Path $AutomationHome 'bootstrap.log'
 }
 $RuntimeLogFile = Join-Path $AutomationLogsDir 'n8n-runtime.out.log'
 $RuntimeErrorLogFile = Join-Path $AutomationLogsDir 'n8n-runtime.err.log'
-$ManifestPath = Join-Path $AutomationHome 'manifest.json'
+$MarkerFile = Join-Path $AutomationHome '.installed'
+$ManifestPath = Join-Path $AutomationRuntimeDir 'manifest.json'
 
 New-Item -ItemType Directory -Path $AutomationLogsDir -Force | Out-Null
 New-Item -ItemType Directory -Path $AutomationDownloadsDir -Force | Out-Null
 New-Item -ItemType Directory -Path $AutomationTempDir -Force | Out-Null
+New-Item -ItemType Directory -Path $AutomationDataDir -Force | Out-Null
 
 function Write-Log {
     param(
@@ -111,6 +118,10 @@ function Get-InstallRoot {
     return Split-Path -Parent $AutomationHome
 }
 
+function Get-RuntimeRoot {
+    return $AutomationRuntimeDir
+}
+
 function Read-VersionFromJson {
     param(
         [Parameter(Mandatory = $true)]
@@ -123,6 +134,23 @@ function Read-VersionFromJson {
 
     try {
         return (Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json).version
+    } catch {
+        return ''
+    }
+}
+
+function Read-RuntimeVersionFromManifest {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return ''
+    }
+
+    try {
+        return (Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json).runtimeVersion
     } catch {
         return ''
     }
@@ -165,7 +193,16 @@ function Resolve-AppVersion {
     throw 'Unable to determine the Drodo application version for runtime bootstrap.'
 }
 
-$AppVersion = Resolve-AppVersion
+try {
+    $AppVersion = Resolve-AppVersion
+} catch {
+    $message = $_.Exception.Message
+    Write-Log "Drodo automation runtime bootstrap failed [BootstrapFailure]: $message"
+    [Console]::Error.WriteLine("FAILURE: Drodo automation runtime bootstrap failed [BootstrapFailure]: $message")
+    Save-Status -Running $false -ErrorCategory 'BootstrapFailure' -ErrorMessage $message
+    Save-LastError -Category 'BootstrapFailure' -Message $message
+    exit 1
+}
 $ExpectedPlatform = 'windows-x64'
 $RuntimeAssetFileName = "drodo-runtime-$ExpectedPlatform-$AppVersion.zip"
 $RuntimeChecksumFileName = "$RuntimeAssetFileName.sha256"
@@ -186,6 +223,14 @@ function Resolve-LocalRuntimeCandidate {
         (Join-Path $env:ProgramData "Drodo\runtime-assets\$RuntimeAssetFileName")
     )) {
         if ($candidate -and (Test-Path -LiteralPath $candidate)) {
+            if ((Get-Item -LiteralPath $candidate).PSIsContainer) {
+                $candidateManifest = Join-Path $candidate 'manifest.json'
+                $candidateVersion = Read-RuntimeVersionFromManifest -Path $candidateManifest
+                if ($candidateVersion -and $candidateVersion -ne $AppVersion) {
+                    Write-Log "Skipping local runtime candidate $candidate because it is version $candidateVersion, expected $AppVersion."
+                    continue
+                }
+            }
             return [System.IO.Path]::GetFullPath($candidate)
         }
     }
@@ -314,10 +359,10 @@ function Get-RequiredRuntimePaths {
     )
 
     $paths = @()
-    $paths += (Join-Path $AutomationHome $Manifest.paths.node)
-    $paths += (Join-Path $AutomationHome $Manifest.paths.n8nCli)
+    $paths += (Join-Path $AutomationRuntimeDir $Manifest.paths.node)
+    $paths += (Join-Path $AutomationRuntimeDir $Manifest.paths.n8nCli)
     if ($Manifest.paths.git) {
-        $paths += (Join-Path $AutomationHome $Manifest.paths.git)
+        $paths += (Join-Path $AutomationRuntimeDir $Manifest.paths.git)
     }
     return $paths
 }
@@ -385,8 +430,9 @@ function Materialize-Runtime {
         [string]$SourcePath
     )
 
-    $stagingDir = "${AutomationHome}.staging"
-    $backupDir = "${AutomationHome}.backup"
+    $runtimeRoot = Get-RuntimeRoot
+    $stagingDir = "${runtimeRoot}.staging"
+    $backupDir = "${runtimeRoot}.backup"
 
     Remove-Item -LiteralPath $stagingDir -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -401,16 +447,17 @@ function Materialize-Runtime {
         Expand-RuntimeArchive -ArchivePath $SourcePath -Destination $stagingDir
     }
 
-    if (Test-Path -LiteralPath $AutomationHome) {
-        Move-Item -LiteralPath $AutomationHome -Destination $backupDir -Force
+    if (Test-Path -LiteralPath $runtimeRoot) {
+        Move-Item -LiteralPath $runtimeRoot -Destination $backupDir -Force
     }
 
-    Move-Item -LiteralPath $stagingDir -Destination $AutomationHome -Force
+    Move-Item -LiteralPath $stagingDir -Destination $runtimeRoot -Force
     Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
 
     New-Item -ItemType Directory -Path $AutomationLogsDir -Force | Out-Null
     New-Item -ItemType Directory -Path $AutomationDownloadsDir -Force | Out-Null
     New-Item -ItemType Directory -Path $AutomationTempDir -Force | Out-Null
+    New-Item -ItemType Directory -Path $AutomationDataDir -Force | Out-Null
 }
 
 function Resolve-DownloadTargets {
@@ -499,7 +546,7 @@ function Ensure-RuntimeInstalled {
             Materialize-Runtime -SourcePath $bundledArchive
             Migrate-LegacyN8nData
             if (-not (Test-RuntimeInstalled)) {
-                Remove-Item -LiteralPath $AutomationHome -Recurse -Force -ErrorAction SilentlyContinue
+                Remove-Item -LiteralPath $AutomationRuntimeDir -Recurse -Force -ErrorAction SilentlyContinue
                 throw 'Bundled runtime extraction completed, but the extracted runtime is incomplete or invalid.'
             }
             Write-Log "Pinned automation runtime is ready (from bundled archive) at $AutomationHome."
@@ -521,7 +568,7 @@ function Ensure-RuntimeInstalled {
     Migrate-LegacyN8nData
 
     if (-not (Test-RuntimeInstalled)) {
-        Remove-Item -LiteralPath $AutomationHome -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $AutomationRuntimeDir -Recurse -Force -ErrorAction SilentlyContinue
         throw 'Runtime installation completed, but the extracted runtime is incomplete or invalid.'
     }
 
@@ -538,7 +585,7 @@ function Get-RuntimeManifest {
 
 function Get-NodePath {
     $manifest = Get-RuntimeManifest
-    return Join-Path $AutomationHome $manifest.paths.node
+    return Join-Path $AutomationRuntimeDir $manifest.paths.node
 }
 
 function Get-GitPath {
@@ -546,12 +593,12 @@ function Get-GitPath {
     if (-not $manifest.paths.git) {
         return ''
     }
-    return Join-Path $AutomationHome $manifest.paths.git
+    return Join-Path $AutomationRuntimeDir $manifest.paths.git
 }
 
 function Get-N8nCliPath {
     $manifest = Get-RuntimeManifest
-    return Join-Path $AutomationHome $manifest.paths.n8nCli
+    return Join-Path $AutomationRuntimeDir $manifest.paths.n8nCli
 }
 
 function Test-LocalPort {
@@ -802,6 +849,7 @@ try {
     Ensure-GitAvailable
     Ensure-N8nRunning
     Save-Status -Running $true -StartedAt (Get-Date).ToString('o')
+    New-Item -ItemType File -Path $MarkerFile -Force | Out-Null
     $successMessage = 'Drodo automation runtime bootstrap completed successfully.'
     Write-Log $successMessage
     Write-Output "SUCCESS: $successMessage"

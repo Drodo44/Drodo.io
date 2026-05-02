@@ -158,10 +158,12 @@ fn repo_root() -> Result<PathBuf, String> {
 
 #[cfg(target_os = "windows")]
 fn resolve_windows_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    if let Ok(resource_dir) = app.path().resource_dir() {
-        if let Some(parent) = resource_dir.parent() {
-            return Ok(parent.join("automation"));
-        }
+    if let Some(app_data) = std::env::var_os("APPDATA") {
+        return Ok(PathBuf::from(app_data).join("Drodo").join("n8n"));
+    }
+
+    if let Ok(app_data_dir) = app.path().app_data_dir() {
+        return Ok(app_data_dir.join("n8n"));
     }
 
     Ok(repo_root()?.join(".automation").join("windows"))
@@ -188,18 +190,7 @@ fn resolve_automation_home(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 }
 
 fn resolve_n8n_install_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    #[cfg(target_os = "windows")]
-    {
-        if let Some(app_data) = std::env::var_os("APPDATA") {
-            return Ok(PathBuf::from(app_data).join("Drodo").join("n8n"));
-        }
-    }
-
-    if let Ok(app_data_dir) = app.path().app_data_dir() {
-        return Ok(app_data_dir.join("n8n"));
-    }
-
-    Ok(resolve_automation_home(app)?.join("data").join("n8n"))
+    resolve_automation_home(app)
 }
 
 fn resolve_n8n_install_marker(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -234,9 +225,11 @@ fn write_n8n_install_marker(app: &tauri::AppHandle) -> Result<(), String> {
 }
 
 fn resolve_n8n_bootstrap_log_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    Ok(resolve_automation_home(app)?
-        .join("logs")
-        .join("bootstrap.log"))
+    Ok(resolve_automation_home(app)?.join("bootstrap.log"))
+}
+
+fn resolve_n8n_status_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(resolve_automation_home(app)?.join("n8n-status.json"))
 }
 
 fn read_last_lines(path: &Path, max_lines: usize) -> Vec<String> {
@@ -262,6 +255,47 @@ fn append_n8n_bootstrap_log(log_path: &Path, message: &str) {
         .and_then(|mut file| std::io::Write::write_all(&mut file, line.as_bytes()));
 }
 
+fn append_n8n_bootstrap_log_ensured(log_path: &Path, message: &str) {
+    if let Some(parent) = log_path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    append_n8n_bootstrap_log(log_path, message);
+}
+
+fn write_n8n_status_failure(
+    app: &tauri::AppHandle,
+    log_path: &Path,
+    category: &str,
+    message: &str,
+) {
+    let Ok(status_path) = resolve_n8n_status_path(app) else {
+        return;
+    };
+    if let Some(parent) = status_path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    let runtime_log_path = resolve_automation_home(app)
+        .map(|home| home.join("logs").join("n8n-runtime.out.log"))
+        .ok();
+    let runtime_error_log_path = resolve_automation_home(app)
+        .map(|home| home.join("logs").join("n8n-runtime.err.log"))
+        .ok();
+    let payload = json!({
+        "running": false,
+        "url": N8N_URL,
+        "port": N8N_PORT,
+        "startedAt": null,
+        "logPath": stringify_path(log_path),
+        "runtimeLogPath": runtime_log_path.as_deref().map(stringify_path),
+        "runtimeErrorLogPath": runtime_error_log_path.as_deref().map(stringify_path),
+        "errorCategory": category,
+        "errorMessage": message,
+    });
+    if let Ok(raw) = serde_json::to_string_pretty(&payload) {
+        let _ = fs::write(status_path, raw);
+    }
+}
+
 fn chrono_like_timestamp() -> String {
     std::time::SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -270,8 +304,7 @@ fn chrono_like_timestamp() -> String {
 }
 
 fn read_runtime_status_from_disk(app: &tauri::AppHandle) -> Option<RuntimeStatusFile> {
-    let automation_home = resolve_automation_home(app).ok()?;
-    let status_path = automation_home.join("n8n-status.json");
+    let status_path = resolve_n8n_status_path(app).ok()?;
     let raw = fs::read_to_string(status_path).ok()?;
     serde_json::from_str::<RuntimeStatusFile>(&raw).ok()
 }
@@ -328,7 +361,7 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     }
 
     thread::spawn(move || {
-        append_n8n_bootstrap_log(
+        append_n8n_bootstrap_log_ensured(
             &bootstrap_log_path,
             &format!(
                 "Launching dependency bootstrap script: {}",
@@ -338,13 +371,12 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
 
         #[cfg(target_os = "windows")]
         let mut command = {
-            let mut command = StdCommand::new("powershell");
+            let mut command = StdCommand::new("powershell.exe");
             command
                 .args([
-                    "-NoProfile",
-                    "-NonInteractive",
                     "-ExecutionPolicy",
                     "Bypass",
+                    "-NonInteractive",
                     "-File",
                     &stringify_path(&script_path),
                 ])
@@ -359,6 +391,19 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
             command
         };
 
+        #[cfg(target_os = "windows")]
+        let command_display = format!(
+            "powershell.exe -ExecutionPolicy Bypass -NonInteractive -File \"{}\"",
+            stringify_path(&script_path)
+        );
+        #[cfg(not(target_os = "windows"))]
+        let command_display = format!("sh \"{}\"", stringify_path(&script_path));
+        log_n8n(&format!("Bootstrap command: {}", command_display));
+        append_n8n_bootstrap_log_ensured(
+            &bootstrap_log_path,
+            &format!("Bootstrap command: {}", command_display),
+        );
+
         let stdout = match fs::OpenOptions::new()
             .create(true)
             .append(true)
@@ -366,11 +411,18 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
         {
             Ok(file) => file,
             Err(err) => {
-                log_n8n(&format!(
+                let message = format!(
                     "Failed to open bootstrap log for stdout redirection ({}): {}",
                     stringify_path(&bootstrap_log_path),
                     err
-                ));
+                );
+                log_n8n(&message);
+                write_n8n_status_failure(
+                    &app_handle,
+                    &bootstrap_log_path,
+                    "BootstrapLog",
+                    &message,
+                );
                 BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
                 return;
             }
@@ -378,23 +430,47 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
         let stderr = match stdout.try_clone() {
             Ok(file) => file,
             Err(err) => {
-                log_n8n(&format!(
+                let message = format!(
                     "Failed to clone bootstrap log for stderr redirection ({}): {}",
                     stringify_path(&bootstrap_log_path),
                     err
-                ));
+                );
+                log_n8n(&message);
+                write_n8n_status_failure(
+                    &app_handle,
+                    &bootstrap_log_path,
+                    "BootstrapLog",
+                    &message,
+                );
                 BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
                 return;
             }
         };
 
-        let status = command
+        let spawn_result = command
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
             .env("DRODO_BOOTSTRAP_LOG_PATH", stringify_path(&bootstrap_log_path))
             .stdout(Stdio::from(stdout))
             .stderr(Stdio::from(stderr))
-            .status();
+            .spawn();
+
+        let status = match spawn_result {
+            Ok(mut child) => child.wait(),
+            Err(err) => {
+                let message = format!("Dependency bootstrap script failed to spawn: {err}");
+                log_n8n(&message);
+                append_n8n_bootstrap_log_ensured(&bootstrap_log_path, &message);
+                write_n8n_status_failure(
+                    &app_handle,
+                    &bootstrap_log_path,
+                    "BootstrapSpawn",
+                    &message,
+                );
+                BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+                return;
+            }
+        };
 
         match status {
             Ok(status) if status.success() => {
@@ -418,11 +494,23 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
                 );
                 log_n8n(&message);
                 append_n8n_bootstrap_log(&bootstrap_log_path, &message);
+                write_n8n_status_failure(
+                    &app_handle,
+                    &bootstrap_log_path,
+                    "BootstrapFailure",
+                    &message,
+                );
             }
             Err(err) => {
                 let message = format!("Dependency bootstrap script failed to run: {err}");
                 log_n8n(&message);
                 append_n8n_bootstrap_log(&bootstrap_log_path, &message);
+                write_n8n_status_failure(
+                    &app_handle,
+                    &bootstrap_log_path,
+                    "BootstrapSpawn",
+                    &message,
+                );
             }
         }
 

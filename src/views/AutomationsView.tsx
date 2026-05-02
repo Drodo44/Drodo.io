@@ -10,11 +10,13 @@ export function AutomationsView() {
   const [installLog, setInstallLog] = useState<string[]>([])
   const [launchError, setLaunchError] = useState('')
   const [hasOpenedN8n, setHasOpenedN8n] = useState(false)
+  const [installAttempted, setInstallAttempted] = useState(false)
 
   const running = Boolean(n8nStatus?.running)
   const bootstrapInProgress = Boolean(n8nStatus?.bootstrapInProgress)
   const installComplete = Boolean(n8nStatus?.installComplete)
   const visibleLogLines = useMemo(() => installLog.slice(-10), [installLog])
+  const showFailedInstallLog = installAttempted && !bootstrapInProgress && !installComplete && !running && installLog.length > 0
 
   const refreshStatus = async () => {
     const status = await getN8nStatus()
@@ -27,6 +29,7 @@ export function AutomationsView() {
   const handleInstall = async () => {
     setLaunchError('')
     setHasOpenedN8n(false)
+    setInstallAttempted(true)
     setN8nStatus(current => ({
       running: false,
       url: current?.url || N8N_URL,
@@ -39,8 +42,25 @@ export function AutomationsView() {
       runtimeLogPath: current?.runtimeLogPath ?? null,
       runtimeErrorLogPath: current?.runtimeErrorLogPath ?? null,
     }))
-    await startDependencyBootstrap()
-    await refreshStatus()
+    try {
+      await startDependencyBootstrap()
+      await refreshStatus()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to start the n8n installer.'
+      setLaunchError(message)
+      setN8nStatus(current => ({
+        running: false,
+        url: current?.url || N8N_URL,
+        port: current?.port || 5678,
+        bootstrapInProgress: false,
+        installComplete: false,
+        lastErrorCategory: 'BootstrapInvoke',
+        lastErrorMessage: message,
+        logPath: current?.logPath ?? null,
+        runtimeLogPath: current?.runtimeLogPath ?? null,
+        runtimeErrorLogPath: current?.runtimeErrorLogPath ?? null,
+      }))
+    }
   }
 
   useEffect(() => {
@@ -73,7 +93,7 @@ export function AutomationsView() {
   }, [])
 
   useEffect(() => {
-    if (!bootstrapInProgress) return
+    if (!bootstrapInProgress && (!installAttempted || running || installComplete)) return
     let cancelled = false
 
     const pollLog = async () => {
@@ -96,7 +116,7 @@ export function AutomationsView() {
       cancelled = true
       window.clearInterval(timer)
     }
-  }, [bootstrapInProgress])
+  }, [bootstrapInProgress, installAttempted, installComplete, running])
 
   useEffect(() => {
     if (!running || hasOpenedN8n) return
@@ -156,6 +176,18 @@ export function AutomationsView() {
               <p className="rounded-lg border border-[#e05050]/25 bg-[#e05050]/10 px-3 py-2 text-xs text-[#e05050]">
                 {launchError}
               </p>
+            )}
+            {showFailedInstallLog && (
+              <div
+                className="max-h-44 overflow-y-auto rounded-xl border p-4 text-left font-mono text-xs leading-relaxed"
+                style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+              >
+                {visibleLogLines.map((line, index) => (
+                  <div key={`${index}-${line}`} className="whitespace-pre-wrap break-words">
+                    {line}
+                  </div>
+                ))}
+              </div>
             )}
             <button
               onClick={event => {
