@@ -39,7 +39,11 @@ $AutomationTempDir = Join-Path $AutomationHome 'tmp'
 $AutomationDataDir = Join-Path $AutomationHome 'data'
 $StatusFile = Join-Path $AutomationHome 'n8n-status.json'
 $LastErrorFile = Join-Path $AutomationHome 'last-error.txt'
-$LogFile = Join-Path $AutomationLogsDir 'bootstrap.log'
+$LogFile = if ($env:DRODO_BOOTSTRAP_LOG_PATH) {
+    [System.IO.Path]::GetFullPath($env:DRODO_BOOTSTRAP_LOG_PATH)
+} else {
+    Join-Path $AutomationLogsDir 'bootstrap.log'
+}
 $RuntimeLogFile = Join-Path $AutomationLogsDir 'n8n-runtime.out.log'
 $RuntimeErrorLogFile = Join-Path $AutomationLogsDir 'n8n-runtime.err.log'
 $ManifestPath = Join-Path $AutomationHome 'manifest.json'
@@ -798,11 +802,16 @@ try {
     Ensure-GitAvailable
     Ensure-N8nRunning
     Save-Status -Running $true -StartedAt (Get-Date).ToString('o')
-    Write-Log 'Drodo automation runtime bootstrap completed successfully.'
+    $successMessage = 'Drodo automation runtime bootstrap completed successfully.'
+    Write-Log $successMessage
+    Write-Output "SUCCESS: $successMessage"
+    exit 0
 } catch {
     $message = $_.Exception.Message
     $category = Get-ErrorCategory -Message $message
-    Write-Log "Drodo automation runtime bootstrap failed [$category]: $message"
+    $failureMessage = "Drodo automation runtime bootstrap failed [$category]: $message"
+    Write-Log $failureMessage
+    [Console]::Error.WriteLine("FAILURE: $failureMessage")
     Save-Status -Running $false -ErrorCategory $category -ErrorMessage $message
     Save-LastError -Category $category -Message $message
     exit 1

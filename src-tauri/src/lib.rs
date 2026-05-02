@@ -4,7 +4,7 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    process::Command as StdCommand,
+    process::{Command as StdCommand, Stdio},
     sync::atomic::{AtomicBool, Ordering},
     thread,
     time::Duration,
@@ -253,6 +253,22 @@ fn read_last_lines(path: &Path, max_lines: usize) -> Vec<String> {
     lines
 }
 
+fn append_n8n_bootstrap_log(log_path: &Path, message: &str) {
+    let line = format!("{} [rust] {}\n", chrono_like_timestamp(), message);
+    let _ = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_path)
+        .and_then(|mut file| std::io::Write::write_all(&mut file, line.as_bytes()));
+}
+
+fn chrono_like_timestamp() -> String {
+    std::time::SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|duration| format!("unix:{}", duration.as_secs()))
+        .unwrap_or_else(|_| "unix:0".to_string())
+}
+
 fn read_runtime_status_from_disk(app: &tauri::AppHandle) -> Option<RuntimeStatusFile> {
     let automation_home = resolve_automation_home(app).ok()?;
     let status_path = automation_home.join("n8n-status.json");
@@ -300,8 +316,26 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     ));
     let app_version = app.package_info().version.to_string();
     let app_handle = app.clone();
+    let bootstrap_log_path = resolve_n8n_bootstrap_log_path(app)?;
+    if let Some(parent) = bootstrap_log_path.parent() {
+        fs::create_dir_all(parent).map_err(|err| {
+            format!(
+                "Failed to create bootstrap log directory ({}): {}",
+                stringify_path(parent),
+                err
+            )
+        })?;
+    }
 
     thread::spawn(move || {
+        append_n8n_bootstrap_log(
+            &bootstrap_log_path,
+            &format!(
+                "Launching dependency bootstrap script: {}",
+                stringify_path(&script_path)
+            ),
+        );
+
         #[cfg(target_os = "windows")]
         let mut command = {
             let mut command = StdCommand::new("powershell");
@@ -325,28 +359,70 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
             command
         };
 
+        let stdout = match fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&bootstrap_log_path)
+        {
+            Ok(file) => file,
+            Err(err) => {
+                log_n8n(&format!(
+                    "Failed to open bootstrap log for stdout redirection ({}): {}",
+                    stringify_path(&bootstrap_log_path),
+                    err
+                ));
+                BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+                return;
+            }
+        };
+        let stderr = match stdout.try_clone() {
+            Ok(file) => file,
+            Err(err) => {
+                log_n8n(&format!(
+                    "Failed to clone bootstrap log for stderr redirection ({}): {}",
+                    stringify_path(&bootstrap_log_path),
+                    err
+                ));
+                BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
+                return;
+            }
+        };
+
         let status = command
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
+            .env("DRODO_BOOTSTRAP_LOG_PATH", stringify_path(&bootstrap_log_path))
+            .stdout(Stdio::from(stdout))
+            .stderr(Stdio::from(stderr))
             .status();
 
         match status {
             Ok(status) if status.success() => {
                 log_n8n("Dependency bootstrap script completed successfully.");
+                append_n8n_bootstrap_log(
+                    &bootstrap_log_path,
+                    "Dependency bootstrap process exited successfully.",
+                );
                 if let Err(err) = write_n8n_install_marker(&app_handle) {
                     log_n8n(&format!("{err}"));
+                    append_n8n_bootstrap_log(&bootstrap_log_path, &err);
                 } else {
                     log_n8n("n8n install marker written.");
+                    append_n8n_bootstrap_log(&bootstrap_log_path, "n8n install marker written.");
                 }
             }
             Ok(status) => {
-                log_n8n(&format!(
+                let message = format!(
                     "Dependency bootstrap script failed with status: {}",
                     status
-                ));
+                );
+                log_n8n(&message);
+                append_n8n_bootstrap_log(&bootstrap_log_path, &message);
             }
             Err(err) => {
-                log_n8n(&format!("Dependency bootstrap script failed to run: {err}"));
+                let message = format!("Dependency bootstrap script failed to run: {err}");
+                log_n8n(&message);
+                append_n8n_bootstrap_log(&bootstrap_log_path, &message);
             }
         }
 
