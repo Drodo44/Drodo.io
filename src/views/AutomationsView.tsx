@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Workflow, RefreshCw, Circle } from 'lucide-react'
-import { getN8nInstallLog, getN8nStatus, startDependencyBootstrap, type N8nStatus } from '../lib/tauri'
+import {
+  getAvailableDrives,
+  getN8nInstallLog,
+  getN8nStatus,
+  startDependencyBootstrap,
+  type AvailableDrive,
+  type N8nStatus,
+} from '../lib/tauri'
 import { openN8nWindow } from '../lib/n8nWindow'
 
 const N8N_URL = 'http://localhost:5678'
@@ -11,6 +18,8 @@ export function AutomationsView() {
   const [launchError, setLaunchError] = useState('')
   const [hasOpenedN8n, setHasOpenedN8n] = useState(false)
   const [installAttempted, setInstallAttempted] = useState(false)
+  const [availableDrives, setAvailableDrives] = useState<AvailableDrive[]>([])
+  const [selectedInstallDrive, setSelectedInstallDrive] = useState<string>('')
 
   const running = Boolean(n8nStatus?.running)
   const bootstrapInProgress = Boolean(n8nStatus?.bootstrapInProgress)
@@ -43,7 +52,7 @@ export function AutomationsView() {
       runtimeErrorLogPath: current?.runtimeErrorLogPath ?? null,
     }))
     try {
-      await startDependencyBootstrap()
+      await startDependencyBootstrap(selectedInstallDrive || undefined)
       await refreshStatus()
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to start the n8n installer.'
@@ -89,6 +98,35 @@ export function AutomationsView() {
     return () => {
       cancelled = true
       window.clearInterval(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadDrives = async () => {
+      try {
+        const drives = await getAvailableDrives()
+        if (cancelled) return
+        setAvailableDrives(drives)
+        if (drives.length > 0) {
+          const best = drives.reduce((max, drive) => (drive.freeGb > max.freeGb ? drive : max), drives[0])
+          setSelectedInstallDrive(best.letter)
+        } else {
+          setSelectedInstallDrive('')
+        }
+      } catch {
+        if (!cancelled) {
+          setAvailableDrives([])
+          setSelectedInstallDrive('')
+        }
+      }
+    }
+
+    void loadDrives()
+
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -187,6 +225,26 @@ export function AutomationsView() {
                     {line}
                   </div>
                 ))}
+              </div>
+            )}
+            {availableDrives.length > 0 && (
+              <div className="space-y-2 text-left">
+                <label htmlFor="install-drive" className="block text-xs font-medium text-[var(--text-secondary)]">
+                  Install location
+                </label>
+                <select
+                  id="install-drive"
+                  value={selectedInstallDrive}
+                  onChange={event => setSelectedInstallDrive(event.target.value)}
+                  className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
+                  style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                >
+                  {availableDrives.map(drive => (
+                    <option key={drive.letter} value={drive.letter}>
+                      {`${drive.letter}:\\ — ${Math.floor(drive.freeGb)} GB free`}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
             <button

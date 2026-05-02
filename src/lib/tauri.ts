@@ -14,6 +14,11 @@ export interface N8nStatus {
   runtimeErrorLogPath?: string | null
 }
 
+export interface AvailableDrive {
+  letter: string
+  freeGb: number
+}
+
 export async function readFile(path: string): Promise<string> {
   return invoke<string>('read_file', { path })
 }
@@ -42,8 +47,12 @@ export async function getN8nInstallLog(): Promise<string[]> {
   return invoke<string[]>('get_n8n_install_log')
 }
 
-export async function startDependencyBootstrap(): Promise<void> {
-  await invoke('start_dependency_bootstrap')
+export async function startDependencyBootstrap(installDrive?: string): Promise<void> {
+  await invoke('start_dependency_bootstrap', { installDrive })
+}
+
+export async function getAvailableDrives(): Promise<AvailableDrive[]> {
+  return invoke<AvailableDrive[]>('get_available_drives')
 }
 
 export async function getHomeDir(): Promise<string> {

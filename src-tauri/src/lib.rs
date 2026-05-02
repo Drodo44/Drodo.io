@@ -74,6 +74,13 @@ struct RuntimeStatusFile {
     runtime_error_log_path: Option<String>,
 }
 
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct DriveInfoPayload {
+    letter: String,
+    free_gb: f64,
+}
+
 fn log_n8n(message: &str) {
     println!("[n8n] {}", message);
 }
@@ -331,7 +338,23 @@ fn build_n8n_status_for_app(
     payload
 }
 
-fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
+#[cfg(target_os = "windows")]
+fn normalize_install_drive(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    let first = trimmed.chars().next()?;
+    if first.is_ascii_alphabetic() {
+        return Some(first.to_ascii_uppercase().to_string());
+    }
+    None
+}
+
+fn spawn_dependency_bootstrap(
+    app: &tauri::AppHandle,
+    install_drive: Option<String>,
+) -> Result<(), String> {
     log_n8n("Bootstrap requested.");
     log_n8n(
         "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true.",
@@ -350,6 +373,8 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     let app_version = app.package_info().version.to_string();
     let app_handle = app.clone();
     let bootstrap_log_path = resolve_n8n_bootstrap_log_path(app)?;
+    #[cfg(target_os = "windows")]
+    let install_drive = install_drive.as_deref().and_then(normalize_install_drive);
     if let Some(parent) = bootstrap_log_path.parent() {
         fs::create_dir_all(parent).map_err(|err| {
             format!(
@@ -370,7 +395,7 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
         );
 
         #[cfg(target_os = "windows")]
-        let mut command = {
+        let command = {
             let mut command = StdCommand::new("powershell.exe");
             command
                 .args([
@@ -385,7 +410,7 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
         };
 
         #[cfg(not(target_os = "windows"))]
-        let mut command = {
+        let command = {
             let mut command = StdCommand::new("sh");
             command.arg(&script_path);
             command
@@ -447,13 +472,25 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
             }
         };
 
-        let spawn_result = command
+        let mut configured_command = command;
+        configured_command
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
             .env("DRODO_BOOTSTRAP_LOG_PATH", stringify_path(&bootstrap_log_path))
             .stdout(Stdio::from(stdout))
-            .stderr(Stdio::from(stderr))
-            .spawn();
+            .stderr(Stdio::from(stderr));
+        #[cfg(target_os = "windows")]
+        if let Some(drive) = install_drive.as_deref() {
+            if !drive.is_empty() {
+                configured_command.env("DRODO_INSTALL_DRIVE", drive);
+                append_n8n_bootstrap_log_ensured(
+                    &bootstrap_log_path,
+                    &format!("Selected install drive: {}", drive),
+                );
+            }
+        }
+
+        let spawn_result = configured_command.spawn();
 
         let status = match spawn_result {
             Ok(mut child) => child.wait(),
@@ -519,6 +556,75 @@ fn spawn_dependency_bootstrap(app: &tauri::AppHandle) -> Result<(), String> {
     log_n8n("Bootstrap process spawned in background.");
 
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+fn get_available_drives_internal() -> Vec<DriveInfoPayload> {
+    let output = StdCommand::new("powershell.exe")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=3\" | Select-Object DeviceID,FreeSpace | ConvertTo-Json -Compress",
+        ])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output();
+
+    let Ok(output) = output else {
+        return Vec::new();
+    };
+    if !output.status.success() {
+        return Vec::new();
+    }
+
+    let raw = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if raw.is_empty() {
+        return Vec::new();
+    }
+
+    let parsed: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(value) => value,
+        Err(_) => return Vec::new(),
+    };
+
+    let entries = match parsed {
+        serde_json::Value::Array(entries) => entries,
+        value => vec![value],
+    };
+
+    let mut drives = entries
+        .into_iter()
+        .filter_map(|entry| {
+            let device_id = entry.get("DeviceID")?.as_str()?.to_string();
+            let letter = device_id.trim_end_matches(':').to_ascii_uppercase();
+            if letter.len() != 1 {
+                return None;
+            }
+
+            let free_space = entry
+                .get("FreeSpace")
+                .and_then(|value| value.as_str().and_then(|v| v.parse::<f64>().ok()).or_else(|| value.as_f64()))
+                .unwrap_or(0.0);
+            let free_gb = free_space / 1_073_741_824.0;
+            Some(DriveInfoPayload {
+                letter,
+                free_gb: (free_gb * 100.0).round() / 100.0,
+            })
+        })
+        .collect::<Vec<_>>();
+
+    drives.sort_by(|left, right| {
+        right
+            .free_gb
+            .partial_cmp(&left.free_gb)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    drives
+}
+
+#[cfg(not(target_os = "windows"))]
+fn get_available_drives_internal() -> Vec<DriveInfoPayload> {
+    Vec::new()
 }
 
 #[tauri::command]
@@ -718,7 +824,10 @@ fn get_n8n_install_log(app: tauri::AppHandle) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
+fn start_dependency_bootstrap(
+    app: tauri::AppHandle,
+    install_drive: Option<String>,
+) -> Result<(), String> {
     if BOOTSTRAP_IN_FLIGHT.load(Ordering::SeqCst) {
         log_n8n("Bootstrap already in flight; skipping duplicate request.");
         return Ok(());
@@ -734,7 +843,7 @@ fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
     }
 
     BOOTSTRAP_IN_FLIGHT.store(true, Ordering::SeqCst);
-    if let Err(err) = spawn_dependency_bootstrap(&app) {
+    if let Err(err) = spawn_dependency_bootstrap(&app, install_drive) {
         BOOTSTRAP_IN_FLIGHT.store(false, Ordering::SeqCst);
         log_n8n(&format!("Bootstrap spawn failed: {err}"));
         return Err(err);
@@ -743,6 +852,11 @@ fn start_dependency_bootstrap(app: tauri::AppHandle) -> Result<(), String> {
     log_n8n("Bootstrap handoff completed.");
 
     Ok(())
+}
+
+#[tauri::command]
+fn get_available_drives() -> Vec<DriveInfoPayload> {
+    get_available_drives_internal()
 }
 
 #[tauri::command]
@@ -775,7 +889,7 @@ pub fn run() {
             if is_n8n_install_complete(app.handle()) {
                 let app_handle = app.handle().clone();
                 tauri::async_runtime::spawn(async move {
-                    if let Err(err) = start_dependency_bootstrap(app_handle) {
+                    if let Err(err) = start_dependency_bootstrap(app_handle, None) {
                         log_n8n(&format!("Bootstrap spawn during app setup failed: {err}"));
                     }
                 });
@@ -800,6 +914,7 @@ pub fn run() {
             get_n8n_status,
             get_n8n_install_log,
             start_dependency_bootstrap,
+            get_available_drives,
             start_mcp_server
         ])
         .run(tauri::generate_context!())

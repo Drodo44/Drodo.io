@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 
 $RepoOwner = 'Drodo44'
 $RepoName = 'Drodo.io'
-$RequiredFreeSpaceBytes = 5GB
+$RequiredFreeSpaceBytes = 2GB
 $N8nPort = 5678
 $N8nUrl = "http://127.0.0.1:$N8nPort"
 $N8nReadyUrl = "$N8nUrl/healthz/readiness"
@@ -16,8 +16,22 @@ $N8nStartupTimeoutSeconds = 600
 $N8nStartupProbeIntervalSeconds = 5
 
 function Resolve-AutomationHome {
-    if ($env:DRODO_AUTOMATION_HOME) {
-        return [System.IO.Path]::GetFullPath($env:DRODO_AUTOMATION_HOME)
+    $selectedDrive = ''
+    if ($env:DRODO_INSTALL_DRIVE) {
+        $selectedDrive = $env:DRODO_INSTALL_DRIVE.Trim().TrimEnd(':', '\', '/')
+    }
+
+    if (-not $selectedDrive) {
+        $drive = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue |
+            Sort-Object -Property FreeSpace -Descending |
+            Select-Object -First 1
+        if ($drive -and $drive.DeviceID) {
+            $selectedDrive = $drive.DeviceID.TrimEnd(':')
+        }
+    }
+
+    if ($selectedDrive) {
+        return "$selectedDrive`:\Drodo\automation"
     }
 
     if ($env:APPDATA) {
