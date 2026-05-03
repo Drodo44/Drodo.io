@@ -696,6 +696,7 @@ interface AppState {
   switchChatSession: (id: string) => void
   closeChatSession: (id: string) => void
   renameChatSession: (id: string, name: string) => void
+  compactChatSession: (id: string) => void
   setSessionModel: (providerId: string, modelId: string) => void
   refreshN8nStatus: () => Promise<void>
   startN8nStatusPolling: () => void
@@ -2370,6 +2371,32 @@ export const useAppStore = create<AppState>((set, get) => {
     if (id === state.activeChatSessionId) patch.sessionName = name
     set(patch)
     persistChatSessions(updated, state.activeChatSessionId)
+  },
+
+  compactChatSession: (id) => {
+    const state = get()
+    const session = state.chatSessions.find(s => s.id === id)
+    if (!session) return
+
+    const sourceMessages = id === state.activeChatSessionId ? state.messages : session.messages
+    if (sourceMessages.length <= 20) return
+
+    const summaryMsg: Message = {
+      id: `compact-${Date.now()}`,
+      role: 'assistant',
+      content: '🗜️ Chat compacted — earlier messages summarized to save context. Conversation continues below.',
+      timestamp: new Date(),
+    }
+    const compacted = [summaryMsg, ...sourceMessages.slice(-20)]
+
+    const updatedSessions = state.chatSessions.map(s =>
+      s.id === id ? { ...s, messages: compacted } : s
+    )
+
+    const patch: Partial<AppState> = { chatSessions: updatedSessions }
+    if (id === state.activeChatSessionId) patch.messages = compacted
+    set(patch)
+    persistChatSessions(updatedSessions, state.activeChatSessionId)
   },
 
   setSessionModel: (providerId, modelId) => {

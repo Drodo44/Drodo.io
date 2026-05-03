@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Plug } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
@@ -8,18 +8,20 @@ import { ChatInput } from '../chat/ChatInput'
 import { ChatSessionTabs } from '../chat/ChatSessionTabs'
 
 export function ChatPanel() {
-  const { messages, agentRunning, activeProvider, setView, activeChatSessionId } = useAppStore(
+  const { messages, agentRunning, activeProvider, setView, activeChatSessionId, compactChatSession } = useAppStore(
     useShallow(s => ({
       messages: s.messages,
       agentRunning: s.agentRunning,
       activeProvider: s.activeProvider,
       setView: s.setView,
       activeChatSessionId: s.activeChatSessionId,
+      compactChatSession: s.compactChatSession,
     }))
   )
   const noProvider = !activeProvider.isLocal && !activeProvider.apiKey
   const parentRef = useRef<HTMLDivElement>(null)
   const sessionMountTimeRef = useRef(Date.now())
+  const [bannerDismissedAt, setBannerDismissedAt] = useState<number | null>(null)
   const virtualizer = useVirtualizer({
     count: messages.length,
     getScrollElement: () => parentRef.current,
@@ -35,6 +37,14 @@ export function ChatPanel() {
 
   useEffect(() => {
     sessionMountTimeRef.current = Date.now()
+    setBannerDismissedAt(null)
+  }, [activeChatSessionId])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const scrollElement = parentRef.current
+    if (!scrollElement || messages.length === 0) return
+    scrollElement.scrollTop = scrollElement.scrollHeight
   }, [activeChatSessionId])
 
   useEffect(() => {
@@ -131,6 +141,41 @@ export function ChatPanel() {
         )}
 
       </div>
+
+      {/* Compaction banner */}
+      {(() => {
+        const estimatedTokens = messages.reduce((sum, m) => sum + m.content.length, 0) / 4
+        const showBanner = estimatedTokens > 100_000 && (bannerDismissedAt === null || estimatedTokens > bannerDismissedAt + 20_000)
+        if (!showBanner) return null
+        return (
+          <div
+            className="flex items-center gap-3 px-4 py-2 text-sm flex-shrink-0"
+            style={{
+              background: 'rgba(234, 179, 8, 0.12)',
+              borderTop: '1px solid rgba(234, 179, 8, 0.4)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            <span className="flex-1">
+              This chat is getting long (~{Math.round(estimatedTokens / 1000)}k tokens). Compact it to keep responses fast.
+            </span>
+            <button
+              onClick={() => compactChatSession(activeChatSessionId)}
+              className="px-2.5 py-1 rounded text-xs font-semibold transition-colors"
+              style={{ background: 'rgba(234, 179, 8, 0.3)', color: 'var(--text-primary)' }}
+            >
+              Compact
+            </button>
+            <button
+              onClick={() => setBannerDismissedAt(estimatedTokens)}
+              className="px-2 py-1 rounded text-xs transition-colors hover:bg-[var(--border-color)]/40"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )
+      })()}
 
       {/* Input */}
       <ChatInput />

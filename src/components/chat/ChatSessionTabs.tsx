@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
-import { Plus, X, Check } from 'lucide-react'
+import { Plus, X, Check, Minimize2 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 
 export function ChatSessionTabs() {
-  const { chatSessions, activeChatSessionId, createChatSession, switchChatSession, closeChatSession, renameChatSession } =
+  const { chatSessions, activeChatSessionId, createChatSession, switchChatSession, closeChatSession, renameChatSession, compactChatSession } =
     useAppStore(
       useShallow(s => ({
         chatSessions: s.chatSessions,
@@ -14,6 +14,7 @@ export function ChatSessionTabs() {
         switchChatSession: s.switchChatSession,
         closeChatSession: s.closeChatSession,
         renameChatSession: s.renameChatSession,
+        compactChatSession: s.compactChatSession,
       }))
     )
 
@@ -116,6 +117,18 @@ export function ChatSessionTabs() {
           )
         })}
       </div>
+
+      {/* Compact button */}
+      {(chatSessions.find(s => s.id === activeChatSessionId)?.messages?.length ?? 0) > 10 && (
+        <button
+          onClick={() => compactChatSession(activeChatSessionId)}
+          title="Compact chat"
+          className="flex items-center justify-center px-2.5 flex-shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)]/40 transition-colors"
+          style={{ borderLeft: '1px solid var(--border-color)' }}
+        >
+          <Minimize2 size={12} />
+        </button>
+      )}
 
       {/* New session button */}
       <button

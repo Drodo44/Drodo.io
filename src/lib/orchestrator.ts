@@ -5,6 +5,7 @@ import { getAppSettings } from './appSettings'
 import { buildProvider, getAllSavedModels } from './providerApi'
 import { ensureSkillsCatalogLoaded } from './skills'
 import { ensureWorkflowCatalogLoaded, findWorkflowForTask } from './workflows'
+import { runAgentSession } from './agentRunner'
 
 function msg(role: Message['role'], content: string): Message {
   return {
@@ -13,6 +14,11 @@ function msg(role: Message['role'], content: string): Message {
     content,
     timestamp: new Date(),
   }
+}
+
+function stripThinkBlocks(text: string): string {
+  if (!text) return text
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
 }
 
 // Fallback model scorer used only when a step has no model field set by the LLM
@@ -102,6 +108,7 @@ export async function buildOrchestrationPlan(
   savedModels?: string[],
   signal?: AbortSignal,
 ): Promise<OrchestrationPlan> {
+  await new Promise(resolve => setTimeout(resolve, 0))
   await Promise.all([
     ensureSkillsCatalogLoaded(),
     ensureWorkflowCatalogLoaded(),
@@ -253,33 +260,62 @@ export async function runOrchestration(
           messages = baseMessages
         }
 
+        const isN8nStep = /n8n|workflow/i.test(step.specificTask)
+
         let accumulated = ''
 
-        await new Promise<void>((resolve, reject) => {
-          const handle = streamCompletion(
-            stepProvider,
-            messages,
-            chunk => {
-              accumulated += chunk
-              run.stepOutputs[step.outputVar] = accumulated
-              onStepChunk(step.id, chunk)
-            },
-            fullText => {
-              accumulated = fullText || accumulated
-              resolve()
-            },
-            err => {
-              reject(err)
-            },
-          )
-          currentAbort = () => {
-            handle.abort()
-          }
-        })
+        if (isN8nStep) {
+          await new Promise<void>((resolve, reject) => {
+            const handle = runAgentSession({
+              provider: stepProvider,
+              conversation: messages,
+              onFinalChunk: (chunk) => {
+                accumulated += chunk
+                run.stepOutputs[step.outputVar] = accumulated
+                onStepChunk(step.id, stripThinkBlocks(chunk))
+              },
+              onFinal: (fullText) => {
+                accumulated = stripThinkBlocks(fullText || accumulated)
+                run.stepOutputs[step.outputVar] = accumulated
+                onStepComplete(step.id, accumulated)
+                resolve()
+              },
+              onError: (err) => {
+                reject(err)
+              },
+            })
+            currentAbort = () => { handle.abort() }
+          })
+          currentAbort = null
+          if (aborted) return
+          continue
+        } else {
+          await new Promise<void>((resolve, reject) => {
+            const handle = streamCompletion(
+              stepProvider,
+              messages,
+              chunk => {
+                accumulated += chunk
+                run.stepOutputs[step.outputVar] = accumulated
+                onStepChunk(step.id, stripThinkBlocks(chunk))
+              },
+              fullText => {
+                accumulated = stripThinkBlocks(fullText || accumulated)
+                resolve()
+              },
+              err => {
+                reject(err)
+              },
+            )
+            currentAbort = () => {
+              handle.abort()
+            }
+          })
 
-        currentAbort = null
+          currentAbort = null
 
-        if (aborted) return
+          if (aborted) return
+        }
 
         let finalOutput = accumulated
         const reviewProvider = resolveReviewProvider(stepProvider, stepIndex)
@@ -301,8 +337,8 @@ export async function runOrchestration(
           // review failed — use original output
         }
 
-        run.stepOutputs[step.outputVar] = finalOutput
-        onStepComplete(step.id, finalOutput)
+        run.stepOutputs[step.outputVar] = stripThinkBlocks(finalOutput)
+        onStepComplete(step.id, stripThinkBlocks(finalOutput))
       }
 
       if (!aborted) {
