@@ -317,6 +317,10 @@ export function AutomationsView() {
               <Workflow size={13} />
               Open n8n window
             </button>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              n8n has opened in a popout window. In the bottom-left corner, go to Settings → API and click &quot;Create an API Key&quot;,
+              then save that key in Drodo Settings under n8n API Key.
+            </p>
           </div>
         </div>
       )}

@@ -131,6 +131,19 @@ export function SettingsView() {
     setTimeout(() => setTavilyKeySaved(false), 2000)
   }
 
+  // n8n key
+  const [n8nKey, setN8nKey] = useState('')
+  const [n8nKeySaved, setN8nKeySaved] = useState(false)
+  const existingN8nKey = String(settings.n8nApiKey ?? '')
+  const n8nConfigured = !!existingN8nKey
+
+  const handleSaveN8nKey = () => {
+    if (!n8nKey.trim()) return
+    setAppSetting('n8nApiKey', n8nKey.trim())
+    setN8nKeySaved(true)
+    setTimeout(() => setN8nKeySaved(false), 2000)
+  }
+
   // Danger Zone
   const [syncSuccess, setSyncSuccess] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<StoredUpdateInfo | null>(() => getStoredUpdateInfo())
@@ -345,6 +358,44 @@ export function SettingsView() {
                   </button>
                 )}
               </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Key size={13} className="text-[var(--text-muted)]" />
+                <span className="text-sm font-medium text-[var(--text-primary)]">n8n API Key</span>
+                {n8nConfigured && (
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#1d9e7515', color: '#1d9e75', border: '1px solid #1d9e7530' }}>
+                    Configured ✓
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] mb-3">Required for Drodo to create and manage automations on your behalf.</p>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={n8nKey}
+                  onChange={e => setN8nKey(e.target.value)}
+                  placeholder="n8n_api_xxxxxxxxxxxxxxxx"
+                  className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[#7f77dd]/60 font-mono transition-colors"
+                />
+                {n8nKeySaved ? (
+                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg" style={{ color: '#1d9e75' }}>
+                    <CheckCircle2 size={14} />
+                    <span className="text-sm font-medium">Saved</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleSaveN8nKey}
+                    disabled={!n8nKey.trim()}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ background: '#7f77dd' }}
+                  >
+                    Save
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] mt-2">Find this in n8n → Settings → API → Create an API Key.</p>
             </div>
           </div>
         </section>

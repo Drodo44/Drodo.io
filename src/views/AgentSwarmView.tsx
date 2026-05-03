@@ -102,7 +102,7 @@ function WorkflowHandoffModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl rounded-2xl border overflow-hidden"
+        className="w-[min(700px,calc(100vw-2rem))] max-h-[90vh] overflow-y-auto rounded-2xl border"
         style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
         onClick={event => event.stopPropagation()}
       >
@@ -211,7 +211,7 @@ function WorkflowHandoffModal({
             </div>
 
             <pre
-              className="rounded-xl border px-4 py-3 text-xs font-mono whitespace-pre-wrap break-all min-h-[360px] max-h-[520px] overflow-y-auto"
+              className="rounded-xl border px-4 py-3 text-xs font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto"
               style={{ background: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             >
               {generatedJson || (generationRunning ? 'Streaming workflow JSON…' : 'Generated JSON will appear here.')}

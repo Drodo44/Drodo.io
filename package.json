@@ -1,7 +1,7 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "1.2.69",
+  "version": "1.2.70",
   "type": "module",
   "scripts": {
     "predev": "node scripts/prepare-frontend-catalog-assets.mjs",
@@ -56,6 +56,3 @@
     "vite": "^7.0.4"
   }
 }
-
-
-

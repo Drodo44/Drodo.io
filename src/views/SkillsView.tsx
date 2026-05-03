@@ -433,13 +433,13 @@ export function SkillsView() {
           <Puzzle size={18} style={{ color: '#7f77dd' }} />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-lg font-bold text-[var(--text-primary)]">Skills & Connectors</h1>
+          <h1 className="truncate text-lg font-bold text-[var(--text-primary)]">Skills & Connectors</h1>
           <p className="text-xs text-[var(--text-secondary)]">
             {skillCount.toLocaleString()} skills · {connectedCount} connectors connected
           </p>
         </div>
 
-        <div className="flex rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-1">
+        <div className="flex flex-shrink-0 rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-1">
           {(['skills', 'connectors'] as SkillsTab[]).map(tab => {
             const isActive = activeTab === tab
             return (
