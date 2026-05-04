@@ -2,7 +2,22 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
-import { getAllSavedModels, getConnectedProviders, getSavedModelDisplayName } from '../../lib/providerApi'
+import {
+  fetchLiveModels,
+  getAllSavedModels,
+  getConnectedProviders,
+  getSavedModelDisplayName,
+  MULTI_MODEL_PROVIDER_IDS,
+} from '../../lib/providerApi'
+
+type ModelOption = {
+  providerId: string
+  providerName: string
+  providerColor: string
+  providerInitials: string
+  modelId: string
+  modelLabel: string
+}
 
 export function ModelSwitcher() {
   const { activeProvider, setSessionModel } = useAppStore(
@@ -13,15 +28,33 @@ export function ModelSwitcher() {
   )
 
   const [open, setOpen] = useState(false)
+  const [liveModelsByProvider, setLiveModelsByProvider] = useState<Record<string, string[]>>({})
+  const [loadingProviderIds, setLoadingProviderIds] = useState<string[]>([])
   const ref = useRef<HTMLDivElement>(null)
+  const connectedProviders = getConnectedProviders()
 
   // Build the model list: connected provider defaults + all saved models
   const buildOptions = () => {
     const seen = new Set<string>()
-    const options: { providerId: string; providerName: string; providerColor: string; providerInitials: string; modelId: string; modelLabel: string }[] = []
+    const options: ModelOption[] = []
 
     // Add default model for each connected provider
-    for (const p of getConnectedProviders()) {
+    for (const p of connectedProviders) {
+      const liveModels = MULTI_MODEL_PROVIDER_IDS.has(p.id) ? (liveModelsByProvider[p.id] ?? []) : []
+      for (const modelId of liveModels) {
+        const key = `${p.id}::${modelId}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        options.push({
+          providerId: p.id,
+          providerName: p.name,
+          providerColor: p.color,
+          providerInitials: p.initials,
+          modelId,
+          modelLabel: getSavedModelDisplayName(p.id, modelId) || modelId,
+        })
+      }
+
       const key = `${p.id}::${p.model ?? ''}`
       if (p.model && !seen.has(key)) {
         seen.add(key)
@@ -41,7 +74,7 @@ export function ModelSwitcher() {
       const key = `${entry.providerId}::${entry.model.id}`
       if (!seen.has(key)) {
         seen.add(key)
-        const provider = getConnectedProviders().find(p => p.id === entry.providerId)
+        const provider = connectedProviders.find(p => p.id === entry.providerId)
         options.push({
           providerId: entry.providerId,
           providerName: entry.providerName,
@@ -57,7 +90,16 @@ export function ModelSwitcher() {
   }
 
   const options = buildOptions()
+  const optionsByProvider = new Map<string, ModelOption[]>()
+  for (const option of options) {
+    if (!optionsByProvider.has(option.providerId)) optionsByProvider.set(option.providerId, [])
+    optionsByProvider.get(option.providerId)!.push(option)
+  }
   const currentLabel = getSavedModelDisplayName(activeProvider.id, activeProvider.model) || activeProvider.displayName || activeProvider.model || activeProvider.name
+  const liveModelFetchKey = connectedProviders
+    .filter(provider => MULTI_MODEL_PROVIDER_IDS.has(provider.id) && !!provider.apiKey?.trim())
+    .map(provider => `${provider.id}:${provider.apiKey}:${provider.baseUrl}`)
+    .join('|')
 
   // Close on outside click
   useEffect(() => {
@@ -69,12 +111,48 @@ export function ModelSwitcher() {
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
+  useEffect(() => {
+    if (!open) return
+
+    const providersToFetch = connectedProviders.filter(
+      provider => MULTI_MODEL_PROVIDER_IDS.has(provider.id) && !!provider.apiKey?.trim()
+    )
+
+    if (providersToFetch.length === 0) {
+      setLiveModelsByProvider({})
+      setLoadingProviderIds([])
+      return
+    }
+
+    let cancelled = false
+    setLoadingProviderIds(providersToFetch.map(provider => provider.id))
+
+    void Promise.all(
+      providersToFetch.map(async provider => [provider.id, await fetchLiveModels(provider.id)] as const)
+    ).then(entries => {
+      if (cancelled) return
+
+      setLiveModelsByProvider(
+        Object.fromEntries(entries.filter(([, models]) => models.length > 0))
+      )
+      setLoadingProviderIds([])
+    }).catch(() => {
+      if (cancelled) return
+      setLiveModelsByProvider({})
+      setLoadingProviderIds([])
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [open, liveModelFetchKey])
+
   const select = (providerId: string, modelId: string) => {
     setSessionModel(providerId, modelId)
     setOpen(false)
   }
 
-  if (options.length === 0) return null
+  if (options.length === 0 && loadingProviderIds.length === 0) return null
 
   return (
     <div ref={ref} className="relative">
@@ -110,15 +188,13 @@ export function ModelSwitcher() {
             overflowY: 'auto',
           }}
         >
-          {/* Group by provider */}
-          {(() => {
-            const groups = new Map<string, typeof options>()
-            for (const opt of options) {
-              if (!groups.has(opt.providerId)) groups.set(opt.providerId, [])
-              groups.get(opt.providerId)!.push(opt)
-            }
-            return [...groups.entries()].map(([providerId, opts]) => (
-              <div key={providerId}>
+          {connectedProviders.map(provider => {
+            const providerOptions = optionsByProvider.get(provider.id) ?? []
+            const isLoading = loadingProviderIds.includes(provider.id)
+            if (providerOptions.length === 0 && !isLoading) return null
+
+            return (
+              <div key={provider.id}>
                 {/* Provider header */}
                 <div
                   className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold"
@@ -126,14 +202,14 @@ export function ModelSwitcher() {
                 >
                   <span
                     className="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center flex-shrink-0"
-                    style={{ background: opts[0].providerColor + '30', color: opts[0].providerColor }}
+                    style={{ background: provider.color + '30', color: provider.color }}
                   >
-                    {opts[0].providerInitials}
+                    {provider.initials}
                   </span>
-                  {opts[0].providerName}
+                  {provider.name}
                 </div>
                 {/* Models */}
-                {opts.map(opt => {
+                {providerOptions.map(opt => {
                   const isActive = activeProvider.id === opt.providerId && activeProvider.model === opt.modelId
                   return (
                     <button
@@ -147,9 +223,17 @@ export function ModelSwitcher() {
                     </button>
                   )
                 })}
+                {isLoading && (
+                  <div
+                    className="px-3 py-2 text-xs"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Loading models...
+                  </div>
+                )}
               </div>
-            ))
-          })()}
+            )
+          })}
         </div>
       )}
     </div>

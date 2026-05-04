@@ -1,4 +1,6 @@
 import type { Provider } from '../types'
+import { appDataDir, join } from '@tauri-apps/api/path'
+import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import { decryptStoredKey, encryptStoredKey } from './encryption'
 import { autoTagModel, getBestModelForTask } from './modelRegistry'
 import { PROVIDER_CATALOG } from './providerCatalog'
@@ -6,6 +8,7 @@ import { PROVIDER_CATALOG } from './providerCatalog'
 // ─── localStorage persistence ────────────────────────────────────────────────
 
 const STORAGE_KEY = 'drodo_provider_configs'
+const PROVIDER_CONFIG_FILE_NAME = 'drodo_provider_configs.json'
 
 // Providers where users manage a list of saved models rather than one default model
 export const MULTI_MODEL_PROVIDER_IDS = new Set(['nvidia', 'huggingface', 'openrouter'])
@@ -25,6 +28,7 @@ interface SavedConfig {
 }
 
 const CUSTOM_PROVIDERS_KEY = 'drodo_custom_providers'
+let savedConfigsCache: Record<string, SavedConfig> = await initializeSavedConfigsCache()
 
 export function loadCustomProviders(): Provider[] {
   try {
@@ -73,12 +77,8 @@ function sanitizeSavedModels(models?: SavedModel[]): SavedModel[] | undefined {
 
 export function loadAllSavedConfigs(): Record<string, SavedConfig> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return {}
-
-    const parsed = JSON.parse(raw) as Record<string, SavedConfig>
     return Object.fromEntries(
-      Object.entries(parsed).map(([id, config]) => [
+      Object.entries(savedConfigsCache).map(([id, config]) => [
         id,
         {
           ...config,
@@ -93,7 +93,7 @@ export function loadAllSavedConfigs(): Record<string, SavedConfig> {
 }
 
 export function saveProviderConfig(id: string, config: SavedConfig): void {
-  const all = loadRawSavedConfigs()
+  const all = { ...loadRawSavedConfigs() }
   const existing = all[id]
   const previousModel = existing?.model?.trim()
   const savedModels = Object.prototype.hasOwnProperty.call(config, 'savedModels')
@@ -106,7 +106,9 @@ export function saveProviderConfig(id: string, config: SavedConfig): void {
     apiKey: encryptStoredKey(config.apiKey),
     savedModels,
   }
+  savedConfigsCache = all
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
+  void persistRawSavedConfigsToFs(all)
 
   const provider = buildProvider(id)
   const nextModel = config.model?.trim()
@@ -161,12 +163,7 @@ export function getSavedModelDisplayNameMap(): Record<string, string> {
 }
 
 function loadRawSavedConfigs(): Record<string, SavedConfig> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) as Record<string, SavedConfig> : {}
-  } catch {
-    return {}
-  }
+  return savedConfigsCache
 }
 
 export function getProviderCatalog(): Provider[] {
@@ -306,6 +303,47 @@ export function routeModelForTask(task: string, fallback: Provider, tieBreakerIn
   return getBestModelForTask(task, providerIds, fallback)
 }
 
+async function initializeSavedConfigsCache(): Promise<Record<string, SavedConfig>> {
+  const fromFs = await readSavedConfigsFromFs()
+  if (fromFs) return fromFs
+
+  const fromLocalStorage = readSavedConfigsFromLocalStorage()
+  if (Object.keys(fromLocalStorage).length > 0) {
+    void persistRawSavedConfigsToFs(fromLocalStorage)
+  }
+  return fromLocalStorage
+}
+
+function readSavedConfigsFromLocalStorage(): Record<string, SavedConfig> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) as Record<string, SavedConfig> : {}
+  } catch {
+    return {}
+  }
+}
+
+async function getProviderConfigFilePath(): Promise<string> {
+  return join(await appDataDir(), PROVIDER_CONFIG_FILE_NAME)
+}
+
+async function readSavedConfigsFromFs(): Promise<Record<string, SavedConfig> | null> {
+  try {
+    const raw = await readTextFile(await getProviderConfigFilePath())
+    return raw ? JSON.parse(raw) as Record<string, SavedConfig> : {}
+  } catch {
+    return null
+  }
+}
+
+async function persistRawSavedConfigsToFs(configs: Record<string, SavedConfig>): Promise<void> {
+  try {
+    await writeTextFile(await getProviderConfigFilePath(), JSON.stringify(configs))
+  } catch {
+    // Keep localStorage as a fallback if the Tauri fs write is unavailable.
+  }
+}
+
 // ─── CORS proxy ──────────────────────────────────────────────────────────────
 
 const PROXY_URL = 'https://povfsxttqhconkvznmwq.supabase.co/functions/v1/proxy-llm'
@@ -331,6 +369,43 @@ export async function proxyFetch(
       body: JSON.parse(init.body),
     }),
   })
+}
+
+interface ModelsResponse {
+  data?: Array<{ id?: string | null } | null>
+}
+
+export async function fetchLiveModels(providerId: string): Promise<string[]> {
+  try {
+    const saved = loadProviderConfig(providerId)
+    const apiKey = saved?.apiKey?.trim()
+    if (!apiKey) return []
+
+    const provider = buildProvider(providerId)
+    if (!provider) return []
+
+    const baseUrl = normalizeUrl(saved?.baseUrl || provider.baseUrl)
+    const endpoint = baseUrl.endsWith('/v1') ? `${baseUrl}/models` : `${baseUrl}/v1/models`
+    const response = await proxyFetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+
+    if (!response.ok) return []
+
+    const body = await response.json() as ModelsResponse
+    if (!Array.isArray(body.data)) return []
+
+    return body.data
+      .map(entry => entry?.id?.trim())
+      .filter((id): id is string => !!id)
+  } catch {
+    return []
+  }
 }
 
 // ─── URL normalization ────────────────────────────────────────────────────────
