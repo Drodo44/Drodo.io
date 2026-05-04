@@ -54,6 +54,20 @@ manifest = {
 body = json.dumps(manifest, indent=2).encode('utf-8')
 print(body.decode())
 
+# Delete existing latest.json asset if present
+if 'latest.json' in assets:
+    existing_id = assets['latest.json']['id']
+    req = urllib.request.Request(
+        f'https://api.github.com/repos/{OWNER}/{REPO}/releases/assets/{existing_id}',
+        method='DELETE',
+        headers={'Authorization': f'Bearer {TOKEN}', 'Accept': 'application/vnd.github+json'}
+    )
+    try:
+        urllib.request.urlopen(req)
+        print('Deleted existing latest.json asset')
+    except urllib.error.HTTPError as e:
+        print(f'Warning: could not delete existing latest.json: {e.code}', file=sys.stderr)
+
 upload_url = (f'https://uploads.github.com/repos/{OWNER}/{REPO}'
               f'/releases/{release_id}/assets?name=latest.json')
 req = urllib.request.Request(upload_url, method='POST', data=body,
