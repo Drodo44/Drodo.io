@@ -122,11 +122,10 @@ export function ChatSessionTabs() {
       {(chatSessions.find(s => s.id === activeChatSessionId)?.messages?.length ?? 0) > 10 && (
         <button
           onClick={() => compactChatSession(activeChatSessionId)}
-          title="Compact chat"
           className="flex items-center justify-center px-2.5 flex-shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-color)]/40 transition-colors"
           style={{ borderLeft: '1px solid var(--border-color)' }}
         >
-          <Minimize2 size={12} />
+          <Minimize2 size={12} /><span className="text-xs ml-1">Compact</span>
         </button>
       )}
 

@@ -30,6 +30,22 @@ function writePackageJson(nextVersion) {
   writeText(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 }
 
+function readPackageLockVersion() {
+  const raw = readText(join(repoRoot, 'package-lock.json'))
+  const parsed = JSON.parse(raw)
+  return parsed.version
+}
+
+function writePackageLockVersion(nextVersion) {
+  const path = join(repoRoot, 'package-lock.json')
+  const parsed = JSON.parse(readText(path))
+  parsed.version = nextVersion
+  if (parsed.packages?.['']) {
+    parsed.packages[''].version = nextVersion
+  }
+  writeText(path, `${JSON.stringify(parsed, null, 2)}\n`)
+}
+
 function readTauriConfig() {
   return JSON.parse(readText(tauriConfigPath))
 }
@@ -94,6 +110,7 @@ function writeCargoLockVersion(nextVersion) {
 function getVersions() {
   return {
     packageJson: readPackageJson().version,
+    packageLock: readPackageLockVersion(),
     tauriConfig: readTauriConfig().version,
     cargoToml: readCargoTomlVersion(),
     cargoLock: readCargoLockVersion(),
@@ -106,6 +123,7 @@ function ensureVersionsMatch() {
   if (uniqueVersions.length !== 1) {
     throw new Error(
       `Version mismatch detected: package.json=${versions.packageJson}, `
+      + `package-lock.json=${versions.packageLock}, `
       + `tauri.conf.json=${versions.tauriConfig}, Cargo.toml=${versions.cargoToml}, Cargo.lock=${versions.cargoLock}`,
     )
   }
@@ -134,6 +152,7 @@ function setVersion(nextVersion, shouldTag) {
   }
 
   writePackageJson(nextVersion)
+  writePackageLockVersion(nextVersion)
   writeTauriConfig(nextVersion)
   writeCargoTomlVersion(nextVersion)
   writeCargoLockVersion(nextVersion)

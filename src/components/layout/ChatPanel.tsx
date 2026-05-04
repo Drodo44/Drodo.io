@@ -44,7 +44,11 @@ export function ChatPanel() {
   useEffect(() => {
     const scrollElement = parentRef.current
     if (!scrollElement || messages.length === 0) return
-    scrollElement.scrollTop = scrollElement.scrollHeight
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scrollElement.scrollTop = scrollElement.scrollHeight
+      })
+    })
   }, [activeChatSessionId])
 
   useEffect(() => {
