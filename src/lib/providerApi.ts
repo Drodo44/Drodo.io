@@ -354,7 +354,7 @@ function isLocalUrl(url: string): boolean {
 
 export async function proxyFetch(
   targetUrl: string,
-  init: { method: string; headers: Record<string, string>; body: string; signal?: AbortSignal }
+  init: { method: string; headers: Record<string, string>; body?: string; signal?: AbortSignal }
 ): Promise<Response> {
   if (isLocalUrl(targetUrl)) {
     return fetch(targetUrl, init)
@@ -366,7 +366,7 @@ export async function proxyFetch(
     body: JSON.stringify({
       targetUrl,
       headers: init.headers,
-      body: JSON.parse(init.body),
+      body: init.body ? JSON.parse(init.body) : undefined,
     }),
   })
 }
@@ -392,7 +392,7 @@ export async function fetchLiveModels(providerId: string): Promise<string[]> {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      
     })
 
     if (!response.ok) return []
