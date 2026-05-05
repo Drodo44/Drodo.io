@@ -97,6 +97,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
   const [step, setStep] = useState(0)
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+  const [finishing, setFinishing] = useState(false)
 
   const hasProvider = hasCompletedProviderSetup()
 
@@ -109,12 +110,18 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   }, [])
 
   const finish = () => {
+    if (finishing) return
+    setFinishing(true)
     markOnboardingComplete()
-    onComplete()
-    setView('agent')
+    setTimeout(() => {
+      onComplete()
+      setView('agent')
+    }, 0)
   }
 
   const deployAndFinish = () => {
+    if (finishing) return
+    setFinishing(true)
     if (selectedTemplate) {
       const tpl = FEATURED_TEMPLATES.find(t => t.id === selectedTemplate)
       if (tpl) {
@@ -123,7 +130,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       }
     }
     markOnboardingComplete()
-    onComplete()
+    setTimeout(() => {
+      onComplete()
+    }, 0)
   }
 
   return (
@@ -315,7 +324,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           </div>
           <button
             onClick={finish}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 active:scale-[0.98] transition-all"
+            disabled={finishing}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: '#1d9e75', boxShadow: '0 4px 20px rgba(29,158,117,0.3)' }}
           >
             Open Drodo →

@@ -1752,6 +1752,10 @@ export const useAppStore = create<AppState>((set, get) => {
             get().sendMessage('Continue with the next step.')
           }, 1200)
         } else if (latest.autonomousMode) {
+          if (autonomousLoopTimer) {
+            clearTimeout(autonomousLoopTimer)
+            autonomousLoopTimer = null
+          }
           set({ autonomousLoopCount: 0, autonomousLoopActive: false })
         }
       },
