@@ -156,7 +156,6 @@ function App() {
   const startN8nStatusPolling = useAppStore(s => s.startN8nStatusPolling)
   const stopN8nStatusPolling = useAppStore(s => s.stopN8nStatusPolling)
   const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
-  const [showTutorial, setShowTutorial] = useState(false)
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
   const [authReady, setAuthReady] = useState(false)
 
@@ -287,22 +286,28 @@ function App() {
     }
   }, [authReady])
 
-  const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
+const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
 
   const authPending = !authReady && !skipAuth
+
+  // If user is not authenticated and auth is ready, render AuthView outside app-shell
+  if (!user && !skipAuth && authReady) {
+    return <SafeAuthView />
+  }
+
   let content: ReactNode
 
   if (!isInitialized || isInitializing) {
     content = <LoadingShell label="Loading chats…" />
-  } else if (!user && !skipAuth && authReady) {
-    content = <SafeAuthView />
   } else if (!onboardingDone) {
     content = (
       <SafeOnboardingScreen
         onComplete={() => {
           setOnboardingDone(true)
           if (!isTutorialComplete()) {
-            setTimeout(() => setShowTutorial(true), 500)
+            setTimeout(() => {
+              // setShowTutorial(true) - removed for now
+            }, 500)
           }
         }}
       />
@@ -331,15 +336,15 @@ function App() {
             Restoring your session in the background…
           </div>
         )}
-        <main className="app-shell__content flex-1 min-w-0 overflow-auto">
+        <main className="app-shell__content flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
           {content}
         </main>
       </div>
 
       <ProviderHubModal />
       <PermissionWarningModal />
-      <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
-      {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}
+<CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
+      <Tutorial onComplete={() => {}} />
     </div>
   )
 }

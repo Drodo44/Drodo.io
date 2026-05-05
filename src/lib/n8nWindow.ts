@@ -1,4 +1,5 @@
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { getStoredTheme } from './theme'
 
 export const N8N_WINDOW_LABEL = 'n8n-automations'
 
@@ -14,8 +15,15 @@ export async function openN8nWindow(url: string) {
     return existing
   }
 
+  // Detect the current theme
+  const theme = getStoredTheme()
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  
+  // Append theme to URL
+  const themedUrl = url + (url.includes('?') ? '&' : '?') + (isDark ? 'theme=dark' : 'theme=light')
+
   const created = new WebviewWindow(N8N_WINDOW_LABEL, {
-    url,
+    url: themedUrl,
     title: 'Drodo Automations',
     width: 1360,
     height: 860,
