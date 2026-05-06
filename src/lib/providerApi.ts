@@ -371,11 +371,28 @@ export async function proxyFetch(
   })
 }
 
-interface ModelsResponse {
-  data?: Array<{ id?: string | null } | null>
+interface PricingInfo {
+  prompt?: string | number | null
+  completion?: string | number | null
 }
 
-export async function fetchLiveModels(providerId: string): Promise<string[]> {
+interface ModelEntry {
+  id: string
+  name?: string | null
+  pricing?: PricingInfo | null
+}
+
+interface ModelsResponse {
+  data?: Array<ModelEntry | null>
+}
+
+export interface LiveModel {
+  id: string
+  name?: string
+  pricing?: PricingInfo
+}
+
+export async function fetchLiveModels(providerId: string): Promise<LiveModel[]> {
   try {
     const saved = loadProviderConfig(providerId)
     const apiKey = saved?.apiKey?.trim()
@@ -392,7 +409,6 @@ export async function fetchLiveModels(providerId: string): Promise<string[]> {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      
     })
 
     if (!response.ok) return []
@@ -400,12 +416,49 @@ export async function fetchLiveModels(providerId: string): Promise<string[]> {
     const body = await response.json() as ModelsResponse
     if (!Array.isArray(body.data)) return []
 
-    return body.data
-      .map(entry => entry?.id?.trim())
-      .filter((id): id is string => !!id)
+    const models = body.data
+      .map(entry => {
+        if (!entry?.id) return null
+        return {
+          id: entry.id.trim(),
+          name: entry.name ?? undefined,
+          pricing: entry.pricing ?? undefined,
+        }
+      })
+      .filter((m): m is LiveModel => !!m)
+
+    const freeOnly = providerId === 'openrouter' && loadOpenRouterFreeOnly()
+    return freeOnly ? models.filter(isFreeModel) : models
   } catch {
     return []
   }
+}
+
+export function isFreeModel(model: LiveModel): boolean {
+  if (!model.pricing) return false
+  const prompt = model.pricing.prompt
+  const completion = model.pricing.completion
+  const isZero = (v: string | number | null | undefined) =>
+    v === 0 || v === '0' || v === '0.0' || v === '0.00'
+  return isZero(prompt) && isZero(completion)
+}
+
+// ─── OpenRouter free-only preference ─────────────────────────────────────────
+
+const FREE_ONLY_KEY = 'drodo_openrouter_free_only'
+
+export function loadOpenRouterFreeOnly(): boolean {
+  try {
+    return localStorage.getItem(FREE_ONLY_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export function saveOpenRouterFreeOnly(value: boolean): void {
+  try {
+    localStorage.setItem(FREE_ONLY_KEY, String(value))
+  } catch { /* storage full */ }
 }
 
 // ─── URL normalization ────────────────────────────────────────────────────────

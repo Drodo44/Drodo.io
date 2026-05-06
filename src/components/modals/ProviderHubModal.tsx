@@ -8,10 +8,12 @@ import {
   addSavedModel,
   getSavedModels,
   getProviderCatalog,
+  loadOpenRouterFreeOnly,
   loadProviderConfig,
   MULTI_MODEL_PROVIDER_IDS,
   normalizeUrl,
   removeSavedModel,
+  saveOpenRouterFreeOnly,
   saveProviderConfig,
   testConnection,
 } from '../../lib/providerApi'
@@ -40,6 +42,7 @@ export function ProviderHubModal() {
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [freeOnly, setFreeOnly] = useState(() => loadOpenRouterFreeOnly())
 
   const selected = allProviders.find(p => p.id === selectedId) ?? allProviders[0]
 
@@ -63,6 +66,7 @@ export function ProviderHubModal() {
     setTestState('idle')
     setTestMessage('')
     setSaveError('')
+    setFreeOnly(loadOpenRouterFreeOnly())
   }, [selectedId])
 
   const handleSelect = (provider: Provider) => {
@@ -284,6 +288,18 @@ export function ProviderHubModal() {
                   />
                   {saveError && <p className="text-xs text-[#e05050]">{saveError}</p>}
                 </div>
+              )}
+
+              {selectedId === 'openrouter' && (
+                <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={freeOnly}
+                    onChange={e => { setFreeOnly(e.target.checked); saveOpenRouterFreeOnly(e.target.checked) }}
+                    className="rounded border-[var(--border-color)] bg-[var(--bg-primary)] text-[#7f77dd] focus:ring-[#7f77dd] focus:ring-1"
+                  />
+                  Only include free models
+                </label>
               )}
 
               {/* Model / multi-model notice */}

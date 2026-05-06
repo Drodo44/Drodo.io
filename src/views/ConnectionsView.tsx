@@ -19,11 +19,13 @@ import {
   deleteCustomProvider,
   getAllProviders,
   getSavedModels,
+  loadOpenRouterFreeOnly,
   loadProviderConfig,
   MULTI_MODEL_PROVIDER_IDS,
   normalizeUrl,
   removeSavedModel,
   saveCustomProvider,
+  saveOpenRouterFreeOnly,
   saveProviderConfig,
   testConnection,
 } from '../lib/providerApi'
@@ -189,6 +191,7 @@ export function ConnectionsView() {
   const [testState, setTestState] = useState<TestState>('idle')
   const [testMessage, setTestMessage] = useState('')
   const [saved, setSaved] = useState(false)
+  const [freeOnly, setFreeOnly] = useState(() => loadOpenRouterFreeOnly())
 
   useEffect(() => {
     const syncProviders = () => {
@@ -219,6 +222,7 @@ export function ConnectionsView() {
     setTestState('idle')
     setTestMessage('')
     setSaved(false)
+    setFreeOnly(loadOpenRouterFreeOnly())
   }, [selectedId])
 
   const effectiveUrl = baseUrl || selected?.baseUrl || ''
@@ -415,6 +419,23 @@ export function ConnectionsView() {
                   }
                 />
               </div>
+            )}
+
+            {/* OpenRouter free-only filter */}
+            {selected.id === 'openrouter' && (
+              <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={freeOnly}
+                  onChange={e => {
+                    const checked = e.target.checked
+                    setFreeOnly(checked)
+                    saveOpenRouterFreeOnly(checked)
+                  }}
+                  className="rounded border-[var(--border-color)] bg-[var(--bg-primary)] text-[#7f77dd] focus:ring-[#7f77dd] focus:ring-1"
+                />
+                Only include free models
+              </label>
             )}
 
             {/* Model */}

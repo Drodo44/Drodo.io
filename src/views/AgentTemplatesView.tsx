@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   LayoutTemplate, Search,
   TrendingUp, DollarSign, Settings, FileText, Lightbulb, BarChart2,
@@ -23,7 +23,7 @@ import {
 import { clsx } from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
-import { getAllSavedModels } from '../lib/providerApi'
+import { getAllSavedModels, fetchLiveModels } from '../lib/providerApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -378,29 +378,57 @@ export function AgentTemplatesView() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
 
-  const modelOptions = useMemo(() => {
+  const defaultModelOption = (): ModelOption => {
     const defaultModel = activeProvider.model ?? activeProvider.name
-    const options: ModelOption[] = [
-      {
-        key: `${activeProvider.id}::${defaultModel}`,
-        providerId: activeProvider.id,
-        modelId: defaultModel,
-        label: 'Default: Orchestrator Assigns',
-      },
-    ]
-
-    for (const entry of getAllSavedModels()) {
-      const key = `${entry.providerId}::${entry.model.id}`
-      if (options.some(option => option.key === key)) continue
-      options.push({
-        key,
-        providerId: entry.providerId,
-        modelId: entry.model.id,
-        label: `${entry.providerName} — ${entry.model.label}`,
-      })
+    return {
+      key: `${activeProvider.id}::${defaultModel}`,
+      providerId: activeProvider.id,
+      modelId: defaultModel,
+      label: 'Default: Orchestrator Assigns',
     }
+  }
 
-    return options
+  const [modelOptions, setModelOptions] = useState<ModelOption[]>(() => [defaultModelOption()])
+
+  useEffect(() => {
+    const defaultOption = defaultModelOption()
+    const LIVE_FETCH_PROVIDERS = new Set(['openrouter', 'nvidia'])
+
+    if (LIVE_FETCH_PROVIDERS.has(activeProvider.id)) {
+      void fetchLiveModels(activeProvider.id).then(live => {
+        const liveOptions: ModelOption[] = live.map(m => ({
+          key: `${activeProvider.id}::${m.id}`,
+          providerId: activeProvider.id,
+          modelId: m.id,
+          label: m.name ?? m.id,
+        }))
+
+        const fallback: ModelOption[] = liveOptions.length > 0 ? liveOptions : getAllSavedModels()
+          .filter(e => e.providerId === activeProvider.id)
+          .map(e => ({
+            key: `${e.providerId}::${e.model.id}`,
+            providerId: e.providerId,
+            modelId: e.model.id,
+            label: `${e.providerName} — ${e.model.label}`,
+          }))
+
+        setModelOptions([defaultOption, ...fallback.filter(o => o.key !== defaultOption.key)])
+      })
+    } else {
+      const savedOptions: ModelOption[] = []
+      for (const entry of getAllSavedModels()) {
+        const key = `${entry.providerId}::${entry.model.id}`
+        if (key === defaultOption.key) continue
+        savedOptions.push({
+          key,
+          providerId: entry.providerId,
+          modelId: entry.model.id,
+          label: `${entry.providerName} — ${entry.model.label}`,
+        })
+      }
+      setModelOptions([defaultOption, ...savedOptions])
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProvider])
 
   const filtered = useMemo(() => {

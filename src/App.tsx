@@ -343,7 +343,7 @@ const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
             Restoring your session in the background…
           </div>
         )}
-        <main className="app-shell__content flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
+        <main className="app-shell__content flex-1 min-w-0 overflow-y-auto">
           {content}
         </main>
       </div>
