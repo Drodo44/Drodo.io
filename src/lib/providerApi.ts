@@ -425,7 +425,7 @@ export async function fetchLiveModels(providerId: string): Promise<LiveModel[]> 
           pricing: entry.pricing ?? undefined,
         }
       })
-      .filter((m): m is LiveModel => !!m)
+      .filter((m) => !!m) as LiveModel[]
 
     const freeOnly = providerId === 'openrouter' && loadOpenRouterFreeOnly()
     return freeOnly ? models.filter(isFreeModel) : models
