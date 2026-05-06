@@ -239,18 +239,23 @@ export function Tutorial({ onComplete }: TutorialProps) {
 
   // Resolve target element position whenever step changes
   useEffect(() => {
-    if (!step.target) {
-      setTargetInfo(null)
-      return
+    const resolveTarget = () => {
+      if (!step.target) {
+        setTargetInfo(null)
+        return
+      }
+      const el = document.querySelector<HTMLElement>(`[data-tutorial="${step.target}"]`)
+      if (!el) {
+        setTargetInfo(null)
+        return
+      }
+      const rect = el.getBoundingClientRect()
+      const side = detectSide(rect)
+      setTargetInfo({ rect, side })
     }
-    const el = document.querySelector<HTMLElement>(`[data-tutorial="${step.target}"]`)
-    if (!el) {
-      setTargetInfo(null)
-      return
-    }
-    const rect = el.getBoundingClientRect()
-    const side = detectSide(rect)
-    setTargetInfo({ rect, side })
+    resolveTarget()
+    window.addEventListener('resize', resolveTarget)
+    return () => window.removeEventListener('resize', resolveTarget)
   }, [step])
 
   const complete = useCallback(() => {

@@ -20,7 +20,7 @@ import { PromptLibraryView } from './views/PromptLibraryView'
 import { AutomationsView } from './views/AutomationsView'
 import { MessagingView } from './views/MessagingView'
 import { AuthView } from './views/AuthView'
-import { OnboardingScreen, isOnboardingComplete } from './components/Onboarding'
+import { OnboardingScreen, hasCompletedProviderSetup, markOnboardingComplete } from './components/Onboarding'
 import { Tutorial, isTutorialComplete } from './components/ui/Tutorial'
 import { ProviderHubModal } from './components/modals/ProviderHubModal'
 import { PermissionWarningModal } from './components/modals/PermissionWarningModal'
@@ -155,7 +155,14 @@ function App() {
   const isInitialized = useAppStore(s => s.isInitialized)
   const startN8nStatusPolling = useAppStore(s => s.startN8nStatusPolling)
   const stopN8nStatusPolling = useAppStore(s => s.stopN8nStatusPolling)
-  const [onboardingDone, setOnboardingDone] = useState(isOnboardingComplete)
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    if (localStorage.getItem('drodo_onboarding_complete')) return true
+    if (hasCompletedProviderSetup()) {
+      markOnboardingComplete()
+      return true
+    }
+    return false
+  })
   const [cmdPaletteOpen, setCmdPaletteOpen] = useState(false)
   const [authReady, setAuthReady] = useState(false)
 
@@ -344,7 +351,7 @@ const skipAuth = localStorage.getItem('drodo_skip_auth') === 'true'
       <ProviderHubModal />
       <PermissionWarningModal />
 <CommandPalette open={cmdPaletteOpen} onClose={() => setCmdPaletteOpen(false)} />
-      <Tutorial onComplete={() => {}} />
+      {!isTutorialComplete() && <Tutorial onComplete={() => {}} />}
     </div>
   )
 }

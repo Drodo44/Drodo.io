@@ -50,6 +50,10 @@ export function PermissionBadge() {
   const handleClick = () => {
     const currentIdx = TIER_ORDER.indexOf(permissionTier)
     const nextTier = TIER_ORDER[(currentIdx + 1) % TIER_ORDER.length]
+    if (nextTier === 'wide-open') {
+      const confirmed = window.confirm('Wide Open grants full computer access to your AI agents. Are you sure?')
+      if (!confirmed) return
+    }
     setPermission(nextTier)
   }
 

@@ -22,7 +22,7 @@ export function resetOnboarding() {
   localStorage.removeItem(ONBOARDING_KEY)
 }
 
-function hasCompletedProviderSetup(): boolean {
+export function hasCompletedProviderSetup(): boolean {
   if (getAllSavedModels().length > 0) return true
 
   const configs = loadAllSavedConfigs()
@@ -113,6 +113,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     if (finishing) return
     setFinishing(true)
     markOnboardingComplete()
+    onComplete()
     setTimeout(() => {
       onComplete()
       setView('agent')
@@ -130,6 +131,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       }
     }
     markOnboardingComplete()
+    onComplete()
     setTimeout(() => {
       onComplete()
     }, 0)

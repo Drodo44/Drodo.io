@@ -935,12 +935,20 @@ export function WorkflowsView() {
 
     try {
       if (n8nReady) {
+        if (!n8nUrl.startsWith('http://127.0.0.1') && !n8nUrl.startsWith('https://')) {
+          console.error(`Blocked unsafe URL: ${n8nUrl}`)
+          return
+        }
         await open(n8nUrl)
         return
       }
 
       await startDependencyBootstrap()
       const readyStatus = await waitForN8nReady()
+      if (!readyStatus.url.startsWith('http://127.0.0.1') && !readyStatus.url.startsWith('https://')) {
+        console.error(`Blocked unsafe URL: ${readyStatus.url}`)
+        return
+      }
       await open(readyStatus.url)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)

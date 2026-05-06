@@ -169,6 +169,8 @@ export function RightPanel() {
               onSubmit={event => {
                 event.preventDefault()
                 if (!command.trim()) return
+                const confirmed = window.confirm(`Run command: ${command}? This will execute directly on your system.`)
+                if (!confirmed) return
                 void runManualCommand(command)
                 setCommand('')
               }}
