@@ -9,7 +9,8 @@ import remarkGfm from 'remark-gfm'
 import { useAppStore } from '../store/appStore'
 import { getMemoryStats, onMemoryStatsChange, type MemoryStats } from '../lib/agentMemory'
 import { notify } from '../lib/notifications'
-import { getAllSavedModels, getSavedModelDisplayName, getSavedModelDisplayNameMap } from '../lib/providerApi'
+import { getSavedModelDisplayName, getSavedModelDisplayNameMap } from '../lib/providerApi'
+import { useLiveModels } from '../hooks/useLiveModels'
 import { streamCompletion } from '../lib/streamChat'
 import {
   ensureWorkflowCatalogLoaded,
@@ -953,6 +954,8 @@ export function AgentSwarmView() {
     }
   }, [])
 
+  const { options: liveModelOptions } = useLiveModels()
+
   const modelOptions = useMemo(() => {
     const defaultModel = activeProvider.model ?? activeProvider.name
     const defaultModelLabel = getSavedModelDisplayName(activeProvider.id, defaultModel) || activeProvider.displayName || defaultModel
@@ -964,20 +967,21 @@ export function AgentSwarmView() {
         label: `${activeProvider.name} — ${defaultModelLabel}`,
       },
     ]
+    const seen = new Set<string>([options[0].key])
 
-    for (const entry of getAllSavedModels()) {
-      const key = `${entry.providerId}::${entry.model.id}`
-      if (options.some(option => option.key === key)) continue
+    for (const opt of liveModelOptions) {
+      if (seen.has(opt.key)) continue
+      seen.add(opt.key)
       options.push({
-        key,
-        providerId: entry.providerId,
-        modelId: entry.model.id,
-        label: `${entry.providerName} — ${entry.model.label}`,
+        key: opt.key,
+        providerId: opt.providerId,
+        modelId: opt.modelId,
+        label: opt.modelLabel,
       })
     }
 
     return options
-  }, [activeProvider])
+  }, [activeProvider, liveModelOptions])
 
   useEffect(() => {
     if (!modelOptions.some(option => option.key === selectedModelKey)) {

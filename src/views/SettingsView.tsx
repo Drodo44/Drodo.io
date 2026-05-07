@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Settings2, Sun, Moon, Monitor, Database, Trash2, Key, CheckCircle2, RotateCcw } from 'lucide-react'
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { getAllSavedModels, loadAllSavedConfigs } from '../lib/providerApi'
+import { loadAllSavedConfigs } from '../lib/providerApi'
+import { useLiveModels } from '../hooks/useLiveModels'
 import { resetOnboarding } from '../components/Onboarding'
 import { resetTutorial } from '../components/ui/Tutorial'
 import { Logo } from '../components/ui/Logo'
@@ -73,15 +74,17 @@ export function SettingsView() {
     applyThemeClass(t)
   }
 
+  const { options: liveModelOptions, loading: liveModelsLoading } = useLiveModels()
+
   // Default Model
   const savedModelOptions = useMemo(() => {
     const activeModelId = activeProvider.model ?? activeProvider.name
     const activeKey = `${activeProvider.id}::${activeModelId}`
-    const options = getAllSavedModels().map(entry => ({
-      key: `${entry.providerId}::${entry.model.id}`,
-      providerId: entry.providerId,
-      modelId: entry.model.id,
-      label: `${entry.providerName} — ${entry.model.label}`,
+    const options = liveModelOptions.map(opt => ({
+      key: opt.key,
+      providerId: opt.providerId,
+      modelId: opt.modelId,
+      label: opt.modelLabel,
     }))
 
     if (!options.some(option => option.key === activeKey)) {
@@ -94,7 +97,7 @@ export function SettingsView() {
     }
 
     return options
-  }, [activeProvider])
+  }, [activeProvider, liveModelOptions])
 
   const [defaultModel, setDefaultModel] = useState<string>(() => {
     const savedDefault = settings.defaultModel as string | undefined
@@ -294,7 +297,9 @@ export function SettingsView() {
         <section>
           <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-[0.12em] mb-3">Default Model</h2>
           <div className="p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-            {savedModelOptions.length > 0 ? (
+            {liveModelsLoading ? (
+              <p className="text-xs text-[var(--text-secondary)]">Loading models…</p>
+            ) : savedModelOptions.length > 0 ? (
               <>
                 <select
                   value={defaultModel}

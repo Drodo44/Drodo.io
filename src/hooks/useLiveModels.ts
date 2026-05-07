@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   buildProvider,
   fetchLiveModels,
@@ -19,25 +19,12 @@ export interface LiveModelOption {
   providerInitials?: string
 }
 
-function areProvidersEqual(a: string, b: string): boolean {
-  return a === b
-}
-
-function buildProviderKey(): string {
-  const connected = getConnectedProviders()
-  return connected
-    .map(p => `${p.id}:${p.apiKey || ''}:${p.baseUrl}`)
-    .sort()
-    .join('|')
-}
-
 export function useLiveModels(): {
   options: LiveModelOption[]
   loading: boolean
 } {
   const [options, setOptions] = useState<LiveModelOption[]>([])
   const [loading, setLoading] = useState(false)
-  const lastKeyRef = useRef<string>('')
 
   useEffect(() => {
     const connected = getConnectedProviders()
@@ -46,7 +33,6 @@ export function useLiveModels(): {
       p => liveFetchableIds.has(p.id) && !!p.apiKey?.trim()
     )
 
-    // Build saved options as baseline
     const savedOptions: LiveModelOption[] = getAllSavedModels().map(entry => {
       const provider = buildProvider(entry.providerId)
       return {
@@ -59,18 +45,6 @@ export function useLiveModels(): {
         providerInitials: provider?.initials,
       }
     })
-
-    const key = buildProviderKey()
-    if (areProvidersEqual(key, lastKeyRef.current)) {
-      // Already loaded for this exact provider set
-      setOptions(prev => {
-        // Ensure we still have saved options if we haven't loaded yet
-        if (prev.length === 0 && savedOptions.length > 0) return savedOptions
-        return prev
-      })
-      return
-    }
-    lastKeyRef.current = key
 
     setLoading(true)
 
@@ -97,7 +71,6 @@ export function useLiveModels(): {
 
         for (const { provider, models } of results) {
           for (const model of models) {
-            // Filter OpenRouter free models if preference is set
             if (provider.id === 'openrouter' && freeOnly) {
               if (!isFreeModel(model)) continue
             }
@@ -118,7 +91,6 @@ export function useLiveModels(): {
           }
         }
 
-        // Merge saved models as fallback for non-live providers and any gaps
         for (const opt of savedOptions) {
           if (!seen.has(opt.key)) {
             liveOptions.push(opt)
@@ -138,8 +110,7 @@ export function useLiveModels(): {
     return () => {
       cancelled = true
     }
-  }, [lastKeyRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
-  // We intentionally run once on mount; the key ref prevents re-fetching on re-renders.
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { options, loading }
 }
