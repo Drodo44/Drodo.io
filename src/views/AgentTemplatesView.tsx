@@ -284,10 +284,12 @@ export const TEMPLATES: AgentTemplate[] = [
 function TemplateCard({
   template,
   modelOptions,
+  loading,
   onDeploy,
 }: {
   template: AgentTemplate
   modelOptions: ModelOption[]
+  loading: boolean
   onDeploy: (optionKey: string) => void
 }) {
   const { Icon } = template
@@ -333,7 +335,13 @@ function TemplateCard({
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] transition-colors"
             >
               <span className="w-2 h-2 rounded-full bg-[#7f77dd]" />
-              {activeOption?.label?.replace('Default: ', '') ?? 'Auto Assign'}
+              {loading ? (
+                'Loading models…'
+              ) : !loading && modelOptions.length === 1 ? (
+                <span className="opacity-70">Add API keys in Settings</span>
+              ) : (
+                activeOption?.label?.replace('Default: ', '') ?? 'Auto Assign'
+              )}
               <ChevronDown size={12} />
             </button>
             {showModelMenu && (
@@ -377,7 +385,7 @@ export function AgentTemplatesView() {
 
   const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
-  const { options: liveModelOptions } = useLiveModels()
+  const { options: liveModelOptions, loading } = useLiveModels()
 
   const defaultModelOption = (): ModelOption => {
     const defaultModel = activeProvider.model ?? activeProvider.name
@@ -522,6 +530,7 @@ export function AgentTemplatesView() {
                     key={t.id}
                     template={t}
                     modelOptions={modelOptions}
+                    loading={loading}
                     onDeploy={optionKey => handleDeploy(t, optionKey)}
                   />
                 ))}

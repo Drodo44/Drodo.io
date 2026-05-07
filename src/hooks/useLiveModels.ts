@@ -9,6 +9,8 @@ import {
 } from '../lib/providerApi'
 import { getConnectedProviders } from '../lib/providerApi'
 
+const LIVE_MODELS_CACHE_KEY = 'drodo_live_models_cache'
+
 export interface LiveModelOption {
   key: string
   providerId: string
@@ -45,6 +47,16 @@ export function useLiveModels(): {
         providerInitials: provider?.initials,
       }
     })
+
+    try {
+      const cachedItem = localStorage.getItem(LIVE_MODELS_CACHE_KEY)
+      if (cachedItem) {
+        const cached = JSON.parse(cachedItem) as { options: LiveModelOption[], timestamp: number }
+        if (Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) {
+          setOptions(cached.options)
+        }
+      }
+    } catch { /* ignore */ }
 
     setLoading(true)
 
@@ -98,9 +110,14 @@ export function useLiveModels(): {
           }
         }
 
+        try {
+          localStorage.setItem(LIVE_MODELS_CACHE_KEY, JSON.stringify({ options: liveOptions, timestamp: Date.now() }))
+        } catch { /* storage full */ }
+
         setOptions(liveOptions)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[useLiveModels] failed to fetch live models:', err)
         if (!cancelled) setOptions(savedOptions)
       })
       .finally(() => {
