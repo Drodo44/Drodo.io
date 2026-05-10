@@ -231,14 +231,20 @@ export function removeSavedModel(providerId: string, modelId: string): void {
 
 export function getAllSavedModels(): { providerId: string; providerName: string; model: SavedModel }[] {
   const allSaved = loadAllSavedConfigs()
+  const providerNameById = new Map(getAllProviders().map(provider => [provider.id, provider.name]))
+  const entries: { providerId: string; providerName: string; model: SavedModel }[] = []
 
-  return getAllProviders().flatMap(provider =>
-    (allSaved[provider.id]?.savedModels ?? []).map(model => ({
-      providerId: provider.id,
-      providerName: provider.name,
-      model,
-    }))
-  )
+  for (const [providerId, config] of Object.entries(allSaved)) {
+    const savedModels = config.savedModels ?? []
+    if (savedModels.length === 0) continue
+
+    const providerName = providerNameById.get(providerId) ?? config.name?.trim() ?? providerId
+    for (const model of savedModels) {
+      entries.push({ providerId, providerName, model })
+    }
+  }
+
+  return entries
 }
 
 function scoreModelForTask(modelId: string, task: string): number {
