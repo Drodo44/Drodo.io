@@ -524,7 +524,7 @@ export function AgentTemplatesView() {
           ) : (
             <>
               <p className="text-xs text-[var(--text-muted)] mb-4">{filtered.length} template{filtered.length !== 1 ? 's' : ''}</p>
-              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+              <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', alignItems: 'start' }}>
                 {filtered.map(t => (
                   <TemplateCard
                     key={t.id}

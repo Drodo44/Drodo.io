@@ -403,7 +403,7 @@ export async function fetchLiveModels(providerId: string): Promise<LiveModel[]> 
 
     const baseUrl = normalizeUrl(saved?.baseUrl || provider.baseUrl)
     const endpoint = baseUrl.endsWith('/v1') ? `${baseUrl}/models` : `${baseUrl}/v1/models`
-    const response = await proxyFetch(endpoint, {
+    const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
