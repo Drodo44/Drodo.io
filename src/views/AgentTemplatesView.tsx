@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   LayoutTemplate, Search,
   TrendingUp, DollarSign, Settings, FileText, Lightbulb, BarChart2,
@@ -297,6 +297,15 @@ function TemplateCard({
   const [selectedOption, setSelectedOption] = useState(modelOptions[0]?.key ?? '')
   const [showModelMenu, setShowModelMenu] = useState(false)
   const activeOption = modelOptions.find(option => option.key === selectedOption) ?? modelOptions[0]
+
+  useEffect(() => {
+    const hasSelectedOption = modelOptions.some(option => option.key === selectedOption)
+    const isDefaultSelected = selectedOption === modelOptions[0]?.key
+
+    if (!hasSelectedOption || (isDefaultSelected && modelOptions.length > 1)) {
+      setSelectedOption(modelOptions[0]?.key ?? '')
+    }
+  }, [modelOptions, selectedOption])
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
