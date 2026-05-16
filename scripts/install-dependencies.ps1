@@ -465,6 +465,10 @@ function Materialize-Runtime {
         Move-Item -LiteralPath $runtimeRoot -Destination $backupDir -Force
     }
 
+    if (Test-Path -LiteralPath $runtimeRoot) {
+        Remove-Item -LiteralPath $runtimeRoot -Recurse -Force
+    }
+
     Move-Item -LiteralPath $stagingDir -Destination $runtimeRoot -Force
     Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
 
