@@ -48,6 +48,26 @@ export function useLiveModels(): {
       }
     })
 
+    const staticOptions: LiveModelOption[] = []
+    for (const provider of connected) {
+      if (liveFetchableIds.has(provider.id)) continue
+      if (!provider.apiKey?.trim()) continue
+      const builtProvider = buildProvider(provider.id)
+      if (!builtProvider?.models?.length) continue
+      for (const model of builtProvider.models) {
+        const key = `${provider.id}::${model.id}`
+        staticOptions.push({
+          key,
+          providerId: provider.id,
+          providerName: provider.name,
+          modelId: model.id,
+          modelLabel: model.label || model.id,
+          providerColor: builtProvider.color,
+          providerInitials: builtProvider.initials,
+        })
+      }
+    }
+
     try {
       const cachedItem = localStorage.getItem(LIVE_MODELS_CACHE_KEY)
       if (cachedItem) {
@@ -61,7 +81,7 @@ export function useLiveModels(): {
     setLoading(true)
 
     if (liveProviders.length === 0) {
-      setOptions(savedOptions)
+      setOptions([...staticOptions, ...savedOptions])
       setLoading(false)
       return
     }
@@ -114,11 +134,12 @@ export function useLiveModels(): {
           localStorage.setItem(LIVE_MODELS_CACHE_KEY, JSON.stringify({ options: liveOptions, timestamp: Date.now() }))
         } catch { /* storage full */ }
 
-        setOptions(liveOptions)
+        const staticNotInLive = staticOptions.filter(o => !seen.has(o.key))
+        setOptions([...liveOptions, ...staticNotInLive])
       })
       .catch((err) => {
         console.error('[useLiveModels] failed to fetch live models:', err)
-        if (!cancelled) setOptions(savedOptions)
+        if (!cancelled) setOptions([...staticOptions, ...savedOptions])
       })
       .finally(() => {
         if (!cancelled) setLoading(false)

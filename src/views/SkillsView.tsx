@@ -70,7 +70,7 @@ function SkillCard({ skill }: { skill: Skill }) {
 
   return (
     <article
-      className="mb-3 break-inside-avoid rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-colors hover:border-[var(--text-muted)]"
+      className="mb-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 transition-colors hover:border-[var(--text-muted)]"
       style={{ borderLeft: `4px solid ${color}` }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -539,7 +539,7 @@ export function SkillsView() {
               })}
             </div>
 
-            <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4" style={{ columnGap: '0.75rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 overflow-hidden">
               {filteredSkills.map(skill => (
                 <SkillCard key={skill.id} skill={skill} />
               ))}
