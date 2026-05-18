@@ -399,7 +399,7 @@ export function AgentTemplatesView() {
   const defaultModelOption = (): ModelOption => {
     const defaultModel = activeProvider.model ?? activeProvider.name
     return {
-      key: `${activeProvider.id}::${defaultModel}`,
+      key: '__orchestrator__',
       providerId: activeProvider.id,
       modelId: defaultModel,
       label: 'Default: Orchestrator Assigns',
@@ -440,8 +440,8 @@ export function AgentTemplatesView() {
   const handleDeploy = (template: AgentTemplate, optionKey: string) => {
     const option = modelOptions.find(item => item.key === optionKey) ?? modelOptions[0]
     if (!option) return
-
-    void spawnAgent(template.task, option.providerId, template.name, option.modelId, template.systemPrompt)
+    const resolvedModelId = option.key === '__orchestrator__' ? activeProvider.model ?? activeProvider.name : option.modelId
+    void spawnAgent(template.task, option.providerId, template.name, resolvedModelId, template.systemPrompt)
     setView('swarm')
   }
 
