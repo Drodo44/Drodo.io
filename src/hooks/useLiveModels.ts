@@ -53,17 +53,24 @@ export function useLiveModels(): {
       if (liveFetchableIds.has(provider.id)) continue
       if (!provider.apiKey?.trim()) continue
       const builtProvider = buildProvider(provider.id)
-      if (!builtProvider?.model) continue
-      const key = `${provider.id}::${builtProvider.model}`
-      staticOptions.push({
-        key,
-        providerId: provider.id,
-        providerName: provider.name,
-        modelId: builtProvider.model,
-        modelLabel: builtProvider.model,
-        providerColor: builtProvider.color,
-        providerInitials: builtProvider.initials,
-      })
+      if (!builtProvider) continue
+      const catalogModels = builtProvider.models?.length
+        ? builtProvider.models
+        : builtProvider.model
+          ? [{ id: builtProvider.model, label: builtProvider.model }]
+          : []
+      for (const m of catalogModels) {
+        const key = `${provider.id}::${m.id}`
+        staticOptions.push({
+          key,
+          providerId: provider.id,
+          providerName: provider.name,
+          modelId: m.id,
+          modelLabel: m.label || m.id,
+          providerColor: builtProvider.color,
+          providerInitials: builtProvider.initials,
+        })
+      }
     }
 
     try {

@@ -31,6 +31,7 @@ export interface Provider {
   baseUrl: string
   apiKey?: string
   model?: string
+  models?: { id: string; label: string }[]
   displayName?: string
   isLocal?: boolean
   isConnected?: boolean
