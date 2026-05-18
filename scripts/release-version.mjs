@@ -72,11 +72,9 @@ function writeCargoTomlVersion(nextVersion) {
     `$1"${nextVersion}"`,
   )
 
-  if (nextCargoToml === cargoToml) {
-    throw new Error(`Failed to update package version in ${cargoTomlPath}`)
+  if (nextCargoToml !== cargoToml) {
+    writeText(cargoTomlPath, nextCargoToml)
   }
-
-  writeText(cargoTomlPath, nextCargoToml)
 }
 
 function detectLineEnding(value) {
@@ -100,11 +98,9 @@ function writeCargoLockVersion(nextVersion) {
     `[[package]]${eol}name = "tauri-app"${eol}version = "${nextVersion}"`,
   )
 
-  if (nextCargoLock === cargoLock) {
-    throw new Error(`Failed to update tauri-app package version in ${cargoLockPath}`)
+  if (nextCargoLock !== cargoLock) {
+    writeText(cargoLockPath, nextCargoLock)
   }
-
-  writeText(cargoLockPath, nextCargoLock)
 }
 
 function getVersions() {
