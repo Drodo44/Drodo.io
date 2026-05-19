@@ -305,10 +305,10 @@ function TemplateCard({
     if (!hasSelectedOption || (isDefaultSelected && modelOptions.length > 1)) {
       setSelectedOption(modelOptions[0]?.key ?? '')
     }
-  }, [modelOptions, selectedOption])
+  }, [modelOptions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
+    <div className="flex flex-col rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--border-color)] transition-all duration-200">
       {/* Colored accent bar */}
       <div className="h-1 w-full" style={{ background: catColor }} />
 
