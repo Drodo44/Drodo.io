@@ -284,7 +284,7 @@ function Get-InstallDriveInfo {
         throw "Unable to determine the install drive for automation home '$AutomationHome'."
     }
 
-    return [System.IO.DriveInfo]::new($root.TrimEnd('\'))
+    return [System.IO.DriveInfo]::new($root)
 }
 
 function Ensure-SufficientDiskSpace {
