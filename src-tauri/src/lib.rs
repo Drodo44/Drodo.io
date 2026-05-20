@@ -269,6 +269,12 @@ fn append_n8n_bootstrap_log_ensured(log_path: &Path, message: &str) {
     append_n8n_bootstrap_log(log_path, message);
 }
 
+fn clear_n8n_status(app: &tauri::AppHandle) {
+    if let Ok(status_path) = resolve_n8n_status_path(app) {
+        let _ = fs::remove_file(status_path);
+    }
+}
+
 fn write_n8n_status_failure(
     app: &tauri::AppHandle,
     log_path: &Path,
@@ -832,6 +838,8 @@ fn start_dependency_bootstrap(
         log_n8n("Bootstrap already in flight; skipping duplicate request.");
         return Ok(());
     }
+
+    clear_n8n_status(&app);
 
     let is_running = tauri::async_runtime::block_on(probe_n8n_running());
     if is_running {
