@@ -157,6 +157,10 @@ async function downloadFile(url, destination, redirectCount = 0) {
     })
 
     request.on('error', rejectPromise)
+    request.setTimeout(60_000, () => {
+      request.destroy()
+      rejectPromise(new Error(`Download timed out after 60s: ${url}`))
+    })
   })
 }
 

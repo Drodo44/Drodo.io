@@ -67,11 +67,20 @@ jobs:
           name: Install frontend dependencies
           shell: powershell.exe
           command: npm install
+      - restore_cache:
+          keys:
+            - windows-automation-v2-24.14.0-2.15.0-2.53.0-{{ .Environment.CIRCLE_SHA1 }}
+            - windows-automation-v2-24.14.0-2.15.0-2.53.0-
       - run:
           name: Build Windows runtime artifact
           no_output_timeout: 90m
           shell: powershell.exe
           command: node scripts/prepare-windows-automation-runtime.mjs
+      - save_cache:
+          key: windows-automation-v2-24.14.0-2.15.0-2.53.0-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - C:\Users\circleci\project\.cache\automation-runtime\windows
+            - C:\Users\circleci\AppData\Local\npm-cache
       - run:
           name: Build Tauri app
           no_output_timeout: 60m
