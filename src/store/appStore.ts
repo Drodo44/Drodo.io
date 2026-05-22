@@ -981,7 +981,33 @@ export const useAppStore = create<AppState>((set, get) => {
     const provider = state.activeProvider
     const originSessionId = state.activeChatSessionId
 
-    if (!provider.isLocal && !provider.apiKey) return
+    if (!provider.isLocal && !provider.apiKey) {
+      const errorMessage = `No API key configured for ${provider.name}. Please add one in Settings → Providers.`
+      const errorMsg = createMessage('system', errorMessage)
+      set(current => {
+        const sourceMessages = current.chatSessions.find(s => s.id === originSessionId)?.messages ?? current.messages
+        const nextMessages = [...sourceMessages, errorMsg]
+        const nextChatSessions = current.chatSessions.map(session =>
+          session.id === originSessionId ? { ...session, messages: nextMessages } : session
+        )
+        return {
+          messages: current.activeChatSessionId === originSessionId ? nextMessages : current.messages,
+          chatSessions: nextChatSessions,
+        }
+      })
+      const latest = get()
+      persistChatSessions(latest.chatSessions, latest.activeChatSessionId)
+      set(current => ({
+        orchestrationRun: current.orchestrationRun?.id === runId
+          ? { ...current.orchestrationRun, status: 'error', finishedAt: new Date() }
+          : current.orchestrationRun,
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('error', 'Provider not configured', `No API key for ${provider.name}. Add one in Settings → Providers.`),
+        ],
+      }))
+      return
+    }
 
     await initializeAgentMemory()
 
@@ -1660,16 +1686,27 @@ export const useAppStore = create<AppState>((set, get) => {
     }))
     persistSessionSnapshot(state.sessionId, state.sessionName, provider, nextMessages)
 
-    // No key configured — the ChatPanel inline card already tells the user.
-    // Remove the placeholder assistant bubble and bail.
+    // No key configured — show an error bubble so the user knows what happened.
     if (!provider.isLocal && !provider.apiKey) {
-      const failedMessages = nextMessages.filter(message => message.id !== assistantId)
+      const errorMessage = `No API key configured for ${provider.name}. Please add one in Settings → Providers.`
+      const errorMsgId = createId('error')
+      const nextMessagesWithError = [
+        ...nextMessages.filter(m => m.id !== assistantId),
+        { id: errorMsgId, role: 'assistant' as const, content: errorMessage, timestamp: new Date() },
+      ]
       set(current => ({
-        messages: current.messages.filter(m => m.id !== assistantId),
+        messages: nextMessagesWithError,
+        chatSessions: current.chatSessions.map(s =>
+          s.id === current.activeChatSessionId ? { ...s, messages: nextMessagesWithError } : s
+        ),
         agentRunning: false,
         taskSteps: createTaskSteps(),
+        terminalEntries: [
+          ...current.terminalEntries,
+          createTerminalEntry('error', 'Provider not configured', `No API key for ${provider.name}. Add one in Settings → Providers.`),
+        ],
       }))
-      persistSessionSnapshot(state.sessionId, state.sessionName, provider, failedMessages)
+      persistSessionSnapshot(state.sessionId, state.sessionName, provider, nextMessagesWithError)
       return
     }
 

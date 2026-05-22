@@ -119,7 +119,9 @@ export function saveProviderConfig(id: string, config: SavedConfig): void {
 
 export function loadProviderConfig(id: string): SavedConfig | null {
   const all = loadAllSavedConfigs()
-  return all[id] ?? null
+  if (all[id]) return all[id]
+  const local = readSavedConfigsFromLocalStorage()
+  return local[id] ?? null
 }
 
 function getSavedModelDisplayNameFromConfig(config: SavedConfig | null | undefined, modelId: string | undefined): string | undefined {
