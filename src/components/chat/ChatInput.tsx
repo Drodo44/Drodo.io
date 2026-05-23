@@ -113,7 +113,7 @@ export function ChatInput() {
 
   const handleSend = () => {
     const trimmed = value.trim()
-    if ((!trimmed && attachments.length === 0) || agentRunning) return
+    if (!trimmed && attachments.length === 0) return
 
     if (multiAgentMode) {
       void startOrchestration(buildOrchestrationPayload(trimmed, attachments))
