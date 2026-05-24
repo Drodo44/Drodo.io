@@ -40,7 +40,7 @@ jobs:
   build-windows:
     machine:
       image: windows-server-2022-gui:current
-    resource_class: windows.medium
+    resource_class: windows.xlarge
     environment:
       NODE_OPTIONS: --max-old-space-size=8192
     steps:
