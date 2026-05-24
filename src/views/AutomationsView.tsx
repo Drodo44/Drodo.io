@@ -109,10 +109,7 @@ export function AutomationsView() {
         const drives = await getAvailableDrives()
         if (cancelled) return
         setAvailableDrives(drives)
-        if (drives.length > 0) {
-          const best = drives.reduce((max, drive) => (drive.freeGb > max.freeGb ? drive : max), drives[0])
-          setSelectedInstallDrive(best.letter)
-        } else {
+        if (drives.length === 0) {
           setSelectedInstallDrive('')
         }
       } catch {
@@ -129,6 +126,12 @@ export function AutomationsView() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (availableDrives.length > 0 && !selectedInstallDrive) {
+      setSelectedInstallDrive(availableDrives[0].letter)
+    }
+  }, [availableDrives])
 
   useEffect(() => {
     if (!bootstrapInProgress && (!installAttempted || running || installComplete)) return
