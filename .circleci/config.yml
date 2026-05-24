@@ -71,6 +71,19 @@ jobs:
           keys:
             - windows-automation-v2-24.14.0-2.15.0-2.53.0
       - run:
+          name: Download pre-built Windows runtime artifact
+          shell: powershell.exe
+          command: |
+            $version = node -e "console.log(require('./package.json').version)"
+            $artifactDir = "artifacts/runtime"
+            New-Item -ItemType Directory -Path $artifactDir -Force | Out-Null
+            $zipName = "drodo-runtime-windows-x64-$version.zip"
+            $checksumName = "$zipName.sha256"
+            $baseUrl = "https://github.com/Drodo44/Drodo.io/releases/download/v$version"
+            curl.exe -fL "$baseUrl/$zipName" -o "$artifactDir/$zipName"
+            curl.exe -fL "$baseUrl/$checksumName" -o "$artifactDir/$checksumName"
+            Write-Host "Downloaded $zipName"
+      - run:
           name: Build Windows runtime artifact
           no_output_timeout: 90m
           shell: powershell.exe
