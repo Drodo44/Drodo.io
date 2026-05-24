@@ -70,7 +70,6 @@ jobs:
       - restore_cache:
           keys:
             - windows-automation-v2-24.14.0-2.15.0-2.53.0
-            - windows-automation-v2-24.14.0-2.15.0-2.53.0-
       - run:
           name: Build Windows runtime artifact
           no_output_timeout: 90m
