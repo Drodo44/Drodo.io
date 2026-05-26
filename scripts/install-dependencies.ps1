@@ -284,7 +284,7 @@ function Get-InstallDriveInfo {
         throw "Unable to determine the install drive for automation home '$AutomationHome'."
     }
 
-    $driveLetter = $root.TrimEnd('\', '/')
+    $driveLetter = $root -replace '^\\\\\?\\', '' -replace '[\\/:]+$', ''
     if (-not $driveLetter) { throw "Unable to determine install drive root from '$AutomationHome'." }
     return [System.IO.DriveInfo]::new($driveLetter)
 }
