@@ -359,7 +359,7 @@ fn normalize_install_drive(value: &str) -> Option<String> {
 
 fn spawn_dependency_bootstrap(
     app: &tauri::AppHandle,
-    install_drive: Option<String>,
+    _install_drive: Option<String>,
 ) -> Result<(), String> {
     log_n8n("Bootstrap requested.");
     log_n8n(
