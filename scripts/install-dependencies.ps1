@@ -284,7 +284,10 @@ function Get-InstallDriveInfo {
         throw "Unable to determine the install drive for automation home '$AutomationHome'."
     }
 
-    $driveLetter = $root -replace '^\\\\\?\\', '' -replace '[\\/:]+$', ''
+    # Strip extended-length prefix \\?\ or \?\, then extract just the drive letter
+    $normalized = $root -replace '^\\\\\?\\', '' -replace '^\\\?\\', '' -replace '[\\/:]+$', ''
+    $driveLetter = $normalized -replace '^([A-Za-z]).*$', '$1'
+
     if (-not $driveLetter) { throw "Unable to determine install drive root from '$AutomationHome'." }
     return [System.IO.DriveInfo]::new($driveLetter)
 }
