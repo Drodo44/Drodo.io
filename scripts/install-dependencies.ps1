@@ -38,16 +38,21 @@ function Resolve-AutomationHome {
         return Join-Path $env:APPDATA 'Drodo\n8n'
     }
 
-    $parentDir = Split-Path -Parent $PSScriptRoot
+    # Strip \\?\ UNC extended-length prefix before using with Join-Path/Split-Path.
+    # Tauri's resource_dir() returns \\?\-prefixed paths on Windows, and PowerShell
+    # 5.1's Join-Path throws "drive is null" when given a \\?\-prefixed base path.
+    $scriptRoot = $PSScriptRoot -replace '^\\\\\?\\', '' -replace '^\\\?\\', ''
+    $parentDir = Split-Path -Parent $scriptRoot
     if ((Split-Path -Leaf $parentDir) -ieq '_up_') {
         return Join-Path (Split-Path -Parent $parentDir) 'automation'
     }
 
-    return Join-Path (Split-Path -Parent $PSScriptRoot) '.automation\windows'
+    return Join-Path (Split-Path -Parent $scriptRoot) '.automation\windows'
 }
 
 function Get-RepoRoot {
-    return Split-Path -Parent $PSScriptRoot
+    $scriptRoot = $PSScriptRoot -replace '^\\\\\?\\', '' -replace '^\\\?\\', ''
+    return Split-Path -Parent $scriptRoot
 }
 
 $AutomationHome = Resolve-AutomationHome
@@ -455,7 +460,12 @@ function Materialize-Runtime {
 
     Remove-Item -LiteralPath $stagingDir -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
-    New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
+    # Verify staging is truly gone — Remove-Item silently fails on locked files,
+    # and extracting into a non-empty staging dir causes "file already exists".
+    if (Test-Path -LiteralPath $stagingDir) {
+        throw "Unable to clear staging directory '$stagingDir'. A file may be locked by another process."
+    }
+    New-Item -ItemType Directory -Path $stagingDir | Out-Null
 
     $sourceItem = Get-Item -LiteralPath $SourcePath
     if ($sourceItem.PSIsContainer) {
