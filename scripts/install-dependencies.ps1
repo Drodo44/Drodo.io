@@ -4,6 +4,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $RepoOwner = 'Drodo44'
 $RepoName = 'Drodo.io'
@@ -445,7 +446,47 @@ function Expand-RuntimeArchive {
         }
     }
 
-    Expand-Archive -LiteralPath $ArchivePath -DestinationPath $Destination -Force
+    try {
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $Destination)
+    } catch {
+        $longDest = "\\?\$Destination"
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $longDest)
+    }
+}
+
+function Clear-DirectoryRobust {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [int]$MaxRetries = 5,
+        [int]$RetryDelayMs = 300
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $emptyDir = Join-Path $AutomationTempDir "rm_placeholder_$(New-Guid).ToString('N')"
+    New-Item -ItemType Directory -Path $emptyDir -Force | Out-Null
+
+    for ($i = 0; $i -lt $MaxRetries; $i++) {
+        if ($i -gt 0) {
+            Write-Log "Retrying directory removal for '$Path' (attempt $i/$MaxRetries)..."
+            Start-Sleep -Milliseconds $RetryDelayMs
+        }
+
+        robocopy.exe $emptyDir $Path /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+
+        if (-not (Test-Path -LiteralPath $Path)) {
+            break
+        }
+    }
+
+    Remove-Item -LiteralPath $emptyDir -Force -ErrorAction SilentlyContinue
+
+    if (Test-Path -LiteralPath $Path) {
+        throw "Unable to clear directory '$Path' after $MaxRetries attempts. A file may be locked by another process."
+    }
 }
 
 function Materialize-Runtime {
@@ -458,14 +499,10 @@ function Materialize-Runtime {
     $stagingDir = "${runtimeRoot}.staging"
     $backupDir = "${runtimeRoot}.backup"
 
-    Remove-Item -LiteralPath $stagingDir -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
-    # Verify staging is truly gone — Remove-Item silently fails on locked files,
-    # and extracting into a non-empty staging dir causes "file already exists".
-    if (Test-Path -LiteralPath $stagingDir) {
-        throw "Unable to clear staging directory '$stagingDir'. A file may be locked by another process."
-    }
-    New-Item -ItemType Directory -Path $stagingDir | Out-Null
+    Stop-LingeringAutomationProcesses
+    Clear-DirectoryRobust -Path $stagingDir
+    Clear-DirectoryRobust -Path $backupDir
+    New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
 
     $sourceItem = Get-Item -LiteralPath $SourcePath
     if ($sourceItem.PSIsContainer) {
@@ -477,15 +514,23 @@ function Materialize-Runtime {
     }
 
     if (Test-Path -LiteralPath $runtimeRoot) {
-        Move-Item -LiteralPath $runtimeRoot -Destination $backupDir -Force
+        $tempBackup = "${backupDir}_$(Get-Date -Format 'yyyyMMddHHmmss')"
+        Write-Log "Moving existing runtime to $tempBackup."
+        robocopy.exe $runtimeRoot $tempBackup /E /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+        Clear-DirectoryRobust -Path $runtimeRoot
+        if (Test-Path -LiteralPath $tempBackup) {
+            if (Test-Path -LiteralPath $backupDir) {
+                Clear-DirectoryRobust -Path $backupDir
+            }
+            robocopy.exe $tempBackup $backupDir /E /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+            Clear-DirectoryRobust -Path $tempBackup
+        }
     }
 
-    if (Test-Path -LiteralPath $runtimeRoot) {
-        Remove-Item -LiteralPath $runtimeRoot -Recurse -Force
-    }
-
-    Move-Item -LiteralPath $stagingDir -Destination $runtimeRoot -Force
-    Remove-Item -LiteralPath $backupDir -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Log "Promoting staging directory to runtime root."
+    robocopy.exe $stagingDir $runtimeRoot /E /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+    Clear-DirectoryRobust -Path $stagingDir
+    Clear-DirectoryRobust -Path $backupDir
 
     New-Item -ItemType Directory -Path $AutomationLogsDir -Force | Out-Null
     New-Item -ItemType Directory -Path $AutomationDownloadsDir -Force | Out-Null
@@ -717,6 +762,15 @@ function Stop-ListeningAutomationProcess {
     Stop-Process -Id $processInfo.ProcessId -Force -ErrorAction SilentlyContinue
 }
 
+function Stop-LingeringAutomationProcesses {
+    Get-Process node -ErrorAction SilentlyContinue | Where-Object {
+        try {
+            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)" -ErrorAction SilentlyContinue).CommandLine
+            $cmdLine -like "*$AutomationHome*"
+        } catch { $false }
+    } | Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
 function Test-N8nReady {
     try {
         $response = Invoke-WebRequest -Uri $N8nReadyUrl -UseBasicParsing -TimeoutSec $N8nReadyProbeTimeoutSeconds
@@ -867,7 +921,7 @@ function Get-ErrorCategory {
     if ($Message -match 'Checksum') { return 'RuntimeChecksum' }
     if ($Message -match 'download') { return 'RuntimeDownload' }
     if ($Message -match 'runtime source|runtime is missing') { return 'RuntimeMissing' }
-    if ($Message -match 'Robocopy failed|Runtime installation completed|Extract') { return 'RuntimeExtraction' }
+    if ($Message -match 'Robocopy failed|Runtime installation completed|Extract|Unable to clear directory') { return 'RuntimeExtraction' }
     if ($Message -match 'Port 5678 is already in use') { return 'PortConflict' }
     if ($Message -match 'n8n did not start|never became ready') { return 'N8nStartup' }
     return 'BootstrapFailure'
