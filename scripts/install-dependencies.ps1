@@ -447,11 +447,20 @@ function Expand-RuntimeArchive {
     }
 
     try {
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $Destination)
+        Expand-Archive -Path $ArchivePath -DestinationPath $Destination -Force -ErrorAction Stop
     } catch {
-        $longDest = "\\?\$Destination"
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $longDest)
+        Write-Log "Expand-Archive failed, trying ZipFile: $($_.Exception.Message)"
+        try {
+            $longDest = "\\?\$Destination"
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $longDest)
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $Destination)
+        } catch {
+            $longDest = "\\?\$Destination"
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($ArchivePath, $longDest)
+        }
     }
+
+    Start-Sleep -Milliseconds 500
 }
 
 function Clear-DirectoryRobust {
@@ -459,34 +468,105 @@ function Clear-DirectoryRobust {
         [Parameter(Mandatory = $true)]
         [string]$Path,
         [int]$MaxRetries = 5,
-        [int]$RetryDelayMs = 300
+        [int]$RetryDelayMs = 1500
     )
 
     if (-not (Test-Path -LiteralPath $Path)) {
         return
     }
 
-    $emptyDir = Join-Path $AutomationTempDir "rm_placeholder_$(New-Guid).ToString('N')"
-    New-Item -ItemType Directory -Path $emptyDir -Force | Out-Null
-
     for ($i = 0; $i -lt $MaxRetries; $i++) {
         if ($i -gt 0) {
             Write-Log "Retrying directory removal for '$Path' (attempt $i/$MaxRetries)..."
+            Stop-LingeringAutomationProcesses
             Start-Sleep -Milliseconds $RetryDelayMs
         }
 
-        robocopy.exe $emptyDir $Path /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+        $robocopyEmpty = Join-Path $AutomationTempDir "rm_placeholder_$(New-Guid)"
+        New-Item -ItemType Directory -Path $robocopyEmpty -Force | Out-Null
+        robocopy.exe $robocopyEmpty $Path /MIR /R:1 /W:1 /NFL /NDL /NJH /NJS | Out-Null
+        Remove-Item -LiteralPath $robocopyEmpty -Force -ErrorAction SilentlyContinue
 
         if (-not (Test-Path -LiteralPath $Path)) {
             break
         }
     }
 
-    Remove-Item -LiteralPath $emptyDir -Force -ErrorAction SilentlyContinue
+    if (Test-Path -LiteralPath $Path) {
+        Write-Log "Attempting to rename locked directory '$Path'..."
+        $renameTarget = "$Path._delete_$(Get-Date -Format 'yyyyMMddHHmmss')_$(New-Guid)"
+        try {
+            Move-Item -LiteralPath $Path -Destination $renameTarget -Force -ErrorAction Stop
+            Write-Log "Renamed locked directory to '$renameTarget'. Will retry deletion later."
+            return
+        } catch {
+            Write-Log "Rename failed: $($_.Exception.Message)"
+        }
+    }
 
     if (Test-Path -LiteralPath $Path) {
-        throw "Unable to clear directory '$Path' after $MaxRetries attempts. A file may be locked by another process."
+        Write-Log "robocopy failed; trying PowerShell Remove-Item for '$Path'..."
+        try {
+            Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+        } catch {
+            try {
+                Write-Log "PowerShell Remove-Item failed; trying cmd rmdir for '$Path'..."
+                $null = & cmd /c "rmdir /s /q `"$Path`"" 2>&1
+            } catch { }
+        }
     }
+
+    if (Test-Path -LiteralPath $Path) {
+        Write-Log "Standard deletion failed; attempting takeown/icacls force takeover for '$Path'..."
+        try {
+            $null = & takeown.exe /f $Path /r /d y 2>&1
+            $null = & icacls.exe $Path /grant administrators:F /t /c /q 2>&1
+            Start-Sleep -Milliseconds 500
+            Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+            Write-Log "takeown/icacls succeeded"
+        } catch {
+            Write-Log "takeown/icacls failed: $($_.Exception.Message)"
+        }
+    }
+
+    if (Test-Path -LiteralPath $Path) {
+        $lockingProcs = Find-ProcessesLockingPath -Path $Path
+        $procInfo = ""
+        if ($lockingProcs) {
+            $procInfo = " Locking processes: $($lockingProcs -join ', ')"
+        }
+        throw "Unable to clear directory '$Path' after $MaxRetries attempts. A file may be locked by another process.$procInfo"
+    }
+}
+
+function Find-ProcessesLockingPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $lockingProcs = @()
+
+    Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            $proc = $_
+            if ($proc.Path -like "*$Path*") {
+                $lockingProcs += "$($proc.Name) (PID $($proc.Id))"
+            }
+        } catch { }
+    }
+
+    $handleExe = Get-Command handle.exe -ErrorAction SilentlyContinue
+    if ($handleExe) {
+        try {
+            $output = & handle.exe -accepteula "$Path" 2>&1 | Out-String
+            if ($output -match "pid:\s*(\d+)", $matches) {
+                $lockingProcs += "Handle.exe found PID $($matches[1])"
+            }
+        } catch { }
+    }
+
+    return $lockingProcs
 }
 
 function Materialize-Runtime {
@@ -763,12 +843,34 @@ function Stop-ListeningAutomationProcess {
 }
 
 function Stop-LingeringAutomationProcesses {
-    Get-Process node -ErrorAction SilentlyContinue | Where-Object {
+    Stop-ListeningAutomationProcess -Port $N8nPort
+
+    Get-Process node -ErrorAction SilentlyContinue | ForEach-Object {
         try {
-            $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)" -ErrorAction SilentlyContinue).CommandLine
-            $cmdLine -like "*$AutomationHome*"
-        } catch { $false }
-    } | Stop-Process -Force -ErrorAction SilentlyContinue
+            $proc = $_
+            $cmdLine = $null
+            try {
+                $cmdLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($proc.Id)" -ErrorAction SilentlyContinue).CommandLine
+            } catch { }
+
+            if ($cmdLine -like "*$AutomationHome*" -or $cmdLine -like "*n8n*" -or $cmdLine -like "*Drodo*") {
+                Write-Log "Stopping lingering node process $($proc.Id): $cmdLine"
+                Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            }
+        } catch { }
+    }
+
+    Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            $proc = $_
+            if ($proc.Path -like "*$AutomationHome*") {
+                Write-Log "Stopping process with path under AutomationHome: $($proc.Name) ($($proc.Id))"
+                Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            }
+        } catch { }
+    }
+
+    Start-Sleep -Milliseconds 500
 }
 
 function Test-N8nReady {
