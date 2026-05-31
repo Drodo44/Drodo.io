@@ -362,9 +362,9 @@ fn spawn_dependency_bootstrap(
     install_drive: Option<String>,
 ) -> Result<(), String> {
     log_n8n("Bootstrap requested.");
-    log_n8n(
-        "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true.",
-    );
+     log_n8n(
+         "Expecting iframe-compatible n8n auth cookies from bootstrap runtime: N8N_SAMESITE_COOKIE=none, N8N_SECURE_COOKIE=true, N8N_BASIC_AUTH_ACTIVE=false.",
+     );
 
     let script_path = resolve_dependency_script_path(app)?;
     log_n8n(&format!(
@@ -483,6 +483,7 @@ fn spawn_dependency_bootstrap(
             .env("DRODO_AUTOMATION_HOME", stringify_path(&automation_home))
             .env("DRODO_APP_VERSION", app_version)
             .env("DRODO_BOOTSTRAP_LOG_PATH", stringify_path(&bootstrap_log_path))
+            .env("N8N_BASIC_AUTH_ACTIVE", "false")
             .stdout(Stdio::from(stdout))
             .stderr(Stdio::from(stderr));
         #[cfg(target_os = "windows")]
